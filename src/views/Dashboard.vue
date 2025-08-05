@@ -49,7 +49,7 @@
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-bold text-white">Live AMM Trades</h2>
           <div class="flex items-center space-x-2">
-            <div class="w-2 h-2 rounded-full" :class="connectionStatus ? 'bg-green-500 animate-pulse-soft' : 'bg-red-500'"></div>
+            <div class="w-2 h-2 rounded-full" :class="connectionStatus ? 'bg-green-500 animate-pulse' : 'bg-red-500'"></div>
             <span class="text-xs text-gray-400">{{ connectionStatus ? 'Live' : 'Offline' }}</span>
           </div>
         </div>
@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { algorandService } from '../services/algorandService';
 import { signalrService } from '../services/signalrService';
 import type { AlgorandBlock, AlgorandTransaction, AMMTrade } from '../types/algorand';
@@ -98,7 +98,7 @@ const recentTrades = ref<AMMTrade[]>([]);
 const isLoading = ref(true);
 const isLoadingTransactions = ref(true);
 const connectionStatus = ref(false);
-let refreshInterval: NodeJS.Timeout | null = null;
+let refreshInterval: number | null = null;
 
 const totalTransactions = computed(() => {
   return latestBlocks.value.reduce((sum, block) => sum + block.txns, 0);
@@ -117,7 +117,9 @@ const refreshBlocks = async () => {
         algorandService.getBlockTransactions(block.round)
       );
       const txResults = await Promise.all(txPromises);
-      recentTransactions.value = txResults.flat().slice(0, 50);
+      const allTransactions: AlgorandTransaction[] = [];
+      txResults.forEach(txArray => allTransactions.push(...txArray));
+      recentTransactions.value = allTransactions.slice(0, 50);
       isLoadingTransactions.value = false;
     }
   } catch (error) {

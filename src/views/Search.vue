@@ -119,7 +119,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { algorandService } from '../services/algorandService';
-import type { AlgorandBlock, AlgorandTransaction } from '../types/algorand';
+import type { AlgorandTransaction } from '../types/algorand';
 import BlockCard from '../components/BlockCard.vue';
 import TransactionCard from '../components/TransactionCard.vue';
 

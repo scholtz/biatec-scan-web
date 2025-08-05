@@ -25,7 +25,7 @@
       <div v-if="getReceiver(transaction)">
         <p class="text-sm text-gray-400 mb-1">To</p>
         <p class="text-white font-mono text-sm bg-dark-900 p-2 rounded border truncate">
-          {{ algorandService.formatAddress(getReceiver(transaction)) }}
+          {{ algorandService.formatAddress(getReceiver(transaction) || '') }}
         </p>
       </div>
     </div>

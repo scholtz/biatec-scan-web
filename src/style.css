@@ -26,4 +26,32 @@
   --color-dark-950: #020617;
 }
 
+/* Custom component classes */
+.card {
+  @apply bg-dark-800/50 border border-dark-700/50 rounded-lg p-6 backdrop-blur-sm;
+}
+
+.btn-secondary {
+  @apply bg-dark-700/50 hover:bg-dark-600/50 text-white px-4 py-2 rounded-lg border border-dark-600/50 hover:border-dark-500/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.loading-spinner {
+  @apply w-8 h-8 border-4 border-dark-600 border-t-primary-500 rounded-full animate-spin;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 

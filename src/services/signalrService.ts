@@ -4,7 +4,7 @@ import type { AMMTrade } from '../types/algorand';
 class SignalRService {
   private connection: HubConnection | null = null;
   private isConnected = false;
-  private reconnectInterval: NodeJS.Timeout | null = null;
+  private reconnectInterval: number | null = null;
 
   async connect(): Promise<void> {
     try {
