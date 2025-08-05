@@ -7,12 +7,12 @@
             <div class="w-8 h-8 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
               <span class="text-white font-bold text-sm">A</span>
             </div>
-            <span class="text-xl font-bold gradient-text">Algorand Explorer</span>
+            <span class="text-xl font-bold bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">Algorand Scan</span>
           </router-link>
           
           <div class="hidden md:flex space-x-6">
             <router-link to="/" class="text-gray-300 hover:text-white transition-colors duration-200">
-              Dashboard
+              Explore
             </router-link>
             <router-link to="/search" class="text-gray-300 hover:text-white transition-colors duration-200">
               Search
@@ -27,7 +27,7 @@
               @keyup.enter="performSearch"
               type="text"
               placeholder="Search by block or tx ID..."
-              class="input-field w-64 pl-10"
+              class="w-64 pl-10 pr-4 py-2 bg-dark-800/50 border border-dark-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
             />
             <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -35,7 +35,7 @@
           </div>
           
           <div class="flex items-center space-x-2">
-            <div class="w-2 h-2 rounded-full" :class="connectionStatus ? 'bg-green-500 animate-pulse-soft' : 'bg-red-500'"></div>
+            <div class="w-2 h-2 rounded-full" :class="connectionStatus ? 'bg-green-500 animate-pulse' : 'bg-red-500'"></div>
             <span class="text-xs text-gray-400">
               {{ connectionStatus ? 'Live' : 'Offline' }}
             </span>
