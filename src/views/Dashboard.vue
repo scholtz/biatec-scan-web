@@ -4,7 +4,7 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <div class="card text-center">
         <h3 class="text-2xl font-bold text-white mb-2">
-          {{ latestBlocks[0]?.round.toLocaleString() || "..." }}
+          {{ state.latestBlocks[0]?.round.toLocaleString() || "..." }}
         </h3>
         <p class="text-gray-400">Latest Block</p>
       </div>
@@ -16,16 +16,16 @@
       </div>
       <div class="card text-center">
         <h3 class="text-2xl font-bold text-white mb-2">
-          {{ recentTrades.length }}
+          {{ state.recentTrades.length }}
         </h3>
         <p class="text-gray-400">AMM Trades</p>
       </div>
       <div class="card text-center">
         <h3
           class="text-2xl font-bold"
-          :class="connectionStatus ? 'text-green-400' : 'text-red-400'"
+          :class="state.connectionStatus ? 'text-green-400' : 'text-red-400'"
         >
-          {{ connectionStatus ? "LIVE" : "OFFLINE" }}
+          {{ state.connectionStatus ? "LIVE" : "OFFLINE" }}
         </h3>
         <p class="text-gray-400">Network Status</p>
       </div>
@@ -39,11 +39,11 @@
           <button
             @click="refreshBlocks"
             class="btn-secondary flex items-center space-x-2"
-            :disabled="isLoading"
+            :disabled="state.isLoading"
           >
             <svg
               class="w-4 h-4"
-              :class="{ 'animate-spin': isLoading }"
+              :class="{ 'animate-spin': state.isLoading }"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -60,7 +60,7 @@
         </div>
 
         <div
-          v-if="isLoading && !latestBlocks.length"
+          v-if="state.isLoading && !state.latestBlocks.length"
           class="flex justify-center py-12"
         >
           <div class="loading-spinner"></div>
@@ -68,7 +68,7 @@
 
         <div v-else class="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <BlockCard
-            v-for="block in latestBlocks"
+            v-for="block in state.latestBlocks"
             :key="block.round.toString()"
             :block="block"
           />
@@ -83,19 +83,21 @@
             <div
               class="w-2 h-2 rounded-full"
               :class="
-                connectionStatus ? 'bg-green-500 animate-pulse' : 'bg-red-500'
+                state.connectionStatus
+                  ? 'bg-green-500 animate-pulse'
+                  : 'bg-red-500'
               "
             ></div>
             <span class="text-xs text-gray-400">{{
-              connectionStatus ? "Live" : "Offline"
+              state.connectionStatus ? "Live" : "Offline"
             }}</span>
           </div>
         </div>
 
-        <div v-if="!recentTrades.length" class="card text-center py-8">
+        <div v-if="!state.recentTrades.length" class="card text-center py-8">
           <p class="text-gray-400">
             {{
-              connectionStatus
+              state.connectionStatus
                 ? "Waiting for trades..."
                 : "Connecting to live feed..."
             }}
@@ -104,8 +106,8 @@
 
         <div v-else class="space-y-4 max-h-96 overflow-y-auto">
           <TradeCard
-            v-for="trade in recentTrades.slice(0, 10)"
-            :key="trade.id"
+            v-for="(trade, index) in state.recentTrades.slice(0, 10)"
+            :key="`trade-${trade.txId || index}-${index}`"
             :trade="trade"
           />
         </div>
@@ -116,16 +118,16 @@
     <div class="mt-12">
       <h2 class="text-2xl font-bold text-white mb-6">Recent Transactions</h2>
 
-      <div v-if="isLoadingTransactions" class="flex justify-center py-12">
+      <div v-if="state.isLoadingTransactions" class="flex justify-center py-12">
         <div class="loading-spinner"></div>
       </div>
 
       <div
-        v-else-if="recentTransactions.length"
+        v-else-if="state.recentTransactions.length"
         class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
       >
         <TransactionCard
-          v-for="tx in recentTransactions.slice(0, 9)"
+          v-for="tx in state.recentTransactions.slice(0, 9)"
           :key="tx.id"
           :transaction="tx"
         />
@@ -139,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { onMounted, onUnmounted, computed, reactive } from "vue";
 import { algorandService } from "../services/algorandService";
 import { signalrService } from "../services/signalrService";
 import type { AlgorandTransaction, AMMTrade } from "../types/algorand";
@@ -148,63 +150,81 @@ import TransactionCard from "../components/TransactionCard.vue";
 import TradeCard from "../components/TradeCard.vue";
 import algosdk from "algosdk";
 
-const latestBlocks = ref<algosdk.BlockHeader[]>([]);
-const recentTransactions = ref<AlgorandTransaction[]>([]);
-const recentTrades = ref<AMMTrade[]>([]);
-const isLoading = ref(true);
-const isLoadingTransactions = ref(true);
-const connectionStatus = ref(false);
+const state = reactive({
+  latestBlocks: [] as algosdk.BlockHeader[],
+  recentTransactions: [] as AlgorandTransaction[],
+  recentTrades: [] as AMMTrade[],
+  isLoading: true,
+  isLoadingTransactions: true,
+  connectionStatus: false,
+});
+
 let refreshInterval: number | null = null;
 
 const totalTransactions = computed(() => {
-  return latestBlocks.value.reduce(
+  return state.latestBlocks.reduce(
     (sum, block) => sum + Number(block.txnCounter),
     0
   );
 });
 
 const refreshBlocks = async () => {
-  isLoading.value = true;
+  state.isLoading = true;
   try {
     const blocks = await algorandService.getLatestBlocks(20);
-    latestBlocks.value = blocks;
-
+    if (blocks) {
+      state.latestBlocks = blocks;
+    }
     // Load transactions for the latest few blocks
     if (blocks.length > 0) {
-      isLoadingTransactions.value = true;
+      state.isLoadingTransactions = true;
       const txPromises = blocks
         .slice(0, 5)
         .map((block) => algorandService.getBlockTransactions(block.round));
       const txResults = await Promise.all(txPromises);
       const allTransactions: AlgorandTransaction[] = [];
       txResults.forEach((txArray) => allTransactions.push(...txArray));
-      recentTransactions.value = allTransactions.slice(0, 50);
-      isLoadingTransactions.value = false;
+      state.recentTransactions = allTransactions.slice(0, 50);
+      state.isLoadingTransactions = false;
     }
   } catch (error) {
     console.error("Error refreshing blocks:", error);
   }
-  isLoading.value = false;
+  state.isLoading = false;
 };
 
 onMounted(async () => {
   await refreshBlocks();
 
   // Set up real-time updates
-  refreshInterval = setInterval(refreshBlocks, 30000); // Refresh every 30 seconds
+  //refreshInterval = setInterval(refreshBlocks, 30000) as unknown as number; // Refresh every 30 seconds
 
   // Set up SignalR for AMM trades
-  signalrService.onTradeReceived((trade: AMMTrade) => {
-    recentTrades.value.unshift(trade);
-    if (recentTrades.value.length > 50) {
-      recentTrades.value = recentTrades.value.slice(0, 50);
-    }
-  });
+  try {
+    signalrService.onTradeReceived((trade: AMMTrade) => {
+      if (trade && trade.txId) {
+        state.recentTrades.unshift(trade);
+        if (state.recentTrades.length > 50) {
+          state.recentTrades = state.recentTrades.slice(0, 50);
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error setting up SignalR trade handler:", error);
+  }
 
   // Check connection status
-  setInterval(() => {
-    connectionStatus.value = signalrService.getConnectionState();
-  }, 5000);
+  // setInterval(() => {
+  //   try {
+  //     const status = signalrService?.getConnectionState();
+  //     if (status !== null) {
+  //       state.connectionStatus = status;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error checking connection status:", error);
+  //     state.connectionStatus = false;
+  //   }
+  // }, 5000);
 });
 
 onUnmounted(() => {

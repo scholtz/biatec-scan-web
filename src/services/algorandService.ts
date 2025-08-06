@@ -110,7 +110,7 @@ class AlgorandService {
   }
 
   formatAlgoAmount(microAlgos: number): string {
-    return (microAlgos / 1000000).toLocaleString("en-US", {
+    return (Number(microAlgos) / 1000000).toLocaleString("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 6,
     });

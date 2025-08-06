@@ -242,7 +242,7 @@ const getTypeLabel = (type: string) => {
     afrz: "Asset Freeze",
     keyreg: "Key Registration",
   };
-  return labels[type] || type.toUpperCase();
+  return labels[type] || type?.toUpperCase() || "UNKNOWN";
 };
 
 const getTypeIcon = (type: string) => {

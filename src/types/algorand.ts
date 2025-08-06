@@ -1,16 +1,3 @@
-export interface AlgorandBlock {
-  round: number;
-  timestamp: number;
-  txns: number;
-  "genesis-hash": string;
-  "genesis-id": string;
-  "previous-block-hash": string;
-  seed: string;
-  "txn-counter": number;
-  "upgrade-state": any;
-  "upgrade-vote": any;
-}
-
 export interface AlgorandTransaction {
   id: string;
   "confirmed-round": number;
@@ -41,20 +28,23 @@ export interface AlgorandTransaction {
 }
 
 export interface AMMTrade {
-  id: string;
-  timestamp: number;
-  pool: string;
-  assetA: string;
-  assetB: string;
-  amountA: number;
-  amountB: number;
-  price: number;
-  type: "buy" | "sell";
+  assetIdIn: number;
+  assetIdOut: number;
+  assetAmountIn: number;
+  assetAmountOut: number;
   txId: string;
-  sender: string;
+  blockId: number;
+  txGroup: string;
+  timestamp: string;
+  protocol: string;
+  trader: string;
+  poolAddress: string;
+  poolAppId: number;
+  topTxId: string;
+  tradeState: string;
 }
 
 export interface SearchResult {
   type: "block" | "transaction";
-  data: AlgorandBlock | AlgorandTransaction;
+  data: AlgorandTransaction;
 }

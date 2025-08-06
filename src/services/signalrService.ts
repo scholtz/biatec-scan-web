@@ -2,6 +2,7 @@ import {
   HubConnectionBuilder,
   HubConnection,
   LogLevel,
+  HttpTransportType,
 } from "@microsoft/signalr";
 import type { AMMTrade } from "../types/algorand";
 import { generateAlgorandAccount } from "arc76";
@@ -10,7 +11,7 @@ import algosdk from "algosdk";
 import { Buffer } from "buffer";
 import { makeArc14AuthHeader, makeArc14TxWithSuggestedParams } from "arc14";
 import { SuggestedParams } from "algosdk";
-
+const callbacks: ((trade: AMMTrade) => void)[] = [];
 class SignalRService {
   private connection: HubConnection | null = null;
   private isConnected = false;
@@ -51,12 +52,18 @@ class SignalRService {
   }
   async connect(): Promise<void> {
     try {
-      const headers = {
-        authorization: await this.getAuthToken(),
-      };
+      // const headers = {
+      //   authorization: await this.getAuthToken(),
+      // };
       this.connection = new HubConnectionBuilder()
         .withUrl("https://algorand-trades.de-4.biatec.io/biatecScanHub", {
-          headers: headers,
+          //.withUrl("https://localhost:44390/biatecScanHub", {
+          //headers: headers,
+          withCredentials: true,
+          transport: HttpTransportType.WebSockets, // Use WebSockets for real-time updates
+          accessTokenFactory: async () => {
+            return await this.getAuthToken();
+          },
         }) // Biatec scan API SignalR endpoint
         .withAutomaticReconnect()
         .configureLogging(LogLevel.Information)
@@ -70,6 +77,8 @@ class SignalRService {
       this.connection.onreconnected(() => {
         console.log("SignalR reconnected");
         this.isConnected = true;
+        // Re-subscribe after reconnection
+        this.subscribeToTrades("");
       });
 
       this.connection.onclose(() => {
@@ -78,12 +87,46 @@ class SignalRService {
         this.scheduleReconnect();
       });
 
+      // Handle subscription confirmation
+      this.connection.on("Subscribed", (filter: string) => {
+        console.log(`Subscription confirmed with filter: "${filter}"`);
+      });
+      this.connection.on("TestConnectionResult", (result: any) => {
+        console.log(`Test connection result: `, result);
+      });
+
+      // Handle subscription errors
+      this.connection.on("Error", (errorMessage: string) => {
+        console.error("SignalR subscription error:", errorMessage);
+      });
+
+      // Handle subscription errors
+      this.connection.on("FilteredTradeUpdated", (trade: any) => {
+        console.log("FilteredTradeUpdated received:", trade);
+        callbacks.forEach((callback) => callback(trade as AMMTrade));
+      });
+
       await this.connection.start();
       this.isConnected = true;
       console.log("SignalR connected successfully");
+
+      // Subscribe to receive trade updates with empty filter (all trades)
+      await this.connection.invoke("TestConnection");
+      await this.subscribeToTrades("");
     } catch (error) {
       console.error("Error connecting to SignalR:", error);
       this.scheduleReconnect();
+    }
+  }
+
+  private async subscribeToTrades(filter: string = ""): Promise<void> {
+    if (!this.connection || !this.isConnected) return;
+
+    try {
+      await this.connection.invoke("Subscribe", filter);
+      console.log(`Subscribed to trades with filter: "${filter}"`);
+    } catch (error) {
+      console.error("Error subscribing to trades:", error);
     }
   }
 
@@ -94,15 +137,11 @@ class SignalRService {
 
     this.reconnectInterval = setTimeout(() => {
       this.connect();
-    }, 5000); // Retry every 5 seconds
+    }, 5000) as unknown as number; // Retry every 5 seconds
   }
 
   onTradeReceived(callback: (trade: AMMTrade) => void): void {
-    if (!this.connection) return;
-
-    this.connection.on("TradeReceived", (trade: AMMTrade) => {
-      callback(trade);
-    });
+    callbacks.push(callback);
   }
 
   onPoolUpdate(callback: (poolData: any) => void): void {

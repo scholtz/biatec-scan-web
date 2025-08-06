@@ -75,9 +75,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { signalrService } from "../services/signalrService";
 
 const router = useRouter();
 const searchQuery = ref("");
@@ -89,18 +88,4 @@ const performSearch = () => {
     searchQuery.value = "";
   }
 };
-
-onMounted(async () => {
-  await signalrService.connect();
-  connectionStatus.value = signalrService.getConnectionState();
-
-  // Check connection status periodically
-  setInterval(() => {
-    connectionStatus.value = signalrService.getConnectionState();
-  }, 5000);
-});
-
-onUnmounted(async () => {
-  await signalrService.disconnect();
-});
 </script>
