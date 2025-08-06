@@ -1,5 +1,9 @@
-import { HubConnectionBuilder, HubConnection, LogLevel } from '@microsoft/signalr';
-import type { AMMTrade } from '../types/algorand';
+import {
+  HubConnectionBuilder,
+  HubConnection,
+  LogLevel,
+} from "@microsoft/signalr";
+import type { AMMTrade } from "../types/algorand";
 
 class SignalRService {
   private connection: HubConnection | null = null;
@@ -9,32 +13,32 @@ class SignalRService {
   async connect(): Promise<void> {
     try {
       this.connection = new HubConnectionBuilder()
-        .withUrl('wss://api.scan.biatec.io/tradehub') // Biatec scan API SignalR endpoint
+        .withUrl("wss://api.scan.biatec.io/tradehub") // Biatec scan API SignalR endpoint
         .withAutomaticReconnect()
         .configureLogging(LogLevel.Information)
         .build();
 
       this.connection.onreconnecting(() => {
-        console.log('SignalR reconnecting...');
+        console.log("SignalR reconnecting...");
         this.isConnected = false;
       });
 
       this.connection.onreconnected(() => {
-        console.log('SignalR reconnected');
+        console.log("SignalR reconnected");
         this.isConnected = true;
       });
 
       this.connection.onclose(() => {
-        console.log('SignalR connection closed');
+        console.log("SignalR connection closed");
         this.isConnected = false;
         this.scheduleReconnect();
       });
 
       await this.connection.start();
       this.isConnected = true;
-      console.log('SignalR connected successfully');
+      console.log("SignalR connected successfully");
     } catch (error) {
-      console.error('Error connecting to SignalR:', error);
+      console.error("Error connecting to SignalR:", error);
       this.scheduleReconnect();
     }
   }
@@ -43,7 +47,7 @@ class SignalRService {
     if (this.reconnectInterval) {
       clearTimeout(this.reconnectInterval);
     }
-    
+
     this.reconnectInterval = setTimeout(() => {
       this.connect();
     }, 5000); // Retry every 5 seconds
@@ -52,7 +56,7 @@ class SignalRService {
   onTradeReceived(callback: (trade: AMMTrade) => void): void {
     if (!this.connection) return;
 
-    this.connection.on('TradeReceived', (trade: AMMTrade) => {
+    this.connection.on("TradeReceived", (trade: AMMTrade) => {
       callback(trade);
     });
   }
@@ -60,7 +64,7 @@ class SignalRService {
   onPoolUpdate(callback: (poolData: any) => void): void {
     if (!this.connection) return;
 
-    this.connection.on('PoolUpdate', (poolData: any) => {
+    this.connection.on("PoolUpdate", (poolData: any) => {
       callback(poolData);
     });
   }

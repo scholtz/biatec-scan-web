@@ -1,5 +1,7 @@
 <template>
-  <div class="card hover:border-primary-500/30 transition-all duration-300 animate-slide-up">
+  <div
+    class="card hover:border-primary-500/30 transition-all duration-300 animate-slide-up"
+  >
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-white">
         Block #{{ block.round.toLocaleString() }}
@@ -8,31 +10,38 @@
         {{ formatTime(block.timestamp) }}
       </span>
     </div>
-    
+
     <div class="grid grid-cols-2 gap-4 mb-4">
       <div>
         <p class="text-sm text-gray-400 mb-1">Transactions</p>
-        <p class="text-white font-medium">{{ block.txns.toLocaleString() }}</p>
+        <p class="text-white font-medium">
+          {{ block.txnCounter.toLocaleString() }}
+        </p>
       </div>
       <div>
         <p class="text-sm text-gray-400 mb-1">Round Time</p>
-        <p class="text-white font-medium">{{ new Date(block.timestamp * 1000).toLocaleTimeString() }}</p>
+        <p class="text-white font-medium">
+          {{ new Date(Number(block.timestamp) * 1000).toLocaleTimeString() }}
+        </p>
       </div>
     </div>
-    
+
     <div class="mb-4">
       <p class="text-sm text-gray-400 mb-1">Previous Hash</p>
-      <p class="text-white font-mono text-xs bg-dark-900 p-2 rounded border truncate">
-        {{ block['previous-block-hash'] || 'N/A' }}
+      <p
+        class="text-white font-mono text-xs bg-dark-900 p-2 rounded border truncate"
+      >
+        {{ block.branch || "N/A" }}
       </p>
     </div>
-    
+
     <div class="flex justify-between items-center">
-      <span class="status-badge status-success">
-        Confirmed
-      </span>
-      <router-link 
-        :to="{ name: 'BlockDetails', params: { round: block.round } }"
+      <span class="status-badge status-success"> Confirmed </span>
+      <router-link
+        :to="{
+          name: 'BlockDetails',
+          params: { round: block.round.toString() },
+        }"
         class="btn-primary text-sm"
       >
         View Details
@@ -42,16 +51,16 @@
 </template>
 
 <script setup lang="ts">
-import type { AlgorandBlock } from '../types/algorand';
+import algosdk from "algosdk";
 
 defineProps<{
-  block: AlgorandBlock;
+  block: algosdk.BlockHeader;
 }>();
 
-const formatTime = (timestamp: number) => {
+const formatTime = (timestamp: bigint) => {
   const now = Date.now() / 1000;
-  const diff = now - timestamp;
-  
+  const diff = now - Number(timestamp);
+
   if (diff < 60) return `${Math.floor(diff)}s ago`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;

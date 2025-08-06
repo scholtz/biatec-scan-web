@@ -2,41 +2,41 @@ export interface AlgorandBlock {
   round: number;
   timestamp: number;
   txns: number;
-  'genesis-hash': string;
-  'genesis-id': string;
-  'previous-block-hash': string;
+  "genesis-hash": string;
+  "genesis-id": string;
+  "previous-block-hash": string;
   seed: string;
-  'txn-counter': number;
-  'upgrade-state': any;
-  'upgrade-vote': any;
+  "txn-counter": number;
+  "upgrade-state": any;
+  "upgrade-vote": any;
 }
 
 export interface AlgorandTransaction {
   id: string;
-  'confirmed-round': number;
+  "confirmed-round": number;
   fee: number;
-  'first-valid': number;
-  'genesis-hash': string;
-  'genesis-id': string;
-  'intra-round-offset': number;
-  'last-valid': number;
-  'round-time': number;
+  "first-valid": number;
+  "genesis-hash": string;
+  "genesis-id": string;
+  "intra-round-offset": number;
+  "last-valid": number;
+  "round-time": number;
   sender: string;
-  'tx-type': string;
+  "tx-type": string;
   signature: any;
-  'payment-transaction'?: {
+  "payment-transaction"?: {
     amount: number;
     receiver: string;
   };
-  'asset-transfer-transaction'?: {
+  "asset-transfer-transaction"?: {
     amount: number;
-    'asset-id': number;
+    "asset-id": number;
     receiver: string;
   };
-  'application-transaction'?: {
-    'application-id': number;
-    'on-completion': string;
-    'application-args': string[];
+  "application-transaction"?: {
+    "application-id": number;
+    "on-completion": string;
+    "application-args": string[];
   };
 }
 
@@ -49,12 +49,12 @@ export interface AMMTrade {
   amountA: number;
   amountB: number;
   price: number;
-  type: 'buy' | 'sell';
+  type: "buy" | "sell";
   txId: string;
   sender: string;
 }
 
 export interface SearchResult {
-  type: 'block' | 'transaction';
+  type: "block" | "transaction";
   data: AlgorandBlock | AlgorandTransaction;
 }
