@@ -7,58 +7,57 @@
         Block #{{ block.round.toLocaleString() }}
       </h3>
       <span class="text-xs text-gray-400">
-        {{ formatTime(block.timestamp) }}
+        {{ formattedTime }}
       </span>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="grid grid-cols-3 gap-4 mb-4">
       <div>
         <p class="text-sm text-gray-400 mb-1">Transactions</p>
         <p class="text-white font-medium">
-          {{ block.txnCounter.toLocaleString() }}
+          {{
+            (
+              block.txnCounter - (previousBlock?.txnCounter || 0n)
+            ).toLocaleString()
+          }}
         </p>
       </div>
-      <div>
+      <div class="flex flex-col justify-between items-center">
         <p class="text-sm text-gray-400 mb-1">Round Time</p>
         <p class="text-white font-medium">
           {{ new Date(Number(block.timestamp) * 1000).toLocaleTimeString() }}
         </p>
       </div>
-    </div>
-
-    <div class="mb-4">
-      <p class="text-sm text-gray-400 mb-1">Previous Hash</p>
-      <p
-        class="text-white font-mono text-xs bg-dark-900 p-2 rounded border truncate"
-      >
-        {{ block.branch || "N/A" }}
-      </p>
-    </div>
-
-    <div class="flex justify-between items-center">
-      <span class="status-badge status-success"> Confirmed </span>
-      <router-link
-        :to="{
-          name: 'BlockDetails',
-          params: { round: block.round.toString() },
-        }"
-        class="btn-primary text-sm"
-      >
-        View Details
-      </router-link>
+      <div class="flex justify-between items-center w-full">
+        <router-link
+          :to="{
+            name: 'BlockDetails',
+            params: { round: block.round.toString() },
+          }"
+          class="btn-primary text-sm w-full text-center"
+        >
+          Details
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import algosdk from "algosdk";
 
-defineProps<{
+const props = defineProps<{
   block: algosdk.BlockHeader;
+  previousBlock: algosdk.BlockHeader | null;
 }>();
 
+// Create a reactive timestamp that updates every second
+const currentTime = ref(Date.now());
+let timeInterval: number | null = null;
+
 const formatTime = (timestamp: bigint) => {
-  const now = Date.now() / 1000;
+  const now = currentTime.value / 1000;
   const diff = now - Number(timestamp);
 
   if (diff < 60) return `${Math.floor(diff)}s ago`;
@@ -66,4 +65,19 @@ const formatTime = (timestamp: bigint) => {
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return `${Math.floor(diff / 86400)}d ago`;
 };
+
+const formattedTime = computed(() => formatTime(props.block.timestamp));
+
+onMounted(() => {
+  // Update current time every second
+  timeInterval = setInterval(() => {
+    currentTime.value = Date.now();
+  }, 1000) as unknown as number;
+});
+
+onUnmounted(() => {
+  if (timeInterval) {
+    clearInterval(timeInterval);
+  }
+});
 </script>

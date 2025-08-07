@@ -44,6 +44,29 @@ export interface AMMTrade {
   tradeState: string;
 }
 
+export interface AMMLiquidity {
+  assetIdA: number;
+  assetIdB: number;
+  assetIdLP: number;
+  assetAmountA: number;
+  assetAmountB: number;
+  assetAmountLP: number;
+  txId: string;
+  blockId: number;
+  txGroup: string;
+  timestamp: string;
+  protocol: string;
+  liquidityProvider: string;
+  poolAddress: string;
+  poolAppId: number;
+  topTxId: string;
+  txState: string;
+  direction: string;
+  a: number;
+  b: number;
+  l: number;
+}
+
 export interface SearchResult {
   type: "block" | "transaction";
   data: AlgorandTransaction;
