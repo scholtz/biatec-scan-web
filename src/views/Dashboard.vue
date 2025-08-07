@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header Stats -->
     <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-8"
     >
       <div class="card text-center">
         <h3 class="text-2xl font-bold text-white mb-2">
@@ -17,23 +17,8 @@
         <p class="text-gray-400">Total Transactions</p>
       </div>
       <div class="card text-center">
-        <h3 class="text-2xl font-bold text-white mb-2">
-          {{ state.recentTrades.length }}
-        </h3>
-        <p class="text-gray-400">AMM Trades</p>
-      </div>
-      <div class="card text-center">
-        <h3 class="text-2xl font-bold text-white mb-2">
-          {{ state.recentLiquidity.length }}
-        </h3>
-        <p class="text-gray-400">Liquidity Updates</p>
-      </div>
-      <div class="card text-center">
-        <h3
-          class="text-2xl font-bold"
-          :class="state.connectionStatus ? 'text-green-400' : 'text-red-400'"
-        >
-          {{ state.connectionStatus ? "LIVE" : "OFFLINE" }}
+        <h3 class="text-2xl font-bold" :class="networkStatus.color">
+          {{ networkStatus.status }}
         </h3>
         <p class="text-gray-400">Network Status</p>
       </div>
@@ -120,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, reactive } from "vue";
+import { onMounted, onUnmounted, computed, reactive, ref } from "vue";
 import { algorandService } from "../services/algorandService";
 import { signalrService } from "../services/signalrService";
 import type {
@@ -132,6 +117,7 @@ import BlockCard from "../components/BlockCard.vue";
 import TradeCard from "../components/TradeCard.vue";
 import LiquidityCard from "../components/LiquidityCard.vue";
 import algosdk from "algosdk";
+import { getTokenFromLocalStorage } from "../scripts/algo/getTokenFromLocalStorage";
 
 const state = reactive({
   latestBlocks: [] as algosdk.BlockHeader[],
@@ -142,9 +128,13 @@ const state = reactive({
   isLoadingTransactions: true,
   connectionStatus: false,
   mounted: true,
+  tokensToLoad: [] as bigint[],
 });
 
+// Reactive current time for network status calculation
+const currentTime = ref(Date.now());
 let refreshInterval: number | null = null;
+let timeInterval: number | null = null;
 
 const totalTransactions = computed(() => {
   // Return the total transaction count from the latest block (txnCounter is cumulative from inception)
@@ -152,6 +142,36 @@ const totalTransactions = computed(() => {
     ? Number(state.latestBlocks[0].txnCounter)
     : 0;
 });
+
+const networkStatus = computed(() => {
+  if (state.latestBlocks.length === 0)
+    return { status: "OFFLINE", color: "text-red-400" };
+
+  const latestBlock = state.latestBlocks[0];
+  const now = Math.floor(currentTime.value / 1000);
+  const blockTime = Number(latestBlock.timestamp);
+  const timeDiff = now - blockTime;
+
+  // If latest block is less than 60 seconds old, consider network online
+  if (timeDiff < 60) {
+    return { status: "ONLINE", color: "text-green-400" };
+  } else {
+    return { status: "OFFLINE", color: "text-red-400" };
+  }
+});
+
+const formatAssetBalance = (balance: bigint, assetId: bigint): string => {
+  if (balance === 0n) return "0";
+  const assetInfo = getTokenFromLocalStorage(assetId);
+  if (assetInfo == null) {
+    if (state.tokensToLoad.find((t) => t === assetId) == null) {
+      state.tokensToLoad.push(assetId);
+    }
+    return "Loading asset info...";
+  }
+
+  return `${(balance / BigInt(10 ** assetInfo.decimals)).toLocaleString()} ${assetInfo.unitName ?? assetInfo.name}`;
+};
 
 const refreshBlocks = async () => {
   state.isLoading = true;
@@ -222,6 +242,12 @@ onMounted(async () => {
   //   }
   // }, 5000);
   state.mounted = true;
+
+  // Update current time every second for network status calculation
+  timeInterval = setInterval(() => {
+    currentTime.value = Date.now();
+  }, 1000) as unknown as number;
+
   await refreshData(); // run async function without waiting on purpose
 });
 
@@ -240,6 +266,9 @@ async function refreshData() {
 onUnmounted(() => {
   if (refreshInterval) {
     clearInterval(refreshInterval);
+  }
+  if (timeInterval) {
+    clearInterval(timeInterval);
   }
   state.mounted = false;
 });

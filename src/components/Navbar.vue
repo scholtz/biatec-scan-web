@@ -2,7 +2,7 @@
   <nav
     class="bg-dark-900/80 backdrop-blur-lg border-b border-dark-700/50 sticky top-0 z-50"
   >
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center space-x-8">
           <router-link to="/" class="flex items-center space-x-3">
@@ -13,8 +13,9 @@
             </div>
             <span
               class="text-xl font-bold bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent"
-              >Algorand Scan</span
             >
+              Biatec Algorand Scan
+            </span>
           </router-link>
 
           <div class="hidden md:flex space-x-6">
@@ -55,18 +56,6 @@
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-          </div>
-
-          <div class="flex items-center space-x-2">
-            <div
-              class="w-2 h-2 rounded-full"
-              :class="
-                connectionStatus ? 'bg-green-500 animate-pulse' : 'bg-red-500'
-              "
-            ></div>
-            <span class="text-xs text-gray-400">
-              {{ connectionStatus ? "Live" : "Offline" }}
-            </span>
           </div>
         </div>
       </div>

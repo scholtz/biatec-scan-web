@@ -26,7 +26,12 @@ export interface AlgorandTransaction {
     "application-args": string[];
   };
 }
-
+export interface AssetParams {
+  name: string;
+  unitName: string;
+  total: bigint;
+  decimals: number;
+}
 export interface AMMTrade {
   assetIdIn: number;
   assetIdOut: number;

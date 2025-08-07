@@ -118,7 +118,7 @@ class AlgorandService {
 
   formatAddress(address: string): string {
     if (!address) return "";
-    return `${address.slice(0, 8)}...${address.slice(-8)}`;
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
   }
 
   formatTransactionId(txId: string): string {
