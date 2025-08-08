@@ -51,7 +51,10 @@
       <div class="flex justify-between items-center">
         <span class="text-sm text-gray-400">Provider:</span>
         <router-link
-          :to="{ name: 'AddressDetails', params: { address: liquidity.liquidityProvider } }"
+          :to="{
+            name: 'AddressDetails',
+            params: { address: liquidity.liquidityProvider },
+          }"
           class="text-xs text-blue-400 hover:text-blue-300 font-mono truncate ml-2 transition-colors duration-200"
           :title="liquidity.liquidityProvider"
         >

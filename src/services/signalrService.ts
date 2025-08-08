@@ -4,7 +4,7 @@ import {
   LogLevel,
   HttpTransportType,
 } from "@microsoft/signalr";
-import type { AMMLiquidity, AMMTrade } from "../types/algorand";
+import type { AMMLiquidity, AMMTrade, AMMPool } from "../types/algorand";
 import { generateAlgorandAccount } from "arc76";
 import { uuidv7 } from "uuidv7";
 import algosdk from "algosdk";
@@ -13,6 +13,7 @@ import { makeArc14AuthHeader, makeArc14TxWithSuggestedParams } from "arc14";
 import { SuggestedParams } from "algosdk";
 const callbacksTrades: ((trade: AMMTrade) => void)[] = [];
 const callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
+const callbacksPools: ((pool: AMMPool) => void)[] = [];
 class SignalRService {
   private connection: HubConnection | null = null;
   private isConnected = false;
@@ -106,6 +107,10 @@ class SignalRService {
         console.log("FilteredTradeUpdated received:", trade);
         callbacksTrades.forEach((callback) => callback(trade as AMMTrade));
       });
+      this.connection.on("PoolUpdated", (pool: any) => {
+        console.log("PoolUpdated received:", pool);
+        callbacksPools.forEach((callback) => callback(pool as AMMPool));
+      });
       // Handle subscription errors
       this.connection.on("FilteredLiquidityUpdated", (liquidity: any) => {
         console.log("FilteredLiquidityUpdated received:", liquidity);
@@ -153,6 +158,9 @@ class SignalRService {
   }
   onLiquidityReceived(callback: (liquidity: AMMLiquidity) => void): void {
     callbacksLiquidity.push(callback);
+  }
+  onPoolReceived(callback: (liquidity: AMMPool) => void): void {
+    callbacksPools.push(callback);
   }
 
   async disconnect(): Promise<void> {

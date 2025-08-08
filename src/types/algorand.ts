@@ -32,6 +32,18 @@ export interface AssetParams {
   total: number;
   decimals: number;
 }
+export interface AMMPool {
+  poolAddress: string;
+  poolAppId: bigint;
+  assetIdA?: bigint;
+  assetIdB?: bigint;
+  assetIdLP?: bigint;
+  a?: bigint;
+  b?: bigint;
+  l?: bigint;
+  protocol: string; // Replace with enum if DEXProtocol is defined
+  timestamp?: string; // ISO string, or Date if you prefer
+}
 export interface AMMTrade {
   assetIdIn: bigint;
   assetIdOut: bigint;
