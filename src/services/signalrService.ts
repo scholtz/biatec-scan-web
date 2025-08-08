@@ -104,16 +104,16 @@ class SignalRService {
 
       // Handle subscription errors
       this.connection.on("FilteredTradeUpdated", (trade: any) => {
-        console.log("FilteredTradeUpdated received:", trade);
+        //console.log("FilteredTradeUpdated received:", trade);
         callbacksTrades.forEach((callback) => callback(trade as AMMTrade));
       });
       this.connection.on("PoolUpdated", (pool: any) => {
-        console.log("PoolUpdated received:", pool);
+        //console.log("PoolUpdated received:", pool);
         callbacksPools.forEach((callback) => callback(pool as AMMPool));
       });
       // Handle subscription errors
       this.connection.on("FilteredLiquidityUpdated", (liquidity: any) => {
-        console.log("FilteredLiquidityUpdated received:", liquidity);
+        //console.log("FilteredLiquidityUpdated received:", liquidity);
         callbacksLiquidity.forEach((callback) =>
           callback(liquidity as AMMLiquidity)
         );

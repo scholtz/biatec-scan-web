@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
       <!-- Latest Blocks -->
       <div class="">
         <div class="flex items-center justify-between mb-6">
@@ -100,6 +100,31 @@
           />
         </div>
       </div>
+
+      <!-- Pool Updates Sidebar -->
+      <div>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-white">Pool Updates</h2>
+        </div>
+
+        <div v-if="!state.recentPools.length" class="card text-center py-8">
+          <p class="text-gray-400">
+            {{
+              state.connectionStatus
+                ? "Waiting for pool updates..."
+                : "Connecting to live feed..."
+            }}
+          </p>
+        </div>
+
+        <div v-else class="space-y-4">
+          <PoolCard
+            v-for="(pool, index) in state.recentPools.slice(0, 10)"
+            :key="`pool-${pool.poolAppId || index}-${index}`"
+            :pool="pool"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -112,10 +137,12 @@ import type {
   AlgorandTransaction,
   AMMLiquidity,
   AMMTrade,
+  AMMPool,
 } from "../types/algorand";
 import BlockCard from "../components/BlockCard.vue";
 import TradeCard from "../components/TradeCard.vue";
 import LiquidityCard from "../components/LiquidityCard.vue";
+import PoolCard from "../components/PoolCard.vue";
 import algosdk from "algosdk";
 
 const state = reactive({
@@ -123,6 +150,7 @@ const state = reactive({
   recentTransactions: [] as AlgorandTransaction[],
   recentTrades: [] as AMMTrade[],
   recentLiquidity: [] as AMMLiquidity[],
+  recentPools: [] as AMMPool[],
   isLoading: true,
   isLoadingTransactions: true,
   connectionStatus: false,
@@ -247,6 +275,33 @@ onMounted(async () => {
   } catch (error) {
     console.error("Error setting up SignalR liquidity handler:", error);
   }
+
+  try {
+    signalrService.onPoolReceived((pool: AMMPool) => {
+      if (pool && pool.poolAppId) {
+        // Check if pool already exists in the list
+        const existingIndex = state.recentPools.findIndex(
+          (existingPool) => existingPool.poolAppId === pool.poolAppId
+        );
+
+        if (existingIndex !== -1) {
+          // Pool already exists, replace it
+          console.log(`Updating existing pool ${pool.poolAppId}`);
+          state.recentPools[existingIndex] = pool;
+        } else {
+          // New pool, add to beginning of list
+          console.log(`Adding new pool ${pool.poolAppId}`);
+          state.recentPools.unshift(pool);
+          if (state.recentPools.length > 50) {
+            state.recentPools = state.recentPools.slice(0, 50);
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error setting up SignalR pool handler:", error);
+  }
+
   // Check connection status
   // setInterval(() => {
   //   try {

@@ -3,6 +3,7 @@ import Dashboard from "../views/Dashboard.vue";
 import BlockDetails from "../views/BlockDetails.vue";
 import TransactionDetails from "../views/TransactionDetails.vue";
 import AddressDetails from "../views/AddressDetails.vue";
+import PoolDetails from "../views/PoolDetails.vue";
 import Search from "../views/Search.vue";
 
 const router = createRouter({
@@ -29,6 +30,12 @@ const router = createRouter({
       path: "/address/:address",
       name: "AddressDetails",
       component: AddressDetails,
+      props: true,
+    },
+    {
+      path: "/pool/:poolAddress",
+      name: "PoolDetails",
+      component: PoolDetails,
       props: true,
     },
     {
