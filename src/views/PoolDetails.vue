@@ -9,7 +9,7 @@
           <button
             @click="copyToClipboard"
             class="p-2 text-gray-400 hover:text-white transition-colors"
-            title="Copy pool ID to clipboard"
+            title="Copy pool address to clipboard"
           >
             📋
           </button>
@@ -59,11 +59,11 @@
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Asset A ID:</span>
-              <span class="text-white">{{ poolInfo.assetIdA }}</span>
+              <span class="text-white">{{ poolInfo.assetIdA ?? 0 }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Asset B ID:</span>
-              <span class="text-white">{{ poolInfo.assetIdB }}</span>
+              <span class="text-white">{{ poolInfo.assetIdB ?? 0n }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">LP Token ID:</span>
@@ -181,22 +181,34 @@ const loadPoolInfo = async () => {
   error.value = "";
 
   try {
-    // For now, we'll create a mock pool info since we don't have a direct pool API
-    // In a real implementation, you would fetch from your backend API
-    const mockPoolInfo: AMMPool = {
-      poolAddress: poolAddress.value,
-      poolAppId: BigInt(0),
-      assetIdA: BigInt(0), // ALGO
-      assetIdB: BigInt(31566704), // Example USDC
-      assetIdLP: BigInt(123456789),
-      a: BigInt(1000000000), // 1000 ALGO
-      b: BigInt(500000000), // 500 USDC (6 decimals)
-      l: BigInt(707106781), // LP tokens
-      protocol: "Tinyman",
-      timestamp: new Date().toISOString(),
-    };
+    // Fetch pool information from the API
+    const response = await fetch(
+      `https://algorand-trades.de-4.biatec.io/api/pool/${poolAddress.value}`
+    );
 
-    poolInfo.value = mockPoolInfo;
+    if (!response.ok) {
+      throw new Error(
+        `Pool not found: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const poolData = await response.json();
+
+    // Map the API response to our AMMPool interface
+    poolInfo.value = {
+      poolAddress: poolData.poolAddress || poolAddress.value,
+      poolAppId: BigInt(poolData.poolAppId || 0),
+      assetIdA:
+        poolData.assetIdA !== undefined ? BigInt(poolData.assetIdA) : undefined,
+      assetIdB:
+        poolData.assetIdB !== undefined ? BigInt(poolData.assetIdB) : undefined,
+      assetIdLP: poolData.assetIdLP ? BigInt(poolData.assetIdLP) : undefined,
+      a: poolData.a ? BigInt(poolData.a) : undefined,
+      b: poolData.b ? BigInt(poolData.b) : undefined,
+      l: poolData.l ? BigInt(poolData.l) : undefined,
+      protocol: poolData.protocol || "Unknown",
+      timestamp: poolData.timestamp || new Date().toISOString(),
+    };
   } catch (err: unknown) {
     error.value =
       err instanceof Error ? err.message : "Failed to load pool information";
@@ -208,9 +220,9 @@ const loadPoolInfo = async () => {
 
 const copyToClipboard = async () => {
   try {
-    await navigator.clipboard.writeText(poolId.value);
+    await navigator.clipboard.writeText(poolAddress.value);
   } catch (err) {
-    console.error("Failed to copy pool ID:", err);
+    console.error("Failed to copy pool address:", err);
   }
 };
 
@@ -233,7 +245,7 @@ const getAssetName = (assetId: bigint): string => {
 };
 
 const formatReserveA = computed(() => {
-  if (!poolInfo.value?.a || !poolInfo.value?.assetIdA) return "0";
+  if (!poolInfo.value?.a || poolInfo.value?.assetIdA === undefined) return "0";
   return assetService.formatAssetBalance(
     poolInfo.value.a,
     poolInfo.value.assetIdA
@@ -241,7 +253,7 @@ const formatReserveA = computed(() => {
 });
 
 const formatReserveB = computed(() => {
-  if (!poolInfo.value?.b || !poolInfo.value?.assetIdB) return "0";
+  if (!poolInfo.value?.b || poolInfo.value?.assetIdB === undefined) return "0";
   return assetService.formatAssetBalance(
     poolInfo.value.b,
     poolInfo.value.assetIdB
@@ -249,7 +261,7 @@ const formatReserveB = computed(() => {
 });
 
 const formatLPSupply = computed(() => {
-  if (!poolInfo.value?.l || !poolInfo.value?.assetIdLP) return "0";
+  if (!poolInfo.value?.l || poolInfo.value?.assetIdLP === undefined) return "0";
   return assetService.formatAssetBalance(
     poolInfo.value.l,
     poolInfo.value.assetIdLP

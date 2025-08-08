@@ -15,7 +15,7 @@
         <router-link
           :to="{
             name: 'PoolDetails',
-            params: { poolId: pool.poolAddress.toString() },
+            params: { poolAddress: pool.poolAddress },
           }"
           class="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200"
         >
@@ -98,14 +98,14 @@ const state = reactive({
 const formattedAssetA = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load
   void state.forceUpdate;
-  if (!props.pool.assetIdA) return "N/A";
+  if (props.pool.assetIdA === undefined) return "N/A";
   return getAssetName(props.pool.assetIdA);
 });
 
 const formattedAssetB = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load
   void state.forceUpdate;
-  if (!props.pool.assetIdB) return "N/A";
+  if (props.pool.assetIdB === undefined) return "N/A";
   return getAssetName(props.pool.assetIdB);
 });
 
@@ -119,21 +119,22 @@ const formattedAssetLP = computed(() => {
 const formattedReserveA = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load
   void state.forceUpdate;
-  if (!props.pool.a || !props.pool.assetIdA) return "0";
+  if (!props.pool.a || props.pool.assetIdA == undefined) return "0";
   return assetService.formatAssetBalance(props.pool.a, props.pool.assetIdA);
 });
 
 const formattedReserveB = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load
   void state.forceUpdate;
-  if (!props.pool.b || !props.pool.assetIdB) return "0";
+  console.log("props.pool", props.pool);
+  if (!props.pool.b || props.pool.assetIdB == undefined) return "0";
   return assetService.formatAssetBalance(props.pool.b, props.pool.assetIdB);
 });
 
 const formattedLPSupply = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load
   void state.forceUpdate;
-  if (!props.pool.l || !props.pool.assetIdLP) return "0";
+  if (!props.pool.l || props.pool.assetIdLP == undefined) return "0";
   return assetService.formatAssetBalance(props.pool.l, props.pool.assetIdLP);
 });
 
