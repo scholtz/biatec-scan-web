@@ -5,8 +5,14 @@
     </div>
     <div class="flex flex-row w-full">
       <div class="text-right w-full flex-grow">
-        <p class="text-xs text-gray-400 mb-1" :title="trade.trader">
-          {{ algorandService.formatAddress(trade.trader) }}
+        <p class="text-xs text-gray-400 mb-1">
+          <router-link
+            :to="{ name: 'AddressDetails', params: { address: trade.trader } }"
+            class="text-blue-400 hover:text-blue-300 transition-colors duration-200"
+            :title="trade.trader"
+          >
+            {{ algorandService.formatAddress(trade.trader) }}
+          </router-link>
           Sold
         </p>
         <p class="text-white text-sm">

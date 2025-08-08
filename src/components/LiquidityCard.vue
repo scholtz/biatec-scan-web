@@ -50,9 +50,13 @@
 
       <div class="flex justify-between items-center">
         <span class="text-sm text-gray-400">Provider:</span>
-        <span class="text-xs text-blue-400 font-mono truncate ml-2">
+        <router-link
+          :to="{ name: 'AddressDetails', params: { address: liquidity.liquidityProvider } }"
+          class="text-xs text-blue-400 hover:text-blue-300 font-mono truncate ml-2 transition-colors duration-200"
+          :title="liquidity.liquidityProvider"
+        >
           {{ formatAddress(liquidity.liquidityProvider) }}
-        </span>
+        </router-link>
       </div>
 
       <div class="flex justify-between items-center">

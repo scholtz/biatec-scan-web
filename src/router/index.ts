@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
 import BlockDetails from "../views/BlockDetails.vue";
 import TransactionDetails from "../views/TransactionDetails.vue";
+import AddressDetails from "../views/AddressDetails.vue";
 import Search from "../views/Search.vue";
 
 const router = createRouter({
@@ -22,6 +23,12 @@ const router = createRouter({
       path: "/transaction/:txId",
       name: "TransactionDetails",
       component: TransactionDetails,
+      props: true,
+    },
+    {
+      path: "/address/:address",
+      name: "AddressDetails",
+      component: AddressDetails,
       props: true,
     },
     {
