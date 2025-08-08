@@ -27,7 +27,7 @@
           <span class="text-white text-xs font-bold">⇄</span>
         </div>
         <p class="text-xs text-gray-400 text-center mt-2">
-          {{ formattedTime }}
+          <FormattedTime :timestamp="trade.timestamp" />
         </p>
       </div>
       <div class="w-full flex-grow">
@@ -50,10 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, reactive } from "vue";
+import { computed, reactive } from "vue";
 import type { AMMTrade } from "../types/algorand";
 import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
+import FormattedTime from "./FormattedTime.vue";
 
 const state = reactive({
   forceUpdate: 0, // Used to trigger reactivity when assets are loaded
@@ -62,23 +63,6 @@ const state = reactive({
 const props = defineProps<{
   trade: AMMTrade;
 }>();
-
-// Create a reactive timestamp that updates every second
-const currentTime = ref(Date.now());
-let timeInterval: number | null = null;
-
-const formatTime = (timestamp: string) => {
-  const tradeTime = new Date(timestamp).getTime();
-  const now = currentTime.value;
-  const diff = (now - tradeTime) / 1000;
-
-  if (diff < 60) return `${Math.floor(diff)}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-};
-
-const formattedTime = computed(() => formatTime(props.trade.timestamp));
 
 const formattedAssetIn = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load
@@ -190,17 +174,4 @@ const formatAssetBalance = (
 
   return assetService.formatAssetBalance(balance, assetId);
 };
-
-onMounted(() => {
-  // Update current time every second
-  timeInterval = setInterval(() => {
-    currentTime.value = Date.now();
-  }, 1000) as unknown as number;
-});
-
-onUnmounted(() => {
-  if (timeInterval) {
-    clearInterval(timeInterval);
-  }
-});
 </script>

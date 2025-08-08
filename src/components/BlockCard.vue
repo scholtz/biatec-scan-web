@@ -7,7 +7,7 @@
         Block #{{ block.round.toLocaleString() }}
       </h3>
       <span class="text-xs text-gray-400">
-        {{ formattedTime }}
+        <FormattedTime :timestamp="block.timestamp" />
       </span>
     </div>
 
@@ -44,40 +44,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
 import algosdk from "algosdk";
+import FormattedTime from "./FormattedTime.vue";
 
-const props = defineProps<{
+defineProps<{
   block: algosdk.BlockHeader;
   previousBlock: algosdk.BlockHeader | null;
 }>();
-
-// Create a reactive timestamp that updates every second
-const currentTime = ref(Date.now());
-let timeInterval: number | null = null;
-
-const formatTime = (timestamp: bigint) => {
-  const now = currentTime.value / 1000;
-  const diff = now - Number(timestamp);
-
-  if (diff < 60) return `${Math.floor(diff)}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-};
-
-const formattedTime = computed(() => formatTime(props.block.timestamp));
-
-onMounted(() => {
-  // Update current time every second
-  timeInterval = setInterval(() => {
-    currentTime.value = Date.now();
-  }, 1000) as unknown as number;
-});
-
-onUnmounted(() => {
-  if (timeInterval) {
-    clearInterval(timeInterval);
-  }
-});
 </script>

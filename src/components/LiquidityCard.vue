@@ -2,7 +2,7 @@
   <div class="card">
     <div class="flex items-center justify-between mb-3">
       <span class="text-xs text-gray-400">
-        {{ formatTimestamp(liquidity.timestamp) }}
+        <FormattedTime :timestamp="liquidity.timestamp" />
       </span>
       <span
         class="text-xs px-2 py-1 rounded"
@@ -73,6 +73,7 @@
 import { reactive, computed } from "vue";
 import type { AMMLiquidity } from "../types/algorand";
 import { assetService } from "../services/assetService";
+import FormattedTime from "./FormattedTime.vue";
 
 interface Props {
   liquidity: AMMLiquidity;
@@ -134,24 +135,5 @@ const formattedAssetLP = computed(() => {
 const formatAddress = (address: string): string => {
   if (!address) return "";
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
-};
-
-const formatTimestamp = (timestamp: string): string => {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSecs = Math.floor(diffMs / 1000);
-  const diffMins = Math.floor(diffSecs / 60);
-  const diffHours = Math.floor(diffMins / 60);
-
-  if (diffSecs < 60) {
-    return `${diffSecs}s ago`;
-  } else if (diffMins < 60) {
-    return `${diffMins}m ago`;
-  } else if (diffHours < 24) {
-    return `${diffHours}h ago`;
-  } else {
-    return date.toLocaleDateString();
-  }
 };
 </script>
