@@ -2,7 +2,7 @@ import algosdk from "algosdk";
 import type { AlgorandTransaction } from "../types/algorand";
 
 class AlgorandService {
-  private algodUrl = "https://mainnet-api.algonode.cloud";
+  private algodUrl = "https://algorand-algod-public.de-4.biatec.io";
   private indexerUrl = "https://mainnet-idx.algonode.cloud";
   private algodClient: algosdk.Algodv2;
   private indexerClient: algosdk.Indexer;
@@ -12,7 +12,9 @@ class AlgorandService {
     this.algodClient = new algosdk.Algodv2("", this.algodUrl, "");
     this.indexerClient = new algosdk.Indexer("", this.indexerUrl, "");
   }
-
+  getAlgodClient(): algosdk.Algodv2 {
+    return this.algodClient;
+  }
   async getLatestBlocks(limit: number = 20): Promise<algosdk.BlockHeader[]> {
     try {
       // Get current status to find the latest round

@@ -117,7 +117,6 @@ import BlockCard from "../components/BlockCard.vue";
 import TradeCard from "../components/TradeCard.vue";
 import LiquidityCard from "../components/LiquidityCard.vue";
 import algosdk from "algosdk";
-import { getTokenFromLocalStorage } from "../scripts/algo/getTokenFromLocalStorage";
 
 const state = reactive({
   latestBlocks: [] as algosdk.BlockHeader[],
@@ -160,19 +159,6 @@ const networkStatus = computed(() => {
   }
 });
 
-const formatAssetBalance = (balance: bigint, assetId: bigint): string => {
-  if (balance === 0n) return "0";
-  const assetInfo = getTokenFromLocalStorage(assetId);
-  if (assetInfo == null) {
-    if (state.tokensToLoad.find((t) => t === assetId) == null) {
-      state.tokensToLoad.push(assetId);
-    }
-    return "Loading asset info...";
-  }
-
-  return `${(balance / BigInt(10 ** assetInfo.decimals)).toLocaleString()} ${assetInfo.unitName ?? assetInfo.name}`;
-};
-
 const refreshBlocks = async () => {
   state.isLoading = true;
   try {
@@ -208,9 +194,41 @@ onMounted(async () => {
   try {
     signalrService.onTradeReceived((trade: AMMTrade) => {
       if (trade && trade.txId) {
-        state.recentTrades.unshift(trade);
-        if (state.recentTrades.length > 50) {
-          state.recentTrades = state.recentTrades.slice(0, 50);
+        // Check if trade with same txId already exists
+        const existingIndex = state.recentTrades.findIndex(
+          (t) => t.txId === trade.txId
+        );
+
+        if (existingIndex !== -1) {
+          // Trade already exists
+          if (trade.tradeState === "Confirmed") {
+            // Replace the existing trade with confirmed version
+            console.log(
+              `Replacing existing trade ${trade.txId} with confirmed state`
+            );
+            state.recentTrades[existingIndex] = trade;
+          } else if (trade.tradeState === "TxPool") {
+            // Ignore TxPool updates if trade already exists
+            console.log(
+              `Ignoring TxPool update for existing trade ${trade.txId}`
+            );
+            return;
+          } else {
+            // For any other state, replace the existing trade
+            console.log(
+              `Replacing existing trade ${trade.txId} with state ${trade.tradeState}`
+            );
+            state.recentTrades[existingIndex] = trade;
+          }
+        } else {
+          // New trade, add to beginning of list
+          console.log(
+            `Adding new trade ${trade.txId} with state ${trade.tradeState}`
+          );
+          state.recentTrades.unshift(trade);
+          if (state.recentTrades.length > 50) {
+            state.recentTrades = state.recentTrades.slice(0, 50);
+          }
         }
       }
     });

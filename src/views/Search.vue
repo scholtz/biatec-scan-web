@@ -60,7 +60,7 @@
 
       <!-- Block Result -->
       <div v-if="searchResult.type === 'block'" class="mb-8">
-        <BlockCard :block="searchResult.data" />
+        <BlockCard :block="searchResult.data" :previousBlock="null" />
 
         <!-- Block Transactions -->
         <div v-if="blockTransactions.length" class="mt-8">

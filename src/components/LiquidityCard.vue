@@ -27,7 +27,7 @@
       <div class="flex justify-between items-center">
         <span class="text-sm text-gray-400">Asset A:</span>
         <span class="text-sm text-white">
-          {{ formatAmount(liquidity.assetAmountA) }}
+          {{ formattedAssetA }}
           <span class="text-xs text-gray-400">({{ liquidity.assetIdA }})</span>
         </span>
       </div>
@@ -35,7 +35,7 @@
       <div class="flex justify-between items-center">
         <span class="text-sm text-gray-400">Asset B:</span>
         <span class="text-sm text-white">
-          {{ formatAmount(liquidity.assetAmountB) }}
+          {{ formattedAssetB }}
           <span class="text-xs text-gray-400">({{ liquidity.assetIdB }})</span>
         </span>
       </div>
@@ -43,7 +43,7 @@
       <div class="flex justify-between items-center">
         <span class="text-sm text-gray-400">LP Tokens:</span>
         <span class="text-sm text-white">
-          {{ formatAmount(liquidity.assetAmountLP) }}
+          {{ formattedAssetLP }}
           <span class="text-xs text-gray-400">({{ liquidity.assetIdLP }})</span>
         </span>
       </div>
@@ -70,22 +70,66 @@
 </template>
 
 <script setup lang="ts">
+import { reactive, computed } from "vue";
 import type { AMMLiquidity } from "../types/algorand";
+import { assetService } from "../services/assetService";
 
 interface Props {
   liquidity: AMMLiquidity;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
-const formatAmount = (amount: number): string => {
-  if (amount >= 1000000) {
-    return (amount / 1000000).toFixed(2) + "M";
-  } else if (amount >= 1000) {
-    return (amount / 1000).toFixed(2) + "K";
+const state = reactive({
+  forceUpdate: 0, // Used to trigger reactivity when assets are loaded
+});
+
+const formattedAssetA = computed(() => {
+  void state.forceUpdate;
+  const assetInfo = assetService.getAssetInfo(BigInt(props.liquidity.assetIdA));
+  if (!assetInfo) {
+    assetService.requestAsset(BigInt(props.liquidity.assetIdA), () => {
+      state.forceUpdate++;
+    });
+    return "Loading...";
   }
-  return amount.toString();
-};
+  return assetService.formatAssetBalance(
+    props.liquidity.assetAmountA,
+    BigInt(props.liquidity.assetIdA)
+  );
+});
+
+const formattedAssetB = computed(() => {
+  void state.forceUpdate;
+  const assetInfo = assetService.getAssetInfo(BigInt(props.liquidity.assetIdB));
+  if (!assetInfo) {
+    assetService.requestAsset(BigInt(props.liquidity.assetIdB), () => {
+      state.forceUpdate++;
+    });
+    return "Loading...";
+  }
+  return assetService.formatAssetBalance(
+    props.liquidity.assetAmountB,
+    BigInt(props.liquidity.assetIdB)
+  );
+});
+
+const formattedAssetLP = computed(() => {
+  void state.forceUpdate;
+  const assetInfo = assetService.getAssetInfo(
+    BigInt(props.liquidity.assetIdLP)
+  );
+  if (!assetInfo) {
+    assetService.requestAsset(BigInt(props.liquidity.assetIdLP), () => {
+      state.forceUpdate++;
+    });
+    return "Loading...";
+  }
+  return assetService.formatAssetBalance(
+    props.liquidity.assetAmountLP,
+    BigInt(props.liquidity.assetIdLP)
+  );
+});
 
 const formatAddress = (address: string): string => {
   if (!address) return "";

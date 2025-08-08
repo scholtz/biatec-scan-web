@@ -7,11 +7,11 @@ export const getTokenFromLocalStorage = (
   if (typeof window === "undefined") {
     return null; // Ensure this runs only in the browser
   }
-  if (assetId === 0n) {
+  if (assetId === 0n || !assetId) {
     const defaultToken: AssetParams = {
       name: "Algorand",
       unitName: "ALGO",
-      total: 10000000000n,
+      total: 10_000_000_000,
       decimals: 6,
     };
     return defaultToken;

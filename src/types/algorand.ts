@@ -29,22 +29,22 @@ export interface AlgorandTransaction {
 export interface AssetParams {
   name: string;
   unitName: string;
-  total: bigint;
+  total: number;
   decimals: number;
 }
 export interface AMMTrade {
-  assetIdIn: number;
-  assetIdOut: number;
+  assetIdIn: bigint;
+  assetIdOut: bigint;
   assetAmountIn: number;
   assetAmountOut: number;
   txId: string;
-  blockId: number;
+  blockId: bigint;
   txGroup: string;
   timestamp: string;
   protocol: string;
   trader: string;
   poolAddress: string;
-  poolAppId: number;
+  poolAppId: bigint;
   topTxId: string;
   tradeState: string;
 }

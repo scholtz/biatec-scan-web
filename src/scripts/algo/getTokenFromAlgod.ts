@@ -14,9 +14,13 @@ export const getTokenFromAlgod = async (
   if (!token || !token.params) {
     throw new Error(`Token with ID ${assetId} not found`);
   }
-  localStorage.setItem(
-    `asset_${assetId.toString()}`,
-    JSON.stringify(token.params)
-  );
-  return token.params as AssetParams;
+
+  const params: AssetParams = {
+    name: token.params.name ?? "Unknown Asset",
+    unitName: token.params.unitName ?? "",
+    total: Number(token.params.total),
+    decimals: token.params.decimals,
+  };
+  localStorage.setItem(`asset_${assetId.toString()}`, JSON.stringify(params));
+  return params;
 };

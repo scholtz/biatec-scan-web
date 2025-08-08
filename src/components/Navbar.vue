@@ -69,7 +69,6 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const searchQuery = ref("");
-const connectionStatus = ref(false);
 
 const performSearch = () => {
   if (searchQuery.value.trim()) {
