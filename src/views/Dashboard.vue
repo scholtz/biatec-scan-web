@@ -2,8 +2,25 @@
   <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header Stats -->
     <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-8"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6 mb-8"
     >
+      <div class="card text-center">
+        <h3 class="text-2xl font-bold text-white" v-if="state.algoPrice">
+          <div>
+            {{
+              new Number(state.algoPrice.b / state.algoPrice.a).toLocaleString(
+                undefined,
+                {
+                  minimumFractionDigits: 6,
+                  maximumFractionDigits: 6,
+                }
+              )
+            }}
+          </div>
+        </h3>
+        <h3 class="text-2xl font-bold text-gray-400" v-else>Loading...</h3>
+        <p class="text-gray-400">ALGO/USD</p>
+      </div>
       <div class="card text-center">
         <h3 class="text-2xl font-bold text-white mb-2">
           {{ state.latestBlocks[0]?.round.toLocaleString() || "..." }}
@@ -144,6 +161,7 @@ import TradeCard from "../components/TradeCard.vue";
 import LiquidityCard from "../components/LiquidityCard.vue";
 import PoolCard from "../components/PoolCard.vue";
 import algosdk from "algosdk";
+import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 
 const state = reactive({
   latestBlocks: [] as algosdk.BlockHeader[],
@@ -156,6 +174,7 @@ const state = reactive({
   connectionStatus: false,
   mounted: true,
   tokensToLoad: [] as bigint[],
+  algoPrice: null as AMMAggregatedPool | null,
 });
 
 // Reactive current time for network status calculation
@@ -219,6 +238,22 @@ onMounted(async () => {
   //refreshInterval = setInterval(refreshBlocks, 30000) as unknown as number; // Refresh every 30 seconds
 
   // Set up SignalR for AMM trades
+
+  await signalrService.subscribeToTrades("");
+
+  try {
+    console.log("onAggregatedPoolReceived.reg");
+    signalrService.onAggregatedPoolReceived((pool: AMMAggregatedPool) => {
+      console.log("onAggregatedPoolReceived.pool", pool.id, pool);
+      if (pool.id == "0-31566704") {
+        // algo-usdc
+        state.algoPrice = pool;
+        console.log("Received aggregated pool algo-usdc:", pool);
+      }
+    });
+  } catch (error) {
+    console.error("Error setting up SignalR pool handler:", error);
+  }
   try {
     signalrService.onTradeReceived((trade: AMMTrade) => {
       if (trade && trade.txId) {
@@ -231,28 +266,28 @@ onMounted(async () => {
           // Trade already exists
           if (trade.tradeState === "Confirmed") {
             // Replace the existing trade with confirmed version
-            console.log(
-              `Replacing existing trade ${trade.txId} with confirmed state`
-            );
+            // console.log(
+            //   `Replacing existing trade ${trade.txId} with confirmed state`
+            // );
             state.recentTrades[existingIndex] = trade;
           } else if (trade.tradeState === "TxPool") {
             // Ignore TxPool updates if trade already exists
-            console.log(
-              `Ignoring TxPool update for existing trade ${trade.txId}`
-            );
+            // console.log(
+            //   `Ignoring TxPool update for existing trade ${trade.txId}`
+            // );
             return;
           } else {
             // For any other state, replace the existing trade
-            console.log(
-              `Replacing existing trade ${trade.txId} with state ${trade.tradeState}`
-            );
+            // console.log(
+            //   `Replacing existing trade ${trade.txId} with state ${trade.tradeState}`
+            // );
             state.recentTrades[existingIndex] = trade;
           }
         } else {
           // New trade, add to beginning of list
-          console.log(
-            `Adding new trade ${trade.txId} with state ${trade.tradeState}`
-          );
+          // console.log(
+          //   `Adding new trade ${trade.txId} with state ${trade.tradeState}`
+          // );
           state.recentTrades.unshift(trade);
           if (state.recentTrades.length > 50) {
             state.recentTrades = state.recentTrades.slice(0, 50);
@@ -286,7 +321,7 @@ onMounted(async () => {
 
         if (existingIndex !== -1) {
           // Pool already exists, replace it
-          console.log(`Updating existing pool ${pool.poolAppId}`);
+          //console.log(`Updating existing pool ${pool.poolAppId}`);
           state.recentPools[existingIndex] = pool;
         } else {
           // New pool, add to beginning of list
@@ -336,13 +371,14 @@ async function refreshData() {
   }
 }
 
-onUnmounted(() => {
+onUnmounted(async () => {
   if (refreshInterval) {
     clearInterval(refreshInterval);
   }
   if (timeInterval) {
     clearInterval(timeInterval);
   }
+  await signalrService.unsubscribeToTrades("");
   state.mounted = false;
 });
 </script>

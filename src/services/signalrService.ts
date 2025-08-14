@@ -11,9 +11,11 @@ import algosdk from "algosdk";
 import { Buffer } from "buffer";
 import { makeArc14AuthHeader, makeArc14TxWithSuggestedParams } from "arc14";
 import { SuggestedParams } from "algosdk";
+import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 const callbacksTrades: ((trade: AMMTrade) => void)[] = [];
 const callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
 const callbacksPools: ((pool: AMMPool) => void)[] = [];
+const callbacksAggregatedPools: ((pool: AMMAggregatedPool) => void)[] = [];
 class SignalRService {
   private connection: HubConnection | null = null;
   private isConnected = false;
@@ -118,6 +120,18 @@ class SignalRService {
           callback(liquidity as AMMLiquidity)
         );
       });
+      // Handle subscription errors
+      this.connection.on("AggregatedPoolUpdated", (pool: any) => {
+        var poolObj = pool as AMMAggregatedPool;
+        console.log(
+          "AggregatedPoolUpdated received:",
+          poolObj.id,
+          callbacksAggregatedPools.length,
+          poolObj,
+          pool
+        );
+        callbacksAggregatedPools.forEach((callback) => callback(poolObj));
+      });
 
       await this.connection.start();
       this.isConnected = true;
@@ -125,14 +139,13 @@ class SignalRService {
 
       // Subscribe to receive trade updates with empty filter (all trades)
       await this.connection.invoke("TestConnection");
-      await this.subscribeToTrades("");
     } catch (error) {
       console.error("Error connecting to SignalR:", error);
       this.scheduleReconnect();
     }
   }
 
-  private async subscribeToTrades(filter: string = ""): Promise<void> {
+  public async subscribeToTrades(filter: string = ""): Promise<void> {
     if (!this.connection || !this.isConnected) return;
 
     try {
@@ -140,6 +153,16 @@ class SignalRService {
       console.log(`Subscribed to trades with filter: "${filter}"`);
     } catch (error) {
       console.error("Error subscribing to trades:", error);
+    }
+  }
+  public async unsubscribeToTrades(filter: string = ""): Promise<void> {
+    if (!this.connection || !this.isConnected) return;
+
+    try {
+      await this.connection.invoke("Unsubscribe", filter);
+      console.log(`Unsubscribed from trades with filter: "${filter}"`);
+    } catch (error) {
+      console.error("Error unsubscribing from trades:", error);
     }
   }
 
@@ -161,6 +184,11 @@ class SignalRService {
   }
   onPoolReceived(callback: (liquidity: AMMPool) => void): void {
     callbacksPools.push(callback);
+  }
+  onAggregatedPoolReceived(
+    callback: (liquidity: AMMAggregatedPool) => void
+  ): void {
+    callbacksAggregatedPools.push(callback);
   }
 
   async disconnect(): Promise<void> {

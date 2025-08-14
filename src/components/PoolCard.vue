@@ -126,7 +126,7 @@ const formattedReserveA = computed(() => {
 const formattedReserveB = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load
   void state.forceUpdate;
-  console.log("props.pool", props.pool);
+  //console.log("props.pool", props.pool);
   if (!props.pool.b || props.pool.assetIdB == undefined) return "0";
   return assetService.formatAssetBalance(props.pool.b, props.pool.assetIdB);
 });
