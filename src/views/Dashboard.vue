@@ -29,7 +29,9 @@
       </div>
       <div class="card text-center">
         <h3 class="text-2xl font-bold text-white mb-2">
-          {{ totalTransactions.toLocaleString() }}
+          {{
+            state.latestBlocks[0]?.totalTransactions.toLocaleString() || "..."
+          }}
         </h3>
         <p class="text-gray-400">Total Transactions</p>
       </div>
@@ -56,14 +58,9 @@
         </div>
         <div v-else class="space-y-4 overflow-y-auto">
           <BlockCard
-            v-for="(block, idx) in state.latestBlocks"
+            v-for="block in state.latestBlocks"
             :key="block.round.toString()"
             :block="block"
-            :previousBlock="
-              state.latestBlocks.length > idx
-                ? state.latestBlocks[idx + 1]
-                : null
-            "
           />
         </div>
       </div>
@@ -148,7 +145,6 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed, reactive, ref } from "vue";
-import { algorandService } from "../services/algorandService";
 import { signalrService } from "../services/signalrService";
 import type {
   AlgorandTransaction,
@@ -160,11 +156,11 @@ import BlockCard from "../components/BlockCard.vue";
 import TradeCard from "../components/TradeCard.vue";
 import LiquidityCard from "../components/LiquidityCard.vue";
 import PoolCard from "../components/PoolCard.vue";
-import algosdk from "algosdk";
 import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
+import { BiatecBlock } from "../types/BiatecBlock";
 
 const state = reactive({
-  latestBlocks: [] as algosdk.BlockHeader[],
+  latestBlocks: [] as BiatecBlock[],
   recentTransactions: [] as AlgorandTransaction[],
   recentTrades: [] as AMMTrade[],
   recentLiquidity: [] as AMMLiquidity[],
@@ -182,58 +178,24 @@ const currentTime = ref(Date.now());
 let refreshInterval: number | null = null;
 let timeInterval: number | null = null;
 
-const totalTransactions = computed(() => {
-  // Return the total transaction count from the latest block (txnCounter is cumulative from inception)
-  return state.latestBlocks.length > 0
-    ? Number(state.latestBlocks[0].txnCounter)
-    : 0;
-});
-
 const networkStatus = computed(() => {
   if (state.latestBlocks.length === 0)
     return { status: "OFFLINE", color: "text-red-400" };
 
   const latestBlock = state.latestBlocks[0];
-  const now = Math.floor(currentTime.value / 1000);
-  const blockTime = Number(latestBlock.timestamp);
-  const timeDiff = now - blockTime;
+  const now = new Date();
+  const blockTime = new Date(latestBlock.timestamp);
+  const timeDiff = now.getTime() - blockTime.getTime();
 
   // If latest block is less than 60 seconds old, consider network online
-  if (timeDiff < 60) {
+  if (timeDiff < 60000) {
     return { status: "ONLINE", color: "text-green-400" };
   } else {
     return { status: "OFFLINE", color: "text-red-400" };
   }
 });
 
-const refreshBlocks = async () => {
-  state.isLoading = true;
-  try {
-    const blocks = await algorandService.getLatestBlocks(11);
-    if (blocks) {
-      state.latestBlocks = blocks;
-    }
-    // Load transactions for the latest few blocks
-    if (blocks.length > 0) {
-      state.isLoadingTransactions = true;
-      const txPromises = blocks
-        .slice(0, 5)
-        .map((block) => algorandService.getBlockTransactions(block.round));
-      const txResults = await Promise.all(txPromises);
-      const allTransactions: AlgorandTransaction[] = [];
-      txResults.forEach((txArray) => allTransactions.push(...txArray));
-      state.recentTransactions = allTransactions.slice(0, 50);
-      state.isLoadingTransactions = false;
-    }
-  } catch (error) {
-    console.error("Error refreshing blocks:", error);
-  }
-  state.isLoading = false;
-};
-
 onMounted(async () => {
-  await refreshBlocks();
-
   // Set up real-time updates
   //refreshInterval = setInterval(refreshBlocks, 30000) as unknown as number; // Refresh every 30 seconds
 
@@ -242,9 +204,19 @@ onMounted(async () => {
   await signalrService.subscribeToTrades("");
 
   try {
-    console.log("onAggregatedPoolReceived.reg");
+    console.log("on.reg");
+    signalrService.onBlockReceived((block: BiatecBlock) => {
+      console.log("onBlockReceived.block", block.round, block);
+      state.latestBlocks = [block, ...state.latestBlocks.slice(0, 9)];
+    });
+  } catch (error) {
+    console.error("Error setting up SignalR pool handler:", error);
+  }
+
+  try {
+    //console.log("onAggregatedPoolReceived.reg");
     signalrService.onAggregatedPoolReceived((pool: AMMAggregatedPool) => {
-      console.log("onAggregatedPoolReceived.pool", pool.id, pool);
+      //console.log("onAggregatedPoolReceived.pool", pool.id, pool);
       if (pool.id == "0-31566704") {
         // algo-usdc
         state.algoPrice = pool;
@@ -355,21 +327,7 @@ onMounted(async () => {
   timeInterval = setInterval(() => {
     currentTime.value = Date.now();
   }, 1000) as unknown as number;
-
-  await refreshData(); // run async function without waiting on purpose
 });
-
-async function refreshData() {
-  let latest = state.latestBlocks[0]?.round;
-  while (state.mounted) {
-    const block = await algorandService.getBlock(latest + 1n);
-    if (block && block.round == latest + 1n) {
-      state.latestBlocks = [block, ...state.latestBlocks.slice(0, 9)];
-      latest = state.latestBlocks[0]?.round;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 5 seconds before next refresh
-  }
-}
 
 onUnmounted(async () => {
   if (refreshInterval) {

@@ -15,17 +15,13 @@
       <div>
         <p class="text-sm text-gray-400 mb-1">Transactions</p>
         <p class="text-white font-medium">
-          {{
-            (
-              block.txnCounter - (previousBlock?.txnCounter || 0n)
-            ).toLocaleString()
-          }}
+          {{ block.transactions.toLocaleString() }}
         </p>
       </div>
       <div class="flex flex-col justify-between items-center">
         <p class="text-sm text-gray-400 mb-1">Round Time</p>
         <p class="text-white font-medium">
-          {{ new Date(Number(block.timestamp) * 1000).toLocaleTimeString() }}
+          {{ new Date(block.timestamp).toLocaleTimeString() }}
         </p>
       </div>
       <div class="flex justify-between items-center w-full">
@@ -44,11 +40,10 @@
 </template>
 
 <script setup lang="ts">
-import algosdk from "algosdk";
 import FormattedTime from "./FormattedTime.vue";
+import { BiatecBlock } from "../types/BiatecBlock";
 
 defineProps<{
-  block: algosdk.BlockHeader;
-  previousBlock: algosdk.BlockHeader | null;
+  block: BiatecBlock;
 }>();
 </script>

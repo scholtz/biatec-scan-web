@@ -12,10 +12,12 @@ import { Buffer } from "buffer";
 import { makeArc14AuthHeader, makeArc14TxWithSuggestedParams } from "arc14";
 import { SuggestedParams } from "algosdk";
 import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
+import { BiatecBlock } from "../types/BiatecBlock";
 const callbacksTrades: ((trade: AMMTrade) => void)[] = [];
 const callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
 const callbacksPools: ((pool: AMMPool) => void)[] = [];
 const callbacksAggregatedPools: ((pool: AMMAggregatedPool) => void)[] = [];
+const callbacksBlocks: ((block: BiatecBlock) => void)[] = [];
 class SignalRService {
   private connection: HubConnection | null = null;
   private isConnected = false;
@@ -105,6 +107,11 @@ class SignalRService {
       });
 
       // Handle subscription errors
+      this.connection.on("Block", (block: any) => {
+        //console.log("FilteredTradeUpdated received:", trade);
+        callbacksBlocks.forEach((callback) => callback(block as BiatecBlock));
+      });
+      // Handle subscription errors
       this.connection.on("FilteredTradeUpdated", (trade: any) => {
         //console.log("FilteredTradeUpdated received:", trade);
         callbacksTrades.forEach((callback) => callback(trade as AMMTrade));
@@ -123,13 +130,13 @@ class SignalRService {
       // Handle subscription errors
       this.connection.on("AggregatedPoolUpdated", (pool: any) => {
         var poolObj = pool as AMMAggregatedPool;
-        console.log(
-          "AggregatedPoolUpdated received:",
-          poolObj.id,
-          callbacksAggregatedPools.length,
-          poolObj,
-          pool
-        );
+        // console.log(
+        //   "AggregatedPoolUpdated received:",
+        //   poolObj.id,
+        //   callbacksAggregatedPools.length,
+        //   poolObj,
+        //   pool
+        // );
         callbacksAggregatedPools.forEach((callback) => callback(poolObj));
       });
 
@@ -146,7 +153,35 @@ class SignalRService {
   }
 
   public async subscribeToTrades(filter: string = ""): Promise<void> {
-    if (!this.connection || !this.isConnected) return;
+    console.log("subscribing to AMM trades");
+    const timeoutMs = 5000;
+    const start = Date.now();
+
+    if (!this.connection || !this.isConnected) {
+      console.log("Waiting up to 5s for SignalR connection...");
+
+      // Kick off a connection if none exists
+      if (!this.connection) {
+        try {
+          // Fire and forget; we'll await readiness below
+          this.connect();
+        } catch {
+          // ignore
+        }
+      }
+
+      while (
+        Date.now() - start < timeoutMs &&
+        (!this.connection || !this.isConnected)
+      ) {
+        await new Promise((r) => setTimeout(r, 200));
+      }
+
+      if (!this.connection || !this.isConnected) {
+        console.log("Not subscribed: connection timeout (5s)");
+        return;
+      }
+    }
 
     try {
       await this.connection.invoke("Subscribe", filter);
@@ -184,6 +219,9 @@ class SignalRService {
   }
   onPoolReceived(callback: (liquidity: AMMPool) => void): void {
     callbacksPools.push(callback);
+  }
+  onBlockReceived(callback: (block: BiatecBlock) => void): void {
+    callbacksBlocks.push(callback);
   }
   onAggregatedPoolReceived(
     callback: (liquidity: AMMAggregatedPool) => void
