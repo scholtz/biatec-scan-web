@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-8">
       <!-- Latest Blocks -->
       <div class="">
         <div class="flex items-center justify-between mb-6">
@@ -139,6 +139,34 @@
           />
         </div>
       </div>
+
+      <!-- Aggregated Pool Updates Sidebar -->
+      <div>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-white">Aggregated Pools</h2>
+        </div>
+
+        <div
+          v-if="!filteredAggregatedPools.length"
+          class="card text-center py-8"
+        >
+          <p class="text-gray-400">
+            {{
+              state.connectionStatus
+                ? "Waiting for aggregated pool updates..."
+                : "Connecting to live feed..."
+            }}
+          </p>
+        </div>
+
+        <div v-else class="space-y-4">
+          <AggregatedPoolCard
+            v-for="(pool, index) in filteredAggregatedPools"
+            :key="`aggpool-${pool.id || index}-${index}`"
+            :pool="pool"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -156,6 +184,7 @@ import BlockCard from "../components/BlockCard.vue";
 import TradeCard from "../components/TradeCard.vue";
 import LiquidityCard from "../components/LiquidityCard.vue";
 import PoolCard from "../components/PoolCard.vue";
+import AggregatedPoolCard from "../components/AggregatedPoolCard.vue";
 import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 import { BiatecBlock } from "../types/BiatecBlock";
 
@@ -165,12 +194,23 @@ const state = reactive({
   recentTrades: [] as AMMTrade[],
   recentLiquidity: [] as AMMLiquidity[],
   recentPools: [] as AMMPool[],
+  recentAggregatedPools: [] as AMMAggregatedPool[],
+  aggregatedPoolsMap: {} as Record<string, AMMAggregatedPool>,
   isLoading: true,
   isLoadingTransactions: true,
   connectionStatus: false,
   mounted: true,
   tokensToLoad: [] as bigint[],
   algoPrice: null as AMMAggregatedPool | null,
+});
+
+// Top Aggregated Pools: only asset A = 0 (ALGO), sorted by reserve A desc, top 10
+const filteredAggregatedPools = computed(() => {
+  const all = Object.values(state.aggregatedPoolsMap);
+  return all
+    .filter((p) => p.assetIdA === 0)
+    .sort((x, y) => (y.tvL_A ?? 0) - (x.tvL_A ?? 0))
+    .slice(0, 10);
 });
 
 // Reactive current time for network status calculation
@@ -221,6 +261,23 @@ onMounted(async () => {
         // algo-usdc
         state.algoPrice = pool;
         console.log("Received aggregated pool algo-usdc:", pool);
+      }
+      // Store/update in dictionary for global lookup and filtering
+      state.aggregatedPoolsMap[pool.id] = pool;
+      // Keep a recent list of aggregated pool updates
+      const idx = state.recentAggregatedPools.findIndex(
+        (p) => p.id === pool.id
+      );
+      if (idx !== -1) {
+        state.recentAggregatedPools[idx] = pool;
+        // move updated item to front to reflect recency
+        const updated = state.recentAggregatedPools.splice(idx, 1)[0];
+        state.recentAggregatedPools.unshift(updated);
+      } else {
+        state.recentAggregatedPools.unshift(pool);
+      }
+      if (state.recentAggregatedPools.length > 50) {
+        state.recentAggregatedPools = state.recentAggregatedPools.slice(0, 50);
       }
     });
   } catch (error) {
