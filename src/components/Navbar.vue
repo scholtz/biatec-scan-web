@@ -64,10 +64,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { signalrService } from "../services/signalrService";
-import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 
 const router = useRouter();
 const searchQuery = ref("");
@@ -79,12 +77,7 @@ const performSearch = () => {
   }
 };
 
-const state = reactive({
-  algoPrice: null as AMMAggregatedPool | null,
-})
-
 onMounted(() => {
- 
   // try {
   //   signalrService.onAggregatedPoolReceived((pool: AMMAggregatedPool) => {
   //     if(pool.Id == "0-31566704"){
@@ -96,5 +89,4 @@ onMounted(() => {
   //   console.error("Error setting up SignalR pool handler:", error);
   // }
 });
-
 </script>
