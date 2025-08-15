@@ -100,7 +100,19 @@ const formattedPrice = computed(() => {
   if (props.trade.tradeState === "TxPool") {
     return "";
   }
-
+  if (
+    assetService.needToReverseAssets(
+      props.trade.assetIdIn,
+      props.trade.assetIdOut
+    )
+  ) {
+    return formatSwapPrice(
+      props.trade.assetAmountOut,
+      props.trade.assetAmountIn,
+      BigInt(props.trade.assetIdOut),
+      BigInt(props.trade.assetIdIn)
+    );
+  }
   return formatSwapPrice(
     props.trade.assetAmountIn,
     props.trade.assetAmountOut,

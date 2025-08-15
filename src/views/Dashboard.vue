@@ -241,8 +241,6 @@ onMounted(async () => {
 
   // Set up SignalR for AMM trades
 
-  await signalrService.subscribeToTrades("");
-
   try {
     console.log("on.reg");
     signalrService.onBlockReceived((block: BiatecBlock) => {
@@ -378,6 +376,7 @@ onMounted(async () => {
   //     state.connectionStatus = false;
   //   }
   // }, 5000);
+  await signalrService.subscribeToTrades("");
   state.mounted = true;
 
   // Update current time every second for network status calculation

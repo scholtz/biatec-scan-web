@@ -147,6 +147,125 @@ class AssetService {
 
     return `${formattedBalance.toLocaleString()} ${unitName}`;
   }
+  /**
+   * Format asset pair balance with proper decimals and unit name. Divide a/b and format it with output price assetAName/assetBName.
+   */
+  formatPairBalance(
+    balanceA: bigint | number,
+    assetIdA: bigint,
+    balanceB: bigint | number,
+    assetIdB: bigint,
+    convertToBase: boolean
+  ): string {
+    let price = Number(balanceB) / Number(balanceA);
+
+    if (this.needToReverseAssets(assetIdA, assetIdB)) {
+      [assetIdA, assetIdB] = [assetIdB, assetIdA];
+      [balanceA, balanceB] = [balanceB, balanceA];
+    }
+
+    const assetInfoA = this.getAssetInfo(assetIdA);
+    const assetInfoB = this.getAssetInfo(assetIdB);
+    if (!assetInfoA || !assetInfoB) {
+      return "Loading...";
+    }
+
+    const unitNameA =
+      assetInfoA.unitName || assetInfoA.name || `Asset ${assetIdA}`;
+    const unitNameB =
+      assetInfoB.unitName || assetInfoB.name || `Asset ${assetIdB}`;
+
+    if (balanceA === 0n || balanceB === 0n || balanceA === 0 || balanceB === 0)
+      return `0  ${unitNameA}/${unitNameB}`;
+
+    if (convertToBase) {
+      const decimalsA = assetInfoA.decimals || 0;
+      const baseA = Number(balanceA) / Math.pow(10, decimalsA);
+      const decimalsB = assetInfoB.decimals || 0;
+
+      const baseB = Number(balanceB) / Math.pow(10, decimalsB);
+      price = baseB / baseA;
+    }
+
+    return `${price.toLocaleString(undefined, {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 6,
+    })} ${unitNameB}/${unitNameA}`;
+  }
+  /**
+   * Determine if the assets need to be reversed in a trade
+   * @param assetA The ID of the first asset
+   * @param assetB The ID of the second asset
+   * @returns True if the assets need to be reversed, false otherwise
+   */
+  needToReverseAssets = (assetA: bigint, assetB: bigint): boolean => {
+    if (assetA == 31566704n) {
+      // usdc
+      return false;
+    }
+    if (assetB == 31566704n) {
+      return true;
+    }
+    if (assetA == 760037151n) {
+      // xUSD
+      return false;
+    }
+    if (assetB == 760037151n) {
+      return true;
+    }
+    if (assetA == 227855942n) {
+      // eurs
+      return false;
+    }
+    if (assetB == 227855942n) {
+      return true;
+    }
+    if (assetA == 1241945177n) {
+      // goldDAO
+      return false;
+    }
+    if (assetB == 1241945177n) {
+      return true;
+    }
+
+    if (assetA == 0n) {
+      // algo
+      return false;
+    }
+    if (assetB == 0n) {
+      return true;
+    }
+    if (assetA == 2320804780n) {
+      //Aramid Algo
+      return false;
+    }
+    if (assetB == 2320804780n) {
+      return true;
+    }
+    if (assetA == 2537013734n) {
+      //xAlgo
+      return false;
+    }
+    if (assetB == 2537013734n) {
+      return true;
+    }
+    if (assetA == 2537013734n) {
+      //tAlgo
+      return false;
+    }
+    if (assetB == 2537013734n) {
+      return true;
+    }
+    if (assetA == 2537013734n) {
+      //tAlgo
+      return false;
+    }
+    if (assetB == 1185173782n) {
+      return true;
+    }
+
+    return false;
+  };
 }
 
 export const assetService = new AssetService();
