@@ -5,6 +5,7 @@ import TransactionDetails from "../views/TransactionDetails.vue";
 import AddressDetails from "../views/AddressDetails.vue";
 import PoolDetails from "../views/PoolDetails.vue";
 import Search from "../views/Search.vue";
+import PoolsByAssets from "../views/PoolsByAssets.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -13,6 +14,12 @@ const router = createRouter({
       path: "/",
       name: "Dashboard",
       component: Dashboard,
+    },
+    {
+      path: "/pools/:asset1/:asset2",
+      name: "PoolsByAssets",
+      component: PoolsByAssets,
+      props: true,
     },
     {
       path: "/block/:round",

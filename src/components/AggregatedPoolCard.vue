@@ -14,7 +14,7 @@
     <div class="">
       <div class="grid grid-cols-1 gap-2">
         <div class="text-lg text-white text-center">
-          <RouterLink :to="`/pools/${pool.assetIdA}-${pool.assetIdB}`">
+          <RouterLink :to="`/pools/${pool.assetIdA}/${pool.assetIdB}`">
             {{ formattedPrice }}
           </RouterLink>
         </div>
