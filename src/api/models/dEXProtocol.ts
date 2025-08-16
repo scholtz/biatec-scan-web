@@ -161,7 +161,7 @@ export type DEXProtocol = typeof DEXProtocol[keyof typeof DEXProtocol];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const DEXProtocol = {
-  NUMBER_0: 0,
-  NUMBER_1: 1,
-  NUMBER_2: 2,
+  Pact: 'Pact',
+  Tiny: 'Tiny',
+  Biatec: 'Biatec',
 } as const;

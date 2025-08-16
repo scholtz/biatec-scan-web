@@ -80,7 +80,7 @@ import type { AMMPool } from "../types/algorand";
 import { getAVMTradeReporterAPI } from "../api";
 import { assetService } from "../services/assetService";
 import FormattedTime from "../components/FormattedTime.vue";
-import { Pool } from "../api/aVMTradeReporterAPI";
+import { Pool, AggregatedPool } from "../api/models";
 
 const route = useRoute();
 const asset1 = ref<string>(route.params.asset1 as string);
@@ -105,7 +105,7 @@ const aggregated = ref<{
 
 const api = getAVMTradeReporterAPI();
 
-function mapPool(apiPool: any): AMMPool {
+function mapPool(apiPool: Pool): AMMPool {
   const aidA = apiPool.assetIdA != null ? BigInt(apiPool.assetIdA) : undefined;
   const aidB = apiPool.assetIdB != null ? BigInt(apiPool.assetIdB) : undefined;
   return {
@@ -115,8 +115,8 @@ function mapPool(apiPool: any): AMMPool {
     assetIdB: aidB,
     assetIdLP:
       apiPool.assetIdLP != null ? BigInt(apiPool.assetIdLP) : undefined,
-    a: apiPool.a != null ? BigInt(apiPool.a) : undefined,
-    b: apiPool.b != null ? BigInt(apiPool.b) : undefined,
+    a: BigInt((apiPool.a ?? 0) + (apiPool.af ?? 0)),
+    b: BigInt((apiPool.b ?? 0) + (apiPool.bf ?? 0)),
     l: apiPool.l != null ? BigInt(apiPool.l) : undefined,
     protocol: String(apiPool.protocol),
     timestamp: apiPool.timestamp ?? undefined,
@@ -136,7 +136,7 @@ async function fetchPools() {
       size: size.value,
     });
     // res is AxiosResponse<Pool[]>
-    pools.value = (res.data ?? []).map(mapPool);
+    pools.value = ((res.data as Pool[]) ?? []).map(mapPool);
   } catch (e: any) {
     error.value = e?.message ?? "Failed to load pools";
   } finally {
@@ -153,9 +153,9 @@ async function fetchAggregated() {
       assetIdB: a2,
       size: 1,
     });
-    const raw: any = Array.isArray(res.data)
+    const raw: AggregatedPool = Array.isArray(res.data)
       ? res.data[0]
-      : ((res as any).data ?? res);
+      : (res as AggregatedPool);
     if (!raw) {
       aggregated.value = null;
       return;
@@ -165,12 +165,12 @@ async function fetchAggregated() {
       id: String(`${raw.assetIdA}-${raw.assetIdB}`),
       assetIdA: Number(raw.assetIdA ?? a1),
       assetIdB: Number(raw.assetIdB ?? a2),
-      a: Number((raw.a ?? 0) + (raw.af ?? 0)),
-      b: Number((raw.b ?? 0) + (raw.bf ?? 0)),
-      tvL_A: Number(raw ?? raw.tvl_A ?? raw.tvlA ?? 0),
-      tvL_B: Number(raw.tvL_B ?? raw.tvl_B ?? raw.tvlB ?? 0),
-      poolCount: Number(raw.poolCount ?? raw.count ?? 0),
-      lastUpdated: (raw.lastUpdated ?? raw.updated ?? null) as string | null,
+      a: Number(raw.a ?? 0),
+      b: Number(raw.b ?? 0),
+      tvL_A: Number(raw.tvL_A ?? 0),
+      tvL_B: Number(raw.tvL_B ?? 0),
+      poolCount: Number(raw.poolCount ?? 0),
+      lastUpdated: (raw.lastUpdated ?? null) as string | null,
     };
   } catch (e) {
     // silent fail for aggregated; page still shows pools
