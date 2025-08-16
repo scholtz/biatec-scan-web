@@ -158,6 +158,7 @@ Troubleshooting
 
 export * from './aMMType';
 export * from './dEXProtocol';
+export * from './getApiAggregatedPoolParams';
 export * from './getApiPoolParams';
 export * from './getApiPoolStatsParams';
 export * from './indexer';
