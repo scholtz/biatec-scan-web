@@ -5,12 +5,7 @@ import {
   HttpTransportType,
 } from "@microsoft/signalr";
 import type { AMMLiquidity, AMMTrade, AMMPool } from "../types/algorand";
-import { generateAlgorandAccount } from "arc76";
-import { uuidv7 } from "uuidv7";
-import algosdk from "algosdk";
-import { Buffer } from "buffer";
-import { makeArc14AuthHeader, makeArc14TxWithSuggestedParams } from "arc14";
-import { SuggestedParams } from "algosdk";
+import { getAuthToken as getArc14AuthToken } from "./authService";
 import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 import { BiatecBlock } from "../types/BiatecBlock";
 const callbacksTrades: ((trade: AMMTrade) => void)[] = [];
@@ -23,38 +18,7 @@ class SignalRService {
   private isConnected = false;
   private reconnectInterval: number | null = null;
   async getAuthToken(): Promise<string> {
-    let session = "";
-    try {
-      const sessionLS = localStorage.getItem("session");
-      if (sessionLS) session = sessionLS;
-    } catch {
-      console.log("session not found");
-    }
-    if (!session) {
-      session = uuidv7();
-      localStorage.setItem("session", session);
-    }
-    // Implement your logic to retrieve the authentication token
-    const account: algosdk.Account = await generateAlgorandAccount(session);
-    const params: SuggestedParams = {
-      fee: 1000n,
-      genesisHash: new Uint8Array(
-        Buffer.from("wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=", "base64")
-      ),
-      genesisID: "mainnet-v1.0",
-      lastValid: 46916880n,
-      minFee: 1000n,
-      flatFee: false,
-      firstValid: 46915880n,
-    };
-    const tx = await makeArc14TxWithSuggestedParams(
-      "BiatecScan#ARC14",
-      account.addr.toString(),
-      params
-    );
-    const signed = tx.signTxn(account.sk);
-    const header = makeArc14AuthHeader(signed);
-    return header;
+    return await getArc14AuthToken();
   }
   async connect(): Promise<void> {
     try {
@@ -67,9 +31,7 @@ class SignalRService {
           //headers: headers,
           withCredentials: true,
           transport: HttpTransportType.WebSockets, // Use WebSockets for real-time updates
-          accessTokenFactory: async () => {
-            return await this.getAuthToken();
-          },
+          accessTokenFactory: async () => await this.getAuthToken(),
         }) // Biatec scan API SignalR endpoint
         .withAutomaticReconnect()
         .configureLogging(LogLevel.Information)

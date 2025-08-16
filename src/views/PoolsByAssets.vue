@@ -1,7 +1,7 @@
 <template>
   <div class="p-4 space-y-4">
     <h1 class="text-xl font-semibold text-white">
-      Pools for {{ asset1 }} / {{ asset2 }}
+      Pools for {{ asset1Name }} / {{ asset2Name }}
     </h1>
 
     <div class="flex items-center gap-2 text-sm text-gray-400">
@@ -24,11 +24,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import PoolCard from "../components/PoolCard.vue";
 import type { AMMPool } from "../types/algorand";
 import { getAVMTradeReporterAPI } from "../api";
+import { assetService } from "../services/assetService";
 
 const route = useRoute();
 const asset1 = ref<string>(route.params.asset1 as string);
@@ -38,6 +39,7 @@ const size = ref<number>(100);
 const pools = ref<AMMPool[]>([]);
 const loading = ref<boolean>(false);
 const error = ref<string>("");
+const forceUpdate = ref<number>(0); // trigger recompute after asset load
 
 const api = getAVMTradeReporterAPI();
 
@@ -91,6 +93,33 @@ watch(
     fetchPools();
   }
 );
+
+// Helpers to resolve asset names with lazy loading
+function getAssetName(assetId: bigint): string {
+  // depend on forceUpdate to refresh when assets load
+  void forceUpdate.value;
+  const info = assetService.getAssetInfo(assetId);
+  if (!info) {
+    // queue load and bump state when ready
+    assetService.requestAsset(assetId, () => {
+      forceUpdate.value++;
+    });
+    return "Loading...";
+  }
+  return info.unitName || info.name || `Asset ${assetId}`;
+}
+
+const asset1Id = computed(() => {
+  const n = Number(asset1.value);
+  return BigInt(isNaN(n) ? 0 : n);
+});
+const asset2Id = computed(() => {
+  const n = Number(asset2.value);
+  return BigInt(isNaN(n) ? 0 : n);
+});
+
+const asset1Name = computed(() => getAssetName(asset1Id.value));
+const asset2Name = computed(() => getAssetName(asset2Id.value));
 </script>
 
 <style scoped></style>
