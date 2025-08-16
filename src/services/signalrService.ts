@@ -8,11 +8,11 @@ import type { AMMLiquidity, AMMTrade, AMMPool } from "../types/algorand";
 import { getAuthToken as getArc14AuthToken } from "./authService";
 import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 import { BiatecBlock } from "../types/BiatecBlock";
-const callbacksTrades: ((trade: AMMTrade) => void)[] = [];
-const callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
-const callbacksPools: ((pool: AMMPool) => void)[] = [];
-const callbacksAggregatedPools: ((pool: AMMAggregatedPool) => void)[] = [];
-const callbacksBlocks: ((block: BiatecBlock) => void)[] = [];
+let callbacksTrades: ((trade: AMMTrade) => void)[] = [];
+let callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
+let callbacksPools: ((pool: AMMPool) => void)[] = [];
+let callbacksAggregatedPools: ((pool: AMMAggregatedPool) => void)[] = [];
+let callbacksBlocks: ((block: BiatecBlock) => void)[] = [];
 class SignalRService {
   private connection: HubConnection | null = null;
   private isConnected = false;
@@ -176,19 +176,40 @@ class SignalRService {
   onTradeReceived(callback: (trade: AMMTrade) => void): void {
     callbacksTrades.push(callback);
   }
+  unsubscribeFromTradeUpdates(callback: (trade: AMMTrade) => void): void {
+    callbacksTrades = callbacksTrades.filter((cb) => cb !== callback);
+  }
   onLiquidityReceived(callback: (liquidity: AMMLiquidity) => void): void {
     callbacksLiquidity.push(callback);
+  }
+  unsubscribeFromLiquidityUpdates(
+    callback: (liquidity: AMMLiquidity) => void
+  ): void {
+    callbacksLiquidity = callbacksLiquidity.filter((cb) => cb !== callback);
   }
   onPoolReceived(callback: (liquidity: AMMPool) => void): void {
     callbacksPools.push(callback);
   }
+  unsubscribeFromPoolUpdates(callback: (liquidity: AMMPool) => void): void {
+    callbacksPools = callbacksPools.filter((cb) => cb !== callback);
+  }
   onBlockReceived(callback: (block: BiatecBlock) => void): void {
     callbacksBlocks.push(callback);
+  }
+  unsubscribeFromBlockUpdates(callback: (block: BiatecBlock) => void): void {
+    callbacksBlocks = callbacksBlocks.filter((cb) => cb !== callback);
   }
   onAggregatedPoolReceived(
     callback: (liquidity: AMMAggregatedPool) => void
   ): void {
     callbacksAggregatedPools.push(callback);
+  }
+  unsubscribeFromAggregatedPoolUpdates(
+    callback: (liquidity: AMMAggregatedPool) => void
+  ): void {
+    callbacksAggregatedPools = callbacksAggregatedPools.filter(
+      (cb) => cb !== callback
+    );
   }
 
   async disconnect(): Promise<void> {

@@ -17,8 +17,20 @@
     <div v-if="loading" class="text-gray-400">Loading pools…</div>
     <div v-else-if="error" class="text-red-400">{{ error }}</div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <PoolCard v-for="p in pools" :key="p.poolAppId.toString()" :pool="p" />
+    <div v-else class="space-y-2">
+      <div
+        class="hidden md:grid md:grid-cols-8 gap-3 px-2 text-xs text-gray-400"
+      >
+        <div>Protocol</div>
+        <div>Pool ID</div>
+        <div>Pair</div>
+        <div>Reserve A</div>
+        <div>Reserve B</div>
+        <div>LP Supply</div>
+        <div>Address</div>
+        <div>Time</div>
+      </div>
+      <PoolRow v-for="p in pools" :key="p.poolAppId.toString()" :pool="p" />
     </div>
   </div>
 </template>
@@ -26,7 +38,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
-import PoolCard from "../components/PoolCard.vue";
+import PoolRow from "../components/PoolRow.vue";
 import type { AMMPool } from "../types/algorand";
 import { getAVMTradeReporterAPI } from "../api";
 import { assetService } from "../services/assetService";
@@ -56,6 +68,7 @@ function mapPool(apiPool: any): AMMPool {
     l: apiPool.l != null ? BigInt(apiPool.l) : undefined,
     protocol: String(apiPool.protocol),
     timestamp: apiPool.timestamp ?? undefined,
+    isReversed: false,
   } satisfies AMMPool;
 }
 

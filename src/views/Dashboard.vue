@@ -215,7 +215,6 @@ const filteredAggregatedPools = computed(() => {
 
 // Reactive current time for network status calculation
 const currentTime = ref(Date.now());
-let refreshInterval: number | null = null;
 let timeInterval: number | null = null;
 
 const networkStatus = computed(() => {
@@ -236,146 +235,14 @@ const networkStatus = computed(() => {
 });
 
 onMounted(async () => {
-  // Set up real-time updates
-  //refreshInterval = setInterval(refreshBlocks, 30000) as unknown as number; // Refresh every 30 seconds
-
   // Set up SignalR for AMM trades
 
-  try {
-    console.log("on.reg");
-    signalrService.onBlockReceived((block: BiatecBlock) => {
-      console.log("onBlockReceived.block", block.round, block);
-      state.latestBlocks = [block, ...state.latestBlocks.slice(0, 9)];
-    });
-  } catch (error) {
-    console.error("Error setting up SignalR pool handler:", error);
-  }
+  signalrService.onBlockReceived(onBlockReceivedEvent);
+  signalrService.onAggregatedPoolReceived(onAggregatedPoolReceivedEvent);
+  signalrService.onTradeReceived(onTradeReceivedEvent);
+  signalrService.onLiquidityReceived(onLiquidityReceivedEvent);
+  signalrService.onPoolReceived(onPoolReceivedEvent);
 
-  try {
-    //console.log("onAggregatedPoolReceived.reg");
-    signalrService.onAggregatedPoolReceived((pool: AMMAggregatedPool) => {
-      //console.log("onAggregatedPoolReceived.pool", pool.id, pool);
-      if (pool.id == "0-31566704") {
-        // algo-usdc
-        state.algoPrice = pool;
-        console.log("Received aggregated pool algo-usdc:", pool);
-      }
-      // Store/update in dictionary for global lookup and filtering
-      state.aggregatedPoolsMap[pool.id] = pool;
-      // Keep a recent list of aggregated pool updates
-      const idx = state.recentAggregatedPools.findIndex(
-        (p) => p.id === pool.id
-      );
-      if (idx !== -1) {
-        state.recentAggregatedPools[idx] = pool;
-        // move updated item to front to reflect recency
-        const updated = state.recentAggregatedPools.splice(idx, 1)[0];
-        state.recentAggregatedPools.unshift(updated);
-      } else {
-        state.recentAggregatedPools.unshift(pool);
-      }
-      if (state.recentAggregatedPools.length > 50) {
-        state.recentAggregatedPools = state.recentAggregatedPools.slice(0, 50);
-      }
-    });
-  } catch (error) {
-    console.error("Error setting up SignalR pool handler:", error);
-  }
-  try {
-    signalrService.onTradeReceived((trade: AMMTrade) => {
-      if (trade && trade.txId) {
-        // Check if trade with same txId already exists
-        const existingIndex = state.recentTrades.findIndex(
-          (t) => t.txId === trade.txId
-        );
-
-        if (existingIndex !== -1) {
-          // Trade already exists
-          if (trade.tradeState === "Confirmed") {
-            // Replace the existing trade with confirmed version
-            // console.log(
-            //   `Replacing existing trade ${trade.txId} with confirmed state`
-            // );
-            state.recentTrades[existingIndex] = trade;
-          } else if (trade.tradeState === "TxPool") {
-            // Ignore TxPool updates if trade already exists
-            // console.log(
-            //   `Ignoring TxPool update for existing trade ${trade.txId}`
-            // );
-            return;
-          } else {
-            // For any other state, replace the existing trade
-            // console.log(
-            //   `Replacing existing trade ${trade.txId} with state ${trade.tradeState}`
-            // );
-            state.recentTrades[existingIndex] = trade;
-          }
-        } else {
-          // New trade, add to beginning of list
-          // console.log(
-          //   `Adding new trade ${trade.txId} with state ${trade.tradeState}`
-          // );
-          state.recentTrades.unshift(trade);
-          if (state.recentTrades.length > 50) {
-            state.recentTrades = state.recentTrades.slice(0, 50);
-          }
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Error setting up SignalR trade handler:", error);
-  }
-  try {
-    signalrService.onLiquidityReceived((liquidity: AMMLiquidity) => {
-      if (liquidity && liquidity.txId) {
-        state.recentLiquidity.unshift(liquidity);
-        if (state.recentLiquidity.length > 50) {
-          state.recentLiquidity = state.recentLiquidity.slice(0, 50);
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Error setting up SignalR liquidity handler:", error);
-  }
-
-  try {
-    signalrService.onPoolReceived((pool: AMMPool) => {
-      if (pool && pool.poolAppId) {
-        // Check if pool already exists in the list
-        const existingIndex = state.recentPools.findIndex(
-          (existingPool) => existingPool.poolAppId === pool.poolAppId
-        );
-
-        if (existingIndex !== -1) {
-          // Pool already exists, replace it
-          //console.log(`Updating existing pool ${pool.poolAppId}`);
-          state.recentPools[existingIndex] = pool;
-        } else {
-          // New pool, add to beginning of list
-          console.log(`Adding new pool ${pool.poolAppId}`);
-          state.recentPools.unshift(pool);
-          if (state.recentPools.length > 50) {
-            state.recentPools = state.recentPools.slice(0, 50);
-          }
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Error setting up SignalR pool handler:", error);
-  }
-
-  // Check connection status
-  // setInterval(() => {
-  //   try {
-  //     const status = signalrService?.getConnectionState();
-  //     if (status !== null) {
-  //       state.connectionStatus = status;
-  //     }
-  //   } catch (error) {
-  //     console.error("Error checking connection status:", error);
-  //     state.connectionStatus = false;
-  //   }
-  // }, 5000);
   await signalrService.subscribeToTrades("");
   state.mounted = true;
 
@@ -385,10 +252,132 @@ onMounted(async () => {
   }, 1000) as unknown as number;
 });
 
-onUnmounted(async () => {
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
+const onPoolReceivedEvent = (pool: AMMPool) => {
+  try {
+    if (pool && pool.poolAppId) {
+      // Check if pool already exists in the list
+      const existingIndex = state.recentPools.findIndex(
+        (existingPool) => existingPool.poolAppId === pool.poolAppId
+      );
+
+      if (existingIndex !== -1) {
+        // Pool already exists, replace it
+        //console.log(`Updating existing pool ${pool.poolAppId}`);
+        state.recentPools[existingIndex] = pool;
+      } else {
+        // New pool, add to beginning of list
+        console.log(`Adding new pool ${pool.poolAppId}`);
+        state.recentPools.unshift(pool);
+        if (state.recentPools.length > 50) {
+          state.recentPools = state.recentPools.slice(0, 50);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Error handling pool update:", e);
   }
+};
+const onLiquidityReceivedEvent = (liquidity: AMMLiquidity) => {
+  try {
+    if (liquidity && liquidity.txId) {
+      state.recentLiquidity.unshift(liquidity);
+      if (state.recentLiquidity.length > 50) {
+        state.recentLiquidity = state.recentLiquidity.slice(0, 50);
+      }
+    }
+  } catch (e) {
+    console.error("Error handling liquidity update:", e);
+  }
+};
+const onTradeReceivedEvent = (trade: AMMTrade) => {
+  try {
+    if (trade && trade.txId) {
+      // Check if trade with same txId already exists
+      const existingIndex = state.recentTrades.findIndex(
+        (t) => t.txId === trade.txId
+      );
+
+      if (existingIndex !== -1) {
+        // Trade already exists
+        if (trade.tradeState === "Confirmed") {
+          // Replace the existing trade with confirmed version
+          // console.log(
+          //   `Replacing existing trade ${trade.txId} with confirmed state`
+          // );
+          state.recentTrades[existingIndex] = trade;
+        } else if (trade.tradeState === "TxPool") {
+          // Ignore TxPool updates if trade already exists
+          // console.log(
+          //   `Ignoring TxPool update for existing trade ${trade.txId}`
+          // );
+          return;
+        } else {
+          // For any other state, replace the existing trade
+          // console.log(
+          //   `Replacing existing trade ${trade.txId} with state ${trade.tradeState}`
+          // );
+          state.recentTrades[existingIndex] = trade;
+        }
+      } else {
+        // New trade, add to beginning of list
+        // console.log(
+        //   `Adding new trade ${trade.txId} with state ${trade.tradeState}`
+        // );
+        state.recentTrades.unshift(trade);
+        if (state.recentTrades.length > 50) {
+          state.recentTrades = state.recentTrades.slice(0, 50);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Error handling trade update:", e);
+  }
+};
+const onAggregatedPoolReceivedEvent = (pool: AMMAggregatedPool) => {
+  try {
+    //console.log("onAggregatedPoolReceived.pool", pool.id, pool);
+    if (pool.id == "0-31566704") {
+      // algo-usdc
+      state.algoPrice = pool;
+      console.log("Received aggregated pool algo-usdc:", pool);
+    }
+    // Store/update in dictionary for global lookup and filtering
+    state.aggregatedPoolsMap[pool.id] = pool;
+    // Keep a recent list of aggregated pool updates
+    const idx = state.recentAggregatedPools.findIndex((p) => p.id === pool.id);
+    if (idx !== -1) {
+      state.recentAggregatedPools[idx] = pool;
+      // move updated item to front to reflect recency
+      const updated = state.recentAggregatedPools.splice(idx, 1)[0];
+      state.recentAggregatedPools.unshift(updated);
+    } else {
+      state.recentAggregatedPools.unshift(pool);
+    }
+    if (state.recentAggregatedPools.length > 50) {
+      state.recentAggregatedPools = state.recentAggregatedPools.slice(0, 50);
+    }
+  } catch (e) {
+    console.error("Error handling aggregated pool update:", e);
+  }
+};
+
+const onBlockReceivedEvent = (block: BiatecBlock) => {
+  try {
+    console.log("onBlockReceived.block", block.round, block);
+    state.latestBlocks = [block, ...state.latestBlocks.slice(0, 9)];
+  } catch (error) {
+    console.error("Error handling block update:", error);
+  }
+};
+onUnmounted(async () => {
+  signalrService.unsubscribeFromPoolUpdates(onPoolReceivedEvent);
+  signalrService.unsubscribeFromLiquidityUpdates(onLiquidityReceivedEvent);
+  signalrService.unsubscribeFromTradeUpdates(onTradeReceivedEvent);
+  signalrService.unsubscribeFromAggregatedPoolUpdates(
+    onAggregatedPoolReceivedEvent
+  );
+  signalrService.unsubscribeFromBlockUpdates(onBlockReceivedEvent);
+
   if (timeInterval) {
     clearInterval(timeInterval);
   }

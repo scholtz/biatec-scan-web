@@ -43,6 +43,7 @@ export interface AMMPool {
   l?: bigint;
   protocol: string; // Replace with enum if DEXProtocol is defined
   timestamp?: string; // ISO string, or Date if you prefer
+  isReversed: boolean;
 }
 export interface AMMTrade {
   assetIdIn: bigint;
