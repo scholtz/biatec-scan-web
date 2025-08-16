@@ -20,11 +20,15 @@
         <div>
           <div class="text-xs text-gray-400">Aggregated</div>
           <div class="text-lg text-white">{{ aggregatedPrice }}</div>
-          <div class="text-xs text-gray-400">Price {{ asset2Name }}/{{ asset1Name }}</div>
+          <div class="text-xs text-gray-400">
+            Price {{ asset2Name }}/{{ asset1Name }}
+          </div>
         </div>
         <div class="text-right text-xs text-gray-400">
           <div>Updated</div>
-          <FormattedTime :timestamp="aggregated.lastUpdated || Date.now().toString()" />
+          <FormattedTime
+            :timestamp="aggregated.lastUpdated || Date.now().toString()"
+          />
         </div>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
@@ -76,6 +80,7 @@ import type { AMMPool } from "../types/algorand";
 import { getAVMTradeReporterAPI } from "../api";
 import { assetService } from "../services/assetService";
 import FormattedTime from "../components/FormattedTime.vue";
+import { Pool } from "../api/aVMTradeReporterAPI";
 
 const route = useRoute();
 const asset1 = ref<string>(route.params.asset1 as string);
@@ -86,7 +91,17 @@ const pools = ref<AMMPool[]>([]);
 const loading = ref<boolean>(false);
 const error = ref<string>("");
 const forceUpdate = ref<number>(0); // trigger recompute after asset load
-const aggregated = ref<{ id: string; assetIdA: number; assetIdB: number; a: number; b: number; tvL_A: number; tvL_B: number; poolCount: number; lastUpdated: string | null } | null>(null);
+const aggregated = ref<{
+  id: string;
+  assetIdA: number;
+  assetIdB: number;
+  a: number;
+  b: number;
+  tvL_A: number;
+  tvL_B: number;
+  poolCount: number;
+  lastUpdated: string | null;
+} | null>(null);
 
 const api = getAVMTradeReporterAPI();
 
@@ -133,19 +148,26 @@ async function fetchAggregated() {
   try {
     const a1 = Number(asset1.value);
     const a2 = Number(asset2.value);
-    const res = await api.getApiAggregatedPool({ assetIdA: a1, assetIdB: a2, size: 1 });
-    const raw: any = Array.isArray(res.data) ? res.data[0] : (res as any).data ?? res;
+    const res = await api.getApiAggregatedPool({
+      assetIdA: a1,
+      assetIdB: a2,
+      size: 1,
+    });
+    const raw: any = Array.isArray(res.data)
+      ? res.data[0]
+      : ((res as any).data ?? res);
     if (!raw) {
       aggregated.value = null;
       return;
     }
+
     aggregated.value = {
-      id: String(raw.id ?? `${a1}-${a2}`),
+      id: String(`${raw.assetIdA}-${raw.assetIdB}`),
       assetIdA: Number(raw.assetIdA ?? a1),
       assetIdB: Number(raw.assetIdB ?? a2),
-      a: Number(raw.a ?? 0),
-      b: Number(raw.b ?? 0),
-      tvL_A: Number(raw.tvL_A ?? raw.tvl_A ?? raw.tvlA ?? 0),
+      a: Number((raw.a ?? 0) + (raw.af ?? 0)),
+      b: Number((raw.b ?? 0) + (raw.bf ?? 0)),
+      tvL_A: Number(raw ?? raw.tvl_A ?? raw.tvlA ?? 0),
       tvL_B: Number(raw.tvL_B ?? raw.tvl_B ?? raw.tvlB ?? 0),
       poolCount: Number(raw.poolCount ?? raw.count ?? 0),
       lastUpdated: (raw.lastUpdated ?? raw.updated ?? null) as string | null,
@@ -170,8 +192,8 @@ watch(
   (p) => {
     asset1.value = p.asset1 as string;
     asset2.value = p.asset2 as string;
-  fetchPools();
-  fetchAggregated();
+    fetchPools();
+    fetchAggregated();
   }
 );
 
@@ -204,19 +226,19 @@ const asset2Name = computed(() => getAssetName(asset2Id.value));
 
 // Aggregated display helpers
 const aggregatedReserveA = computed(() => {
-  if (!aggregated.value) return '—';
+  if (!aggregated.value) return "—";
   const aid = BigInt(aggregated.value.assetIdA);
   const bal = BigInt(Math.trunc(aggregated.value.a || 0));
   return assetService.formatAssetBalance(bal, aid);
 });
 const aggregatedReserveB = computed(() => {
-  if (!aggregated.value) return '—';
+  if (!aggregated.value) return "—";
   const bid = BigInt(aggregated.value.assetIdB);
   const bal = BigInt(Math.trunc(aggregated.value.b || 0));
   return assetService.formatAssetBalance(bal, bid);
 });
 const aggregatedPrice = computed(() => {
-  if (!aggregated.value) return '—';
+  if (!aggregated.value) return "—";
   const aid = BigInt(aggregated.value.assetIdA);
   const bid = BigInt(aggregated.value.assetIdB);
   const a = BigInt(Math.trunc(aggregated.value.a || 0));
@@ -224,11 +246,12 @@ const aggregatedPrice = computed(() => {
   return assetService.formatPairBalance(a, aid, b, bid, true);
 });
 const aggregatedTVL = computed(() => {
-  if (!aggregated.value) return '—';
+  if (!aggregated.value) return "—";
   // Prefer provided TVL_B if available; otherwise show B reserve in base units
   const tvl = aggregated.value.tvL_B || 0;
   const bid = BigInt(aggregated.value.assetIdB);
-  if (tvl > 0) return `${tvl.toLocaleString()} ${assetService.getAssetInfo(bid)?.unitName ?? ''}`.trim();
+  if (tvl > 0)
+    return `${tvl.toLocaleString()} ${assetService.getAssetInfo(bid)?.unitName ?? ""}`.trim();
   const bal = BigInt(Math.trunc(aggregated.value.b || 0));
   return assetService.formatAssetBalance(bal, bid);
 });

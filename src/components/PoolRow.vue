@@ -4,19 +4,21 @@
   >
     <!-- Protocol -->
     <div class="order-2 md:order-none">
-      <span
-        class="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300"
-        >{{ pool.protocol }}</span
-      >
+      <span class="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300">
+        {{ state.pool.protocol }}
+      </span>
     </div>
 
     <!-- Pool ID -->
     <div class="order-1 md:order-none">
       <router-link
-        :to="{ name: 'PoolDetails', params: { poolAddress: pool.poolAddress } }"
+        :to="{
+          name: 'PoolDetails',
+          params: { poolAddress: state.pool.poolAddress },
+        }"
         class="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200"
       >
-        {{ pool.poolAppId.toString() }}
+        {{ state.pool.poolAppId.toString() }}
       </router-link>
     </div>
 
@@ -26,7 +28,7 @@
       <span class="text-gray-400">/</span>
       {{ formattedAssetB }}
       <div class="text-xs text-gray-400">
-        ({{ pool.assetIdA ?? "—" }} / {{ pool.assetIdB ?? "—" }})
+        ({{ pool.assetIdA ?? "—" }} / {{ state.pool.assetIdB ?? "—" }})
       </div>
     </div>
 
@@ -48,18 +50,23 @@
     <!-- Address -->
     <div class="order-7 md:order-none">
       <router-link
-        :to="{ name: 'AddressDetails', params: { address: pool.poolAddress } }"
+        :to="{
+          name: 'AddressDetails',
+          params: { address: state.pool.poolAddress },
+        }"
         class="text-xs text-blue-400 hover:text-blue-300 font-mono truncate transition-colors duration-200"
-        :title="pool.poolAddress"
+        :title="state.pool.poolAddress"
       >
-        {{ formatAddress(pool.poolAddress) }}
+        {{ formatAddress(state.pool.poolAddress) }}
       </router-link>
     </div>
 
     <!-- Time -->
     <div class="order-8 md:order-none text-right md:text-left">
       <span class="text-xs text-gray-400">
-        <FormattedTime :timestamp="pool.timestamp || Date.now().toString()" />
+        <FormattedTime
+          :timestamp="state.pool.timestamp || Date.now().toString()"
+        />
       </span>
     </div>
   </div>
@@ -83,34 +90,37 @@ onMounted(() => {
   state.pool = props.pool;
   if (
     assetService.needToReverseAssets(
-      state.pool.assetIdA ?? 0n,
-      state.pool.assetIdB ?? 0n
+      props.pool.assetIdA ?? 0n,
+      props.pool.assetIdB ?? 0n
     )
   ) {
-    const temp = state.pool.assetIdA;
-    state.pool.assetIdA = state.pool.assetIdB;
-    state.pool.assetIdB = temp;
-
-    const tmpAmount = state.pool.a;
-    state.pool.a = state.pool.b;
-    state.pool.b = tmpAmount;
-
-    const tmpLP = state.pool.l;
-    state.pool.l = state.pool.b;
-    state.pool.b = tmpLP;
-
-    state.pool.isReversed = true;
+    state.pool = reversePool(props.pool);
   }
 
-  signalrService.onPoolReceived(poolUpdate);
+  signalrService.onPoolReceived(poolUpdateEvent);
 });
 
 onUnmounted(() => {
-  signalrService.unsubscribeFromPoolUpdates(poolUpdate);
+  signalrService.unsubscribeFromPoolUpdates(poolUpdateEvent);
 });
 
-const poolUpdate = (pool: AMMPool) => {
-  if (pool.poolAppId === state.pool.poolAppId) {
+const reversePool = (pool: AMMPool): AMMPool => {
+  return {
+    ...pool,
+    assetIdA: pool.assetIdB,
+    assetIdB: pool.assetIdA,
+    a: pool.b,
+    b: pool.a,
+    l: pool.l,
+    isReversed: true,
+  };
+};
+
+const poolUpdateEvent = (pool: AMMPool) => {
+  if (
+    pool.poolAppId === state.pool.poolAppId &&
+    state.pool.poolAddress == pool.poolAddress
+  ) {
     state.pool = pool;
   }
 };
@@ -129,25 +139,25 @@ const getAssetName = (assetId?: bigint): string => {
   return info.name || info.unitName || `Asset ${assetId}`;
 };
 
-const formattedAssetA = computed(() => getAssetName(props.pool.assetIdA));
+const formattedAssetA = computed(() => getAssetName(state.pool.assetIdA));
 const formattedAssetB = computed(() => getAssetName(props.pool.assetIdB));
 
 const formattedReserveA = computed(() => {
   void state.forceUpdate;
-  if (!props.pool.a || props.pool.assetIdA === undefined) return "0";
-  return assetService.formatAssetBalance(props.pool.a, props.pool.assetIdA);
+  if (!state.pool.a || state.pool.assetIdA === undefined) return "0";
+  return assetService.formatAssetBalance(state.pool.a, state.pool.assetIdA);
 });
 
 const formattedReserveB = computed(() => {
   void state.forceUpdate;
-  if (!props.pool.b || props.pool.assetIdB === undefined) return "0";
-  return assetService.formatAssetBalance(props.pool.b, props.pool.assetIdB);
+  if (!state.pool.b || state.pool.assetIdB === undefined) return "0";
+  return assetService.formatAssetBalance(state.pool.b, state.pool.assetIdB);
 });
 
 const formattedLPSupply = computed(() => {
   void state.forceUpdate;
-  if (!props.pool.l || props.pool.assetIdLP === undefined) return "0";
-  return assetService.formatAssetBalance(props.pool.l, props.pool.assetIdLP);
+  if (!state.pool.l || state.pool.assetIdLP === undefined) return "0";
+  return assetService.formatAssetBalance(state.pool.l, state.pool.assetIdLP);
 });
 
 const formatAddress = (address: string): string => {
