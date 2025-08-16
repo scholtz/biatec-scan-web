@@ -26,17 +26,31 @@
       </div>
 
       <div class="flex gap-2">
-        <router-link :to="{ name: 'PoolsByAssets', params: { asset1: assetId, asset2: 0 } }" class="btn-primary">View Pools with ALGO</router-link>
-        <router-link :to="{ name: 'PoolsByAssets', params: { asset1: assetId, asset2: 31566704 } }" class="btn-secondary">View Pools with USDC</router-link>
+        <router-link
+          :to="{
+            name: 'PoolsByAssets',
+            params: { asset1: assetId, asset2: 0 },
+          }"
+          class="btn-primary"
+          >View Pools with ALGO</router-link
+        >
+        <router-link
+          :to="{
+            name: 'PoolsByAssets',
+            params: { asset1: assetId, asset2: 31566704 },
+          }"
+          class="btn-secondary"
+          >View Pools with USDC</router-link
+        >
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import { assetService } from '../services/assetService';
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { assetService } from "../services/assetService";
 
 const route = useRoute();
 const assetId = ref<string>(route.params.assetId as string);
@@ -46,28 +60,28 @@ const forceUpdate = ref<number>(0);
 const name = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return 'Loading...';
+  if (!info) return "Loading...";
   return info.name || `Asset ${assetId.value}`;
 });
 
 const unitName = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return 'Loading...';
+  if (!info) return "Loading...";
   return info.unitName || info.name || `Asset ${assetId.value}`;
 });
 
 const decimals = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return 'Loading...';
+  if (!info) return "Loading...";
   return info.decimals ?? 0;
 });
 
 const formattedTotal = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return 'Loading...';
+  if (!info) return "Loading...";
   const d = info.decimals || 0;
   const total = Number(info.total) / Math.pow(10, d);
   return total.toLocaleString();
@@ -77,16 +91,20 @@ const headerName = computed(() => `${unitName.value}/${name.value}`);
 
 function ensureLoaded() {
   const id = BigInt(Number(assetId.value) || 0);
-  assetService.requestAsset(id, () => { forceUpdate.value++; });
+  assetService.requestAsset(id, () => {
+    forceUpdate.value++;
+  });
 }
 
 onMounted(ensureLoaded);
 
-watch(() => route.params.assetId, (v) => {
-  assetId.value = String(v ?? '0');
-  ensureLoaded();
-});
+watch(
+  () => route.params.assetId,
+  (v) => {
+    assetId.value = String(v ?? "0");
+    ensureLoaded();
+  }
+);
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
