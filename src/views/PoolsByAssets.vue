@@ -56,11 +56,13 @@ const forceUpdate = ref<number>(0); // trigger recompute after asset load
 const api = getAVMTradeReporterAPI();
 
 function mapPool(apiPool: any): AMMPool {
+  const aidA = apiPool.assetIdA != null ? BigInt(apiPool.assetIdA) : undefined;
+  const aidB = apiPool.assetIdB != null ? BigInt(apiPool.assetIdB) : undefined;
   return {
     poolAddress: apiPool.poolAddress ?? "",
     poolAppId: BigInt(apiPool.poolAppId ?? 0),
-    assetIdA: apiPool.assetIdA != null ? BigInt(apiPool.assetIdA) : undefined,
-    assetIdB: apiPool.assetIdB != null ? BigInt(apiPool.assetIdB) : undefined,
+    assetIdA: aidA,
+    assetIdB: aidB,
     assetIdLP:
       apiPool.assetIdLP != null ? BigInt(apiPool.assetIdLP) : undefined,
     a: apiPool.a != null ? BigInt(apiPool.a) : undefined,
@@ -68,7 +70,7 @@ function mapPool(apiPool: any): AMMPool {
     l: apiPool.l != null ? BigInt(apiPool.l) : undefined,
     protocol: String(apiPool.protocol),
     timestamp: apiPool.timestamp ?? undefined,
-    isReversed: false,
+    isReversed: assetService.needToReverseAssets(aidA ?? 0n, aidB ?? 0n),
   } satisfies AMMPool;
 }
 

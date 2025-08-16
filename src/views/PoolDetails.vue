@@ -208,6 +208,10 @@ const loadPoolInfo = async () => {
       l: poolData.l ? BigInt(poolData.l) : undefined,
       protocol: poolData.protocol || "Unknown",
       timestamp: poolData.timestamp || new Date().toISOString(),
+      isReversed: assetService.needToReverseAssets(
+        poolData.assetIdA !== undefined ? BigInt(poolData.assetIdA) : 0n,
+        poolData.assetIdB !== undefined ? BigInt(poolData.assetIdB) : 0n
+      ),
     };
   } catch (err: unknown) {
     error.value =
