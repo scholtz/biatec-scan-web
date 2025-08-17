@@ -6,7 +6,7 @@
     >
       <div class="card text-center">
         <h3 class="text-2xl font-bold text-white" v-if="state.algoPrice">
-          <div>
+          <div v-if="state.algoPrice.a && state.algoPrice.b">
             {{
               new Number(state.algoPrice.b / state.algoPrice.a).toLocaleString(
                 undefined,
@@ -178,30 +178,29 @@ import type {
   AlgorandTransaction,
   AMMLiquidity,
   AMMTrade,
-  AMMPool,
 } from "../types/algorand";
 import BlockCard from "../components/BlockCard.vue";
 import TradeCard from "../components/TradeCard.vue";
 import LiquidityCard from "../components/LiquidityCard.vue";
 import PoolCard from "../components/PoolCard.vue";
 import AggregatedPoolCard from "../components/AggregatedPoolCard.vue";
-import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 import { BiatecBlock } from "../types/BiatecBlock";
+import { AggregatedPool, Pool } from "../api/models";
 
 const state = reactive({
   latestBlocks: [] as BiatecBlock[],
   recentTransactions: [] as AlgorandTransaction[],
   recentTrades: [] as AMMTrade[],
   recentLiquidity: [] as AMMLiquidity[],
-  recentPools: [] as AMMPool[],
-  recentAggregatedPools: [] as AMMAggregatedPool[],
-  aggregatedPoolsMap: {} as Record<string, AMMAggregatedPool>,
+  recentPools: [] as Pool[],
+  recentAggregatedPools: [] as AggregatedPool[],
+  aggregatedPoolsMap: {} as Record<string, AggregatedPool>,
   isLoading: true,
   isLoadingTransactions: true,
   connectionStatus: false,
   mounted: true,
   tokensToLoad: [] as bigint[],
-  algoPrice: null as AMMAggregatedPool | null,
+  algoPrice: null as AggregatedPool | null,
 });
 
 // Top Aggregated Pools: only asset A = 0 (ALGO), sorted by reserve A desc, top 10
@@ -252,12 +251,12 @@ onMounted(async () => {
   }, 1000) as unknown as number;
 });
 
-const onPoolReceivedEvent = (pool: AMMPool) => {
+const onPoolReceivedEvent = (pool: Pool) => {
   try {
     if (pool && pool.poolAppId) {
       // Check if pool already exists in the list
       const existingIndex = state.recentPools.findIndex(
-        (existingPool) => existingPool.poolAppId === pool.poolAppId
+        (existingPool) => existingPool.poolAppId == pool.poolAppId
       );
 
       if (existingIndex !== -1) {
@@ -333,7 +332,7 @@ const onTradeReceivedEvent = (trade: AMMTrade) => {
     console.error("Error handling trade update:", e);
   }
 };
-const onAggregatedPoolReceivedEvent = (pool: AMMAggregatedPool) => {
+const onAggregatedPoolReceivedEvent = (pool: AggregatedPool) => {
   try {
     //console.log("onAggregatedPoolReceived.pool", pool.id, pool);
     if (pool.id == "0-31566704") {
@@ -342,7 +341,7 @@ const onAggregatedPoolReceivedEvent = (pool: AMMAggregatedPool) => {
       console.log("Received aggregated pool algo-usdc:", pool);
     }
     // Store/update in dictionary for global lookup and filtering
-    state.aggregatedPoolsMap[pool.id] = pool;
+    state.aggregatedPoolsMap[pool.id ?? ""] = pool;
     // Keep a recent list of aggregated pool updates
     const idx = state.recentAggregatedPools.findIndex((p) => p.id === pool.id);
     if (idx !== -1) {

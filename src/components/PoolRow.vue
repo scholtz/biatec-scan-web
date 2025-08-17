@@ -12,6 +12,7 @@
     <!-- Pool ID -->
     <div class="order-1 md:order-none">
       <router-link
+        v-if="state.pool.poolAppId"
         :to="{
           name: 'PoolDetails',
           params: { poolAddress: state.pool.poolAddress },
@@ -22,13 +23,13 @@
       </router-link>
     </div>
 
-    <!-- Pair -->
+    <!-- Price -->
     <div class="order-3 md:order-none text-sm text-white">
       {{ formattedAssetA }}
       <span class="text-gray-400">/</span>
       {{ formattedAssetB }}
       <div class="text-xs text-gray-400">
-        ({{ pool.assetIdA ?? "—" }} / {{ state.pool.assetIdB ?? "—" }})
+        ({{ state.pool.assetIdA ?? "—" }} / {{ state.pool.assetIdB ?? "—" }})
       </div>
     </div>
 
@@ -50,6 +51,7 @@
     <!-- Address -->
     <div class="order-7 md:order-none">
       <router-link
+        v-if="state.pool.poolAddress"
         :to="{
           name: 'AddressDetails',
           params: { address: state.pool.poolAddress },
@@ -74,13 +76,13 @@
 
 <script setup lang="ts">
 import { reactive, computed, onMounted, onUnmounted } from "vue";
-import type { AMMPool } from "../types/algorand";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
 import { signalrService } from "../services/signalrService";
+import { Pool } from "../api/models";
 
 interface Props {
-  pool: AMMPool;
+  pool: Pool;
 }
 
 const props = defineProps<Props>();
@@ -90,8 +92,8 @@ onMounted(() => {
   state.pool = props.pool;
   if (
     assetService.needToReverseAssets(
-      props.pool.assetIdA ?? 0n,
-      props.pool.assetIdB ?? 0n
+      BigInt(props.pool.assetIdA ?? 0n),
+      BigInt(props.pool.assetIdB ?? 0n)
     )
   ) {
     state.pool = reversePool(props.pool);
@@ -104,7 +106,7 @@ onUnmounted(() => {
   signalrService.unsubscribeFromPoolUpdates(poolUpdateEvent);
 });
 
-const reversePool = (pool: AMMPool): AMMPool => {
+const reversePool = (pool: Pool): Pool => {
   return {
     ...pool,
     assetIdA: pool.assetIdB,
@@ -112,11 +114,10 @@ const reversePool = (pool: AMMPool): AMMPool => {
     a: pool.b,
     b: pool.a,
     l: pool.l,
-    isReversed: true,
   };
 };
 
-const poolUpdateEvent = (pool: AMMPool) => {
+const poolUpdateEvent = (pool: Pool) => {
   if (
     pool.poolAppId === state.pool.poolAppId &&
     state.pool.poolAddress == pool.poolAddress
@@ -139,24 +140,49 @@ const getAssetName = (assetId?: bigint): string => {
   return info.name || info.unitName || `Asset ${assetId}`;
 };
 
-const formattedAssetA = computed(() => getAssetName(state.pool.assetIdA));
-const formattedAssetB = computed(() => getAssetName(props.pool.assetIdB));
+const formattedAssetA = computed(() =>
+  getAssetName(BigInt(state.pool.assetIdA ?? 0))
+);
+const formattedAssetB = computed(() =>
+  getAssetName(BigInt(state.pool.assetIdB ?? 0))
+);
 
 const formattedReserveA = computed(() => {
   void state.forceUpdate;
-  if (!state.pool.a || state.pool.assetIdA === undefined) return "0";
-  return assetService.formatAssetBalance(state.pool.a, state.pool.assetIdA);
+  if (
+    !state.pool.a ||
+    state.pool.assetIdA === undefined ||
+    state.pool.assetIdA === null
+  )
+    return "0";
+  return assetService.formatAssetBalance(
+    state.pool.a,
+    state.pool.assetIdA ?? 0
+  );
 });
 
 const formattedReserveB = computed(() => {
   void state.forceUpdate;
-  if (!state.pool.b || state.pool.assetIdB === undefined) return "0";
-  return assetService.formatAssetBalance(state.pool.b, state.pool.assetIdB);
+  if (
+    !state.pool.b ||
+    state.pool.assetIdB === undefined ||
+    state.pool.assetIdB === null
+  )
+    return "0";
+  return assetService.formatAssetBalance(
+    state.pool.b,
+    state.pool.assetIdB ?? 0
+  );
 });
 
 const formattedLPSupply = computed(() => {
   void state.forceUpdate;
-  if (!state.pool.l || state.pool.assetIdLP === undefined) return "0";
+  if (
+    !state.pool.l ||
+    state.pool.assetIdLP === undefined ||
+    state.pool.assetIdLP === null
+  )
+    return "0";
   return assetService.formatAssetBalance(state.pool.l, state.pool.assetIdLP);
 });
 

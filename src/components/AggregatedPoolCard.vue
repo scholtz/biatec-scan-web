@@ -44,11 +44,11 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive } from "vue";
 import { assetService } from "../services/assetService";
-import type { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 import FormattedTime from "./FormattedTime.vue";
 import { signalrService } from "../services/signalrService";
+import { AggregatedPool } from "../api/models";
 
-const props = defineProps<{ pool: AMMAggregatedPool }>();
+const props = defineProps<{ pool: AggregatedPool }>();
 
 const state = reactive({
   forceUpdate: 0,
@@ -65,7 +65,7 @@ onMounted(() => {
       BigInt(props.pool.assetIdB ?? 0n)
     )
   ) {
-    state.pool = reversePool(props.pool);
+    state.pool = assetService.reversePool(props.pool);
   }
   signalrService.onAggregatedPoolReceived(poolUpdateEvent);
 });
@@ -73,18 +73,7 @@ onUnmounted(() => {
   signalrService.unsubscribeFromAggregatedPoolUpdates(poolUpdateEvent);
 });
 
-const reversePool = (pool: AMMAggregatedPool): AMMAggregatedPool => {
-  return {
-    ...pool,
-    assetIdA: pool.assetIdB,
-    assetIdB: pool.assetIdA,
-    a: pool.b,
-    b: pool.a,
-    tvL_A: pool.tvL_B,
-    tvL_B: pool.tvL_A,
-  };
-};
-const poolUpdateEvent = (pool: AMMAggregatedPool) => {
+const poolUpdateEvent = (pool: AggregatedPool) => {
   if (
     pool.assetIdA === state.pool.assetIdA &&
     pool.assetIdB == state.pool.assetIdB
@@ -95,32 +84,36 @@ const poolUpdateEvent = (pool: AMMAggregatedPool) => {
     pool.assetIdA === state.pool.assetIdB &&
     pool.assetIdB == state.pool.assetIdA
   ) {
-    state.pool = reversePool(pool);
+    state.pool = assetService.reversePool(pool);
   }
 };
 const formattedTVLA = computed(() => {
   void state.forceUpdate;
+  if (props.pool.tvL_A === undefined || props.pool.tvL_A === null) return "-";
   return assetService.formatAssetBalance(
     props.pool.tvL_A,
-    BigInt(props.pool.assetIdA)
+    BigInt(props.pool.assetIdA ?? 0)
   );
 });
 
 const formattedTVLB = computed(() => {
   void state.forceUpdate;
+  if (props.pool.tvL_B === undefined || props.pool.tvL_B === null) return "-";
   return assetService.formatAssetBalance(
     props.pool.tvL_B,
-    BigInt(props.pool.assetIdB)
+    BigInt(props.pool.assetIdB ?? 0)
   );
 });
 
 const formattedPrice = computed(() => {
   // price = B/A with 6 decimals
+  if (props.pool.tvL_A === undefined || props.pool.tvL_A === null) return "-";
+  if (props.pool.tvL_B === undefined || props.pool.tvL_B === null) return "-";
   return assetService.formatPairBalance(
     props.pool.tvL_A,
-    BigInt(props.pool.assetIdA),
+    BigInt(props.pool.assetIdA ?? 0),
     props.pool.tvL_B,
-    BigInt(props.pool.assetIdB),
+    BigInt(props.pool.assetIdB ?? 0),
     false
   );
 });

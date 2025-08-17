@@ -13,6 +13,7 @@
       <div class="flex justify-between items-center">
         <span class="text-sm text-gray-400">Pool ID:</span>
         <router-link
+          v-if="pool.poolAppId"
           :to="{
             name: 'PoolDetails',
             params: { poolAddress: pool.poolAddress },
@@ -50,6 +51,7 @@
       <div class="flex justify-between items-center">
         <span class="text-sm text-gray-400">Pool Address:</span>
         <router-link
+          v-if="pool.poolAddress"
           :to="{
             name: 'AddressDetails',
             params: { address: pool.poolAddress },
@@ -81,12 +83,12 @@
 
 <script setup lang="ts">
 import { reactive, computed } from "vue";
-import type { AMMPool } from "../types/algorand";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
+import { Pool } from "../api/models";
 
 interface Props {
-  pool: AMMPool;
+  pool: Pool;
 }
 
 const props = defineProps<Props>();
@@ -98,14 +100,16 @@ const state = reactive({
 const formattedAssetA = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load
   void state.forceUpdate;
-  if (props.pool.assetIdA === undefined) return "N/A";
+  if (props.pool.assetIdA === undefined || props.pool.assetIdA === null)
+    return "N/A";
   return getAssetName(props.pool.assetIdA);
 });
 
 const formattedAssetB = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load
   void state.forceUpdate;
-  if (props.pool.assetIdB === undefined) return "N/A";
+  if (props.pool.assetIdB === undefined || props.pool.assetIdB === null)
+    return "N/A";
   return getAssetName(props.pool.assetIdB);
 });
 
@@ -138,11 +142,11 @@ const formattedLPSupply = computed(() => {
   return assetService.formatAssetBalance(props.pool.l, props.pool.assetIdLP);
 });
 
-const getAssetName = (assetId: bigint): string => {
-  const assetInfo = assetService.getAssetInfo(assetId);
+const getAssetName = (assetId: bigint | number): string => {
+  const assetInfo = assetService.getAssetInfo(BigInt(assetId));
   if (!assetInfo) {
     // Request asset loading and trigger re-render when loaded
-    assetService.requestAsset(assetId, () => {
+    assetService.requestAsset(BigInt(assetId), () => {
       state.forceUpdate++;
     });
     return "Loading...";

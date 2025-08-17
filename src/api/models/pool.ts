@@ -198,8 +198,8 @@ export interface Pool {
   lpFee?: number | null;
   /** @nullable */
   protocolFeePortion?: number | null;
-  readonly virualAmountA?: number;
+  readonly virtualAmountA?: number;
   readonly realAmountA?: number;
-  readonly virualAmountB?: number;
+  readonly virtualAmountB?: number;
   readonly realAmountB?: number;
 }

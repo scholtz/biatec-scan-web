@@ -4,13 +4,14 @@ import {
   LogLevel,
   HttpTransportType,
 } from "@microsoft/signalr";
-import type { AMMLiquidity, AMMTrade, AMMPool } from "../types/algorand";
+import type { AMMLiquidity, AMMTrade } from "../types/algorand";
 import { getAuthToken as getArc14AuthToken } from "./authService";
 import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 import { BiatecBlock } from "../types/BiatecBlock";
+import { AggregatedPool, Pool } from "../api/models";
 let callbacksTrades: ((trade: AMMTrade) => void)[] = [];
 let callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
-let callbacksPools: ((pool: AMMPool) => void)[] = [];
+let callbacksPools: ((pool: Pool) => void)[] = [];
 let callbacksAggregatedPools: ((pool: AMMAggregatedPool) => void)[] = [];
 let callbacksBlocks: ((block: BiatecBlock) => void)[] = [];
 class SignalRService {
@@ -80,7 +81,7 @@ class SignalRService {
       });
       this.connection.on("PoolUpdated", (pool: any) => {
         //console.log("PoolUpdated received:", pool);
-        callbacksPools.forEach((callback) => callback(pool as AMMPool));
+        callbacksPools.forEach((callback) => callback(pool as Pool));
       });
       // Handle subscription errors
       this.connection.on("FilteredLiquidityUpdated", (liquidity: any) => {
@@ -187,10 +188,10 @@ class SignalRService {
   ): void {
     callbacksLiquidity = callbacksLiquidity.filter((cb) => cb !== callback);
   }
-  onPoolReceived(callback: (liquidity: AMMPool) => void): void {
+  onPoolReceived(callback: (liquidity: Pool) => void): void {
     callbacksPools.push(callback);
   }
-  unsubscribeFromPoolUpdates(callback: (liquidity: AMMPool) => void): void {
+  unsubscribeFromPoolUpdates(callback: (liquidity: Pool) => void): void {
     callbacksPools = callbacksPools.filter((cb) => cb !== callback);
   }
   onBlockReceived(callback: (block: BiatecBlock) => void): void {
@@ -200,12 +201,12 @@ class SignalRService {
     callbacksBlocks = callbacksBlocks.filter((cb) => cb !== callback);
   }
   onAggregatedPoolReceived(
-    callback: (liquidity: AMMAggregatedPool) => void
+    callback: (liquidity: AggregatedPool) => void
   ): void {
     callbacksAggregatedPools.push(callback);
   }
   unsubscribeFromAggregatedPoolUpdates(
-    callback: (liquidity: AMMAggregatedPool) => void
+    callback: (liquidity: AggregatedPool) => void
   ): void {
     callbacksAggregatedPools = callbacksAggregatedPools.filter(
       (cb) => cb !== callback

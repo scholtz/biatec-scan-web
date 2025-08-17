@@ -1,6 +1,7 @@
 import { algorandService } from "./algorandService";
 import { getTokenFromLocalStorage } from "../scripts/algo/getTokenFromLocalStorage";
 import { getTokenFromAlgod } from "../scripts/algo/getTokenFromAlgod";
+import { AggregatedPool } from "../api/models";
 
 interface AssetLoadRequest {
   assetId: bigint;
@@ -133,16 +134,22 @@ class AssetService {
   /**
    * Format asset balance with proper decimals and unit name
    */
-  formatAssetBalance(balance: bigint | number, assetId: bigint): string {
+  formatAssetBalance(
+    balance: bigint | number,
+    assetId: bigint | number,
+    divideByDecimals: boolean = true
+  ): string {
     if (balance === 0n || balance === 0) return "0";
 
-    const assetInfo = this.getAssetInfo(assetId);
+    const assetInfo = this.getAssetInfo(BigInt(assetId));
     if (!assetInfo) {
       return "Loading...";
     }
 
     const decimals = assetInfo.decimals || 0;
-    const formattedBalance = Number(balance) / Math.pow(10, decimals);
+    const formattedBalance = divideByDecimals
+      ? Number(balance) / Math.pow(10, decimals)
+      : Number(balance);
     const unitName = assetInfo.unitName || assetInfo.name || `Asset ${assetId}`;
 
     return `${formattedBalance.toLocaleString()} ${unitName}`;
@@ -190,7 +197,7 @@ class AssetService {
     return `${price.toLocaleString(undefined, {
       minimumFractionDigits: 4,
       maximumFractionDigits: 6,
-    })} ${unitNameB}/${unitNameA}`;
+    })} ${unitNameA}/${unitNameB}`;
   }
   /**
    * Determine if the assets need to be reversed in a trade
@@ -201,70 +208,81 @@ class AssetService {
   needToReverseAssets = (assetA: bigint, assetB: bigint): boolean => {
     if (assetA == 31566704n) {
       // usdc
-      return false;
+      return true;
     }
     if (assetB == 31566704n) {
-      return true;
+      return false;
     }
     if (assetA == 760037151n) {
       // xUSD
-      return false;
+      return true;
     }
     if (assetB == 760037151n) {
-      return true;
+      return false;
     }
     if (assetA == 227855942n) {
       // eurs
-      return false;
+      return true;
     }
     if (assetB == 227855942n) {
-      return true;
+      return false;
     }
     if (assetA == 1241945177n) {
       // goldDAO
-      return false;
+      return true;
     }
     if (assetB == 1241945177n) {
-      return true;
+      return false;
     }
 
     if (assetA == 0n) {
       // algo
-      return false;
+      return true;
     }
     if (assetB == 0n) {
-      return true;
+      return false;
     }
     if (assetA == 2320804780n) {
       //Aramid Algo
-      return false;
+      return true;
     }
     if (assetB == 2320804780n) {
-      return true;
+      return false;
     }
     if (assetA == 2537013734n) {
       //xAlgo
-      return false;
+      return true;
     }
     if (assetB == 2537013734n) {
-      return true;
+      return false;
     }
     if (assetA == 2537013734n) {
       //tAlgo
-      return false;
+      return true;
     }
     if (assetB == 2537013734n) {
-      return true;
+      return false;
     }
     if (assetA == 2537013734n) {
       //tAlgo
-      return false;
+      return true;
     }
     if (assetB == 1185173782n) {
-      return true;
+      return false;
     }
 
     return false;
+  };
+  reversePool = (pool: AggregatedPool): AggregatedPool => {
+    return {
+      ...pool,
+      assetIdA: pool.assetIdB,
+      assetIdB: pool.assetIdA,
+      a: pool.b,
+      b: pool.a,
+      tvL_A: pool.tvL_B,
+      tvL_B: pool.tvL_A,
+    };
   };
 }
 
