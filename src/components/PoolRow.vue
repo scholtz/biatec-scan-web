@@ -25,12 +25,7 @@
 
     <!-- Price -->
     <div class="order-3 md:order-none text-sm text-white">
-      {{ formattedAssetA }}
-      <span class="text-gray-400">/</span>
-      {{ formattedAssetB }}
-      <div class="text-xs text-gray-400">
-        ({{ state.pool.assetIdA ?? "—" }} / {{ state.pool.assetIdB ?? "—" }})
-      </div>
+      {{ formattedPrice }}
     </div>
 
     <!-- Reserve A -->
@@ -41,11 +36,6 @@
     <!-- Reserve B -->
     <div class="order-5 md:order-none text-sm text-white">
       {{ formattedReserveB }}
-    </div>
-
-    <!-- LP Supply -->
-    <div class="order-6 md:order-none text-sm text-white">
-      {{ formattedLPSupply }}
     </div>
 
     <!-- Address -->
@@ -96,7 +86,7 @@ onMounted(() => {
       BigInt(props.pool.assetIdB ?? 0n)
     )
   ) {
-    state.pool = reversePool(props.pool);
+    state.pool = assetService.reversePool(props.pool);
   }
 
   signalrService.onPoolReceived(poolUpdateEvent);
@@ -105,17 +95,6 @@ onMounted(() => {
 onUnmounted(() => {
   signalrService.unsubscribeFromPoolUpdates(poolUpdateEvent);
 });
-
-const reversePool = (pool: Pool): Pool => {
-  return {
-    ...pool,
-    assetIdA: pool.assetIdB,
-    assetIdB: pool.assetIdA,
-    a: pool.b,
-    b: pool.a,
-    l: pool.l,
-  };
-};
 
 const poolUpdateEvent = (pool: Pool) => {
   if (
@@ -126,64 +105,51 @@ const poolUpdateEvent = (pool: Pool) => {
   }
 };
 
-const getAssetName = (assetId?: bigint): string => {
-  if (assetId === undefined || assetId === null) return "N/A";
-  // force re-compute when asset arrives
+const formattedPrice = computed(() => {
   void state.forceUpdate;
-  const info = assetService.getAssetInfo(assetId);
-  if (!info) {
-    assetService.requestAsset(assetId, () => {
-      state.forceUpdate++;
-    });
-    return "Loading...";
-  }
-  return info.name || info.unitName || `Asset ${assetId}`;
-};
-
-const formattedAssetA = computed(() =>
-  getAssetName(BigInt(state.pool.assetIdA ?? 0))
-);
-const formattedAssetB = computed(() =>
-  getAssetName(BigInt(state.pool.assetIdB ?? 0))
-);
-
+  if (
+    !state.pool.virtualAmountA ||
+    !state.pool.virtualAmountB ||
+    state.pool.assetIdA === undefined ||
+    state.pool.assetIdA === null
+  )
+    return "0";
+  return assetService.formatPairBalance(
+    state.pool.virtualAmountA,
+    state.pool.assetIdA ?? 0,
+    state.pool.virtualAmountB,
+    state.pool.assetIdB ?? 0,
+    false
+  );
+});
 const formattedReserveA = computed(() => {
   void state.forceUpdate;
   if (
-    !state.pool.a ||
+    !state.pool.realAmountA ||
     state.pool.assetIdA === undefined ||
     state.pool.assetIdA === null
   )
     return "0";
   return assetService.formatAssetBalance(
-    state.pool.a,
-    state.pool.assetIdA ?? 0
+    state.pool.realAmountA,
+    state.pool.assetIdA ?? 0,
+    false
   );
 });
 
 const formattedReserveB = computed(() => {
   void state.forceUpdate;
   if (
-    !state.pool.b ||
+    !state.pool.realAmountB ||
     state.pool.assetIdB === undefined ||
     state.pool.assetIdB === null
   )
     return "0";
   return assetService.formatAssetBalance(
-    state.pool.b,
-    state.pool.assetIdB ?? 0
+    state.pool.realAmountB,
+    state.pool.assetIdB ?? 0,
+    false
   );
-});
-
-const formattedLPSupply = computed(() => {
-  void state.forceUpdate;
-  if (
-    !state.pool.l ||
-    state.pool.assetIdLP === undefined ||
-    state.pool.assetIdLP === null
-  )
-    return "0";
-  return assetService.formatAssetBalance(state.pool.l, state.pool.assetIdLP);
 });
 
 const formatAddress = (address: string): string => {

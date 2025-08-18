@@ -1,7 +1,7 @@
 import { algorandService } from "./algorandService";
 import { getTokenFromLocalStorage } from "../scripts/algo/getTokenFromLocalStorage";
 import { getTokenFromAlgod } from "../scripts/algo/getTokenFromAlgod";
-import { AggregatedPool } from "../api/models";
+import { AggregatedPool, Pool } from "../api/models";
 
 interface AssetLoadRequest {
   assetId: bigint;
@@ -159,20 +159,20 @@ class AssetService {
    */
   formatPairBalance(
     balanceA: bigint | number,
-    assetIdA: bigint,
+    assetIdA: bigint | number,
     balanceB: bigint | number,
-    assetIdB: bigint,
+    assetIdB: bigint | number,
     convertToBase: boolean
   ): string {
     let price = Number(balanceB) / Number(balanceA);
 
-    if (this.needToReverseAssets(assetIdA, assetIdB)) {
+    if (this.needToReverseAssets(BigInt(assetIdA), BigInt(assetIdB))) {
       [assetIdA, assetIdB] = [assetIdB, assetIdA];
       [balanceA, balanceB] = [balanceB, balanceA];
     }
 
-    const assetInfoA = this.getAssetInfo(assetIdA);
-    const assetInfoB = this.getAssetInfo(assetIdB);
+    const assetInfoA = this.getAssetInfo(BigInt(assetIdA));
+    const assetInfoB = this.getAssetInfo(BigInt(assetIdB));
     if (!assetInfoA || !assetInfoB) {
       return "Loading...";
     }
@@ -205,75 +205,80 @@ class AssetService {
    * @param assetB The ID of the second asset
    * @returns True if the assets need to be reversed, false otherwise
    */
-  needToReverseAssets = (assetA: bigint, assetB: bigint): boolean => {
-    if (assetA == 31566704n) {
+  needToReverseAssets = (
+    assetA: bigint | number,
+    assetB: bigint | number
+  ): boolean => {
+    const a = BigInt(assetA);
+    const b = BigInt(assetB);
+    if (a === 31566704n) {
       // usdc
       return true;
     }
-    if (assetB == 31566704n) {
+    if (b === 31566704n) {
       return false;
     }
-    if (assetA == 760037151n) {
+    if (a === 760037151n) {
       // xUSD
       return true;
     }
-    if (assetB == 760037151n) {
+    if (b === 760037151n) {
       return false;
     }
-    if (assetA == 227855942n) {
+    if (a === 227855942n) {
       // eurs
       return true;
     }
-    if (assetB == 227855942n) {
+    if (b === 227855942n) {
       return false;
     }
-    if (assetA == 1241945177n) {
+    if (a === 1241945177n) {
       // goldDAO
       return true;
     }
-    if (assetB == 1241945177n) {
+    if (b === 1241945177n) {
       return false;
     }
 
-    if (assetA == 0n) {
+    if (a === 0n) {
       // algo
       return true;
     }
-    if (assetB == 0n) {
+    if (b === 0n) {
       return false;
     }
-    if (assetA == 2320804780n) {
+    if (a === 2320804780n) {
       //Aramid Algo
       return true;
     }
-    if (assetB == 2320804780n) {
+    if (b === 2320804780n) {
       return false;
     }
-    if (assetA == 2537013734n) {
+    if (a === 2537013734n) {
       //xAlgo
       return true;
     }
-    if (assetB == 2537013734n) {
+    if (b === 2537013734n) {
       return false;
     }
-    if (assetA == 2537013734n) {
+    if (a === 2537013734n) {
       //tAlgo
       return true;
     }
-    if (assetB == 2537013734n) {
+    if (b === 2537013734n) {
       return false;
     }
-    if (assetA == 2537013734n) {
+    if (a === 2537013734n) {
       //tAlgo
       return true;
     }
-    if (assetB == 1185173782n) {
+    if (b === 1185173782n) {
       return false;
     }
 
     return false;
   };
-  reversePool = (pool: AggregatedPool): AggregatedPool => {
+  reverseAggregatedPool = (pool: AggregatedPool): AggregatedPool => {
     return {
       ...pool,
       assetIdA: pool.assetIdB,
@@ -282,6 +287,23 @@ class AssetService {
       b: pool.a,
       tvL_A: pool.tvL_B,
       tvL_B: pool.tvL_A,
+    };
+  };
+
+  reversePool = (pool: Pool): Pool => {
+    return {
+      ...pool,
+      assetIdA: pool.assetIdB,
+      assetIdB: pool.assetIdA,
+      a: pool.b,
+      b: pool.a,
+      l: pool.l,
+      assetADecimals: pool.assetBDecimals,
+      assetBDecimals: pool.assetADecimals,
+      realAmountA: pool.realAmountB,
+      realAmountB: pool.realAmountA,
+      virtualAmountA: pool.virtualAmountB,
+      virtualAmountB: pool.virtualAmountA,
     };
   };
 }

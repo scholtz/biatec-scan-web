@@ -61,7 +61,6 @@
         <div>Price</div>
         <div>Reserve A</div>
         <div>Reserve B</div>
-        <div>LP Supply</div>
         <div>Address</div>
         <div>Time</div>
       </div>
@@ -107,7 +106,11 @@ async function fetchPools() {
       size: state.size,
     });
     // res is AxiosResponse<Pool[]>
-    state.pools = res.data as Pool[];
+
+    const pools = res.data as Pool[];
+    // sort pools by pool.realAssetA amount
+    pools.sort((a, b) => (b.realAmountA ?? 0) - (a.realAmountA ?? 0));
+    state.pools = pools;
   } catch (e: any) {
     state.error = e?.message ?? "Failed to load pools";
   } finally {
@@ -196,7 +199,7 @@ const poolUpdateEvent = (pool: AggregatedPool) => {
     pool.assetIdA === state.aggregated?.assetIdB &&
     pool.assetIdB == state.aggregated?.assetIdA
   ) {
-    state.aggregated = assetService.reversePool(pool);
+    state.aggregated = assetService.reverseAggregatedPool(pool);
   }
 };
 watch(

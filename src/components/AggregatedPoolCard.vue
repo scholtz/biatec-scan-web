@@ -65,7 +65,7 @@ onMounted(() => {
       BigInt(props.pool.assetIdB ?? 0n)
     )
   ) {
-    state.pool = assetService.reversePool(props.pool);
+    state.pool = assetService.reverseAggregatedPool(props.pool);
   }
   signalrService.onAggregatedPoolReceived(poolUpdateEvent);
 });
@@ -84,7 +84,7 @@ const poolUpdateEvent = (pool: AggregatedPool) => {
     pool.assetIdA === state.pool.assetIdB &&
     pool.assetIdB == state.pool.assetIdA
   ) {
-    state.pool = assetService.reversePool(pool);
+    state.pool = assetService.reverseAggregatedPool(pool);
   }
 };
 const formattedTVLA = computed(() => {
