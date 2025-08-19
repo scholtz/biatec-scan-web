@@ -123,11 +123,12 @@ const formattedTVLB = computed(() => {
 const formattedPrice = computed(() => {
   // price = B/A with 6 decimals
   if (props.pool.tvL_A === undefined || props.pool.tvL_A === null) return "-";
-  if (props.pool.tvL_B === undefined || props.pool.tvL_B === null) return "-";
+  if (props.pool.virtualSumB === undefined || props.pool.virtualSumB === null)
+    return "-";
   return assetService.formatPairBalance(
-    props.pool.tvL_A,
+    props.pool.virtualSumA ?? 0,
     BigInt(props.pool.assetIdA ?? 0),
-    props.pool.tvL_B,
+    props.pool.virtualSumB ?? 0,
     BigInt(props.pool.assetIdB ?? 0),
     false
   );

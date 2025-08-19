@@ -41,6 +41,20 @@
           >
             {{ aggregatedVirtualReserveA }}
           </div>
+          <div
+            class="text-gray-400 text-xs"
+            title="Virtual reserve Level 1"
+            v-if="aggregatedVirtualReserveA != aggregatedVirtualReserveAL1"
+          >
+            {{ aggregatedVirtualReserveAL1 }}
+          </div>
+          <div
+            class="text-gray-400 text-xs"
+            title="Virtual reserve Level 2"
+            v-if="aggregatedVirtualReserveA != aggregatedVirtualReserveAL2"
+          >
+            {{ aggregatedVirtualReserveAL2 }}
+          </div>
         </div>
         <div>
           <div class="text-xs text-gray-400">Total Reserve B</div>
@@ -53,6 +67,20 @@
             v-if="aggregatedVirtualReserveB != aggregatedReserveB"
           >
             {{ aggregatedVirtualReserveB }}
+          </div>
+          <div
+            class="text-gray-400 text-xs"
+            title="Virtual reserve Level 1"
+            v-if="aggregatedVirtualReserveB != aggregatedReserveB"
+          >
+            {{ aggregatedVirtualReserveBL1 }}
+          </div>
+          <div
+            class="text-gray-400 text-xs"
+            title="Virtual reserve Level 2"
+            v-if="aggregatedVirtualReserveB != aggregatedReserveB"
+          >
+            {{ aggregatedVirtualReserveBL2 }}
           </div>
         </div>
         <div>
@@ -69,7 +97,7 @@
 
     <div v-else class="space-y-1">
       <div
-        class="hidden md:grid md:grid-cols-8 gap-3 px-2 text-xs text-gray-400"
+        class="hidden md:grid md:grid-cols-9 gap-3 px-2 text-xs text-gray-400"
       >
         <div>Protocol</div>
         <div>Address</div>
@@ -263,6 +291,28 @@ const aggregatedVirtualReserveA = computed(() => {
   const bal = BigInt(Math.trunc(state.aggregated.virtualSumA || 0));
   return assetService.formatAssetBalance(bal, aid, false);
 });
+const aggregatedVirtualReserveAL1 = computed(() => {
+  if (!state.aggregated) return "—";
+  if (
+    state.aggregated.assetIdA === undefined ||
+    state.aggregated.assetIdA === null
+  )
+    return "—";
+  const aid = BigInt(state.aggregated.assetIdA);
+  const bal = BigInt(Math.trunc(state.aggregated.virtualSumALevel1 || 0));
+  return assetService.formatAssetBalance(bal, aid, false);
+});
+const aggregatedVirtualReserveAL2 = computed(() => {
+  if (!state.aggregated) return "—";
+  if (
+    state.aggregated.assetIdA === undefined ||
+    state.aggregated.assetIdA === null
+  )
+    return "—";
+  const aid = BigInt(state.aggregated.assetIdA);
+  const bal = BigInt(Math.trunc(state.aggregated.virtualSumALevel2 || 0));
+  return assetService.formatAssetBalance(bal, aid, false);
+});
 const aggregatedReserveB = computed(() => {
   if (!state.aggregated) return "—";
   if (
@@ -283,6 +333,28 @@ const aggregatedVirtualReserveB = computed(() => {
     return "—";
   const bid = BigInt(state.aggregated.assetIdB);
   const bal = BigInt(Math.trunc(state.aggregated.virtualSumB || 0));
+  return assetService.formatAssetBalance(bal, bid, false);
+});
+const aggregatedVirtualReserveBL1 = computed(() => {
+  if (!state.aggregated) return "—";
+  if (
+    state.aggregated.assetIdB === undefined ||
+    state.aggregated.assetIdB === null
+  )
+    return "—";
+  const bid = BigInt(state.aggregated.assetIdB);
+  const bal = BigInt(Math.trunc(state.aggregated.virtualSumBLevel1 || 0));
+  return assetService.formatAssetBalance(bal, bid, false);
+});
+const aggregatedVirtualReserveBL2 = computed(() => {
+  if (!state.aggregated) return "—";
+  if (
+    state.aggregated.assetIdB === undefined ||
+    state.aggregated.assetIdB === null
+  )
+    return "—";
+  const bid = BigInt(state.aggregated.assetIdB);
+  const bal = BigInt(Math.trunc(state.aggregated.virtualSumBLevel2 || 0));
   return assetService.formatAssetBalance(bal, bid, false);
 });
 const aggregatedPrice = computed(() => {
