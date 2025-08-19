@@ -160,6 +160,7 @@ export * from './aMMType';
 export * from './aggregatedPool';
 export * from './dEXProtocol';
 export * from './getApiAggregatedPoolParams';
+export * from './getApiAggregatedPoolReloadParams';
 export * from './getApiPoolParams';
 export * from './getApiPoolReloadParams';
 export * from './getApiPoolStatsParams';

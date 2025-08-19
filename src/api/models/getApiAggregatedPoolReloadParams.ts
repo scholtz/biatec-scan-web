@@ -156,11 +156,7 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export type AMMType = typeof AMMType[keyof typeof AMMType];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const AMMType = {
-  OldAMM: 'OldAMM',
-  ConcentratedLiquidityAMM: 'ConcentratedLiquidityAMM',
-} as const;
+export type GetApiAggregatedPoolReloadParams = {
+assetIdA?: number;
+assetIdB?: number;
+};

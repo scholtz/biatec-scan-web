@@ -4,43 +4,61 @@
     <div
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6 mb-8"
     >
-      <div class="card text-center">
+      <StyledBox class="text-center">
         <h3 class="text-2xl font-bold text-white" v-if="state.algoPrice">
-          <div v-if="state.algoPrice.a && state.algoPrice.b">
-            {{
-              new Number(state.algoPrice.b / state.algoPrice.a).toLocaleString(
-                undefined,
-                {
+          <div
+            v-if="state.algoPrice.virtualSumA && state.algoPrice.virtualSumB"
+          >
+            <RouterLink
+              :to="`/pools/${state.algoPrice.assetIdA}/${state.algoPrice.assetIdB}`"
+              class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
+            >
+              {{
+                new Number(
+                  state.algoPrice.virtualSumB / state.algoPrice.virtualSumA
+                ).toLocaleString(undefined, {
                   minimumFractionDigits: 6,
                   maximumFractionDigits: 6,
-                }
-              )
-            }}
+                })
+              }}
+            </RouterLink>
           </div>
         </h3>
-        <h3 class="text-2xl font-bold text-gray-400" v-else>Loading...</h3>
+        <h3 class="text-2xl font-bold text-gray-400" v-else>
+          <RouterLink
+            :to="`/pools/0/31566704`"
+            class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
+          >
+            Loading...
+          </RouterLink>
+        </h3>
         <p class="text-gray-400">ALGO/USD</p>
-      </div>
-      <div class="card text-center">
-        <h3 class="text-2xl font-bold text-white mb-2">
-          {{ state.latestBlocks[0]?.round.toLocaleString() || "..." }}
+      </StyledBox>
+      <StyledBox class="text-center">
+        <h3 class="text-2xl font-bold text-white">
+          <RouterLink
+            :to="`/block/${state.latestBlocks[0]?.round}`"
+            class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
+          >
+            {{ state.latestBlocks[0]?.round.toLocaleString() || "..." }}
+          </RouterLink>
         </h3>
         <p class="text-gray-400">Latest Block</p>
-      </div>
-      <div class="card text-center">
-        <h3 class="text-2xl font-bold text-white mb-2">
+      </StyledBox>
+      <StyledBox class="text-center">
+        <h3 class="text-2xl font-bold text-white">
           {{
             state.latestBlocks[0]?.totalTransactions.toLocaleString() || "..."
           }}
         </h3>
         <p class="text-gray-400">Total Transactions</p>
-      </div>
-      <div class="card text-center">
+      </StyledBox>
+      <StyledBox class="text-center">
         <h3 class="text-2xl font-bold" :class="networkStatus.color">
           {{ networkStatus.status }}
         </h3>
-        <p class="text-gray-400">Network Status</p>
-      </div>
+        <p class="text-gray-400">Connection Status</p>
+      </StyledBox>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-8">
@@ -186,6 +204,8 @@ import PoolCard from "../components/PoolCard.vue";
 import AggregatedPoolCard from "../components/AggregatedPoolCard.vue";
 import { BiatecBlock } from "../types/BiatecBlock";
 import { AggregatedPool, Pool } from "../api/models";
+import StyledBox from "../components/StyledBox.vue";
+import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
 
 const state = reactive({
   latestBlocks: [] as BiatecBlock[],
@@ -242,7 +262,7 @@ onMounted(async () => {
   signalrService.onLiquidityReceived(onLiquidityReceivedEvent);
   signalrService.onPoolReceived(onPoolReceivedEvent);
 
-  await signalrService.subscribeToTrades("");
+  await signalrService.subscribe(createDashboardSubscriptionFilter());
   state.mounted = true;
 
   // Update current time every second for network status calculation
@@ -380,7 +400,7 @@ onUnmounted(async () => {
   if (timeInterval) {
     clearInterval(timeInterval);
   }
-  await signalrService.unsubscribeToTrades("");
+  await signalrService.unsubscribeToTrades();
   state.mounted = false;
 });
 </script>

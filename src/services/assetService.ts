@@ -283,10 +283,15 @@ class AssetService {
       ...pool,
       assetIdA: pool.assetIdB,
       assetIdB: pool.assetIdA,
-      a: pool.b,
-      b: pool.a,
+      virtualSumA: pool.virtualSumB,
+      virtualSumB: pool.virtualSumA,
       tvL_A: pool.tvL_B,
       tvL_B: pool.tvL_A,
+      virtualSumALevel1: pool.virtualSumBLevel1,
+      virtualSumBLevel1: pool.virtualSumALevel1,
+      virtualSumALevel2: pool.virtualSumBLevel2,
+      virtualSumBLevel2: pool.virtualSumALevel2,
+      id: `${pool.assetIdB}-${pool.assetIdA}`,
     };
   };
 
@@ -306,6 +311,36 @@ class AssetService {
       virtualAmountB: pool.virtualAmountA,
     };
   };
+
+  /**
+   * Format asset pair balance with proper decimals and unit name. Divide a/b and format it with output price assetAName/assetBName.
+   */
+  formatPairBalanceWithRealValue(
+    price: number,
+    assetIdA: bigint | number,
+    assetIdB: bigint | number
+  ): string {
+    if (this.needToReverseAssets(BigInt(assetIdA), BigInt(assetIdB))) {
+      [assetIdA, assetIdB] = [assetIdB, assetIdA];
+      price = 1 / price;
+    }
+
+    const assetInfoA = this.getAssetInfo(BigInt(assetIdA));
+    const assetInfoB = this.getAssetInfo(BigInt(assetIdB));
+    if (!assetInfoA || !assetInfoB) {
+      return "Loading...";
+    }
+
+    const unitNameA =
+      assetInfoA.unitName || assetInfoA.name || `Asset ${assetIdA}`;
+    const unitNameB =
+      assetInfoB.unitName || assetInfoB.name || `Asset ${assetIdB}`;
+
+    return `${price.toLocaleString(undefined, {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 6,
+    })} ${unitNameA}/${unitNameB}`;
+  }
 }
 
 export const assetService = new AssetService();

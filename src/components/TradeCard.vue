@@ -1,14 +1,27 @@
 <template>
-  <div class="card border-l-4 border-l-blue-500">
+  <StyledBox>
     <div class="text-center" v-if="formattedPrice">
-      <span class="text-white text-lg font-bold">{{ formattedPrice }}</span>
+      <span class="text-white text-lg font-bold">
+        <router-link
+          :to="{
+            name: 'PoolsByAssets',
+            params: {
+              asset1: trade.assetIdIn.toString(),
+              asset2: trade.assetIdOut.toString(),
+            },
+          }"
+          class="text-blue-100 hover:text-blue-300 transition-colors duration-300"
+        >
+          {{ formattedPrice }}
+        </router-link>
+      </span>
     </div>
     <div class="flex flex-row w-full">
       <div class="text-right w-full flex-grow">
         <p class="text-xs text-gray-400 mb-1">
           <router-link
             :to="{ name: 'AddressDetails', params: { address: trade.trader } }"
-            class="text-blue-400 hover:text-blue-300 transition-colors duration-200"
+            class="text-blue-100 hover:text-blue-300 transition-colors duration-300"
             :title="trade.trader"
           >
             {{ algorandService.formatAddress(trade.trader) }}
@@ -16,9 +29,17 @@
           Sold
         </p>
         <p class="text-white text-sm">
-          {{ formattedAssetIn }}
+          <router-link
+            :to="{
+              name: 'AssetDetails',
+              params: { assetId: trade.assetIdIn.toString() },
+            }"
+            class="text-blue-100 hover:text-blue-300 transition-colors duration-300"
+          >
+            {{ formattedAssetIn }}
+          </router-link>
         </p>
-        <p class="text-xs text-gray-500">ID: {{ trade.assetIdIn }}</p>
+        <!-- <p class="text-xs text-gray-500">ID: {{ trade.assetIdIn }}</p> -->
       </div>
       <div
         class="flex flex-col min-w-20 items-center justify-center"
@@ -41,18 +62,26 @@
           <span>Bought</span>
           <router-link
             :to="{ name: 'TransactionDetails', params: { txId: trade.txId } }"
-            class="text-primary-400 hover:text-primary-300 text-xs transition-colors duration-200 ml-2"
+            class="text-xs ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
             View Tx
           </router-link>
         </p>
         <p class="text-white text-sm">
-          {{ formattedAssetOut }}
+          <router-link
+            :to="{
+              name: 'AssetDetails',
+              params: { assetId: trade.assetIdOut.toString() },
+            }"
+            class="text-blue-100 hover:text-blue-300 transition-colors duration-300"
+          >
+            {{ formattedAssetOut }}
+          </router-link>
         </p>
-        <p class="text-xs text-gray-500">ID: {{ trade.assetIdOut }}</p>
+        <!-- <p class="text-xs text-gray-500">ID: {{ trade.assetIdOut }}</p> -->
       </div>
     </div>
-  </div>
+  </StyledBox>
 </template>
 
 <script setup lang="ts">
@@ -61,6 +90,7 @@ import type { AMMTrade } from "../types/algorand";
 import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
+import StyledBox from "./StyledBox.vue";
 
 const state = reactive({
   forceUpdate: 0, // Used to trigger reactivity when assets are loaded
@@ -107,17 +137,17 @@ const formattedPrice = computed(() => {
     )
   ) {
     return formatSwapPrice(
-      props.trade.assetAmountOut,
       props.trade.assetAmountIn,
-      BigInt(props.trade.assetIdOut),
-      BigInt(props.trade.assetIdIn)
+      props.trade.assetAmountOut,
+      BigInt(props.trade.assetIdIn),
+      BigInt(props.trade.assetIdOut)
     );
   }
   return formatSwapPrice(
-    props.trade.assetAmountIn,
     props.trade.assetAmountOut,
-    BigInt(props.trade.assetIdIn),
-    BigInt(props.trade.assetIdOut)
+    props.trade.assetAmountIn,
+    BigInt(props.trade.assetIdOut),
+    BigInt(props.trade.assetIdIn)
   );
 });
 

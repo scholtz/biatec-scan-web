@@ -7,9 +7,9 @@
         <div class="flex items-center space-x-8">
           <router-link to="/" class="flex items-center space-x-3">
             <div
-              class="w-8 h-8 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg flex items-center justify-center"
+              class="w-8 h-8 bg-gradient-to-r from-white to-primary-200 rounded-lg flex items-center justify-center"
             >
-              <span class="text-white font-bold text-sm">A</span>
+              <img src="../assets/logo.svg" alt="Logo" class="w-7 h-7" />
             </div>
             <span
               class="text-xl font-bold bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent"
@@ -34,7 +34,7 @@
           </div>
         </div>
 
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-4 hidden md:block">
           <div class="relative">
             <input
               v-model="searchQuery"

@@ -1,41 +1,12 @@
 <template>
   <div
-    class="grid grid-cols-1 md:grid-cols-8 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
+    class="grid grid-cols-1 md:grid-cols-9 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
   >
     <!-- Protocol -->
     <div class="order-2 md:order-none">
       <span class="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300">
         {{ state.pool.protocol }}
       </span>
-    </div>
-
-    <!-- Pool ID -->
-    <div class="order-1 md:order-none">
-      <router-link
-        v-if="state.pool.poolAppId"
-        :to="{
-          name: 'PoolDetails',
-          params: { poolAddress: state.pool.poolAddress },
-        }"
-        class="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200"
-      >
-        {{ state.pool.poolAppId.toString() }}
-      </router-link>
-    </div>
-
-    <!-- Price -->
-    <div class="order-3 md:order-none text-sm text-white">
-      {{ formattedPrice }}
-    </div>
-
-    <!-- Reserve A -->
-    <div class="order-4 md:order-none text-sm text-white">
-      {{ formattedReserveA }}
-    </div>
-
-    <!-- Reserve B -->
-    <div class="order-5 md:order-none text-sm text-white">
-      {{ formattedReserveB }}
     </div>
 
     <!-- Address -->
@@ -53,8 +24,47 @@
       </router-link>
     </div>
 
+    <!-- Pool ID -->
+    <div class="order-1 md:order-none text-right">
+      <router-link
+        v-if="state.pool.poolAppId"
+        :to="{
+          name: 'PoolDetails',
+          params: { poolAddress: state.pool.poolAddress },
+        }"
+        class="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200"
+      >
+        {{ state.pool.poolAppId.toString() }}
+      </router-link>
+    </div>
+
+    <!-- Price Min -->
+    <div class="order-3 md:order-none text-sm text-white text-right">
+      {{ formattedPriceMin }}
+    </div>
+    <!-- Price -->
+    <div class="order-3 md:order-none text-sm text-white text-right">
+      {{ formattedPrice }}
+    </div>
+    <!-- Price Max -->
+    <div class="order-3 md:order-none text-sm text-white text-right">
+      {{ formattedPriceMax }}
+    </div>
+
+    <!-- Reserve A -->
+    <div class="order-4 md:order-none text-sm text-white text-right">
+      <div title="Real reserve">{{ formattedReserveA }}</div>
+      <div title="Virtual reserve">{{ formattedVirtualReserveA }}</div>
+    </div>
+
+    <!-- Reserve B -->
+    <div class="order-5 md:order-none text-sm text-white text-right">
+      <div title="Real reserve">{{ formattedReserveB }}</div>
+      <div title="Virtual reserve">{{ formattedVirtualReserveB }}</div>
+    </div>
+
     <!-- Time -->
-    <div class="order-8 md:order-none text-right md:text-left">
+    <div class="order-8 md:order-none text-right">
       <span class="text-xs text-gray-400">
         <FormattedTime
           :timestamp="state.pool.timestamp || Date.now().toString()"
@@ -101,7 +111,16 @@ const poolUpdateEvent = (pool: Pool) => {
     pool.poolAppId === state.pool.poolAppId &&
     state.pool.poolAddress == pool.poolAddress
   ) {
-    state.pool = pool;
+    if (
+      assetService.needToReverseAssets(
+        BigInt(pool.assetIdA ?? 0n),
+        BigInt(pool.assetIdB ?? 0n)
+      )
+    ) {
+      state.pool = assetService.reversePool(pool);
+    } else {
+      state.pool = pool;
+    }
   }
 };
 
@@ -122,6 +141,22 @@ const formattedPrice = computed(() => {
     false
   );
 });
+const formattedPriceMin = computed(() => {
+  if (!state.pool.pMin) return "0";
+  return assetService.formatPairBalanceWithRealValue(
+    state.pool.pMin,
+    state.pool.assetIdA ?? 0,
+    state.pool.assetIdB ?? 0
+  );
+});
+const formattedPriceMax = computed(() => {
+  if (!state.pool.pMax) return "∞";
+  return assetService.formatPairBalanceWithRealValue(
+    state.pool.pMax,
+    state.pool.assetIdA ?? 0,
+    state.pool.assetIdB ?? 0
+  );
+});
 const formattedReserveA = computed(() => {
   void state.forceUpdate;
   if (
@@ -133,6 +168,37 @@ const formattedReserveA = computed(() => {
   return assetService.formatAssetBalance(
     state.pool.realAmountA,
     state.pool.assetIdA ?? 0,
+    false
+  );
+});
+
+const formattedVirtualReserveA = computed(() => {
+  void state.forceUpdate;
+  if (state.pool.virtualAmountA == state.pool.realAmountA) return "";
+  if (
+    !state.pool.virtualAmountA ||
+    state.pool.assetIdA === undefined ||
+    state.pool.assetIdA === null
+  )
+    return "0";
+  return assetService.formatAssetBalance(
+    state.pool.virtualAmountA,
+    state.pool.assetIdA ?? 0,
+    false
+  );
+});
+const formattedVirtualReserveB = computed(() => {
+  void state.forceUpdate;
+  if (state.pool.virtualAmountB == state.pool.realAmountB) return "";
+  if (
+    !state.pool.virtualAmountB ||
+    state.pool.assetIdB === undefined ||
+    state.pool.assetIdB === null
+  )
+    return "0";
+  return assetService.formatAssetBalance(
+    state.pool.virtualAmountB,
+    state.pool.assetIdB ?? 0,
     false
   );
 });

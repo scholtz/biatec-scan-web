@@ -161,11 +161,19 @@ export interface AggregatedPool {
   readonly id?: string | null;
   assetIdA?: number;
   assetIdB?: number;
-  a?: number;
-  b?: number;
+  virtualSumALevel1?: number;
+  virtualSumBLevel1?: number;
+  virtualSumALevel2?: number;
+  virtualSumBLevel2?: number;
   tvL_A?: number;
   tvL_B?: number;
   poolCount?: number;
   /** @nullable */
+  level1Pools?: string[] | null;
+  /** @nullable */
+  level2Pools?: string[] | null;
+  /** @nullable */
   lastUpdated?: string | null;
+  readonly virtualSumA?: number;
+  readonly virtualSumB?: number;
 }

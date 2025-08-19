@@ -105,7 +105,7 @@
           <h2 class="text-lg font-semibold text-white mb-4">
             Transaction Amount
           </h2>
-          <div v-if="transaction['payment-transaction']" class="space-y-2">
+          <div v-if="transaction['payment-transaction']" class="space-y-1">
             <p class="text-2xl font-bold text-green-400">
               {{
                 algorandService.formatAlgoAmount(
@@ -118,7 +118,7 @@
           </div>
           <div
             v-else-if="transaction['asset-transfer-transaction']"
-            class="space-y-2"
+            class="space-y-1"
           >
             <p class="text-2xl font-bold text-blue-400">
               {{
@@ -195,7 +195,7 @@
             "
           >
             <p class="text-sm text-gray-400 mb-2">Application Arguments</p>
-            <div class="space-y-2">
+            <div class="space-y-1">
               <div
                 v-for="(arg, index) in transaction['application-transaction'][
                   'application-args'

@@ -158,6 +158,7 @@ Troubleshooting
 import type {
   AggregatedPool,
   GetApiAggregatedPoolParams,
+  GetApiAggregatedPoolReloadParams,
   GetApiPoolParams,
   GetApiPoolReloadParams,
   GetApiPoolStatsParams,
@@ -173,6 +174,25 @@ const getApiAggregatedPool = (
       return axiosInstance<AggregatedPool[]>(
       {url: `https://algorand-trades.de-4.biatec.io/api/aggregated-pool`, method: 'GET',
         params
+    },
+      );
+    }
+  
+const getApiAggregatedPoolReload = (
+    params?: GetApiAggregatedPoolReloadParams,
+ ) => {
+      return axiosInstance<AggregatedPool>(
+      {url: `https://algorand-trades.de-4.biatec.io/api/aggregated-pool/reload`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+const getApiAssetAssetId = (
+    assetId: number,
+ ) => {
+      return axiosInstance<null>(
+      {url: `https://algorand-trades.de-4.biatec.io/api/asset/${assetId}`, method: 'GET'
     },
       );
     }
@@ -263,8 +283,10 @@ const getApiSignalrConnections = (
       );
     }
   
-return {getApiAggregatedPool,getApiIndexerStatus,getApiPool,getApiPoolStats,getApiPoolReload,getApiSignalrAuthTest,getApiSignalrAuthTestAuthorized,postApiSignalrTestBroadcast,postApiSignalrTestTrade,getApiSignalrConnections}};
+return {getApiAggregatedPool,getApiAggregatedPoolReload,getApiAssetAssetId,getApiIndexerStatus,getApiPool,getApiPoolStats,getApiPoolReload,getApiSignalrAuthTest,getApiSignalrAuthTestAuthorized,postApiSignalrTestBroadcast,postApiSignalrTestTrade,getApiSignalrConnections}};
 export type GetApiAggregatedPoolResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAggregatedPool']>>>
+export type GetApiAggregatedPoolReloadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAggregatedPoolReload']>>>
+export type GetApiAssetAssetIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAssetAssetId']>>>
 export type GetApiIndexerStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiIndexerStatus']>>>
 export type GetApiPoolResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiPool']>>>
 export type GetApiPoolStatsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiPoolStats']>>>

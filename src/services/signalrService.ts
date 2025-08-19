@@ -9,11 +9,13 @@ import { getAuthToken as getArc14AuthToken } from "./authService";
 import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 import { BiatecBlock } from "../types/BiatecBlock";
 import { AggregatedPool, Pool } from "../api/models";
+import { SubscriptionFilter } from "../types/SubscriptionFilter";
 let callbacksTrades: ((trade: AMMTrade) => void)[] = [];
 let callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
 let callbacksPools: ((pool: Pool) => void)[] = [];
 let callbacksAggregatedPools: ((pool: AMMAggregatedPool) => void)[] = [];
 let callbacksBlocks: ((block: BiatecBlock) => void)[] = [];
+let currentSubscription: SubscriptionFilter | null = null;
 class SignalRService {
   private connection: HubConnection | null = null;
   private isConnected = false;
@@ -47,7 +49,9 @@ class SignalRService {
         console.log("SignalR reconnected");
         this.isConnected = true;
         // Re-subscribe after reconnection
-        this.subscribeToTrades("");
+        if (currentSubscription !== null) {
+          this.subscribe(currentSubscription);
+        }
       });
 
       this.connection.onclose(() => {
@@ -57,8 +61,8 @@ class SignalRService {
       });
 
       // Handle subscription confirmation
-      this.connection.on("Subscribed", (filter: string) => {
-        console.log(`Subscription confirmed with filter: "${filter}"`);
+      this.connection.on("Info", (filter: any) => {
+        console.log(`Info received: "${JSON.stringify(filter)}"`);
       });
       this.connection.on("TestConnectionResult", (result: any) => {
         console.log(`Test connection result: `, result);
@@ -71,27 +75,27 @@ class SignalRService {
 
       // Handle subscription errors
       this.connection.on("Block", (block: any) => {
-        //console.log("FilteredTradeUpdated received:", trade);
+        console.log("Block received:", block);
         callbacksBlocks.forEach((callback) => callback(block as BiatecBlock));
       });
       // Handle subscription errors
-      this.connection.on("FilteredTradeUpdated", (trade: any) => {
+      this.connection.on("Trade", (trade: any) => {
         //console.log("FilteredTradeUpdated received:", trade);
         callbacksTrades.forEach((callback) => callback(trade as AMMTrade));
       });
-      this.connection.on("PoolUpdated", (pool: any) => {
+      this.connection.on("Pool", (pool: any) => {
         //console.log("PoolUpdated received:", pool);
         callbacksPools.forEach((callback) => callback(pool as Pool));
       });
       // Handle subscription errors
-      this.connection.on("FilteredLiquidityUpdated", (liquidity: any) => {
+      this.connection.on("Liquidity", (liquidity: any) => {
         //console.log("FilteredLiquidityUpdated received:", liquidity);
         callbacksLiquidity.forEach((callback) =>
           callback(liquidity as AMMLiquidity)
         );
       });
       // Handle subscription errors
-      this.connection.on("AggregatedPoolUpdated", (pool: any) => {
+      this.connection.on("AggregatedPool", (pool: any) => {
         var poolObj = pool as AMMAggregatedPool;
         // console.log(
         //   "AggregatedPoolUpdated received:",
@@ -115,7 +119,7 @@ class SignalRService {
     }
   }
 
-  public async subscribeToTrades(filter: string = ""): Promise<void> {
+  public async subscribe(filter: SubscriptionFilter): Promise<void> {
     console.log("subscribing to AMM trades");
     const timeoutMs = 5000;
     const start = Date.now();
@@ -147,20 +151,21 @@ class SignalRService {
     }
 
     try {
+      currentSubscription = filter;
       await this.connection.invoke("Subscribe", filter);
-      console.log(`Subscribed to trades with filter: "${filter}"`);
+      console.log(`Subscribed to updates with filter: `, filter);
     } catch (error) {
-      console.error("Error subscribing to trades:", error);
+      console.error("Error subscribing to updates:", error);
     }
   }
-  public async unsubscribeToTrades(filter: string = ""): Promise<void> {
+  public async unsubscribeToTrades(): Promise<void> {
     if (!this.connection || !this.isConnected) return;
 
     try {
-      await this.connection.invoke("Unsubscribe", filter);
-      console.log(`Unsubscribed from trades with filter: "${filter}"`);
+      await this.connection.invoke("Unsubscribe");
+      console.log(`Unsubscribed"`);
     } catch (error) {
-      console.error("Error unsubscribing from trades:", error);
+      console.error("Error unsubscribing:", error);
     }
   }
 

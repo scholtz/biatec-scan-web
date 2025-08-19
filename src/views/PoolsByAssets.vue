@@ -20,9 +20,6 @@
         <div>
           <div class="text-xs text-gray-400">Aggregated</div>
           <div class="text-lg text-white">{{ aggregatedPrice }}</div>
-          <div class="text-xs text-gray-400">
-            Price {{ asset1Name }}/{{ asset2Name }}
-          </div>
         </div>
         <div class="text-right text-xs text-gray-400">
           <div>Updated</div>
@@ -34,11 +31,29 @@
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
         <div>
           <div class="text-xs text-gray-400">Total Reserve A</div>
-          <div class="text-white">{{ aggregatedReserveA }}</div>
+          <div class="text-white" title="Real reserve">
+            {{ aggregatedReserveA }}
+          </div>
+          <div
+            class="text-gray-400 text-xs"
+            title="Virtual reserve"
+            v-if="aggregatedVirtualReserveA != aggregatedReserveA"
+          >
+            {{ aggregatedVirtualReserveA }}
+          </div>
         </div>
         <div>
           <div class="text-xs text-gray-400">Total Reserve B</div>
-          <div class="text-white">{{ aggregatedReserveB }}</div>
+          <div class="text-white" title="Real reserve">
+            {{ aggregatedReserveB }}
+          </div>
+          <div
+            class="text-gray-400 text-xs"
+            title="Virtual reserve"
+            v-if="aggregatedVirtualReserveB != aggregatedReserveB"
+          >
+            {{ aggregatedVirtualReserveB }}
+          </div>
         </div>
         <div>
           <div class="text-xs text-gray-400 text-right">Pools</div>
@@ -52,17 +67,19 @@
     <div v-if="state.loading" class="text-gray-400">Loading pools…</div>
     <div v-else-if="state.error" class="text-red-400">{{ state.error }}</div>
 
-    <div v-else class="space-y-2">
+    <div v-else class="space-y-1">
       <div
         class="hidden md:grid md:grid-cols-8 gap-3 px-2 text-xs text-gray-400"
       >
         <div>Protocol</div>
-        <div>Pool ID</div>
-        <div>Price</div>
-        <div>Reserve A</div>
-        <div>Reserve B</div>
         <div>Address</div>
-        <div>Time</div>
+        <div class="text-right">Pool ID</div>
+        <div class="text-right">Price Min</div>
+        <div class="text-right">Price</div>
+        <div class="text-right">Price Max</div>
+        <div class="text-right">Reserve A</div>
+        <div class="text-right">Reserve B</div>
+        <div class="text-right">Time</div>
       </div>
       <PoolRow v-for="p in state.pools" :key="p.poolAddress ?? ''" :pool="p" />
     </div>
@@ -141,29 +158,9 @@ async function fetchAggregated() {
       )
     ) {
       // Reverse the aggregated pool if needed
-      state.aggregated = {
-        id: String(`${raw.assetIdB}-${raw.assetIdA}`),
-        assetIdA: Number(raw.assetIdB ?? a2),
-        assetIdB: Number(raw.assetIdA ?? a1),
-        a: Number(raw.b ?? 0),
-        b: Number(raw.a ?? 0),
-        tvL_A: Number(raw.tvL_B ?? 0),
-        tvL_B: Number(raw.tvL_A ?? 0),
-        poolCount: Number(raw.poolCount ?? 0),
-        lastUpdated: (raw.lastUpdated ?? null) as string | null,
-      };
+      state.aggregated = assetService.reverseAggregatedPool(raw);
     } else {
-      state.aggregated = {
-        id: String(`${raw.assetIdA}-${raw.assetIdB}`),
-        assetIdA: Number(raw.assetIdA ?? a1),
-        assetIdB: Number(raw.assetIdB ?? a2),
-        a: Number(raw.a ?? 0),
-        b: Number(raw.b ?? 0),
-        tvL_A: Number(raw.tvL_A ?? 0),
-        tvL_B: Number(raw.tvL_B ?? 0),
-        poolCount: Number(raw.poolCount ?? 0),
-        lastUpdated: (raw.lastUpdated ?? null) as string | null,
-      };
+      state.aggregated = raw;
     }
   } catch (e) {
     // silent fail for aggregated; page still shows pools
@@ -254,6 +251,18 @@ const aggregatedReserveA = computed(() => {
   const bal = BigInt(Math.trunc(state.aggregated.tvL_A || 0));
   return assetService.formatAssetBalance(bal, aid, false);
 });
+// Aggregated display helpers
+const aggregatedVirtualReserveA = computed(() => {
+  if (!state.aggregated) return "—";
+  if (
+    state.aggregated.assetIdA === undefined ||
+    state.aggregated.assetIdA === null
+  )
+    return "—";
+  const aid = BigInt(state.aggregated.assetIdA);
+  const bal = BigInt(Math.trunc(state.aggregated.virtualSumA || 0));
+  return assetService.formatAssetBalance(bal, aid, false);
+});
 const aggregatedReserveB = computed(() => {
   if (!state.aggregated) return "—";
   if (
@@ -263,6 +272,17 @@ const aggregatedReserveB = computed(() => {
     return "—";
   const bid = BigInt(state.aggregated.assetIdB);
   const bal = BigInt(Math.trunc(state.aggregated.tvL_B || 0));
+  return assetService.formatAssetBalance(bal, bid, false);
+});
+const aggregatedVirtualReserveB = computed(() => {
+  if (!state.aggregated) return "—";
+  if (
+    state.aggregated.assetIdB === undefined ||
+    state.aggregated.assetIdB === null
+  )
+    return "—";
+  const bid = BigInt(state.aggregated.assetIdB);
+  const bal = BigInt(Math.trunc(state.aggregated.virtualSumB || 0));
   return assetService.formatAssetBalance(bal, bid, false);
 });
 const aggregatedPrice = computed(() => {
@@ -279,8 +299,8 @@ const aggregatedPrice = computed(() => {
     return "—";
   const aid = BigInt(state.aggregated.assetIdA);
   const bid = BigInt(state.aggregated.assetIdB);
-  const a = BigInt(Math.trunc(state.aggregated.tvL_A || 0));
-  const b = BigInt(Math.trunc(state.aggregated.tvL_B || 0));
+  const a = BigInt(Math.trunc(state.aggregated.virtualSumA || 0));
+  const b = BigInt(Math.trunc(state.aggregated.virtualSumB || 0));
   return assetService.formatPairBalance(a, aid, b, bid, false);
 });
 </script>

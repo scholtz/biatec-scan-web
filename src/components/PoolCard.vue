@@ -1,5 +1,5 @@
 <template>
-  <div class="card border-l-4 border-l-purple-500">
+  <StyledBox>
     <div class="flex items-center justify-between mb-3">
       <span class="text-xs text-gray-400">
         <FormattedTime :timestamp="pool.timestamp || Date.now().toString()" />
@@ -9,76 +9,61 @@
       </span>
     </div>
 
-    <div class="space-y-2">
+    <div class="space-y-1">
       <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400">Pool ID:</span>
+        <span class="text-sm text-gray-400">Pool:</span>
         <router-link
-          v-if="pool.poolAppId"
           :to="{
-            name: 'PoolDetails',
-            params: { poolAddress: pool.poolAddress },
+            name: 'PoolsByAssets',
+            params: {
+              asset1: pool.assetIdA?.toString(),
+              asset2: pool.assetIdB?.toString(),
+            },
           }"
-          class="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200"
-        >
-          {{ pool.poolAppId.toString() }}
-        </router-link>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400">Asset A:</span>
-        <span class="text-sm text-white">
-          {{ formattedAssetA }}
-          <span class="text-xs text-gray-400">({{ pool.assetIdA }})</span>
-        </span>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400">Asset B:</span>
-        <span class="text-sm text-white">
-          {{ formattedAssetB }}
-          <span class="text-xs text-gray-400">({{ pool.assetIdB }})</span>
-        </span>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400">LP Token:</span>
-        <span class="text-sm text-white">
-          {{ formattedAssetLP }}
-          <span class="text-xs text-gray-400">({{ pool.assetIdLP }})</span>
-        </span>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400">Pool Address:</span>
-        <router-link
-          v-if="pool.poolAddress"
-          :to="{
-            name: 'AddressDetails',
-            params: { address: pool.poolAddress },
-          }"
-          class="text-xs text-blue-400 hover:text-blue-300 font-mono truncate ml-2 transition-colors duration-200"
+          class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
           :title="pool.poolAddress"
         >
-          {{ formatAddress(pool.poolAddress) }}
+          {{ formatAddress(pool.poolAddress ?? "") }}
         </router-link>
       </div>
 
-      <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-700">
-        <div class="text-center">
-          <div class="text-xs text-gray-400">Reserve A</div>
-          <div class="text-sm text-white">{{ formattedReserveA }}</div>
-        </div>
-        <div class="text-center">
-          <div class="text-xs text-gray-400">Reserve B</div>
-          <div class="text-sm text-white">{{ formattedReserveB }}</div>
-        </div>
-        <div class="text-center">
-          <div class="text-xs text-gray-400">LP Supply</div>
-          <div class="text-sm text-white">{{ formattedLPSupply }}</div>
-        </div>
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-400"> Reserve A: </span>
+        <span class="text-sm text-white">
+          <router-link
+            :to="{
+              name: 'AssetDetails',
+              params: {
+                assetId: pool.assetIdA?.toString(),
+              },
+            }"
+            class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
+            :title="pool.assetIdA"
+          >
+            {{ formattedReserveA }}
+          </router-link>
+        </span>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-400"> Reserve B: </span>
+        <span class="text-sm text-white">
+          <router-link
+            :to="{
+              name: 'AssetDetails',
+              params: {
+                assetId: pool.assetIdB?.toString(),
+              },
+            }"
+            class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
+            :title="pool.assetIdB"
+          >
+            {{ formattedReserveB }}
+          </router-link>
+        </span>
       </div>
     </div>
-  </div>
+  </StyledBox>
 </template>
 
 <script setup lang="ts">
@@ -86,6 +71,7 @@ import { reactive, computed } from "vue";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
 import { Pool } from "../api/models";
+import StyledBox from "./StyledBox.vue";
 
 interface Props {
   pool: Pool;
@@ -95,29 +81,6 @@ const props = defineProps<Props>();
 
 const state = reactive({
   forceUpdate: 0, // Used to trigger reactivity when assets are loaded
-});
-
-const formattedAssetA = computed(() => {
-  // Add dependency on forceUpdate to trigger re-computation when assets load
-  void state.forceUpdate;
-  if (props.pool.assetIdA === undefined || props.pool.assetIdA === null)
-    return "N/A";
-  return getAssetName(props.pool.assetIdA);
-});
-
-const formattedAssetB = computed(() => {
-  // Add dependency on forceUpdate to trigger re-computation when assets load
-  void state.forceUpdate;
-  if (props.pool.assetIdB === undefined || props.pool.assetIdB === null)
-    return "N/A";
-  return getAssetName(props.pool.assetIdB);
-});
-
-const formattedAssetLP = computed(() => {
-  // Add dependency on forceUpdate to trigger re-computation when assets load
-  void state.forceUpdate;
-  if (!props.pool.assetIdLP) return "N/A";
-  return getAssetName(props.pool.assetIdLP);
 });
 
 const formattedReserveA = computed(() => {
@@ -135,27 +98,8 @@ const formattedReserveB = computed(() => {
   return assetService.formatAssetBalance(props.pool.b, props.pool.assetIdB);
 });
 
-const formattedLPSupply = computed(() => {
-  // Add dependency on forceUpdate to trigger re-computation when assets load
-  void state.forceUpdate;
-  if (!props.pool.l || props.pool.assetIdLP == undefined) return "0";
-  return assetService.formatAssetBalance(props.pool.l, props.pool.assetIdLP);
-});
-
-const getAssetName = (assetId: bigint | number): string => {
-  const assetInfo = assetService.getAssetInfo(BigInt(assetId));
-  if (!assetInfo) {
-    // Request asset loading and trigger re-render when loaded
-    assetService.requestAsset(BigInt(assetId), () => {
-      state.forceUpdate++;
-    });
-    return "Loading...";
-  }
-  return assetInfo.name || assetInfo.unitName || `Asset ${assetId}`;
-};
-
 const formatAddress = (address: string): string => {
   if (!address) return "";
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  return `${address.slice(0, 4)}..${address.slice(-4)}`;
 };
 </script>
