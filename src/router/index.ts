@@ -17,6 +17,12 @@ const router = createRouter({
       component: Dashboard,
     },
     {
+      path: "/pools/:asset1",
+      name: "PoolsByAsset",
+      component: PoolsByAssets,
+      props: true,
+    },
+    {
       path: "/asset/:assetId",
       name: "AssetDetails",
       component: AssetDetails,

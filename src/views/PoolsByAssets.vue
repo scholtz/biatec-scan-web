@@ -1,7 +1,11 @@
 <template>
   <div class="p-4 space-y-4">
     <h1 class="text-xl font-semibold text-white">
-      Pools for {{ asset1Name }} / {{ asset2Name }}
+      {{
+        isSingleAsset
+          ? `Pools containing ${asset1Name}`
+          : `Pools for ${asset1Name} / ${asset2Name}`
+      }}
     </h1>
 
     <div class="flex items-center gap-2 text-sm text-gray-400">
@@ -15,7 +19,7 @@
     </div>
 
     <!-- Aggregated Pool Summary -->
-    <div class="card" v-if="state.aggregated">
+    <div class="card" v-if="state.aggregated && !isSingleAsset">
       <div class="flex items-start justify-between">
         <div>
           <div class="text-xs text-gray-400">Aggregated</div>
@@ -129,7 +133,7 @@ const route = useRoute();
 const state = reactive({
   asset1: BigInt((route.params.asset1 as string) || 0),
   asset2: BigInt((route.params.asset2 as string) || 0),
-  size: 100,
+  size: 10000,
   pools: [] as Pool[],
   loading: false,
   error: "",
@@ -139,22 +143,49 @@ const state = reactive({
 
 const api = getAVMTradeReporterAPI();
 
+const isSingleAsset = computed(() => !route.params.asset2);
+
 async function fetchPools() {
   state.loading = true;
   state.error = "";
   try {
-    const a1 = Number(state.asset1);
-    const a2 = Number(state.asset2);
-    const res = await api.getApiPool({
-      assetIdA: a1,
-      assetIdB: a2,
-      size: state.size,
+    let pools: Pool[] = [];
+    if (isSingleAsset.value) {
+      const a1 = Number(state.asset1);
+      // Query pools where asset is on either side and merge unique by poolAddress
+      const [resA, resB] = await Promise.all([
+        api.getApiPool({ assetIdA: a1, size: state.size }),
+        api.getApiPool({ assetIdB: a1, size: state.size }),
+      ]);
+      const map = new Map<string, Pool>();
+      for (const p of resA.data as Pool[]) {
+        if (p.poolAddress) map.set(p.poolAddress, p);
+      }
+      for (const p of resB.data as Pool[]) {
+        if (p.poolAddress && !map.has(p.poolAddress)) map.set(p.poolAddress, p);
+      }
+      pools = Array.from(map.values());
+    } else {
+      const a1 = Number(state.asset1);
+      const a2 = Number(state.asset2);
+      const res = await api.getApiPool({
+        assetIdA: a1,
+        assetIdB: a2,
+        size: state.size,
+      });
+      pools = res.data as Pool[];
+    }
+    // sort pools by the selected asset's real amount (descending)
+    const aSel = Number(state.asset1);
+    pools.sort((a, b) => {
+      const aval =
+        (a.assetIdA === aSel ? (a.realAmountA ?? 0) : (a.realAmountB ?? 0)) ||
+        0;
+      const bval =
+        (b.assetIdA === aSel ? (b.realAmountA ?? 0) : (b.realAmountB ?? 0)) ||
+        0;
+      return bval - aval;
     });
-    // res is AxiosResponse<Pool[]>
-
-    const pools = res.data as Pool[];
-    // sort pools by pool.realAssetA amount
-    pools.sort((a, b) => (b.realAmountA ?? 0) - (a.realAmountA ?? 0));
     state.pools = pools;
   } catch (e: any) {
     state.error = e?.message ?? "Failed to load pools";
@@ -165,6 +196,10 @@ async function fetchPools() {
 
 async function fetchAggregated() {
   try {
+    if (isSingleAsset.value) {
+      state.aggregated = null;
+      return;
+    }
     const a1 = Number(state.asset1);
     const a2 = Number(state.asset2);
     const res = await api.getApiAggregatedPool({
@@ -201,8 +236,10 @@ async function refresh() {
 }
 
 onMounted(async () => {
-  if (assetService.needToReverseAssets(asset1Id.value, asset2Id.value)) {
-    [state.asset1, state.asset2] = [state.asset2, state.asset1];
+  if (!isSingleAsset.value) {
+    if (assetService.needToReverseAssets(asset1Id.value, asset2Id.value)) {
+      [state.asset1, state.asset2] = [state.asset2, state.asset1];
+    }
   }
 
   await Promise.all([fetchPools(), fetchAggregated()]);
@@ -232,8 +269,10 @@ watch(
   (p) => {
     state.asset1 = BigInt((p.asset1 as string) || 0);
     state.asset2 = BigInt((p.asset2 as string) || 0);
-    if (assetService.needToReverseAssets(asset1Id.value, asset2Id.value)) {
-      [state.asset1, state.asset2] = [state.asset2, state.asset1];
+    if (!isSingleAsset.value) {
+      if (assetService.needToReverseAssets(asset1Id.value, asset2Id.value)) {
+        [state.asset1, state.asset2] = [state.asset2, state.asset1];
+      }
     }
     fetchPools();
     fetchAggregated();
