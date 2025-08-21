@@ -177,6 +177,10 @@ export interface Pool {
   /** @nullable */
   b?: number | null;
   /** @nullable */
+  stableA?: number | null;
+  /** @nullable */
+  stableB?: number | null;
+  /** @nullable */
   af?: number | null;
   /** @nullable */
   bf?: number | null;

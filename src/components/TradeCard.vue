@@ -45,17 +45,40 @@
         class="flex flex-col min-w-20 items-center justify-center"
         style="width: 1.5rem"
       >
-        <div
-          class="w-6 h-6 rounded-full flex items-center justify-center"
-          :class="
-            props.trade.tradeState === 'TxPool' ? 'bg-red-600' : 'bg-blue-600'
-          "
-        >
-          <span class="text-white text-xs font-bold">⇄</span>
-        </div>
         <p class="text-xs text-gray-400 text-center mt-2">
           <FormattedTime :timestamp="trade.timestamp" />
         </p>
+        <div
+          v-if="trade.assetIdIn != trade.assetIdOut"
+          class="flex justify-between vertical-align-middle items-center"
+        >
+          <img
+            :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${trade.assetIdIn}`"
+            class="inline-block w-6 h-6 mr-1"
+          />
+          <div
+            class="w-4 h-4 rounded-full flex items-center justify-center"
+            :class="
+              props.trade.tradeState === 'TxPool' ? 'bg-red-600' : 'bg-blue-600'
+            "
+          >
+            <span class="text-white text-xs font-bold">⇄</span>
+          </div>
+          <img
+            :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${trade.assetIdOut}`"
+            class="inline-block w-6 h-6 ml-1"
+          />
+        </div>
+        <div v-else class="flex">
+          <span
+            class="w-4 h-4 rounded-full flex items-center justify-center"
+            :class="
+              props.trade.tradeState === 'TxPool' ? 'bg-red-600' : 'bg-blue-600'
+            "
+          >
+            <span class="text-white text-xs font-bold">⇄</span>
+          </span>
+        </div>
       </div>
       <div class="w-full flex-grow">
         <p class="text-xs text-gray-400 mb-1 flex">

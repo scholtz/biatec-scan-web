@@ -1,11 +1,41 @@
 <template>
   <div
-    class="grid grid-cols-1 md:grid-cols-9 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
+    class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
   >
     <!-- Protocol -->
     <div class="order-2 md:order-none">
       <span class="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300">
         {{ state.pool.protocol }}
+      </span>
+    </div>
+
+    <!-- Type -->
+    <div class="order-2 md:order-none">
+      <span
+        class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300"
+        v-if="
+          state.pool.ammType == 'StableSwap' || (state.pool.stableA ?? 0) > 0
+        "
+      >
+        Stable swap
+      </span>
+      <span
+        class="text-xs px-2 py-1 rounded bg-gray-500/20 text-gray-300"
+        v-else-if="state.pool.ammType == 'OldAMM'"
+      >
+        Traditional AMM
+      </span>
+      <span
+        class="text-xs px-2 py-1 rounded bg-green-500/20 text-green-300"
+        v-else-if="state.pool.ammType == 'ConcentratedLiquidityAMM'"
+      >
+        Concentrated liquidity
+      </span>
+      <span
+        class="text-xs px-2 py-1 rounded bg-gray-500/20 text-gray-300"
+        v-else
+      >
+        {{ state.pool.ammType }}
       </span>
     </div>
 
@@ -36,6 +66,24 @@
       >
         {{ state.pool.poolAppId.toString() }}
       </router-link>
+    </div>
+
+    <!-- Fee -->
+    <div class="order-1 md:order-none text-sm text-white text-right">
+      <div v-if="state.pool.lpFee ?? 0 > 0">
+        {{ Number((state.pool.lpFee ?? 0) * 100).toLocaleString() }} %
+      </div>
+      <div v-else>-</div>
+    </div>
+    <!-- Protocol Fee -->
+    <div class="order-1 md:order-none text-sm text-white text-right">
+      <div v-if="state.pool.protocolFeePortion ?? 0 > 0">
+        {{
+          Number((state.pool.protocolFeePortion ?? 0) * 100).toLocaleString()
+        }}
+        %
+      </div>
+      <div v-else>-</div>
     </div>
 
     <!-- Price Min -->

@@ -53,19 +53,25 @@
           >
             {{ aggregatedVirtualReserveA }}
           </div>
-          <div
-            class="text-gray-400 text-xs"
-            title="Virtual reserve Level 1"
-            v-if="aggregatedVirtualReserveA != aggregatedVirtualReserveAL1"
-          >
+          <div class="text-gray-400 text-xs" title="Virtual reserve Level 1">
             {{ aggregatedVirtualReserveAL1 }}
           </div>
-          <div
-            class="text-gray-400 text-xs"
-            title="Virtual reserve Level 2"
-            v-if="aggregatedVirtualReserveA != aggregatedVirtualReserveAL2"
-          >
+          <div class="text-gray-400 text-xs" title="Virtual reserve Level 2">
             {{ aggregatedVirtualReserveAL2 }}
+          </div>
+          <div>
+            <router-link
+              :to="{
+                name: 'AssetDetails',
+                params: { assetId: state.aggregated.assetIdA },
+              }"
+              class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
+            >
+              <img
+                :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${state.aggregated.assetIdA}`"
+                class="inline-block w-10 h-10 mt-3"
+              />
+            </router-link>
           </div>
         </div>
         <div>
@@ -88,19 +94,26 @@
           >
             {{ aggregatedVirtualReserveB }}
           </div>
-          <div
-            class="text-gray-400 text-xs"
-            title="Virtual reserve Level 1"
-            v-if="aggregatedVirtualReserveB != aggregatedReserveB"
-          >
+          <div class="text-gray-400 text-xs" title="Virtual reserve Level 1">
             {{ aggregatedVirtualReserveBL1 }}
           </div>
-          <div
-            class="text-gray-400 text-xs"
-            title="Virtual reserve Level 2"
-            v-if="aggregatedVirtualReserveB != aggregatedReserveB"
-          >
+          <div class="text-gray-400 text-xs" title="Virtual reserve Level 2">
             {{ aggregatedVirtualReserveBL2 }}
+          </div>
+
+          <div>
+            <router-link
+              :to="{
+                name: 'AssetDetails',
+                params: { assetId: state.aggregated.assetIdB },
+              }"
+              class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
+            >
+              <img
+                :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${state.aggregated.assetIdB}`"
+                class="inline-block w-10 h-10 mt-3"
+              />
+            </router-link>
           </div>
         </div>
         <div>
@@ -117,11 +130,14 @@
 
     <div v-else class="space-y-1">
       <div
-        class="hidden md:grid md:grid-cols-9 gap-3 px-2 text-xs text-gray-400"
+        class="hidden md:grid md:grid-cols-12 gap-3 px-2 text-xs text-gray-400"
       >
         <div>Protocol</div>
+        <div>Type</div>
         <div>Address</div>
         <div class="text-right">Pool ID</div>
+        <div class="text-right">LP Fee</div>
+        <div class="text-right">Protocol Fee</div>
         <div class="text-right">Price Min</div>
         <div class="text-right">Price</div>
         <div class="text-right">Price Max</div>

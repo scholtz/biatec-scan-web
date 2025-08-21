@@ -162,5 +162,6 @@ export type AMMType = typeof AMMType[keyof typeof AMMType];
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AMMType = {
   OldAMM: 'OldAMM',
+  StableSwap: 'StableSwap',
   ConcentratedLiquidityAMM: 'ConcentratedLiquidityAMM',
 } as const;

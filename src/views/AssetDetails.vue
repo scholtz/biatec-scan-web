@@ -6,22 +6,31 @@
     </div>
 
     <div class="card space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <div class="text-xs text-gray-400">Name</div>
-          <div class="text-white">{{ name }}</div>
+      <div class="flex">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-grow">
+          <div>
+            <div class="text-xs text-gray-400">Name</div>
+            <div class="text-white">{{ name }}</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-400">Unit</div>
+            <div class="text-white">{{ unitName }}</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-400">Decimals</div>
+            <div class="text-white">{{ decimals }}</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-400">Total Supply</div>
+            <div class="text-white">{{ formattedTotal }}</div>
+          </div>
         </div>
-        <div>
-          <div class="text-xs text-gray-400">Unit</div>
-          <div class="text-white">{{ unitName }}</div>
-        </div>
-        <div>
-          <div class="text-xs text-gray-400">Decimals</div>
-          <div class="text-white">{{ decimals }}</div>
-        </div>
-        <div>
-          <div class="text-xs text-gray-400">Total Supply</div>
-          <div class="text-white">{{ formattedTotal }}</div>
+        <div class="align-right text-right">
+          <img
+            :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${assetId}`"
+            alt="Asset Image"
+            class="inline-block w-50 h-50 ml-1"
+          />
         </div>
       </div>
 

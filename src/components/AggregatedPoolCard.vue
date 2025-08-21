@@ -102,34 +102,34 @@ const poolUpdateEvent = (pool: AggregatedPool) => {
 };
 const formattedTVLA = computed(() => {
   void state.forceUpdate;
-  if (props.pool.tvL_A === undefined || props.pool.tvL_A === null) return "-";
+  if (state.pool.tvL_A === undefined || state.pool.tvL_A === null) return "-";
   return assetService.formatAssetBalance(
-    props.pool.tvL_A,
-    BigInt(props.pool.assetIdA ?? 0),
+    state.pool.tvL_A,
+    BigInt(state.pool.assetIdA ?? 0),
     false
   );
 });
 
 const formattedTVLB = computed(() => {
   void state.forceUpdate;
-  if (props.pool.tvL_B === undefined || props.pool.tvL_B === null) return "-";
+  if (state.pool.tvL_B === undefined || state.pool.tvL_B === null) return "-";
   return assetService.formatAssetBalance(
-    props.pool.tvL_B,
-    BigInt(props.pool.assetIdB ?? 0),
+    state.pool.tvL_B,
+    BigInt(state.pool.assetIdB ?? 0),
     false
   );
 });
 
 const formattedPrice = computed(() => {
   // price = B/A with 6 decimals
-  if (props.pool.tvL_A === undefined || props.pool.tvL_A === null) return "-";
-  if (props.pool.virtualSumB === undefined || props.pool.virtualSumB === null)
+  if (state.pool.tvL_A === undefined || state.pool.tvL_A === null) return "-";
+  if (state.pool.virtualSumB === undefined || state.pool.virtualSumB === null)
     return "-";
   return assetService.formatPairBalance(
-    props.pool.virtualSumA ?? 0,
-    BigInt(props.pool.assetIdA ?? 0),
-    props.pool.virtualSumB ?? 0,
-    BigInt(props.pool.assetIdB ?? 0),
+    state.pool.virtualSumA ?? 0,
+    BigInt(state.pool.assetIdA ?? 0),
+    state.pool.virtualSumB ?? 0,
+    BigInt(state.pool.assetIdB ?? 0),
     false
   );
 });
