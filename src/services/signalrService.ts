@@ -158,7 +158,7 @@ class SignalRService {
       console.error("Error subscribing to updates:", error);
     }
   }
-  public async unsubscribeToTrades(): Promise<void> {
+  public async unsubscribe(): Promise<void> {
     if (!this.connection || !this.isConnected) return;
 
     try {

@@ -17,7 +17,7 @@
           name: 'AddressDetails',
           params: { address: state.pool.poolAddress },
         }"
-        class="text-xs text-blue-400 hover:text-blue-300 font-mono truncate transition-colors duration-200"
+        class="text-xs text-blue-100 hover:text-blue-300 font-mono truncate transition-colors duration-200"
         :title="state.pool.poolAddress"
       >
         {{ formatAddress(state.pool.poolAddress) }}
@@ -32,7 +32,7 @@
           name: 'PoolDetails',
           params: { poolAddress: state.pool.poolAddress },
         }"
-        class="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200"
+        class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
       >
         {{ state.pool.poolAppId.toString() }}
       </router-link>
@@ -44,7 +44,15 @@
     </div>
     <!-- Price -->
     <div class="order-3 md:order-none text-sm text-white text-right">
-      {{ formattedPrice }}
+      <router-link
+        :to="{
+          name: 'PoolsByAssets',
+          params: { asset1: state.pool.assetIdA, asset2: state.pool.assetIdB },
+        }"
+        class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+      >
+        {{ formattedPrice }}
+      </router-link>
     </div>
     <!-- Price Max -->
     <div class="order-3 md:order-none text-sm text-white text-right">
@@ -53,13 +61,33 @@
 
     <!-- Reserve A -->
     <div class="order-4 md:order-none text-sm text-white text-right">
-      <div title="Real reserve">{{ formattedReserveA }}</div>
+      <div title="Real reserve">
+        <router-link
+          :to="{
+            name: 'AssetDetails',
+            params: { assetId: state.pool.assetIdA },
+          }"
+          class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+        >
+          {{ formattedReserveA }}
+        </router-link>
+      </div>
       <div title="Virtual reserve">{{ formattedVirtualReserveA }}</div>
     </div>
 
     <!-- Reserve B -->
     <div class="order-5 md:order-none text-sm text-white text-right">
-      <div title="Real reserve">{{ formattedReserveB }}</div>
+      <div title="Real reserve">
+        <router-link
+          :to="{
+            name: 'AssetDetails',
+            params: { assetId: state.pool.assetIdB },
+          }"
+          class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+        >
+          {{ formattedReserveB }}
+        </router-link>
+      </div>
       <div title="Virtual reserve">{{ formattedVirtualReserveB }}</div>
     </div>
 
@@ -220,7 +248,7 @@ const formattedReserveB = computed(() => {
 
 const formatAddress = (address: string): string => {
   if (!address) return "";
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
 };
 </script>
 

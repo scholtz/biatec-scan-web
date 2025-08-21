@@ -28,20 +28,31 @@
       <div class="flex gap-2">
         <router-link
           :to="{
+            name: 'PoolsByAsset',
+            params: { asset1: assetId },
+          }"
+          class="btn-secondary"
+        >
+          View all {{ name }} pools
+        </router-link>
+        <router-link
+          :to="{
             name: 'PoolsByAssets',
             params: { asset1: assetId, asset2: 0 },
           }"
-          class="btn-primary"
-          >View Pools with ALGO</router-link
+          class="btn-secondary"
         >
+          View Pools with ALGO
+        </router-link>
         <router-link
           :to="{
             name: 'PoolsByAssets',
             params: { asset1: assetId, asset2: 31566704 },
           }"
           class="btn-secondary"
-          >View Pools with USDC</router-link
         >
+          View Pools with USDC
+        </router-link>
       </div>
     </div>
   </div>

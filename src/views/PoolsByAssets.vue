@@ -36,7 +36,15 @@
         <div>
           <div class="text-xs text-gray-400">Total Reserve A</div>
           <div class="text-white" title="Real reserve">
-            {{ aggregatedReserveA }}
+            <router-link
+              :to="{
+                name: 'PoolsByAsset',
+                params: { asset1: state.aggregated.assetIdA },
+              }"
+              class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
+            >
+              {{ aggregatedReserveA }}
+            </router-link>
           </div>
           <div
             class="text-gray-400 text-xs"
@@ -63,7 +71,15 @@
         <div>
           <div class="text-xs text-gray-400">Total Reserve B</div>
           <div class="text-white" title="Real reserve">
-            {{ aggregatedReserveB }}
+            <router-link
+              :to="{
+                name: 'PoolsByAsset',
+                params: { asset1: state.aggregated.assetIdB },
+              }"
+              class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
+            >
+              {{ aggregatedReserveB }}
+            </router-link>
           </div>
           <div
             class="text-gray-400 text-xs"
@@ -245,9 +261,23 @@ onMounted(async () => {
   await Promise.all([fetchPools(), fetchAggregated()]);
 
   signalrService.onAggregatedPoolReceived(poolUpdateEvent);
+  var addresses = state.pools.map((p) => p.poolAddress ?? "");
+  var aggregatedIds = [] as string[];
+  if (state.aggregated?.id) aggregatedIds.push(state.aggregated.id);
+  signalrService.subscribe({
+    PoolsAddresses: addresses,
+    AggregatedPoolsIds: aggregatedIds,
+    MainAggregatedPools: false,
+    RecentAggregatedPool: false,
+    RecentBlocks: false,
+    RecentLiquidity: false,
+    RecentPool: false,
+    RecentTrades: false,
+  });
 });
 onUnmounted(() => {
   signalrService.unsubscribeFromAggregatedPoolUpdates(poolUpdateEvent);
+  signalrService.unsubscribe();
 });
 
 const poolUpdateEvent = (pool: AggregatedPool) => {

@@ -400,7 +400,7 @@ onUnmounted(async () => {
   if (timeInterval) {
     clearInterval(timeInterval);
   }
-  await signalrService.unsubscribeToTrades();
+  await signalrService.unsubscribe();
   state.mounted = false;
 });
 </script>
