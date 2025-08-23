@@ -31,10 +31,16 @@
             >
               Search
             </router-link>
+            <router-link
+              to="/assets"
+              class="text-gray-300 hover:text-white transition-colors duration-200"
+            >
+              Assets
+            </router-link>
           </div>
         </div>
 
-        <div class="flex items-center space-x-4 hidden md:block">
+  <div class="hidden md:flex items-center space-x-4">
           <div class="relative">
             <input
               v-model="searchQuery"

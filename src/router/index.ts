@@ -17,6 +17,11 @@ const router = createRouter({
       component: Dashboard,
     },
     {
+      path: "/assets",
+      name: "Assets",
+      component: () => import("../views/Assets.vue"),
+    },
+    {
       path: "/pools/:asset1",
       name: "PoolsByAsset",
       component: PoolsByAssets,

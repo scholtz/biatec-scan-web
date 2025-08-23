@@ -279,6 +279,22 @@ class AssetService {
       return false;
     }
 
+    // gobtc
+    if (a === 386192725n) {
+      return true;
+    }
+    if (b === 386192725n) {
+      return false;
+    }
+
+    // goeth
+    if (a === 386195940n) {
+      return true;
+    }
+    if (b === 386195940n) {
+      return false;
+    }
+
     return false;
   };
   reverseAggregatedPool = (pool: AggregatedPool): AggregatedPool => {
