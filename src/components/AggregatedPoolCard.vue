@@ -102,7 +102,21 @@ const poolUpdateEvent = (pool: AggregatedPool) => {
 };
 const formattedTVLA = computed(() => {
   void state.forceUpdate;
-  if (state.pool.tvL_A === undefined || state.pool.tvL_A === null) return "-";
+  if (
+    state.pool.tvL_A === undefined ||
+    state.pool.tvL_A === null ||
+    state.pool.assetIdA === undefined ||
+    state.pool.assetIdA === null
+  )
+    return "-";
+  const assetInfoA = assetService.getAssetInfo(state.pool.assetIdA);
+  if (!assetInfoA) {
+    // Request asset loading and trigger re-render when loaded
+    assetService.requestAsset(state.pool.assetIdA, () => {
+      state.forceUpdate++;
+    });
+    return "Loading...";
+  }
   return assetService.formatAssetBalance(
     state.pool.tvL_A,
     BigInt(state.pool.assetIdA ?? 0),
@@ -112,19 +126,56 @@ const formattedTVLA = computed(() => {
 
 const formattedTVLB = computed(() => {
   void state.forceUpdate;
-  if (state.pool.tvL_B === undefined || state.pool.tvL_B === null) return "-";
+  if (
+    state.pool.tvL_B === undefined ||
+    state.pool.tvL_B === null ||
+    state.pool.assetIdB === undefined ||
+    state.pool.assetIdB === null
+  )
+    return "-";
+
+  const assetInfoB = assetService.getAssetInfo(state.pool.assetIdB);
+  if (!assetInfoB) {
+    // Request asset loading and trigger re-render when loaded
+    assetService.requestAsset(state.pool.assetIdB, () => {
+      state.forceUpdate++;
+    });
+    return "Loading...";
+  }
+
   return assetService.formatAssetBalance(
     state.pool.tvL_B,
-    BigInt(state.pool.assetIdB ?? 0),
+    BigInt(state.pool.assetIdB),
     false
   );
 });
 
 const formattedPrice = computed(() => {
   // price = B/A with 6 decimals
+  if (state.pool.assetIdA === undefined || state.pool.assetIdA === null)
+    return "-";
+  if (state.pool.assetIdB === undefined || state.pool.assetIdB === null)
+    return "-";
   if (state.pool.tvL_A === undefined || state.pool.tvL_A === null) return "-";
   if (state.pool.virtualSumB === undefined || state.pool.virtualSumB === null)
     return "-";
+  const assetInfoA = assetService.getAssetInfo(state.pool.assetIdA);
+  if (!assetInfoA) {
+    // Request asset loading and trigger re-render when loaded
+    assetService.requestAsset(state.pool.assetIdA, () => {
+      state.forceUpdate++;
+    });
+    return "Loading...";
+  }
+  const assetInfoB = assetService.getAssetInfo(state.pool.assetIdB);
+  if (!assetInfoB) {
+    // Request asset loading and trigger re-render when loaded
+    assetService.requestAsset(state.pool.assetIdB, () => {
+      state.forceUpdate++;
+    });
+    return "Loading...";
+  }
+
   return assetService.formatPairBalance(
     state.pool.virtualSumA ?? 0,
     BigInt(state.pool.assetIdA ?? 0),

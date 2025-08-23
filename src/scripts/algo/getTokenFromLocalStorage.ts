@@ -2,11 +2,12 @@ import { AssetParams } from "../../types/algorand";
 
 const cache = new Map<string, AssetParams>();
 export const getTokenFromLocalStorage = (
-  assetId: bigint
+  assetIdInput: bigint | number
 ): AssetParams | null => {
   if (typeof window === "undefined") {
     return null; // Ensure this runs only in the browser
   }
+  const assetId = BigInt(assetIdInput);
   if (assetId === 0n || !assetId) {
     const defaultToken: AssetParams = {
       name: "Algorand",

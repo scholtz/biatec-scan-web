@@ -17,11 +17,14 @@ class AssetService {
   /**
    * Request to load an asset. If already loading or loaded, will call callback when ready.
    */
-  async requestAsset(assetId: bigint, callback: () => void): Promise<void> {
+  async requestAsset(
+    assetId: bigint | number,
+    callback: () => void
+  ): Promise<void> {
     const assetIdStr = assetId.toString();
 
     // Check if asset is already in localStorage
-    const existingAsset = getTokenFromLocalStorage(assetId);
+    const existingAsset = getTokenFromLocalStorage(BigInt(assetId));
     if (existingAsset) {
       console.log(`Asset service: Asset ${assetIdStr} already available`);
       callback();
@@ -39,7 +42,7 @@ class AssetService {
     } else {
       console.log(`Asset service: Creating new request for ${assetIdStr}`);
       this.loadQueue.set(assetIdStr, {
-        assetId,
+        assetId: BigInt(assetId),
         callbacks: [callback],
       });
     }
@@ -127,8 +130,8 @@ class AssetService {
   /**
    * Get asset info if available in localStorage, otherwise return null
    */
-  getAssetInfo(assetId: bigint) {
-    return getTokenFromLocalStorage(assetId);
+  getAssetInfo(assetId: bigint | number) {
+    return getTokenFromLocalStorage(BigInt(assetId));
   }
 
   /**

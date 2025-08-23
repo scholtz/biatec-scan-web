@@ -87,6 +87,15 @@ const formattedReserveA = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load
   void state.forceUpdate;
   if (!props.pool.a || props.pool.assetIdA == undefined) return "0";
+
+  const assetInfoA = assetService.getAssetInfo(props.pool.assetIdA);
+  if (!assetInfoA) {
+    // Request asset loading and trigger re-render when loaded
+    assetService.requestAsset(props.pool.assetIdA, () => {
+      state.forceUpdate++;
+    });
+    return "Loading...";
+  }
   return assetService.formatAssetBalance(props.pool.a, props.pool.assetIdA);
 });
 
@@ -95,6 +104,14 @@ const formattedReserveB = computed(() => {
   void state.forceUpdate;
   //console.log("props.pool", props.pool);
   if (!props.pool.b || props.pool.assetIdB == undefined) return "0";
+  const assetInfoB = assetService.getAssetInfo(props.pool.assetIdB);
+  if (!assetInfoB) {
+    // Request asset loading and trigger re-render when loaded
+    assetService.requestAsset(props.pool.assetIdB, () => {
+      state.forceUpdate++;
+    });
+    return "Loading...";
+  }
   return assetService.formatAssetBalance(props.pool.b, props.pool.assetIdB);
 });
 
