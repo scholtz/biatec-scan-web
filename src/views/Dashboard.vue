@@ -61,7 +61,31 @@
       </StyledBox>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-6 gap-8">
+      <!-- Assets Updates Sidebar -->
+      <div>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-white">Assets</h2>
+        </div>
+
+        <div v-if="!state.recentAssets.length" class="card text-center py-8">
+          <p class="text-gray-400">
+            {{
+              state.connectionStatus
+                ? "Waiting for aggregated pool updates..."
+                : "Connecting to live feed..."
+            }}
+          </p>
+        </div>
+
+        <div v-else class="space-y-4">
+          <AssetCard
+            v-for="(asset, index) in state.recentAssets"
+            :key="`asset-${asset.index || index}-${index}`"
+            :asset="asset"
+          />
+        </div>
+      </div>
       <!-- Latest Blocks -->
       <div class="">
         <div class="flex items-center justify-between mb-6">
@@ -202,16 +226,19 @@ import TradeCard from "../components/TradeCard.vue";
 import LiquidityCard from "../components/LiquidityCard.vue";
 import PoolCard from "../components/PoolCard.vue";
 import AggregatedPoolCard from "../components/AggregatedPoolCard.vue";
+import AssetCard from "../components/AssetCard.vue";
 import { BiatecBlock } from "../types/BiatecBlock";
-import { AggregatedPool, Pool } from "../api/models";
+import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
 import StyledBox from "../components/StyledBox.vue";
 import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
+import { sign } from "crypto";
 
 const state = reactive({
   latestBlocks: [] as BiatecBlock[],
   recentTransactions: [] as AlgorandTransaction[],
   recentTrades: [] as AMMTrade[],
   recentLiquidity: [] as AMMLiquidity[],
+  recentAssets: [] as BiatecAsset[],
   recentPools: [] as Pool[],
   recentAggregatedPools: [] as AggregatedPool[],
   aggregatedPoolsMap: {} as Record<string, AggregatedPool>,
@@ -261,6 +288,7 @@ onMounted(async () => {
   signalrService.onTradeReceived(onTradeReceivedEvent);
   signalrService.onLiquidityReceived(onLiquidityReceivedEvent);
   signalrService.onPoolReceived(onPoolReceivedEvent);
+  signalrService.onAssetReceived(onAssetReceivedEvent);
 
   await signalrService.subscribe(createDashboardSubscriptionFilter());
   state.mounted = true;
@@ -287,8 +315,8 @@ const onPoolReceivedEvent = (pool: Pool) => {
         // New pool, add to beginning of list
         console.log(`Adding new pool ${pool.poolAppId}`);
         state.recentPools.unshift(pool);
-        if (state.recentPools.length > 50) {
-          state.recentPools = state.recentPools.slice(0, 50);
+        if (state.recentPools.length > 20) {
+          state.recentPools = state.recentPools.slice(0, 20);
         }
       }
     }
@@ -300,12 +328,32 @@ const onLiquidityReceivedEvent = (liquidity: AMMLiquidity) => {
   try {
     if (liquidity && liquidity.txId) {
       state.recentLiquidity.unshift(liquidity);
-      if (state.recentLiquidity.length > 50) {
-        state.recentLiquidity = state.recentLiquidity.slice(0, 50);
+      if (state.recentLiquidity.length > 20) {
+        state.recentLiquidity = state.recentLiquidity.slice(0, 20);
       }
     }
   } catch (e) {
     console.error("Error handling liquidity update:", e);
+  }
+};
+const onAssetReceivedEvent = (asset: BiatecAsset) => {
+  try {
+    console.log("Asset received in dashboard:", asset);
+
+    const existingIndex = state.recentAssets.findIndex(
+      (t) => t.index === asset.index
+    );
+
+    if (existingIndex !== -1) {
+      state.recentAssets[existingIndex] = asset;
+    } else {
+      state.recentAssets.unshift(asset);
+      if (state.recentAssets.length > 20) {
+        state.recentAssets = state.recentAssets.slice(0, 20);
+      }
+    }
+  } catch (e) {
+    console.error("Error handling asset update:", e);
   }
 };
 const onTradeReceivedEvent = (trade: AMMTrade) => {
@@ -392,6 +440,7 @@ onUnmounted(async () => {
   signalrService.unsubscribeFromPoolUpdates(onPoolReceivedEvent);
   signalrService.unsubscribeFromLiquidityUpdates(onLiquidityReceivedEvent);
   signalrService.unsubscribeFromTradeUpdates(onTradeReceivedEvent);
+  signalrService.unsubscribeFromAssetUpdates(onAssetReceivedEvent);
   signalrService.unsubscribeFromAggregatedPoolUpdates(
     onAggregatedPoolReceivedEvent
   );

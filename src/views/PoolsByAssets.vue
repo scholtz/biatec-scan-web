@@ -283,10 +283,15 @@ onMounted(async () => {
   signalrService.subscribe({
     PoolsAddresses: addresses,
     AggregatedPoolsIds: aggregatedIds,
+    AssetIds: [
+      state.asset1 !== 0n ? state.asset1 : null,
+      state.asset2 !== 0n ? state.asset2 : null,
+    ].filter((v) => v !== null),
     MainAggregatedPools: false,
     RecentAggregatedPool: false,
     RecentBlocks: false,
     RecentLiquidity: false,
+    RecentAssets: false,
     RecentPool: false,
     RecentTrades: false,
   });

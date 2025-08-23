@@ -8,14 +8,17 @@ import type { AMMLiquidity, AMMTrade } from "../types/algorand";
 import { getAuthToken as getArc14AuthToken } from "./authService";
 import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 import { BiatecBlock } from "../types/BiatecBlock";
-import { AggregatedPool, Pool } from "../api/models";
+import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
 import { SubscriptionFilter } from "../types/SubscriptionFilter";
 let callbacksTrades: ((trade: AMMTrade) => void)[] = [];
 let callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
 let callbacksPools: ((pool: Pool) => void)[] = [];
 let callbacksAggregatedPools: ((pool: AMMAggregatedPool) => void)[] = [];
 let callbacksBlocks: ((block: BiatecBlock) => void)[] = [];
+let callbacksAssets: ((block: BiatecAsset) => void)[] = [];
+
 let currentSubscription: SubscriptionFilter | null = null;
+
 class SignalRService {
   private connection: HubConnection | null = null;
   private isConnected = false;
@@ -77,6 +80,10 @@ class SignalRService {
       this.connection.on("Block", (block: any) => {
         console.log("Block received:", block);
         callbacksBlocks.forEach((callback) => callback(block as BiatecBlock));
+      });
+      this.connection.on("Asset", (asset: any) => {
+        console.log("asset received:", asset);
+        callbacksAssets.forEach((callback) => callback(asset as BiatecAsset));
       });
       // Handle subscription errors
       this.connection.on("Trade", (trade: any) => {
@@ -204,6 +211,12 @@ class SignalRService {
   }
   unsubscribeFromBlockUpdates(callback: (block: BiatecBlock) => void): void {
     callbacksBlocks = callbacksBlocks.filter((cb) => cb !== callback);
+  }
+  onAssetReceived(callback: (asset: BiatecAsset) => void): void {
+    callbacksAssets.push(callback);
+  }
+  unsubscribeFromAssetUpdates(callback: (asset: BiatecAsset) => void): void {
+    callbacksAssets = callbacksAssets.filter((cb) => cb !== callback);
   }
   onAggregatedPoolReceived(
     callback: (liquidity: AggregatedPool) => void

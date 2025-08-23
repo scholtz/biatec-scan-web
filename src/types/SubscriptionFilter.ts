@@ -4,11 +4,13 @@ export interface SubscriptionFilter {
   RecentLiquidity: boolean;
   RecentPool: boolean;
   RecentAggregatedPool: boolean;
+  RecentAssets: boolean;
 
   MainAggregatedPools: boolean;
 
   PoolsAddresses: string[];
   AggregatedPoolsIds: string[];
+  AssetIds: bigint[];
 }
 
 export const createDashboardSubscriptionFilter = (): SubscriptionFilter => ({
@@ -16,6 +18,7 @@ export const createDashboardSubscriptionFilter = (): SubscriptionFilter => ({
   RecentTrades: true,
   RecentLiquidity: true,
   RecentPool: true,
+  RecentAssets: true,
   RecentAggregatedPool: true,
   MainAggregatedPools: true,
 

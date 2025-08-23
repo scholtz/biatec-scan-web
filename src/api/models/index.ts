@@ -157,10 +157,15 @@ Troubleshooting
  */
 
 export * from './aMMType';
+export * from './address';
 export * from './aggregatedPool';
+export * from './assetParams';
+export * from './assetType';
+export * from './biatecAsset';
 export * from './dEXProtocol';
 export * from './getApiAggregatedPoolParams';
 export * from './getApiAggregatedPoolReloadParams';
+export * from './getApiAssetParams';
 export * from './getApiPoolParams';
 export * from './getApiPoolReloadParams';
 export * from './getApiPoolStatsParams';
