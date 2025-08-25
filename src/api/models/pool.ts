@@ -202,6 +202,10 @@ export interface Pool {
   lpFee?: number | null;
   /** @nullable */
   protocolFeePortion?: number | null;
+  /** @nullable */
+  totalTVLAssetAInUSD?: number | null;
+  /** @nullable */
+  totalTVLAssetBInUSD?: number | null;
   readonly virtualAmountA?: number;
   readonly realAmountA?: number;
   readonly virtualAmountB?: number;

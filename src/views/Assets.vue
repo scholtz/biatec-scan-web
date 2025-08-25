@@ -38,14 +38,15 @@
 
     <div v-else>
       <div
-        class="hidden md:grid md:grid-cols-8 gap-3 px-2 text-xs text-gray-400 mb-2"
+        class="hidden md:grid md:grid-cols-9 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
         <div>ID</div>
         <div>Name</div>
         <div>Unit</div>
         <div class="text-right">Decimals</div>
         <div class="text-right">Price (USD)</div>
-        <div class="text-right">TVL (USD)</div>
+        <div class="text-right">Real TVL (USD)</div>
+        <div class="text-right">Total TVL (USD)</div>
         <div class="text-right">Updated</div>
         <div class="text-right">Pools</div>
       </div>
@@ -53,7 +54,7 @@
         <div
           v-for="a in assets"
           :key="a.index"
-          class="grid grid-cols-1 md:grid-cols-8 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
+          class="grid grid-cols-1 md:grid-cols-9 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
         >
           <div class="font-mono text-xs text-blue-400 truncate">
             <RouterLink :to="`/asset/${a.index}`" class="hover:text-blue-300">{{
@@ -71,7 +72,12 @@
             {{ a.params?.decimals ?? 0 }}
           </div>
           <div class="text-sm text-white text-right">{{ formatPrice(a) }}</div>
-          <div class="text-sm text-white text-right">{{ formatTVL(a) }}</div>
+          <div class="text-sm text-white text-right">
+            {{ formatRealTVL(a) }}
+          </div>
+          <div class="text-sm text-white text-right">
+            {{ formatTotalTVL(a) }}
+          </div>
           <div class="text-xs text-gray-400 text-right">
             <FormattedTime
               :timestamp="a.timestamp || new Date().toISOString()"
@@ -81,8 +87,9 @@
             <RouterLink
               :to="`/pools/${a.index}`"
               class="text-xs text-blue-400 hover:text-blue-300"
-              >View Pools</RouterLink
             >
+              View Pools
+            </RouterLink>
           </div>
         </div>
       </div>
@@ -205,9 +212,17 @@ function formatPrice(a: BiatecAsset) {
     maximumFractionDigits: 6,
   });
 }
-function formatTVL(a: BiatecAsset) {
+function formatRealTVL(a: BiatecAsset) {
   if (a.tvL_USD === undefined || a.tvL_USD === null) return "-";
   return a.tvL_USD.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+function formatTotalTVL(a: BiatecAsset) {
+  if (a.totalTVLAssetInUSD === undefined || a.totalTVLAssetInUSD === null)
+    return "-";
+  return a.totalTVLAssetInUSD.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

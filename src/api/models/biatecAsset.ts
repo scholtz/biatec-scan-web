@@ -166,4 +166,6 @@ export interface BiatecAsset {
   tvL_USD?: number;
   /** @nullable */
   timestamp?: string | null;
+  /** @nullable */
+  totalTVLAssetInUSD?: number | null;
 }

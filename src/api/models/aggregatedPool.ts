@@ -176,4 +176,8 @@ export interface AggregatedPool {
   lastUpdated?: string | null;
   readonly virtualSumA?: number;
   readonly virtualSumB?: number;
+  /** @nullable */
+  totalTVLAssetAInUSD?: number | null;
+  /** @nullable */
+  totalTVLAssetBInUSD?: number | null;
 }
