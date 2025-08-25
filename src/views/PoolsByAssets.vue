@@ -284,8 +284,8 @@ onMounted(async () => {
     PoolsAddresses: addresses,
     AggregatedPoolsIds: aggregatedIds,
     AssetIds: [
-      state.asset1 !== 0n ? state.asset1 : null,
-      state.asset2 !== 0n ? state.asset2 : null,
+      state.asset1 !== 0n ? state.asset1.toString() : null,
+      state.asset2 !== 0n ? state.asset2.toString() : null,
     ].filter((v) => v !== null),
     MainAggregatedPools: false,
     RecentAggregatedPool: false,

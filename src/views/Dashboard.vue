@@ -231,7 +231,6 @@ import { BiatecBlock } from "../types/BiatecBlock";
 import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
 import StyledBox from "../components/StyledBox.vue";
 import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
-import { sign } from "crypto";
 
 const state = reactive({
   latestBlocks: [] as BiatecBlock[],

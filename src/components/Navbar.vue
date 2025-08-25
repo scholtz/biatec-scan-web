@@ -40,7 +40,7 @@
           </div>
         </div>
 
-  <div class="hidden md:flex items-center space-x-4">
+        <div class="hidden md:flex items-center space-x-4">
           <div class="relative">
             <input
               v-model="searchQuery"

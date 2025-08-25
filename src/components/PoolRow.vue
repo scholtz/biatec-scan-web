@@ -52,6 +52,13 @@
       >
         {{ formatAddress(state.pool.poolAddress) }}
       </router-link>
+      <button
+        @click="copyToClipboard(state.pool.poolAddress ?? '')"
+        class="p-2 text-gray-400 hover:text-white transition-colors"
+        title="Copy pool address to clipboard"
+      >
+        📋
+      </button>
     </div>
 
     <!-- Pool ID -->
@@ -66,6 +73,14 @@
       >
         {{ state.pool.poolAppId.toString() }}
       </router-link>
+
+      <button
+        @click="copyToClipboard(state.pool.poolAppId?.toString() ?? '')"
+        class="p-2 text-gray-400 hover:text-white transition-colors"
+        title="Copy pool app id to clipboard"
+      >
+        📋
+      </button>
     </div>
 
     <!-- Fee -->
@@ -161,6 +176,14 @@ interface Props {
   pool: Pool;
 }
 
+const copyToClipboard = async (data: string) => {
+  try {
+    console.log("Copying pool address to clipboard:", data);
+    await navigator.clipboard.writeText(data);
+  } catch (err) {
+    console.error("Failed to copy pool address:", err);
+  }
+};
 const props = defineProps<Props>();
 
 const state = reactive({ forceUpdate: 0, pool: props.pool });

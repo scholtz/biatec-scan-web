@@ -10,7 +10,7 @@ export interface SubscriptionFilter {
 
   PoolsAddresses: string[];
   AggregatedPoolsIds: string[];
-  AssetIds: bigint[];
+  AssetIds: string[];
 }
 
 export const createDashboardSubscriptionFilter = (): SubscriptionFilter => ({
@@ -24,4 +24,5 @@ export const createDashboardSubscriptionFilter = (): SubscriptionFilter => ({
 
   PoolsAddresses: [],
   AggregatedPoolsIds: [],
+  AssetIds: [],
 });
