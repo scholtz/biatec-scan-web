@@ -24,7 +24,7 @@
     <div v-else>
       <!-- Desktop header -->
       <div
-        class="hidden md:grid md:grid-cols-8 gap-3 px-2 text-xs text-gray-400 mb-2"
+        class="hidden md:grid md:grid-cols-10 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
         <div>Pair</div>
         <div class="text-right">Pools</div>
@@ -33,21 +33,34 @@
         <div class="text-right">Other Reserve</div>
         <div class="text-right">Virtual Reserve ({{ assetUnitName }})</div>
         <div class="text-right">Other Virtual Reserve</div>
+        <div class="text-right">Total TVL {{ assetUnitName }} USD</div>
+        <div class="text-right">Total TVL Other USD</div>
         <div class="text-right">Updated</div>
       </div>
       <div class="space-y-1">
         <div
           v-for="p in pools"
           :key="p.id || `${p.assetIdA}-${p.assetIdB}`"
-          class="grid grid-cols-1 md:grid-cols-8 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
+          class="grid grid-cols-1 md:grid-cols-10 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
         >
-          <div class="text-sm text-white truncate">
+          <div class="flex items-center gap-2 text-sm text-white truncate">
+            <div class="flex -space-x-2">
+              <img
+                :src="assetImageUrl(p.assetIdA)"
+                class="w-6 h-6 rounded border border-gray-700 bg-gray-900"
+                :alt="assetUnitName"
+              />
+              <img
+                :src="assetImageUrl(p.assetIdB)"
+                class="w-6 h-6 rounded border border-gray-700 bg-gray-900"
+                :alt="String(otherAssetUnitName(p))"
+              />
+            </div>
             <RouterLink
               :to="`/pools/${selectedAsset}/${p.assetIdB}`"
               class="font-mono text-blue-100 hover:text-blue-300"
+              >{{ pairLabel(p) }}</RouterLink
             >
-              {{ pairLabel(p) }}
-            </RouterLink>
           </div>
           <div class="text-xs text-right text-amber-400">
             {{ p.poolCount ?? "-" }}
@@ -72,6 +85,12 @@
             :title="'Virtual Reserve'"
           >
             {{ virtualReserveOther(p) }}
+          </div>
+          <div class="text-xs text-right text-white">
+            {{ totalTVLAUSD(p) }}
+          </div>
+          <div class="text-xs text-right text-white">
+            {{ totalTVLBUSD(p) }}
           </div>
           <div class="text-xs text-right text-gray-400">
             <FormattedTime
@@ -272,6 +291,30 @@ function price(p: AggregatedPool) {
     BigInt(p.assetIdB),
     false
   );
+}
+function totalTVLAUSD(p: AggregatedPool) {
+  if (p.totalTVLAssetAInUSD === undefined || p.totalTVLAssetAInUSD === null)
+    return "-";
+  return p.totalTVLAssetAInUSD.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+function totalTVLBUSD(p: AggregatedPool) {
+  if (p.totalTVLAssetBInUSD === undefined || p.totalTVLAssetBInUSD === null)
+    return "-";
+  return p.totalTVLAssetBInUSD.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+function assetImageUrl(id?: number) {
+  if (id === undefined || id === null) return "";
+  return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
+}
+function otherAssetUnitName(p: AggregatedPool) {
+  const other = otherAssetInfo(p);
+  return other?.unitName || other?.name || p.assetIdB;
 }
 
 watch(
