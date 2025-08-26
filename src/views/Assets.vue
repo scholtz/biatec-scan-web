@@ -54,42 +54,86 @@
         <div
           v-for="a in assets"
           :key="a.index"
-          class="grid grid-cols-1 md:grid-cols-9 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
+          class="p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors"
         >
-          <div class="font-mono text-xs text-blue-400 truncate">
-            <RouterLink :to="`/asset/${a.index}`" class="hover:text-blue-300">{{
-              a.index
-            }}</RouterLink>
-          </div>
-          <div class="text-sm text-white truncate flex items-center gap-2">
-            <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
-            {{ a.params?.name || "-" }}
-          </div>
-          <div class="text-sm text-white truncate">
-            {{ a.params?.unitName || "-" }}
-          </div>
-          <div class="text-sm text-white text-right">
-            {{ a.params?.decimals ?? 0 }}
-          </div>
-          <div class="text-sm text-white text-right">{{ formatPrice(a) }}</div>
-          <div class="text-sm text-white text-right">
-            {{ formatRealTVL(a) }}
-          </div>
-          <div class="text-sm text-white text-right">
-            {{ formatTotalTVL(a) }}
-          </div>
-          <div class="text-xs text-gray-400 text-right">
-            <FormattedTime
-              :timestamp="a.timestamp || new Date().toISOString()"
-            />
-          </div>
-          <div class="text-right">
+          <!-- Mobile compact layout -->
+          <div class="md:hidden flex items-center gap-3">
+            <RouterLink
+              :to="`/asset/${a.index}`"
+              class="flex items-center gap-2 min-w-0 flex-1"
+            >
+              <img :src="assetImageUrl(a.index)" class="w-8 h-8 rounded" />
+              <div class="min-w-0">
+                <div class="text-white text-sm font-medium truncate">
+                  {{
+                    a.params?.name || a.params?.unitName || "Asset " + a.index
+                  }}
+                </div>
+                <div class="text-[10px] text-gray-400 truncate font-mono">
+                  #{{ a.index }} • {{ a.params?.unitName || "-" }}
+                </div>
+              </div>
+            </RouterLink>
+            <div class="text-right">
+              <div class="text-[10px] text-gray-400">Price</div>
+              <div class="text-xs text-white font-mono">
+                {{ formatPrice(a) }}
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] text-gray-400">Real TVL</div>
+              <div class="text-xs text-white font-mono">
+                {{ formatRealTVL(a) }}
+              </div>
+            </div>
             <RouterLink
               :to="`/aggregated-pools/${a.index}`"
-              class="text-xs text-blue-400 hover:text-blue-300"
+              class="text-[10px] text-blue-400 hover:text-blue-300 underline ml-2"
+              >Pools</RouterLink
             >
-              View Pools
-            </RouterLink>
+          </div>
+
+          <!-- Desktop row layout -->
+          <div class="hidden md:grid md:grid-cols-9 gap-3 items-center">
+            <div class="font-mono text-xs text-blue-400 truncate">
+              <RouterLink
+                :to="`/asset/${a.index}`"
+                class="hover:text-blue-300"
+                >{{ a.index }}</RouterLink
+              >
+            </div>
+            <div class="text-sm text-white truncate flex items-center gap-2">
+              <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
+              {{ a.params?.name || "-" }}
+            </div>
+            <div class="text-sm text-white truncate">
+              {{ a.params?.unitName || "-" }}
+            </div>
+            <div class="text-sm text-white text-right">
+              {{ a.params?.decimals ?? 0 }}
+            </div>
+            <div class="text-sm text-white text-right">
+              {{ formatPrice(a) }}
+            </div>
+            <div class="text-sm text-white text-right">
+              {{ formatRealTVL(a) }}
+            </div>
+            <div class="text-sm text-white text-right">
+              {{ formatTotalTVL(a) }}
+            </div>
+            <div class="text-xs text-gray-400 text-right">
+              <FormattedTime
+                :timestamp="a.timestamp || new Date().toISOString()"
+              />
+            </div>
+            <div class="text-right">
+              <RouterLink
+                :to="`/aggregated-pools/${a.index}`"
+                class="text-xs text-blue-400 hover:text-blue-300"
+              >
+                View Pools
+              </RouterLink>
+            </div>
           </div>
         </div>
       </div>
