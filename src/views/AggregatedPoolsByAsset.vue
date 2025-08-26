@@ -41,6 +41,7 @@
         <div
           v-for="p in pools"
           :key="p.id || `${p.assetIdA}-${p.assetIdB}`"
+          v-observe-visibility="poolKey(p)"
           class="grid grid-cols-1 md:grid-cols-10 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
         >
           <div class="flex items-center gap-2 text-sm text-white truncate">
@@ -118,6 +119,7 @@ interface State {
   loading: boolean;
   error: string;
   forceUpdate: number;
+  visibleIds: Set<string>; // aggregated pool ids currently visible
 }
 
 const route = useRoute();
@@ -127,6 +129,7 @@ const state = reactive<State>({
   loading: false,
   error: "",
   forceUpdate: 0,
+  visibleIds: new Set<string>(),
 });
 
 const api = getAVMTradeReporterAPI();
@@ -173,22 +176,8 @@ async function fetchAggregatedPools() {
     merged.sort((a, b) => (b.tvL_A || 0) - (a.tvL_A || 0));
     state.pools = merged;
 
-    // Subscribe to updates for these aggregated pools
-    const aggIds = state.pools
-      .map((p) => p.id)
-      .filter((id) => !!id) as string[];
-    signalrService.subscribe({
-      PoolsAddresses: [],
-      AggregatedPoolsIds: aggIds,
-      AssetIds: [state.assetId.toString()],
-      MainAggregatedPools: false,
-      RecentAggregatedPool: false,
-      RecentBlocks: false,
-      RecentLiquidity: false,
-      RecentAssets: false,
-      RecentPool: false,
-      RecentTrades: false,
-    });
+    // Initial subscription (asset scoped) – we'll refine to visible shortly
+    scheduleSubscriptionUpdate();
   } catch (e: any) {
     state.error = e?.message || "Failed to load aggregated pools";
   } finally {
@@ -206,6 +195,9 @@ function aggregatedPoolUpdateEvent(p: AggregatedPool) {
   if (BigInt(p.assetIdA) !== selected && BigInt(p.assetIdB) === selected) {
     pool = assetService.reverseAggregatedPool(p);
   }
+  // Only update if pool is visible (as requested)
+  const key = poolKey(pool);
+  if (!state.visibleIds.has(key)) return;
   // Replace if exists else push
   const idx = state.pools.findIndex(
     (x) =>
@@ -316,6 +308,81 @@ function otherAssetUnitName(p: AggregatedPool) {
   const other = otherAssetInfo(p);
   return other?.unitName || other?.name || p.assetIdB;
 }
+
+// ---- Visibility tracking & dynamic subscription ----
+let intersectionObserver: IntersectionObserver | null = null;
+let subscriptionDebounce: number | null = null;
+let lastSubscriptionSignature = "";
+
+function poolKey(p: AggregatedPool): string {
+  return (
+    p.id ||
+    `${Math.min(p.assetIdA ?? 0, p.assetIdB ?? 0)}-${Math.max(p.assetIdA ?? 0, p.assetIdB ?? 0)}`
+  );
+}
+
+function handleVisibility(id: string, isVisible: boolean) {
+  if (isVisible) state.visibleIds.add(id);
+  else state.visibleIds.delete(id);
+  scheduleSubscriptionUpdate();
+}
+
+function scheduleSubscriptionUpdate() {
+  if (subscriptionDebounce) window.clearTimeout(subscriptionDebounce);
+  subscriptionDebounce = window.setTimeout(updateSubscription, 300);
+}
+
+function updateSubscription() {
+  const ids = Array.from(state.visibleIds.values());
+  // Always include assetId to allow discovery of newly visible pools; we only apply updates if visible anyway
+  const payload = {
+    PoolsAddresses: [] as string[],
+    AggregatedPoolsIds: ids,
+    AssetIds: [state.assetId.toString()],
+    MainAggregatedPools: false,
+    RecentAggregatedPool: false,
+    RecentBlocks: false,
+    RecentLiquidity: false,
+    RecentAssets: false,
+    RecentPool: false,
+    RecentTrades: false,
+  };
+  const signature = JSON.stringify({
+    ids: ids.sort(),
+    asset: state.assetId.toString(),
+  });
+  if (signature === lastSubscriptionSignature) return; // no change
+  lastSubscriptionSignature = signature;
+  signalrService.subscribe(payload);
+}
+
+// Directive to observe visibility of each row
+const vObserveVisibility = {
+  mounted(el: HTMLElement, binding: any) {
+    const id: string = binding.value;
+    if (!intersectionObserver) {
+      intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const rowId = (entry.target as HTMLElement).dataset.aggId;
+            if (!rowId) return;
+            handleVisibility(rowId, entry.isIntersecting);
+          });
+        },
+        { root: null, threshold: 0.01 }
+      );
+    }
+    el.dataset.aggId = id;
+    intersectionObserver.observe(el);
+  },
+  unmounted(el: HTMLElement) {
+    if (intersectionObserver) intersectionObserver.unobserve(el);
+    const id = el.dataset.aggId;
+    if (id) handleVisibility(id, false);
+  },
+};
+
+// (poolKey used directly in template)
 
 watch(
   () => route.params.assetId,
