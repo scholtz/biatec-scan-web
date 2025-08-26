@@ -70,10 +70,26 @@
             {{ price(p) }}
           </div>
           <div class="text-xs text-right text-white" :title="'Real Reserve'">
-            {{ reserveSelected(p) }}
+            <RouterLink
+              :to="{
+                name: 'PoolsByAssets',
+                params: { asset1: p.assetIdA, asset2: p.assetIdB },
+              }"
+              class="font-mono text-blue-100 hover:text-blue-300"
+            >
+              {{ reserveSelected(p) }}
+            </RouterLink>
           </div>
           <div class="text-xs text-right text-white">
-            {{ reserveOther(p) }}
+            <RouterLink
+              :to="{
+                name: 'AggregatedPoolsByAsset',
+                params: { assetId: p.assetIdB },
+              }"
+              class="font-mono text-blue-100 hover:text-blue-300"
+            >
+              {{ reserveOther(p) }}
+            </RouterLink>
           </div>
           <div
             class="text-[10px] text-right text-gray-300"

@@ -37,7 +37,7 @@
       <div class="flex gap-2">
         <router-link
           :to="{
-            name: 'PoolsByAsset',
+            name: 'AggregatedPoolsByAsset',
             params: { asset1: assetId },
           }"
           class="btn-secondary"

@@ -85,7 +85,7 @@
           </div>
           <div class="text-right">
             <RouterLink
-              :to="`/pools/${a.index}`"
+              :to="`/aggregated-pools/${a.index}`"
               class="text-xs text-blue-400 hover:text-blue-300"
             >
               View Pools

@@ -38,7 +38,7 @@
           <div class="text-white" title="Real reserve">
             <router-link
               :to="{
-                name: 'PoolsByAsset',
+                name: 'AggregatedPoolsByAsset',
                 params: { asset1: state.aggregated.assetIdA },
               }"
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
@@ -79,7 +79,7 @@
           <div class="text-white" title="Real reserve">
             <router-link
               :to="{
-                name: 'PoolsByAsset',
+                name: 'AggregatedPoolsByAsset',
                 params: { asset1: state.aggregated.assetIdB },
               }"
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
