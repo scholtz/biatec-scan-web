@@ -37,6 +37,12 @@
             >
               Assets
             </router-link>
+            <router-link
+              to="/about"
+              class="text-gray-300 hover:text-white transition-colors duration-200"
+            >
+              About
+            </router-link>
           </div>
         </div>
 
@@ -135,6 +141,17 @@
               <span>Assets</span>
               <span
                 v-if="isActive('/assets')"
+                class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
+              />
+            </router-link>
+            <router-link
+              to="/about"
+              class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
+              @click="closeMobile"
+            >
+              <span>About</span>
+              <span
+                v-if="isActive('/about')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
               />
             </router-link>

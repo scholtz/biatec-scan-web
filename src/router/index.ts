@@ -7,6 +7,8 @@ import PoolDetails from "../views/PoolDetails.vue";
 import Search from "../views/Search.vue";
 import PoolsByAssets from "../views/PoolsByAssets.vue";
 import AssetDetails from "../views/AssetDetails.vue";
+import Assets from "../views/Assets.vue";
+import About from "../views/About.vue";
 // Lazy import for aggregated pools by asset
 
 const router = createRouter({
@@ -23,11 +25,7 @@ const router = createRouter({
       component: () => import("../views/AggregatedPoolsByAsset.vue"),
       props: true,
     },
-    {
-      path: "/assets",
-      name: "Assets",
-      component: () => import("../views/Assets.vue"),
-    },
+    { path: "/assets", name: "Assets", component: Assets },
     {
       path: "/pools/:asset1",
       name: "PoolsByAsset",
@@ -75,6 +73,7 @@ const router = createRouter({
       name: "Search",
       component: Search,
     },
+    { path: "/about", name: "About", component: About },
   ],
 });
 
