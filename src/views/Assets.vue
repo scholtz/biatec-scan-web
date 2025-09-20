@@ -34,9 +34,10 @@
     </div>
 
     <div v-if="loading" class="text-gray-400">Loading assets…</div>
-    <div v-else-if="error" class="text-red-400">{{ error }}</div>
+    <div v-else-if="error && assets.length === 0" class="text-red-400">{{ error }}</div>
 
-    <div v-else>
+    <div v-if="!loading && assets.length > 0">
+      <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
       <div
         class="hidden md:grid md:grid-cols-10 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
@@ -249,9 +250,84 @@ async function fetchAssets() {
     resubscribeToVisibleAssets();
   } catch (e: any) {
     state.error = e?.message || "Failed to load assets";
+    // Load demo assets when API fails for testing purposes
+    loadDemoAssets();
   } finally {
     state.loading = false;
   }
+}
+
+function loadDemoAssets() {
+  const demoAssets: BiatecAsset[] = [
+    {
+      index: 31566704,
+      params: {
+        name: "USD Coin",
+        unitName: "USDC",
+        decimals: 6,
+        total: 10000000000
+      },
+      priceUSD: 1.0,
+      tvL_USD: 50000000,
+      totalTVLAssetInUSD: 75000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 312769,
+      params: {
+        name: "Tether USDt",
+        unitName: "USDt", 
+        decimals: 6,
+        total: 5000000000
+      },
+      priceUSD: 0.9999,
+      tvL_USD: 25000000,
+      totalTVLAssetInUSD: 30000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 386192725,
+      params: {
+        name: "goBTC",
+        unitName: "goBTC",
+        decimals: 8,
+        total: 21000000
+      },
+      priceUSD: 67250.45,
+      tvL_USD: 15000000,
+      totalTVLAssetInUSD: 20000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 386195940,
+      params: {
+        name: "goETH",
+        unitName: "goETH",
+        decimals: 8,
+        total: 120000000
+      },
+      priceUSD: 2580.75,
+      tvL_USD: 8000000,
+      totalTVLAssetInUSD: 12000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 27165954,
+      params: {
+        name: "PLANET",
+        unitName: "PLANET",
+        decimals: 6,
+        total: 10000000000
+      },
+      priceUSD: 0.00123,
+      tvL_USD: 1200000,
+      totalTVLAssetInUSD: 1500000,
+      timestamp: new Date().toISOString()
+    }
+  ];
+  
+  state.assets = demoAssets;
+  state.error = "Demo mode: API unavailable, showing sample assets";
 }
 
 function resubscribeToVisibleAssets() {

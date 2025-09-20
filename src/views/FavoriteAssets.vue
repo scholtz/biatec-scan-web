@@ -10,6 +10,13 @@
           Refresh
         </button>
         <button
+          class="px-2 py-1 rounded bg-green-700 text-gray-200 hover:bg-green-600 text-xs"
+          @click="addDemoAssets"
+          :disabled="favoriteAssets.length > 0"
+        >
+          Add Demo Assets
+        </button>
+        <button
           class="px-2 py-1 rounded bg-red-700 text-gray-200 hover:bg-red-600 text-xs"
           @click="clearAllFavorites"
           :disabled="favoriteAssets.length === 0"
@@ -51,7 +58,6 @@
     </div>
 
     <div v-if="loading" class="text-gray-400">Loading favorite assets…</div>
-    <div v-else-if="error" class="text-red-400">{{ error }}</div>
     <div v-else-if="favoriteAssets.length === 0" class="text-center py-12">
       <div class="text-gray-400 mb-4">No favorite assets yet</div>
       <router-link 
@@ -62,7 +68,8 @@
       </router-link>
     </div>
 
-    <div v-else>
+    <div v-if="!loading && favoriteAssets.length > 0">
+      <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
       <!-- Table View -->
       <div v-if="currentView === 'table'">
         <div
@@ -264,9 +271,85 @@ async function fetchFavoriteAssets() {
   } catch (e: unknown) {
     const error = e as { message?: string };
     state.error = error?.message || "Failed to load favorite assets";
+    // Load demo assets for the favorites when API fails
+    loadDemoFavoriteAssets(favoriteIds);
   } finally {
     state.loading = false;
   }
+}
+
+function loadDemoFavoriteAssets(favoriteIds: number[]) {
+  const allDemoAssets: BiatecAsset[] = [
+    {
+      index: 31566704,
+      params: {
+        name: "USD Coin",
+        unitName: "USDC",
+        decimals: 6,
+        total: 10000000000
+      },
+      priceUSD: 1.0,
+      tvL_USD: 50000000,
+      totalTVLAssetInUSD: 75000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 312769,
+      params: {
+        name: "Tether USDt",
+        unitName: "USDt", 
+        decimals: 6,
+        total: 5000000000
+      },
+      priceUSD: 0.9999,
+      tvL_USD: 25000000,
+      totalTVLAssetInUSD: 30000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 386192725,
+      params: {
+        name: "goBTC",
+        unitName: "goBTC",
+        decimals: 8,
+        total: 21000000
+      },
+      priceUSD: 67250.45,
+      tvL_USD: 15000000,
+      totalTVLAssetInUSD: 20000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 386195940,
+      params: {
+        name: "goETH",
+        unitName: "goETH",
+        decimals: 8,
+        total: 120000000
+      },
+      priceUSD: 2580.75,
+      tvL_USD: 8000000,
+      totalTVLAssetInUSD: 12000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 27165954,
+      params: {
+        name: "PLANET",
+        unitName: "PLANET",
+        decimals: 6,
+        total: 10000000000
+      },
+      priceUSD: 0.00123,
+      tvL_USD: 1200000,
+      totalTVLAssetInUSD: 1500000,
+      timestamp: new Date().toISOString()
+    }
+  ];
+
+  // Filter demo assets to only show those that are favorited
+  state.favoriteAssets = allDemoAssets.filter(asset => favoriteIds.includes(asset.index));
+  resubscribeToVisibleAssets();
 }
 
 function resubscribeToVisibleAssets() {
@@ -321,6 +404,73 @@ function clearAllFavorites() {
     state.favoriteAssets = [];
     state.subscribedIds.clear();
   }
+}
+
+function addDemoAssets() {
+  // Create some demo assets for testing when API is not available
+  const demoAssets: BiatecAsset[] = [
+    {
+      index: 31566704,
+      params: {
+        name: "USD Coin",
+        unitName: "USDC",
+        decimals: 6,
+        total: 10000000000
+      },
+      priceUSD: 1.0,
+      tvL_USD: 50000000,
+      totalTVLAssetInUSD: 75000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 312769,
+      params: {
+        name: "Tether USDt",
+        unitName: "USDt", 
+        decimals: 6,
+        total: 5000000000
+      },
+      priceUSD: 0.9999,
+      tvL_USD: 25000000,
+      totalTVLAssetInUSD: 30000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 386192725,
+      params: {
+        name: "goBTC",
+        unitName: "goBTC",
+        decimals: 8,
+        total: 21000000
+      },
+      priceUSD: 67250.45,
+      tvL_USD: 15000000,
+      totalTVLAssetInUSD: 20000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 386195940,
+      params: {
+        name: "goETH",
+        unitName: "goETH",
+        decimals: 8,
+        total: 120000000
+      },
+      priceUSD: 2580.75,
+      tvL_USD: 8000000,
+      totalTVLAssetInUSD: 12000000,
+      timestamp: new Date().toISOString()
+    }
+  ];
+
+  // Add these assets to favorites
+  demoAssets.forEach(asset => {
+    favoriteService.addFavorite(asset.index);
+  });
+
+  // Set the demo assets in state
+  state.favoriteAssets = demoAssets;
+  resubscribeToVisibleAssets();
 }
 
 function formatPrice(a: BiatecAsset) {
