@@ -155,7 +155,8 @@
           <div
             v-for="asset in searchResult.assets"
             :key="asset.index"
-            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02]"
+            @click="navigateToAsset(asset.index)"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -184,7 +185,8 @@
           <div
             v-for="pool in searchResult.pools"
             :key="pool.poolAddress || pool.poolAppId"
-            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02]"
+            @click="navigateToPool(pool.poolAddress || '')"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -215,7 +217,8 @@
           <div
             v-for="aggPool in searchResult.aggregatedPools"
             :key="aggPool.id || aggPool.assetIdA + '-' + aggPool.assetIdB"
-            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02]"
+            @click="navigateToAggregatedPool(aggPool.assetIdA || 0)"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -245,12 +248,13 @@
           <div
             v-for="address in searchResult.addresses"
             :key="address"
-            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02]"
+            @click="navigateToAddress(address)"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <div class="flex items-center justify-between">
               <div class="text-white font-mono text-sm">{{ formatAddress(address) }}</div>
               <button
-                @click="copyToClipboard(address)"
+                @click.stop="copyToClipboard(address)"
                 class="px-2 py-1 rounded bg-dark-700/70 hover:bg-dark-600 text-xs text-gray-300 transition-colors"
               >
                 Copy
@@ -272,7 +276,8 @@
           <div
             v-for="blockNum in searchResult.blocks"
             :key="blockNum"
-            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] text-center"
+            @click="navigateToBlock(blockNum)"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] text-center"
           >
             <div class="text-white font-medium">{{ blockNum.toLocaleString() }}</div>
             <div class="text-xs text-gray-400">Block</div>
@@ -292,7 +297,8 @@
           <div
             v-for="trade in searchResult.trades"
             :key="trade.txId || trade.blockId + '-' + trade.assetIdIn + '-' + trade.assetIdOut"
-            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02]"
+            @click="navigateToTransaction(trade.txId || '')"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -399,12 +405,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { getAVMTradeReporterAPI } from "../api";
 import type { SearchResponse, BiatecAsset, Pool } from "../api/models";
 import type { AlgorandTransaction } from "../types/algorand";
 
 const route = useRoute();
+const router = useRouter();
 const api = getAVMTradeReporterAPI();
 const searchQuery = ref("");
 const searchResult = ref<SearchResponse | null>(null);
@@ -536,6 +543,35 @@ function formatUSD(amount: number): string {
 function formatAddress(address: string): string {
   if (!address) return "";
   return `${address.slice(0, 8)}...${address.slice(-8)}`;
+}
+
+// Navigation functions for clickable results
+function navigateToAsset(assetId: number) {
+  router.push(`/asset/${assetId}`);
+}
+
+function navigateToPool(poolAddress: string) {
+  if (poolAddress) {
+    router.push(`/pool/${poolAddress}`);
+  }
+}
+
+function navigateToAggregatedPool(assetIdA: number) {
+  router.push(`/aggregated-pools/${assetIdA}`);
+}
+
+function navigateToAddress(address: string) {
+  router.push(`/address/${address}`);
+}
+
+function navigateToBlock(blockNumber: number) {
+  router.push(`/block/${blockNumber}`);
+}
+
+function navigateToTransaction(txId: string) {
+  if (txId) {
+    router.push(`/transaction/${txId}`);
+  }
 }
 
 // Handle URL query parameter
