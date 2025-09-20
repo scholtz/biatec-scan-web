@@ -38,6 +38,12 @@
               Assets
             </router-link>
             <router-link
+              to="/favorite"
+              class="text-gray-300 hover:text-white transition-colors duration-200"
+            >
+              Favorites
+            </router-link>
+            <router-link
               to="/about"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
@@ -141,6 +147,17 @@
               <span>Assets</span>
               <span
                 v-if="isActive('/assets')"
+                class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
+              />
+            </router-link>
+            <router-link
+              to="/favorite"
+              class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
+              @click="closeMobile"
+            >
+              <span>Favorites</span>
+              <span
+                v-if="isActive('/favorite')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
               />
             </router-link>

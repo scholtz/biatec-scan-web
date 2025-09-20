@@ -38,7 +38,7 @@
 
     <div v-else>
       <div
-        class="hidden md:grid md:grid-cols-9 gap-3 px-2 text-xs text-gray-400 mb-2"
+        class="hidden md:grid md:grid-cols-10 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
         <div>ID</div>
         <div>Name</div>
@@ -48,6 +48,7 @@
         <div class="text-right">Real TVL (USD)</div>
         <div class="text-right">Total TVL (USD)</div>
         <div class="text-right">Updated</div>
+        <div class="text-center">Favorite</div>
         <div class="text-right">Pools</div>
       </div>
       <div class="space-y-1">
@@ -91,10 +92,33 @@
               class="text-[10px] text-blue-400 hover:text-blue-300 underline ml-2"
               >Pools</RouterLink
             >
+            <button
+              @click="toggleFavorite(a.index)"
+              class="text-yellow-400 hover:text-yellow-300 transition-colors ml-2"
+              :title="isFavorite(a.index) ? 'Remove from favorites' : 'Add to favorites'"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  v-if="isFavorite(a.index)"
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                />
+                <path
+                  v-else
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+              </svg>
+            </button>
           </div>
 
           <!-- Desktop row layout -->
-          <div class="hidden md:grid md:grid-cols-9 gap-3 items-center">
+          <div class="hidden md:grid md:grid-cols-10 gap-3 items-center">
             <div class="font-mono text-xs text-blue-400 truncate">
               <RouterLink
                 :to="`/asset/${a.index}`"
@@ -125,6 +149,31 @@
               <FormattedTime
                 :timestamp="a.timestamp || new Date().toISOString()"
               />
+            </div>
+            <div class="text-center">
+              <button
+                @click="toggleFavorite(a.index)"
+                class="text-yellow-400 hover:text-yellow-300 transition-colors"
+                :title="isFavorite(a.index) ? 'Remove from favorites' : 'Add to favorites'"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    v-if="isFavorite(a.index)"
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                  />
+                  <path
+                    v-else
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                </svg>
+              </button>
             </div>
             <div class="text-right">
               <RouterLink
@@ -165,6 +214,7 @@ import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
 import { signalrService } from "../services/signalrService";
 import FormattedTime from "../components/FormattedTime.vue";
+import { favoriteService } from "../services/favoriteService";
 
 interface State {
   page: number;
@@ -273,6 +323,14 @@ function formatTotalTVL(a: BiatecAsset) {
 }
 function assetImageUrl(id: number) {
   return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
+}
+
+function isFavorite(assetIndex: number): boolean {
+  return favoriteService.isFavorite(assetIndex);
+}
+
+function toggleFavorite(assetIndex: number): void {
+  favoriteService.toggleFavorite(assetIndex);
 }
 
 watch(() => state.page, fetchAssets);
