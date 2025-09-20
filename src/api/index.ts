@@ -161,11 +161,14 @@ import type {
   GetApiAggregatedPoolParams,
   GetApiAggregatedPoolReloadParams,
   GetApiAssetParams,
+  GetApiOHLCHistoryParams,
   GetApiPoolParams,
   GetApiPoolReloadParams,
   GetApiPoolStatsParams,
+  GetApiSearchParams,
   Indexer,
-  Pool
+  Pool,
+  SearchResponse
 } from './models';
 
 import { axiosInstance } from './axios-instance';
@@ -218,6 +221,16 @@ const getApiIndexerStatus = (
       );
     }
   
+const getApiOHLCHistory = (
+    params?: GetApiOHLCHistoryParams,
+ ) => {
+      return axiosInstance<null>(
+      {url: `https://algorand-trades.de-4.biatec.io/api/OHLC/history`, method: 'GET',
+        params
+    },
+      );
+    }
+  
 const getApiPool = (
     params?: GetApiPoolParams,
  ) => {
@@ -243,6 +256,16 @@ const getApiPoolReload = (
  ) => {
       return axiosInstance<null>(
       {url: `https://algorand-trades.de-4.biatec.io/api/pool/reload`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+const getApiSearch = (
+    params?: GetApiSearchParams,
+ ) => {
+      return axiosInstance<SearchResponse>(
+      {url: `https://algorand-trades.de-4.biatec.io/api/search`, method: 'GET',
         params
     },
       );
@@ -295,15 +318,17 @@ const getApiSignalrConnections = (
       );
     }
   
-return {getApiAggregatedPool,getApiAggregatedPoolReload,getApiAsset,getApiAssetImageAssetId,getApiIndexerStatus,getApiPool,getApiPoolStats,getApiPoolReload,getApiSignalrAuthTest,getApiSignalrAuthTestAuthorized,postApiSignalrTestBroadcast,postApiSignalrTestTrade,getApiSignalrConnections}};
+return {getApiAggregatedPool,getApiAggregatedPoolReload,getApiAsset,getApiAssetImageAssetId,getApiIndexerStatus,getApiOHLCHistory,getApiPool,getApiPoolStats,getApiPoolReload,getApiSearch,getApiSignalrAuthTest,getApiSignalrAuthTestAuthorized,postApiSignalrTestBroadcast,postApiSignalrTestTrade,getApiSignalrConnections}};
 export type GetApiAggregatedPoolResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAggregatedPool']>>>
 export type GetApiAggregatedPoolReloadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAggregatedPoolReload']>>>
 export type GetApiAssetResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAsset']>>>
 export type GetApiAssetImageAssetIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAssetImageAssetId']>>>
 export type GetApiIndexerStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiIndexerStatus']>>>
+export type GetApiOHLCHistoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiOHLCHistory']>>>
 export type GetApiPoolResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiPool']>>>
 export type GetApiPoolStatsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiPoolStats']>>>
 export type GetApiPoolReloadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiPoolReload']>>>
+export type GetApiSearchResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiSearch']>>>
 export type GetApiSignalrAuthTestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiSignalrAuthTest']>>>
 export type GetApiSignalrAuthTestAuthorizedResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiSignalrAuthTestAuthorized']>>>
 export type PostApiSignalrTestBroadcastResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['postApiSignalrTestBroadcast']>>>

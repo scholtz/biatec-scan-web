@@ -156,24 +156,11 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export * from './aMMType';
-export * from './address';
-export * from './aggregatedPool';
-export * from './assetParams';
-export * from './assetType';
-export * from './biatecAsset';
-export * from './dEXProtocol';
-export * from './getApiAggregatedPoolParams';
-export * from './getApiAggregatedPoolReloadParams';
-export * from './getApiAssetParams';
-export * from './getApiOHLCHistoryParams';
-export * from './getApiPoolParams';
-export * from './getApiPoolReloadParams';
-export * from './getApiPoolStatsParams';
-export * from './getApiSearchParams';
-export * from './indexer';
-export * from './pool';
-export * from './problemDetails';
-export * from './searchResponse';
-export * from './trade';
-export * from './txState';
+export type TxState = typeof TxState[keyof typeof TxState];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const TxState = {
+  TxPool: 'TxPool',
+  Confirmed: 'Confirmed',
+} as const;

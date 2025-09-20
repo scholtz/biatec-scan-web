@@ -155,25 +155,35 @@ Troubleshooting
 
  * OpenAPI spec version: v1
  */
+import type { DEXProtocol } from './dEXProtocol';
+import type { TxState } from './txState';
 
-export * from './aMMType';
-export * from './address';
-export * from './aggregatedPool';
-export * from './assetParams';
-export * from './assetType';
-export * from './biatecAsset';
-export * from './dEXProtocol';
-export * from './getApiAggregatedPoolParams';
-export * from './getApiAggregatedPoolReloadParams';
-export * from './getApiAssetParams';
-export * from './getApiOHLCHistoryParams';
-export * from './getApiPoolParams';
-export * from './getApiPoolReloadParams';
-export * from './getApiPoolStatsParams';
-export * from './getApiSearchParams';
-export * from './indexer';
-export * from './pool';
-export * from './problemDetails';
-export * from './searchResponse';
-export * from './trade';
-export * from './txState';
+export interface Trade {
+  assetIdIn?: number;
+  assetIdOut?: number;
+  assetAmountIn?: number;
+  assetAmountOut?: number;
+  /** @nullable */
+  txId?: string | null;
+  blockId?: number;
+  /** @nullable */
+  txGroup?: string | null;
+  /** @nullable */
+  timestamp?: string | null;
+  protocol?: DEXProtocol;
+  /** @nullable */
+  trader?: string | null;
+  /** @nullable */
+  poolAddress?: string | null;
+  poolAppId?: number;
+  /** @nullable */
+  topTxId?: string | null;
+  tradeState?: TxState;
+  a?: number;
+  b?: number;
+  l?: number;
+  /** @nullable */
+  af?: number | null;
+  /** @nullable */
+  bf?: number | null;
+}
