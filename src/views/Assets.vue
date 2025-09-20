@@ -34,11 +34,12 @@
     </div>
 
     <div v-if="loading" class="text-gray-400">Loading assets…</div>
-    <div v-else-if="error" class="text-red-400">{{ error }}</div>
+    <div v-else-if="error && assets.length === 0" class="text-red-400">{{ error }}</div>
 
-    <div v-else>
+    <div v-if="!loading && assets.length > 0">
+      <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
       <div
-        class="hidden md:grid md:grid-cols-9 gap-3 px-2 text-xs text-gray-400 mb-2"
+        class="hidden md:grid md:grid-cols-10 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
         <div>ID</div>
         <div>Name</div>
@@ -48,6 +49,7 @@
         <div class="text-right">Real TVL (USD)</div>
         <div class="text-right">Total TVL (USD)</div>
         <div class="text-right">Updated</div>
+        <div class="text-center">Favorite</div>
         <div class="text-right">Pools</div>
       </div>
       <div class="space-y-1">
@@ -91,10 +93,35 @@
               class="text-[10px] text-blue-400 hover:text-blue-300 underline ml-2"
               >Pools</RouterLink
             >
+            <button
+              @click="toggleFavorite(a.index)"
+              class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95 ml-2"
+              :class="isFavorite(a.index) ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
+              :title="isFavorite(a.index) ? 'Remove from favorites' : 'Add to favorites'"
+            >
+              <svg
+                class="w-4 h-4 transition-all duration-300"
+                :class="{ 'drop-shadow-lg': isFavorite(a.index) }"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  v-if="isFavorite(a.index)"
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                />
+                <path
+                  v-else
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+              </svg>
+            </button>
           </div>
 
           <!-- Desktop row layout -->
-          <div class="hidden md:grid md:grid-cols-9 gap-3 items-center">
+          <div class="hidden md:grid md:grid-cols-10 gap-3 items-center">
             <div class="font-mono text-xs text-blue-400 truncate">
               <RouterLink
                 :to="`/asset/${a.index}`"
@@ -125,6 +152,33 @@
               <FormattedTime
                 :timestamp="a.timestamp || new Date().toISOString()"
               />
+            </div>
+            <div class="text-center">
+              <button
+                @click="toggleFavorite(a.index)"
+                class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
+                :class="isFavorite(a.index) ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
+                :title="isFavorite(a.index) ? 'Remove from favorites' : 'Add to favorites'"
+              >
+                <svg
+                  class="w-5 h-5 transition-all duration-300"
+                  :class="{ 'drop-shadow-lg': isFavorite(a.index) }"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    v-if="isFavorite(a.index)"
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                  />
+                  <path
+                    v-else
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                </svg>
+              </button>
             </div>
             <div class="text-right">
               <RouterLink
@@ -165,6 +219,7 @@ import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
 import { signalrService } from "../services/signalrService";
 import FormattedTime from "../components/FormattedTime.vue";
+import { favoriteService } from "../services/favoriteService";
 
 interface State {
   page: number;
@@ -199,9 +254,84 @@ async function fetchAssets() {
     resubscribeToVisibleAssets();
   } catch (e: any) {
     state.error = e?.message || "Failed to load assets";
+    // Load demo assets when API fails for testing purposes
+    loadDemoAssets();
   } finally {
     state.loading = false;
   }
+}
+
+function loadDemoAssets() {
+  const demoAssets: BiatecAsset[] = [
+    {
+      index: 31566704,
+      params: {
+        name: "USD Coin",
+        unitName: "USDC",
+        decimals: 6,
+        total: 10000000000
+      },
+      priceUSD: 1.0,
+      tvL_USD: 50000000,
+      totalTVLAssetInUSD: 75000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 312769,
+      params: {
+        name: "Tether USDt",
+        unitName: "USDt", 
+        decimals: 6,
+        total: 5000000000
+      },
+      priceUSD: 0.9999,
+      tvL_USD: 25000000,
+      totalTVLAssetInUSD: 30000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 386192725,
+      params: {
+        name: "goBTC",
+        unitName: "goBTC",
+        decimals: 8,
+        total: 21000000
+      },
+      priceUSD: 67250.45,
+      tvL_USD: 15000000,
+      totalTVLAssetInUSD: 20000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 386195940,
+      params: {
+        name: "goETH",
+        unitName: "goETH",
+        decimals: 8,
+        total: 120000000
+      },
+      priceUSD: 2580.75,
+      tvL_USD: 8000000,
+      totalTVLAssetInUSD: 12000000,
+      timestamp: new Date().toISOString()
+    },
+    {
+      index: 27165954,
+      params: {
+        name: "PLANET",
+        unitName: "PLANET",
+        decimals: 6,
+        total: 10000000000
+      },
+      priceUSD: 0.00123,
+      tvL_USD: 1200000,
+      totalTVLAssetInUSD: 1500000,
+      timestamp: new Date().toISOString()
+    }
+  ];
+  
+  state.assets = demoAssets;
+  state.error = "Demo mode: API unavailable, showing sample assets";
 }
 
 function resubscribeToVisibleAssets() {
@@ -275,6 +405,21 @@ function assetImageUrl(id: number) {
   return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
 }
 
+function isFavorite(assetIndex: number): boolean {
+  return favoriteService.isReactiveFavorite(assetIndex);
+}
+
+function toggleFavorite(assetIndex: number): void {
+  const success = favoriteService.toggleFavorite(assetIndex);
+  
+  // Add visual feedback with a small delay to ensure localStorage is updated
+  if (success !== undefined) {
+    // Force reactivity update
+    const favoritesRef = favoriteService.getReactiveFavorites();
+    favoritesRef.value = new Set(favoritesRef.value);
+  }
+}
+
 watch(() => state.page, fetchAssets);
 watch(() => state.pageSize, fetchAssets);
 
@@ -296,3 +441,29 @@ const assets = computed(() => state.assets);
 const loading = computed(() => state.loading);
 const error = computed(() => state.error);
 </script>
+
+<style scoped>
+.favorite-star-btn {
+  position: relative;
+}
+
+.favorite-star-btn:active {
+  animation: starPop 0.3s ease-in-out;
+}
+
+@keyframes starPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Add a subtle glow effect when favorited */
+.favorite-star-btn.text-yellow-400:hover {
+  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.5));
+}
+
+/* Smooth transition for star state changes */
+.favorite-star-btn svg {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
