@@ -1,3 +1,5 @@
+import { ref } from 'vue';
+
 /**
  * Service for managing favorite assets in localStorage
  */
@@ -8,6 +10,9 @@ export interface FavoriteAsset {
   index: number;
   addedAt: string;
 }
+
+// Reactive state for favorites
+const favoritesSet = ref<Set<number>>(new Set());
 
 class FavoriteService {
   private favorites: Set<number> = new Set();
@@ -22,6 +27,7 @@ class FavoriteService {
       if (stored) {
         const data: FavoriteAsset[] = JSON.parse(stored);
         this.favorites = new Set(data.map(f => f.index));
+        favoritesSet.value = new Set(this.favorites);
       }
     } catch (error) {
       console.error('Error loading favorites from localStorage:', error);
@@ -35,6 +41,8 @@ class FavoriteService {
         addedAt: new Date().toISOString()
       }));
       localStorage.setItem(FAVORITES_KEY, JSON.stringify(data));
+      // Update reactive state
+      favoritesSet.value = new Set(this.favorites);
     } catch (error) {
       console.error('Error saving favorites to localStorage:', error);
     }
@@ -42,6 +50,11 @@ class FavoriteService {
 
   isFavorite(assetIndex: number): boolean {
     return this.favorites.has(assetIndex);
+  }
+
+  // Reactive version of isFavorite
+  isReactiveFavorite(assetIndex: number): boolean {
+    return favoritesSet.value.has(assetIndex);
   }
 
   addFavorite(assetIndex: number): void {
@@ -86,11 +99,17 @@ class FavoriteService {
 
   clearFavorites(): void {
     this.favorites.clear();
+    favoritesSet.value.clear();
     try {
       localStorage.removeItem(FAVORITES_KEY);
     } catch (error) {
       console.error('Error clearing favorites from localStorage:', error);
     }
+  }
+
+  // Get reactive favorites for components
+  getReactiveFavorites() {
+    return favoritesSet;
   }
 }
 

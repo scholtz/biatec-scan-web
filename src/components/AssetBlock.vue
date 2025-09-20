@@ -56,11 +56,13 @@
         <button
           v-if="showFavorite"
           @click="toggleFavorite"
-          class="text-yellow-400 hover:text-yellow-300 transition-colors"
+          class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
+          :class="isFavorite ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
           :title="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
         >
           <svg
-            class="w-4 h-4"
+            class="w-4 h-4 transition-all duration-300"
+            :class="{ 'drop-shadow-lg': isFavorite }"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -114,7 +116,7 @@ const assetName = computed(() => {
 });
 
 const isFavorite = computed(() => {
-  return favoriteService.isFavorite(props.asset.index);
+  return favoriteService.isReactiveFavorite(props.asset.index);
 });
 
 const onImageError = () => {
@@ -124,6 +126,10 @@ const onImageError = () => {
 const toggleFavorite = () => {
   const newState = favoriteService.toggleFavorite(props.asset.index);
   emit('favoriteChanged', props.asset.index, newState);
+  
+  // Force reactivity update
+  const favoritesRef = favoriteService.getReactiveFavorites();
+  favoritesRef.value = new Set(favoritesRef.value);
 };
 
 const formatPrice = (asset: BiatecAsset) => {
@@ -142,3 +148,29 @@ const formatRealTVL = (asset: BiatecAsset) => {
   });
 };
 </script>
+
+<style scoped>
+.favorite-star-btn {
+  position: relative;
+}
+
+.favorite-star-btn:active {
+  animation: starPop 0.3s ease-in-out;
+}
+
+@keyframes starPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Add a subtle glow effect when favorited */
+.favorite-star-btn.text-yellow-400:hover {
+  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.5));
+}
+
+/* Smooth transition for star state changes */
+.favorite-star-btn svg {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>

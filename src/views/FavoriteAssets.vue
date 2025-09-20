@@ -129,11 +129,11 @@
               >
               <button
                 @click="toggleFavorite(a.index)"
-                class="text-yellow-400 hover:text-yellow-300 transition-colors ml-2"
+                class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95 ml-2 text-yellow-400 animate-pulse"
                 title="Remove from favorites"
               >
                 <svg
-                  class="w-4 h-4"
+                  class="w-4 h-4 transition-all duration-300 drop-shadow-lg"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -180,11 +180,11 @@
               <div class="text-center">
                 <button
                   @click="toggleFavorite(a.index)"
-                  class="text-yellow-400 hover:text-yellow-300 transition-colors"
+                  class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95 text-yellow-400 animate-pulse"
                   title="Remove from favorites"
                 >
                   <svg
-                    class="w-5 h-5"
+                    class="w-5 h-5 transition-all duration-300 drop-shadow-lg"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -515,3 +515,29 @@ const favoriteAssets = computed(() => state.favoriteAssets);
 const loading = computed(() => state.loading);
 const error = computed(() => state.error);
 </script>
+
+<style scoped>
+.favorite-star-btn {
+  position: relative;
+}
+
+.favorite-star-btn:active {
+  animation: starPop 0.3s ease-in-out;
+}
+
+@keyframes starPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Add a subtle glow effect when favorited */
+.favorite-star-btn.text-yellow-400:hover {
+  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.5));
+}
+
+/* Smooth transition for star state changes */
+.favorite-star-btn svg {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
