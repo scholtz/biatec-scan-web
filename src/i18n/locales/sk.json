@@ -24,6 +24,7 @@
     "search": "Vyhľadať",
     "assets": "Assety",
     "favorites": "Obľúbené",
+    "settings": "Nastavenia",
     "about": "O aplikácii",
     "searchPlaceholder": "Hľadať podľa bloku alebo tx ID...",
     "searchMobilePlaceholder": "Hľadať blok / tx..."
@@ -115,5 +116,23 @@
   "status": {
     "online": "ONLINE",
     "offline": "OFFLINE"
+  },
+  "settings": {
+    "title": "Nastavenia",
+    "language": {
+      "title": "Jazyk",
+      "description": "Vyberte si preferovaný jazyk pre rozhranie aplikácie.",
+      "selectLabel": "Jazyk"
+    },
+    "preferences": {
+      "title": "Predvoľby",
+      "description": "Ďalšie nastavenia a predvoľby budú dostupné v budúcich aktualizáciách."
+    },
+    "about": {
+      "title": "Informácie o aplikácii",
+      "version": "Verzia",
+      "buildWith": "Postavené s",
+      "repository": "Repozitár"
+    }
   }
 }

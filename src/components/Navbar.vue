@@ -44,6 +44,12 @@
               {{ $t('nav.favorites') }}
             </router-link>
             <router-link
+              to="/settings"
+              class="text-gray-300 hover:text-white transition-colors duration-200"
+            >
+              {{ $t('nav.settings') }}
+            </router-link>
+            <router-link
               to="/about"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
@@ -75,7 +81,6 @@
               />
             </svg>
           </div>
-          <LanguageSwitcher />
         </div>
 
         <!-- Mobile hamburger -->
@@ -163,6 +168,17 @@
               />
             </router-link>
             <router-link
+              to="/settings"
+              class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
+              @click="closeMobile"
+            >
+              <span>{{ $t('nav.settings') }}</span>
+              <span
+                v-if="isActive('/settings')"
+                class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
+              />
+            </router-link>
+            <router-link
               to="/about"
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
@@ -207,7 +223,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import LanguageSwitcher from "./LanguageSwitcher.vue";
 
 const router = useRouter();
 const route = useRoute();

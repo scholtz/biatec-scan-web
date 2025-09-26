@@ -24,6 +24,7 @@
     "search": "Search",
     "assets": "Assets",
     "favorites": "Favorites",
+    "settings": "Settings",
     "about": "About",
     "searchPlaceholder": "Search by block or tx ID...",
     "searchMobilePlaceholder": "Search block / tx..."
@@ -115,5 +116,23 @@
   "status": {
     "online": "ONLINE",
     "offline": "OFFLINE"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "title": "Language",
+      "description": "Choose your preferred language for the application interface.",
+      "selectLabel": "Language"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "description": "Additional settings and preferences will be available here in future updates."
+    },
+    "about": {
+      "title": "Application Info",
+      "version": "Version",
+      "buildWith": "Built with",
+      "repository": "Repository"
+    }
   }
 }
