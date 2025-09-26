@@ -17,7 +17,8 @@
     "failedToCopy": "Failed to copy asset ID",
     "tryDifferentSearch": "Try Different Search",
     "toggleNavigation": "Toggle navigation",
-    "toggleLanguage": "Toggle language"
+    "toggleLanguage": "Toggle language",
+    "searching": "Searching"
   },
   "nav": {
     "explore": "Explore",
@@ -68,7 +69,7 @@
     "foundResults": "Found {count} results",
     "noResults": "No Results Found",
     "noResultsDescription": "No assets, pools, blocks, transactions, or addresses match \"{query}\"",
-    "searchTips": "Search Tips",
+    "searchTips": "What can you search for?",
     "exampleAsset": "Example Asset",
     "exampleBlock": "Example Block",
     "exampleAddress": "Example Address",
@@ -134,5 +135,19 @@
       "buildWith": "Built with",
       "repository": "Repository"
     }
+  },
+  "favorites": {
+    "title": "Favorite Assets",
+    "addDemoAssets": "Add Demo Assets",
+    "clearAll": "Clear All",
+    "view": "View",
+    "table": "Table",
+    "blocks": "Blocks"
+  },
+  "assetDetails": {
+    "title": "Asset {name}",
+    "name": "Name",
+    "unit": "Unit", 
+    "decimals": "Decimals"
   }
 }

@@ -17,7 +17,8 @@
     "failedToCopy": "Nepodarilo sa skopírovať ID assetu",
     "tryDifferentSearch": "Skúsiť iné vyhľadávanie",
     "toggleNavigation": "Prepnúť navigáciu",
-    "toggleLanguage": "Prepnúť jazyk"
+    "toggleLanguage": "Prepnúť jazyk",
+    "searching": "Vyhľadávanie"
   },
   "nav": {
     "explore": "Preskúmať",
@@ -68,7 +69,7 @@
     "foundResults": "Nájdené {count} výsledky",
     "noResults": "Nenašli sa žiadne výsledky",
     "noResultsDescription": "Žiadne assety, pooly, bloky, transakcie alebo adresy nezodpovedajú \"{query}\"",
-    "searchTips": "Tipy na vyhľadávanie",
+    "searchTips": "Čo môžete vyhľadávať?",
     "exampleAsset": "Ukážkový asset",
     "exampleBlock": "Ukážkový blok",
     "exampleAddress": "Ukážková adresa",
@@ -134,5 +135,19 @@
       "buildWith": "Postavené s",
       "repository": "Repozitár"
     }
+  },
+  "favorites": {
+    "title": "Obľúbené assety",
+    "addDemoAssets": "Pridať demo assety",
+    "clearAll": "Vymazať všetko",
+    "view": "Zobrazenie",
+    "table": "Tabuľka",
+    "blocks": "Bloky"
+  },
+  "assetDetails": {
+    "title": "Asset {name}",
+    "name": "Názov",
+    "unit": "Jednotka",
+    "decimals": "Desatinné miesta"
   }
 }

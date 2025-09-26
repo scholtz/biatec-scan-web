@@ -19,15 +19,15 @@
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
-            Network Search
+            {{ $t('search.title') }}
             <span
               v-if="searchResult && hasResults"
               class="ml-2 text-sm text-gray-400 font-normal"
-              >(Found {{ totalResults }} results)</span
+              >({{ $t('search.foundResults', { count: totalResults }) }})</span
             >
           </h1>
           <p class="text-gray-400 text-sm mb-3 md:mb-4">
-            Search assets, pools, blocks, transactions, addresses, and trades
+            {{ $t('search.description') }}
           </p>
           <div class="relative group">
             <input
@@ -69,7 +69,7 @@
                 >
                   <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                 </svg>
-                Searching
+                {{ t('common.searching') }}
               </span>
               <span v-else class="flex items-center gap-1">
                 <svg
@@ -83,7 +83,7 @@
                 >
                   <path d="M21 21l-6-6m2-5a7 7 0 1 0-14 0 7 7 0 0 0 14 0Z" />
                 </svg>
-                Search
+                {{ t('nav.search') }}
               </span>
             </button>
           </div>
@@ -93,6 +93,7 @@
               :key="example.value"
               @click="prefillExample(example.value)"
               class="px-2 py-1 rounded bg-dark-700/60 hover:bg-dark-600 text-gray-300 transition-colors"
+            >
             >
               {{ example.label }}
             </button>
@@ -328,16 +329,16 @@
         <path d="m21 21-4.35-4.35"/>
       </svg>
       <h2 class="text-lg md:text-xl font-semibold text-white mb-2">
-        No Results Found
+        {{ $t('search.noResults') }}
       </h2>
       <p class="text-gray-400 mb-4 text-sm md:text-base">
-        No assets, pools, blocks, transactions, or addresses match "{{ lastSearchQuery }}"
+        {{ $t('search.noResultsDescription', { query: lastSearchQuery }) }}
       </p>
       <button
         @click="resetSearch"
         class="px-4 py-2 rounded bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium transition-colors"
       >
-        Try Different Search
+        {{ $t('common.tryDifferentSearch') }}
       </button>
     </div>
 
@@ -347,7 +348,7 @@
         <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
         </svg>
-        What can you search for?
+        {{ $t('search.searchTips') }}
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-3 text-gray-300 text-sm">
@@ -406,12 +407,14 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import type { SearchResponse, BiatecAsset, Pool } from "../api/models";
 import type { AlgorandTransaction } from "../types/algorand";
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 const api = getAVMTradeReporterAPI();
 const searchQuery = ref("");
 const searchResult = ref<SearchResponse | null>(null);
@@ -461,11 +464,11 @@ const inputPlaceholder = computed(() => {
   if (isAddressQuery.value) return "Address detected - press Enter to search";
   return "Search assets, pools, blocks, transactions, addresses...";
 });
-const sampleQueries = [
-  { label: "Example Asset", value: "452399768" },
-  { label: "Example Block", value: "50000000" },
-  { label: "Example Address", value: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" },
-];
+const sampleQueries = computed(() => [
+  { label: t('search.exampleAsset'), value: "452399768" },
+  { label: t('search.exampleBlock'), value: "50000000" },
+  { label: t('search.exampleAddress'), value: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" },
+]);
 
 const performSearch = async () => {
   if (!searchQuery.value.trim()) return;
