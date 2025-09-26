@@ -272,20 +272,20 @@ function calculateOptimalPageSize(): number {
       rowHeight = rows[1].getBoundingClientRect().top - rows[0].getBoundingClientRect().top;
     }
     
-    // Calculate more aggressively - use most of available space but leave small buffer
-    const buffer = 30; // Smaller buffer for better space utilization
+    // More aggressive calculation - minimal buffer for maximum space utilization
+    const buffer = Math.max(15, Math.min(25, unusedSpaceAtBottom * 0.1)); // Dynamic buffer: 10% of unused space, capped at 15-25px
     const usableUnusedSpace = Math.max(0, unusedSpaceAtBottom - buffer);
     const additionalRows = Math.floor(usableUnusedSpace / rowHeight);
     
-    // Current rows count (we'll start with a base calculation)
+    // Current rows count calculation
     let baseRows;
-    if (unusedSpaceAtBottom > 50) {
-      // If there's unused space, calculate from full viewport more aggressively
+    if (unusedSpaceAtBottom > 40) {
+      // Calculate from full viewport for maximum utilization
       const usedSpaceFromTop = viewportHeight - unusedSpaceAtBottom;
-      const availableSpaceForRows = usedSpaceFromTop - navbarHeight - 120; // Reduced overhead
+      const availableSpaceForRows = usedSpaceFromTop - navbarHeight - 100; // Minimal overhead
       baseRows = Math.floor(availableSpaceForRows / rowHeight);
     } else {
-      // If space is tight, use current count plus what fits
+      // Space is very tight, use current count
       baseRows = rows.length;
     }
     
@@ -294,7 +294,7 @@ function calculateOptimalPageSize(): number {
     // Ensure reasonable bounds
     const finalPageSize = Math.max(5, Math.min(150, optimalPageSize));
     
-    console.log(`Calculated optimal page size: ${finalPageSize} (viewport: ${viewportHeight}px, unused bottom: ${unusedSpaceAtBottom}px, usable unused: ${usableUnusedSpace}px, row height: ${rowHeight}px, additional rows: ${additionalRows})`);
+    console.log(`Calculated optimal page size: ${finalPageSize} (viewport: ${viewportHeight}px, unused bottom: ${unusedSpaceAtBottom}px, usable unused: ${usableUnusedSpace}px, row height: ${rowHeight}px, buffer: ${buffer}px, additional rows: ${additionalRows})`);
     
     return finalPageSize;
   } catch (error) {
