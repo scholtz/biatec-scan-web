@@ -38,7 +38,13 @@ src/
 │   ├── models/         # TypeScript interfaces
 │   └── axios-instance.ts # HTTP client configuration
 ├── components/         # Vue components
-│   └── Navbar.vue     # Main navigation
+│   ├── Navbar.vue     # Main navigation
+│   └── LanguageSwitcher.vue # Language switching component
+├── i18n/               # Internationalization
+│   ├── index.ts        # i18n configuration
+│   └── locales/        # Translation files
+│       ├── en.json     # English translations
+│       └── sk.json     # Slovak translations
 ├── services/          # Business logic services
 │   ├── algorandService.ts  # Algorand blockchain integration
 │   ├── signalrService.ts   # Real-time updates
@@ -133,6 +139,70 @@ src/
 - Add new routes in `src/router/index.ts`
 - Create services for business logic, keep components focused on presentation
 - Use TypeScript strictly - avoid `any` types
+- **ALWAYS use i18n for any new user-facing text** - see Internationalization section below
+
+## Internationalization (i18n)
+
+The application supports multiple languages using Vue I18n:
+
+### Current Languages
+- **English (en)** - Default language
+- **Slovak (sk)** - Complete translation available
+
+### Language Files Location
+- `src/i18n/locales/en.json` - English translations
+- `src/i18n/locales/sk.json` - Slovak translations
+- `src/i18n/index.ts` - i18n configuration
+
+### Using Translations in Components
+```vue
+<template>
+  <!-- Use $t() in templates -->
+  <h1>{{ $t('common.loading') }}</h1>
+  <button :title="$t('common.refresh')">{{ $t('common.refresh') }}</button>
+</template>
+
+<script setup>
+// Use t() in script (requires import)
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+
+const message = t('common.loading')
+</script>
+```
+
+### Language Switcher
+- Available in the top navigation bar
+- Persists selection to localStorage
+- Switches between EN/SK dynamically
+
+### Translation Key Structure
+- `common.*` - Shared UI elements (buttons, labels, etc.)
+- `nav.*` - Navigation menu items
+- `dashboard.*` - Dashboard page content
+- `assets.*` - Assets page content
+- `search.*` - Search page content
+- `about.*` - About page content
+- `status.*` - Status messages (online/offline)
+
+### Adding New Translations
+1. Add key to both `en.json` and `sk.json`
+2. Use descriptive nested keys: `section.element`
+3. Support interpolation with named parameters: `{variableName}`
+4. Always provide both English and Slovak translations
+5. Test language switching works properly
+
+### Example Translation Entry
+```json
+{
+  "common": {
+    "copyAssetId": "Copy {name} asset id: {id}",
+    "copiedAssetId": "Copied {name} asset ID: {id}"
+  }
+}
+```
+
+**IMPORTANT**: Never hardcode user-facing text in components. Always use translation keys.
 
 ## Validation Checklist
 Before considering any changes complete:

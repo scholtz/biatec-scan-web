@@ -62,6 +62,9 @@
     "auto": " (Auto)"
   },
   "search": {
+    "title": "Sieťové vyhľadávanie",
+    "description": "Vyhľadať assety, pooly, bloky, transakcie, adresy a obchody",
+    "foundResults": "Nájdené {count} výsledky",
     "noResults": "Nenašli sa žiadne výsledky",
     "noResultsDescription": "Žiadne assety, pooly, bloky, transakcie alebo adresy nezodpovedajú \"{query}\"",
     "searchTips": "Tipy na vyhľadávanie",
@@ -82,7 +85,7 @@
     "title": "O Biatec Algorand Scan",
     "description": "Biatec Algorand Scan je real-time prieskumník zameraný na aktivitu decentralizovaných búrz (DEX) na Algorand blockchaine. Streamuje live bloky, obchody, likviditné udalosti, pooly, agregované štatistiky poolov a metadata assetov prostredníctvom vysoko výkonného SignalR hubu, podporovaného Elasticsearch indexovaním a protocol-aware obohatením (Pact, Tiny, Biatec AMMs).",
     "company": "Biatec Scan prevádzkuje Scholtz & Company, jsa. IČO: 51882272. Projekt je open source.",
-    "disclaimer": "DISCLAIMER: Tento projekt nie je spojený s Algorand, Inc. alebo Algorand Foundation. 'Algorand' je registrovaná ochranná známka. Tento projekt je postavený s Vite, Vue 3, TypeScript a Tailwind.",
+    "disclaimer": "DISCLAIMER: Tento projekt nie je spojený s Algorand, Inc. alebo Algorand Foundation. Je to nezávislá iniciatíva vyvinutá na zlepšenie transparentnosti a dostupnosti DEX aktivít na Algorand blockchaine. Projekt je poskytovaný \"ako je\" bez akýchkoľvek záruk. Používate na vlastné riziko.",
     "limitationsTitle": "Obmedzenia a poznámky",
     "limitation1": "Cenové feedy pochádzajú z agregovaných virtuálnych rezerv poolov (podliehajú AMM matematike a zdraviu poolov).",
     "limitation2": "Nedávno vytvorené alebo nelikvidné pooly môžu chýbať obohatenie, kým sa neuskutoční aktivita.",
@@ -92,7 +95,11 @@
     "backend": "Backend",
     "contactTitle": "Kontakt a príspevky",
     "contactDescription": "Spätná väzba, problémy alebo nápady na funkcie sú vítané. Neváhajte otvoriť diskusie alebo pull requesty v súvisiacich repozitároch, alebo sa ozvite na",
-    "discord": "Discorde"
+    "discord": "Discorde",
+    "dataSourcesTitle": "Zdroje dát",
+    "realtimeFeaturesTitle": "Realtime funkcie",
+    "architectureTitle": "Prehľad architektúry",
+    "architectureDescription": "Backend je ASP.NET Core (.NET 8) Web API so SignalR pre websocket distribúciu. Background služby spracovávajú bloky, detekujú DEX udalosti, obohatia a normalizujú pooly, potom ich indexujú. Redis (voliteľný) urýchľuje cachovanie metadata assetov a poolov. Frontend (táto stránka) je postavený s Vite, Vue 3, TypeScript a Tailwind."
   },
   "transactionDetails": {
     "paymentTransaction": "Platobná transakcia",

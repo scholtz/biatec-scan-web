@@ -62,6 +62,9 @@
     "auto": " (Auto)"
   },
   "search": {
+    "title": "Network Search",
+    "description": "Search assets, pools, blocks, transactions, addresses, and trades",
+    "foundResults": "Found {count} results",
     "noResults": "No Results Found",
     "noResultsDescription": "No assets, pools, blocks, transactions, or addresses match \"{query}\"",
     "searchTips": "Search Tips",
@@ -82,7 +85,7 @@
     "title": "About Biatec Algorand Scan",
     "description": "Biatec Algorand Scan is a real-time explorer focused on decentralized exchange (DEX) activity on the Algorand blockchain. It streams live blocks, trades, liquidity events, pools, aggregated pool statistics and asset metadata via a high-performance SignalR hub, backed by Elasticsearch indexing and protocol-aware enrichment (Pact, Tiny, Biatec AMMs).",
     "company": "Biatec Scan is run by Scholtz & Company, jsa. IČO: 51882272. The project is open source.",
-    "disclaimer": "DISCLAIMER: This project is not affiliated with Algorand, Inc. or the Algorand Foundation. 'Algorand' is a registered trademark. This project is built with Vite, Vue 3, TypeScript and Tailwind.",
+    "disclaimer": "DISCLAIMER: This project is not affiliated with Algorand, Inc. or the Algorand Foundation. It is an independent initiative developed to enhance transparency and accessibility of DEX activities on the Algorand blockchain. Project is provided \"as is\" without any warranties. Use at your own risk.",
     "limitationsTitle": "Limitations & Notes",
     "limitation1": "Price feeds derive from aggregated pool virtual reserves (subject to AMM math and pool health).",
     "limitation2": "Recently created or illiquid pools may lack enrichment until activity occurs.",
@@ -92,7 +95,11 @@
     "backend": "Backend",
     "contactTitle": "Contact & Contributions",
     "contactDescription": "Feedback, issues or feature ideas are welcome. Feel free to open discussions or pull requests in the related repositories, or reach out at the",
-    "discord": "Discord"
+    "discord": "Discord",
+    "dataSourcesTitle": "Data Sources",
+    "realtimeFeaturesTitle": "Realtime Features",
+    "architectureTitle": "Architecture Overview",
+    "architectureDescription": "The backend is an ASP.NET Core (.NET 8) Web API with SignalR for websocket distribution. Background services process blocks, detect DEX events, enrich and normalize pools, then index them. Redis (optional) accelerates asset & pool metadata caching. The frontend (this site) is built with Vite, Vue 3, TypeScript and Tailwind."
   },
   "transactionDetails": {
     "paymentTransaction": "Payment Transaction",

@@ -29,10 +29,10 @@
             :to="`/pools/0/31566704`"
             class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
-            Loading...
+            {{ $t('common.loading') }}
           </RouterLink>
         </h3>
-        <p class="text-gray-400">ALGO/USD</p>
+        <p class="text-gray-400">{{ $t('dashboard.algoUsd') }}</p>
       </StyledBox>
       <StyledBox class="text-center">
         <h3 class="text-2xl font-bold text-white">
@@ -43,7 +43,7 @@
             {{ state.latestBlocks[0]?.round.toLocaleString() || "..." }}
           </RouterLink>
         </h3>
-        <p class="text-gray-400">Latest Block</p>
+        <p class="text-gray-400">{{ $t('dashboard.latestBlock') }}</p>
       </StyledBox>
       <StyledBox class="text-center">
         <h3 class="text-2xl font-bold text-white">
@@ -51,13 +51,13 @@
             state.latestBlocks[0]?.totalTransactions.toLocaleString() || "..."
           }}
         </h3>
-        <p class="text-gray-400">Total Transactions</p>
+        <p class="text-gray-400">{{ $t('dashboard.totalTransactions') }}</p>
       </StyledBox>
       <StyledBox class="text-center">
         <h3 class="text-2xl font-bold" :class="networkStatus.color">
           {{ networkStatus.status }}
         </h3>
-        <p class="text-gray-400">Connection Status</p>
+        <p class="text-gray-400">{{ $t('dashboard.connectionStatus') }}</p>
       </StyledBox>
     </div>
 
@@ -65,15 +65,15 @@
       <!-- Assets Updates Sidebar -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">Assets</h2>
+          <h2 class="text-xl font-bold text-white">{{ $t('dashboard.assets') }}</h2>
         </div>
 
         <div v-if="!state.recentAssets.length" class="card text-center py-8">
           <p class="text-gray-400">
             {{
               state.connectionStatus
-                ? "Waiting for aggregated pool updates..."
-                : "Connecting to live feed..."
+                ? $t('dashboard.waitingForAggregatedPools')
+                : $t('dashboard.connectingToFeed')
             }}
           </p>
         </div>
@@ -89,7 +89,7 @@
       <!-- Latest Blocks -->
       <div class="">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-bold text-white">Latest Blocks</h2>
+          <h2 class="text-2xl font-bold text-white">{{ $t('dashboard.latestBlocks') }}</h2>
         </div>
 
         <div
@@ -110,15 +110,15 @@
       <!-- AMM Trades Sidebar -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">Live AMM Trades</h2>
+          <h2 class="text-xl font-bold text-white">{{ $t('dashboard.liveAmmTrades') }}</h2>
         </div>
 
         <div v-if="!state.recentTrades.length" class="card text-center py-8">
           <p class="text-gray-400">
             {{
               state.connectionStatus
-                ? "Waiting for trades..."
-                : "Connecting to live feed..."
+                ? $t('dashboard.waitingForTrades')
+                : $t('dashboard.connectingToFeed')
             }}
           </p>
         </div>
@@ -135,15 +135,15 @@
       <!-- Liquidity Updates Sidebar -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">Liquidity Updates</h2>
+          <h2 class="text-xl font-bold text-white">{{ $t('dashboard.liquidityUpdates') }}</h2>
         </div>
 
         <div v-if="!state.recentLiquidity.length" class="card text-center py-8">
           <p class="text-gray-400">
             {{
               state.connectionStatus
-                ? "Waiting for liquidity updates..."
-                : "Connecting to live feed..."
+                ? $t('dashboard.waitingForLiquidity')
+                : $t('dashboard.connectingToFeed')
             }}
           </p>
         </div>
@@ -160,15 +160,15 @@
       <!-- Pool Updates Sidebar -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">Pool Updates</h2>
+          <h2 class="text-xl font-bold text-white">{{ $t('dashboard.poolUpdates') }}</h2>
         </div>
 
         <div v-if="!state.recentPools.length" class="card text-center py-8">
           <p class="text-gray-400">
             {{
               state.connectionStatus
-                ? "Waiting for pool updates..."
-                : "Connecting to live feed..."
+                ? $t('dashboard.waitingForPoolUpdates')
+                : $t('dashboard.connectingToFeed')
             }}
           </p>
         </div>
@@ -185,7 +185,7 @@
       <!-- Aggregated Pool Updates Sidebar -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">Aggregated Pools</h2>
+          <h2 class="text-xl font-bold text-white">{{ $t('dashboard.aggregatedPools') }}</h2>
         </div>
 
         <div
@@ -195,8 +195,8 @@
           <p class="text-gray-400">
             {{
               state.connectionStatus
-                ? "Waiting for aggregated pool updates..."
-                : "Connecting to live feed..."
+                ? $t('dashboard.waitingForAggregatedPools')
+                : $t('dashboard.connectingToFeed')
             }}
           </p>
         </div>
@@ -215,6 +215,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed, reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { signalrService } from "../services/signalrService";
 import type {
   AlgorandTransaction,
@@ -231,6 +232,8 @@ import { BiatecBlock } from "../types/BiatecBlock";
 import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
 import StyledBox from "../components/StyledBox.vue";
 import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
+
+const { t } = useI18n()
 
 const state = reactive({
   latestBlocks: [] as BiatecBlock[],
@@ -264,7 +267,7 @@ let timeInterval: number | null = null;
 
 const networkStatus = computed(() => {
   if (state.latestBlocks.length === 0)
-    return { status: "OFFLINE", color: "text-red-400" };
+    return { status: t('status.offline'), color: "text-red-400" };
 
   const latestBlock = state.latestBlocks[0];
   const now = new Date();
@@ -273,9 +276,9 @@ const networkStatus = computed(() => {
 
   // If latest block is less than 60 seconds old, consider network online
   if (timeDiff < 60000) {
-    return { status: "ONLINE", color: "text-green-400" };
+    return { status: t('status.online'), color: "text-green-400" };
   } else {
-    return { status: "OFFLINE", color: "text-red-400" };
+    return { status: t('status.offline'), color: "text-red-400" };
   }
 });
 
