@@ -23,31 +23,31 @@
               to="/"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
-              Explore
+              {{ $t('nav.explore') }}
             </router-link>
             <router-link
               to="/search"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
-              Search
+              {{ $t('nav.search') }}
             </router-link>
             <router-link
               to="/assets"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
-              Assets
+              {{ $t('nav.assets') }}
             </router-link>
             <router-link
               to="/favorite"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
-              Favorites
+              {{ $t('nav.favorites') }}
             </router-link>
             <router-link
               to="/about"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
-              About
+              {{ $t('nav.about') }}
             </router-link>
           </div>
         </div>
@@ -58,7 +58,7 @@
               v-model="searchQuery"
               @keyup.enter="performSearch"
               type="text"
-              placeholder="Search by block or tx ID..."
+              :placeholder="$t('nav.searchPlaceholder')"
               class="w-64 pl-10 pr-4 py-2 bg-dark-800/50 border border-dark-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
             />
             <svg
@@ -75,13 +75,14 @@
               />
             </svg>
           </div>
+          <LanguageSwitcher />
         </div>
 
         <!-- Mobile hamburger -->
         <button
           class="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500"
           @click="toggleMobile"
-          aria-label="Toggle navigation"
+          :aria-label="$t('common.toggleNavigation')"
           :aria-expanded="mobileOpen"
         >
           <svg
@@ -122,7 +123,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>Explore</span>
+              <span>{{ $t('nav.explore') }}</span>
               <span
                 v-if="isActive('/')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -133,7 +134,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>Search</span>
+              <span>{{ $t('nav.search') }}</span>
               <span
                 v-if="isActive('/search')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -144,7 +145,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>Assets</span>
+              <span>{{ $t('nav.assets') }}</span>
               <span
                 v-if="isActive('/assets')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -155,7 +156,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>Favorites</span>
+              <span>{{ $t('nav.favorites') }}</span>
               <span
                 v-if="isActive('/favorite')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -166,7 +167,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>About</span>
+              <span>{{ $t('nav.about') }}</span>
               <span
                 v-if="isActive('/about')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -179,7 +180,7 @@
                 v-model="searchQuery"
                 @keyup.enter="performSearchMobile"
                 type="text"
-                placeholder="Search block / tx..."
+                :placeholder="$t('nav.searchMobilePlaceholder')"
                 class="w-full pl-10 pr-4 py-2 bg-dark-800/70 border border-dark-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
               />
               <svg
@@ -206,6 +207,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import LanguageSwitcher from "./LanguageSwitcher.vue";
 
 const router = useRouter();
 const route = useRoute();
