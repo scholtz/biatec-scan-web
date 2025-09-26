@@ -1,0 +1,153 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "refresh": "刷新",
+    "prev": "上一页",
+    "next": "下一页",
+    "page": "页面",
+    "pageSize": "页面大小",
+    "totalLoaded": "总计加载",
+    "viewPools": "查看资金池",
+    "pools": "资金池",
+    "favorite": "收藏",
+    "addToFavorites": "添加到收藏",
+    "removeFromFavorites": "从收藏中移除",
+    "copyAssetId": "复制 {name} 资产 ID：{id}",
+    "copiedAssetId": "已复制 {name} 资产 ID：{id}",
+    "failedToCopy": "复制资产 ID 失败",
+    "tryDifferentSearch": "尝试其他搜索",
+    "toggleNavigation": "切换导航",
+    "toggleLanguage": "切换语言",
+    "searching": "搜索中"
+  },
+  "nav": {
+    "explore": "浏览",
+    "search": "搜索",
+    "assets": "资产",
+    "favorites": "收藏",
+    "settings": "设置",
+    "about": "关于",
+    "searchPlaceholder": "按区块或交易 ID 搜索...",
+    "searchMobilePlaceholder": "搜索区块/交易..."
+  },
+  "dashboard": {
+    "algoUsd": "ALGO/美元",
+    "latestBlock": "最新区块",
+    "totalTransactions": "总交易数",
+    "connectionStatus": "连接状态",
+    "assets": "资产",
+    "latestBlocks": "最新区块",
+    "liveAmmTrades": "实时 AMM 交易",
+    "liquidityUpdates": "流动性更新",
+    "poolUpdates": "资金池更新",
+    "aggregatedPools": "聚合资金池",
+    "waitingForAggregatedPools": "等待聚合资金池更新...",
+    "waitingForTrades": "等待交易...",
+    "waitingForLiquidity": "等待流动性更新...",
+    "waitingForPoolUpdates": "等待资金池更新...",
+    "connectingToFeed": "连接到实时数据源...",
+    "online": "在线",
+    "offline": "离线"
+  },
+  "assets": {
+    "title": "资产",
+    "id": "ID",
+    "name": "名称",
+    "unit": "单位",
+    "decimals": "小数位",
+    "price": "价格（美元）",
+    "realTvl": "实际 TVL（美元）",
+    "totalTvl": "总 TVL（美元）",
+    "updated": "已更新",
+    "loadingAssets": "加载资产中…",
+    "demoModeError": "演示模式：API 不可用，显示示例资产",
+    "auto": "（自动）"
+  },
+  "search": {
+    "title": "网络搜索",
+    "description": "搜索资产、资金池、区块、交易、地址和交易",
+    "foundResults": "找到 {count} 个结果",
+    "noResults": "未找到结果",
+    "noResultsDescription": "没有资产、资金池、区块、交易或地址匹配 \"{query}\"",
+    "searchTips": "您可以搜索什么？",
+    "exampleAsset": "示例资产",
+    "exampleBlock": "示例区块",
+    "exampleAddress": "示例地址",
+    "assetDetected": "检测到资产 ID",
+    "blockDetected": "检测到区块",
+    "transactionDetected": "检测到交易",
+    "addressDetected": "检测到地址",
+    "assetPlaceholder": "检测到资产 ID - 按 Enter 搜索",
+    "blockPlaceholder": "检测到区块号 - 按 Enter 搜索",
+    "txPlaceholder": "检测到交易 ID - 按 Enter 搜索",
+    "addressPlaceholder": "检测到地址 - 按 Enter 搜索",
+    "defaultPlaceholder": "搜索资产、资金池、区块、交易、地址..."
+  },
+  "about": {
+    "title": "关于 Biatec Algorand 扫描",
+    "description": "Biatec Algorand 扫描是专注于 Algorand 区块链上去中心化交易所（DEX）活动的实时浏览器。它通过高性能 SignalR 中心流式传输实时区块、交易、流动性事件、资金池、聚合资金池统计和资产元数据，由 Elasticsearch 索引和协议感知增强（Pact、Tiny、Biatec AMM）支持。",
+    "company": "Biatec Scan 由 Scholtz & Company, jsa 运营。IČO：51882272。该项目是开源的。",
+    "disclaimer": "免责声明：此项目与 Algorand, Inc. 或 Algorand Foundation 无关。这是一个独立的倡议，旨在提高 Algorand 区块链上 DEX 活动的透明度和可访问性。项目按\"原样\"提供，不提供任何保证。使用风险自负。",
+    "limitationsTitle": "限制和注意事项",
+    "limitation1": "价格信息来源于聚合资金池虚拟储备（受 AMM 数学和资金池健康状况影响）。",
+    "limitation2": "新创建或流动性不足的资金池可能缺乏增强，直到出现活动。",
+    "limitation3": "如果达到 Algod 速率限制，某些资产可能显示延迟的元数据。",
+    "reposTitle": "代码库",
+    "frontend": "前端",
+    "backend": "后端",
+    "contactTitle": "联系和贡献",
+    "contactDescription": "欢迎反馈、问题或功能建议。请随时在相关存储库中开放讨论或拉取请求，或在",
+    "discord": "Discord",
+    "dataSourcesTitle": "数据源",
+    "realtimeFeaturesTitle": "实时功能",
+    "architectureTitle": "架构概述",
+    "architectureDescription": "后端是带有 SignalR 的 ASP.NET Core (.NET 8) Web API，用于 WebSocket 分发。后台服务处理区块，检测 DEX 事件，丰富和规范化资金池，然后索引它们。Redis（可选）加速资产和资金池元数据缓存。前端（本网站）使用 Vite、Vue 3、TypeScript 和 Tailwind 构建。"
+  },
+  "transactionDetails": {
+    "paymentTransaction": "支付交易",
+    "assetTransfer": "资产转移",
+    "applicationCall": "应用调用",
+    "assetConfiguration": "资产配置",
+    "assetFreeze": "资产冻结",
+    "keyRegistration": "密钥注册",
+    "unknown": "未知",
+    "assetId": "资产 ID：",
+    "noAmountInfo": "此交易类型没有可用的金额信息。"
+  },
+  "status": {
+    "online": "在线",
+    "offline": "离线"
+  },
+  "settings": {
+    "title": "设置",
+    "language": {
+      "title": "语言",
+      "description": "选择应用程序界面的首选语言。",
+      "selectLabel": "语言"
+    },
+    "preferences": {
+      "title": "偏好设置",
+      "description": "未来更新中将提供其他设置和偏好设置。"
+    },
+    "about": {
+      "title": "应用信息",
+      "version": "版本",
+      "buildWith": "构建工具",
+      "repository": "代码库"
+    }
+  },
+  "favorites": {
+    "title": "收藏资产",
+    "addDemoAssets": "添加演示资产",
+    "clearAll": "清除全部",
+    "view": "查看",
+    "table": "表格",
+    "blocks": "区块"
+  },
+  "assetDetails": {
+    "title": "资产 {name}",
+    "name": "名称",
+    "unit": "单位",
+    "decimals": "小数位"
+  }
+}

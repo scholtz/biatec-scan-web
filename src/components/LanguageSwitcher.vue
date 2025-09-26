@@ -45,7 +45,10 @@ const isDropdownOpen = ref(false)
 
 const availableLocales = [
   { code: 'en', name: 'English' },
-  { code: 'sk', name: 'Slovenčina' }
+  { code: 'sk', name: 'Slovenčina' },
+  { code: 'zh', name: '中文' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'es', name: 'Español' }
 ]
 
 const currentLocale = computed(() => locale.value)
