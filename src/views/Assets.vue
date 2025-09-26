@@ -23,8 +23,8 @@
           class="bg-gray-800 border border-gray-600 rounded px-1 py-0.5 text-white text-xs"
           @change="changePageSize"
         >
-          <option v-for="s in [15, 25, 50, 100]" :key="s" :value="s">
-            {{ s }}
+          <option v-for="s in state.availablePageSizes" :key="s" :value="s">
+            {{ s }}{{ s === state.calculatedPageSize ? ' (Auto)' : '' }}
           </option>
         </select>
       </div>
@@ -228,18 +228,108 @@ interface State {
   error: string;
   assets: BiatecAsset[];
   subscribedIds: Set<number>;
+  calculatedPageSize: number;
+  availablePageSizes: number[];
 }
 
 const state = reactive<State>({
   page: 1,
-  pageSize: 15,
+  pageSize: 0, // Will be set to calculated value
   loading: false,
   error: "",
   assets: [],
   subscribedIds: new Set<number>(),
+  calculatedPageSize: 15, // Default fallback
+  availablePageSizes: [15, 25, 50, 100],
 });
 
 const api = getAVMTradeReporterAPI();
+
+// Calculate optimal page size based on available viewport space
+function calculateOptimalPageSize(): number {
+  try {
+    const viewportHeight = window.innerHeight;
+    
+    // Use DOM-based calculation to get precise measurements
+    const navbar = document.querySelector('nav');
+    const navbarHeight = navbar ? navbar.getBoundingClientRect().height : 65;
+    
+    // Find pagination controls to calculate unused space at bottom
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const prevButton = buttons.find(b => b.textContent?.includes('Prev'));
+    const paginationContainer = prevButton?.parentElement;
+    let unusedSpaceAtBottom = 200; // Fallback
+    
+    if (paginationContainer) {
+      const paginationRect = paginationContainer.getBoundingClientRect();
+      unusedSpaceAtBottom = viewportHeight - paginationRect.bottom;
+    }
+    
+    // Get actual row height by measuring existing rows
+    let rowHeight = 47; // Fallback based on measurements
+    const rows = document.querySelectorAll('.space-y-1 > div');
+    if (rows.length >= 2) {
+      rowHeight = rows[1].getBoundingClientRect().top - rows[0].getBoundingClientRect().top;
+    }
+    
+    // More aggressive calculation - minimal buffer for maximum space utilization
+    const buffer = Math.max(15, Math.min(25, unusedSpaceAtBottom * 0.1)); // Dynamic buffer: 10% of unused space, capped at 15-25px
+    const usableUnusedSpace = Math.max(0, unusedSpaceAtBottom - buffer);
+    const additionalRows = Math.floor(usableUnusedSpace / rowHeight);
+    
+    // Current rows count calculation
+    let baseRows;
+    if (unusedSpaceAtBottom > 40) {
+      // Calculate from full viewport for maximum utilization
+      const usedSpaceFromTop = viewportHeight - unusedSpaceAtBottom;
+      const availableSpaceForRows = usedSpaceFromTop - navbarHeight - 100; // Minimal overhead
+      baseRows = Math.floor(availableSpaceForRows / rowHeight);
+    } else {
+      // Space is very tight, use current count
+      baseRows = rows.length;
+    }
+    
+    const optimalPageSize = baseRows + additionalRows;
+    
+    // Ensure reasonable bounds
+    const finalPageSize = Math.max(5, Math.min(150, optimalPageSize));
+    
+    console.log(`Calculated optimal page size: ${finalPageSize} (viewport: ${viewportHeight}px, unused bottom: ${unusedSpaceAtBottom}px, usable unused: ${usableUnusedSpace}px, row height: ${rowHeight}px, buffer: ${buffer}px, additional rows: ${additionalRows})`);
+    
+    return finalPageSize;
+  } catch (error) {
+    console.error('Error calculating optimal page size:', error);
+    return 15; // Fallback to default
+  }
+}
+
+// Update available page sizes to include the calculated value
+function updatePageSizeOptions() {
+  const calculated = calculateOptimalPageSize();
+  state.calculatedPageSize = calculated;
+  
+  // Create a new array with the calculated value included
+  const baseOptions = [15, 25, 50, 100];
+  const allOptions = [...baseOptions];
+  
+  // Add the calculated value if it's not already in the list
+  if (!baseOptions.includes(calculated)) {
+    allOptions.push(calculated);
+    allOptions.sort((a, b) => a - b);
+  }
+  
+  state.availablePageSizes = allOptions;
+  
+  // Set the calculated value as default if pageSize hasn't been set yet
+  if (state.pageSize === 0) {
+    state.pageSize = calculated;
+  }
+}
+
+// Handle window resize to recalculate optimal page size
+function handleResize() {
+  updatePageSizeOptions();
+}
 
 async function fetchAssets() {
   state.loading = true;
@@ -424,11 +514,20 @@ watch(() => state.page, fetchAssets);
 watch(() => state.pageSize, fetchAssets);
 
 onMounted(async () => {
+  // Calculate optimal page size first
+  updatePageSizeOptions();
+  
+  // Add resize event listener
+  window.addEventListener('resize', handleResize);
+  
   signalrService.onAssetReceived(assetUpdateEvent);
   await fetchAssets();
 });
 
 onUnmounted(() => {
+  // Remove resize event listener
+  window.removeEventListener('resize', handleResize);
+  
   signalrService.unsubscribeFromAssetUpdates(assetUpdateEvent);
 });
 
