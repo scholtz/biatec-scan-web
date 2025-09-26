@@ -2,7 +2,34 @@
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
       <h1 class="text-xl font-semibold text-white">Asset {{ headerName }}</h1>
-      <div class="text-sm text-gray-400">ID: {{ assetId }}</div>
+      <div class="flex items-center gap-3">
+        <div class="text-sm text-gray-400">ID: {{ assetId }}</div>
+        <button
+          @click="toggleFavorite"
+          class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
+          :class="isFavorite ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
+          :title="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+        >
+          <svg
+            class="w-5 h-5 transition-all duration-300"
+            :class="{ 'drop-shadow-lg': isFavorite }"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              v-if="isFavorite"
+              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+            />
+            <path
+              v-else
+              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div class="card space-y-4">
@@ -71,6 +98,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { assetService } from "../services/assetService";
+import { favoriteService } from "../services/favoriteService";
 
 const route = useRoute();
 const assetId = ref<string>(route.params.assetId as string);
@@ -108,6 +136,19 @@ const formattedTotal = computed(() => {
 });
 
 const headerName = computed(() => `${unitName.value}/${name.value}`);
+
+const isFavorite = computed(() => {
+  return favoriteService.isReactiveFavorite(Number(assetId.value));
+});
+
+const toggleFavorite = () => {
+  const assetIndex = Number(assetId.value);
+  favoriteService.toggleFavorite(assetIndex);
+  
+  // Force reactivity update
+  const favoritesRef = favoriteService.getReactiveFavorites();
+  favoritesRef.value = new Set(favoritesRef.value);
+};
 
 function ensureLoaded() {
   const id = BigInt(Number(assetId.value) || 0);
