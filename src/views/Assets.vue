@@ -248,40 +248,55 @@ const api = getAVMTradeReporterAPI();
 // Calculate optimal page size based on available viewport space
 function calculateOptimalPageSize(): number {
   try {
-    // Get the viewport height
     const viewportHeight = window.innerHeight;
     
-    // Account for the navbar height (approximately 64px)
-    const navbarHeight = 64;
+    // Use DOM-based calculation to get precise measurements
+    const navbar = document.querySelector('nav');
+    const navbarHeight = navbar ? navbar.getBoundingClientRect().height : 65;
     
-    // Account for the header section with title and controls (approximately 120px)
-    const headerHeight = 120;
+    // Find pagination controls to calculate unused space at bottom
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const prevButton = buttons.find(b => b.textContent?.includes('Prev'));
+    const paginationContainer = prevButton?.parentElement;
+    let unusedSpaceAtBottom = 200; // Fallback
     
-    // Account for pagination controls at bottom (approximately 50px)
-    const paginationHeight = 50;
+    if (paginationContainer) {
+      const paginationRect = paginationContainer.getBoundingClientRect();
+      unusedSpaceAtBottom = viewportHeight - paginationRect.bottom;
+    }
     
-    // Account for table header (approximately 40px)
-    const tableHeaderHeight = 40;
+    // Get actual row height by measuring existing rows
+    let rowHeight = 47; // Fallback based on measurements
+    const rows = document.querySelectorAll('.space-y-1 > div');
+    if (rows.length >= 2) {
+      rowHeight = rows[1].getBoundingClientRect().top - rows[0].getBoundingClientRect().top;
+    }
     
-    // Account for padding and margins (approximately 60px total)
-    const paddingMargins = 60;
+    // Calculate more aggressively - use most of available space but leave small buffer
+    const buffer = 30; // Smaller buffer for better space utilization
+    const usableUnusedSpace = Math.max(0, unusedSpaceAtBottom - buffer);
+    const additionalRows = Math.floor(usableUnusedSpace / rowHeight);
     
-    // Calculate available space for table rows
-    const availableHeight = viewportHeight - navbarHeight - headerHeight - paginationHeight - tableHeaderHeight - paddingMargins;
+    // Current rows count (we'll start with a base calculation)
+    let baseRows;
+    if (unusedSpaceAtBottom > 50) {
+      // If there's unused space, calculate from full viewport more aggressively
+      const usedSpaceFromTop = viewportHeight - unusedSpaceAtBottom;
+      const availableSpaceForRows = usedSpaceFromTop - navbarHeight - 120; // Reduced overhead
+      baseRows = Math.floor(availableSpaceForRows / rowHeight);
+    } else {
+      // If space is tight, use current count plus what fits
+      baseRows = rows.length;
+    }
     
-    // Estimate row height (approximately 60px per row on desktop, 80px on mobile)
-    const isMobile = window.innerWidth < 768; // md breakpoint
-    const estimatedRowHeight = isMobile ? 80 : 60;
+    const optimalPageSize = baseRows + additionalRows;
     
-    // Calculate how many rows can fit
-    const calculatedRows = Math.floor(availableHeight / estimatedRowHeight);
+    // Ensure reasonable bounds
+    const finalPageSize = Math.max(5, Math.min(150, optimalPageSize));
     
-    // Ensure we have a reasonable minimum (at least 5 rows) and maximum (150 rows)
-    const optimalPageSize = Math.max(5, Math.min(150, calculatedRows));
+    console.log(`Calculated optimal page size: ${finalPageSize} (viewport: ${viewportHeight}px, unused bottom: ${unusedSpaceAtBottom}px, usable unused: ${usableUnusedSpace}px, row height: ${rowHeight}px, additional rows: ${additionalRows})`);
     
-    console.log(`Calculated optimal page size: ${optimalPageSize} (viewport: ${viewportHeight}px, available: ${availableHeight}px, row height: ${estimatedRowHeight}px)`);
-    
-    return optimalPageSize;
+    return finalPageSize;
   } catch (error) {
     console.error('Error calculating optimal page size:', error);
     return 15; // Fallback to default
