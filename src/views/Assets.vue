@@ -119,8 +119,8 @@
               </svg>
             </button>
             <button
-              @click="copyToClipboard(a.index)"
-              class="p-1 text-gray-400 hover:text-white transition-colors ml-2"
+              @click="copyToClipboard(a.index, a.params?.name || a.params?.unitName)"
+              class="p-1 text-gray-400 hover:text-white hover:bg-gray-700/50 active:bg-gray-600/50 active:scale-95 transition-all duration-150 rounded ml-2"
               :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
             >
               📋
@@ -136,8 +136,8 @@
                 >{{ a.index }}</RouterLink
               >
               <button
-                @click="copyToClipboard(a.index)"
-                class="p-1 text-gray-400 hover:text-white transition-colors"
+                @click="copyToClipboard(a.index, a.params?.name || a.params?.unitName)"
+                class="p-1 text-gray-400 hover:text-white hover:bg-gray-700/50 active:bg-gray-600/50 active:scale-95 transition-all duration-150 rounded"
                 :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
               >
                 📋
@@ -234,6 +234,9 @@ import { BiatecAsset } from "../api/models";
 import { signalrService } from "../services/signalrService";
 import FormattedTime from "../components/FormattedTime.vue";
 import { favoriteService } from "../services/favoriteService";
+import { useToast } from "../composables/useToast";
+
+const { showToast } = useToast();
 
 interface State {
   page: number;
@@ -434,11 +437,15 @@ function toggleFavorite(assetIndex: number): void {
   }
 }
 
-const copyToClipboard = async (assetId: number) => {
+const copyToClipboard = async (assetId: number, assetName?: string | null) => {
   try {
     await navigator.clipboard.writeText(assetId.toString());
+    // Show success toast
+    const name = assetName || 'Asset';
+    showToast(`Copied ${name} asset ID: ${assetId}`, 'success');
   } catch (err) {
     console.error("Failed to copy asset id:", err);
+    showToast("Failed to copy asset ID", 'error');
   }
 };
 

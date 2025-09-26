@@ -5,12 +5,14 @@
     <main>
       <router-view />
     </main>
+    <ToastContainer />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from "vue";
 import Navbar from "./components/Navbar.vue";
+import ToastContainer from "./components/ToastContainer.vue";
 import { signalrService } from "./services/signalrService";
 import { Gradient } from "whatamesh";
 
