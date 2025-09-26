@@ -118,16 +118,30 @@
                 />
               </svg>
             </button>
+            <button
+              @click="copyToClipboard(a.index, a.params?.name || a.params?.unitName)"
+              class="p-1 text-gray-400 hover:text-white hover:bg-gray-700/50 active:bg-gray-600/50 active:scale-95 transition-all duration-150 rounded ml-2"
+              :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
+            >
+              📋
+            </button>
           </div>
 
           <!-- Desktop row layout -->
           <div class="hidden md:grid md:grid-cols-10 gap-3 items-center">
-            <div class="font-mono text-xs text-blue-400 truncate">
+            <div class="font-mono text-xs text-blue-400 truncate flex items-center gap-1">
               <RouterLink
                 :to="`/asset/${a.index}`"
                 class="hover:text-blue-300"
                 >{{ a.index }}</RouterLink
               >
+              <button
+                @click="copyToClipboard(a.index, a.params?.name || a.params?.unitName)"
+                class="p-1 text-gray-400 hover:text-white hover:bg-gray-700/50 active:bg-gray-600/50 active:scale-95 transition-all duration-150 rounded"
+                :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
+              >
+                📋
+              </button>
             </div>
             <div class="text-sm text-white truncate flex items-center gap-2">
               <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
@@ -220,6 +234,9 @@ import { BiatecAsset } from "../api/models";
 import { signalrService } from "../services/signalrService";
 import FormattedTime from "../components/FormattedTime.vue";
 import { favoriteService } from "../services/favoriteService";
+import { useToast } from "../composables/useToast";
+
+const { showToast } = useToast();
 
 interface State {
   page: number;
@@ -509,6 +526,18 @@ function toggleFavorite(assetIndex: number): void {
     favoritesRef.value = new Set(favoritesRef.value);
   }
 }
+
+const copyToClipboard = async (assetId: number, assetName?: string | null) => {
+  try {
+    await navigator.clipboard.writeText(assetId.toString());
+    // Show success toast
+    const name = assetName || 'Asset';
+    showToast(`Copied ${name} asset ID: ${assetId}`, 'success');
+  } catch (err) {
+    console.error("Failed to copy asset id:", err);
+    showToast("Failed to copy asset ID", 'error');
+  }
+};
 
 watch(() => state.page, fetchAssets);
 watch(() => state.pageSize, fetchAssets);
