@@ -142,16 +142,30 @@
                   />
                 </svg>
               </button>
+              <button
+                @click="copyToClipboard(a.index)"
+                class="p-1 text-gray-400 hover:text-white transition-colors ml-2"
+                :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
+              >
+                📋
+              </button>
             </div>
 
             <!-- Desktop row layout -->
             <div class="hidden md:grid md:grid-cols-10 gap-3 items-center">
-              <div class="font-mono text-xs text-blue-400 truncate">
+              <div class="font-mono text-xs text-blue-400 truncate flex items-center gap-1">
                 <RouterLink
                   :to="`/asset/${a.index}`"
                   class="hover:text-blue-300"
                   >{{ a.index }}</RouterLink
                 >
+                <button
+                  @click="copyToClipboard(a.index)"
+                  class="p-1 text-gray-400 hover:text-white transition-colors"
+                  :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
+                >
+                  📋
+                </button>
               </div>
               <div class="text-sm text-white truncate flex items-center gap-2">
                 <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
@@ -501,6 +515,14 @@ function formatTotalTVL(a: BiatecAsset) {
 function assetImageUrl(id: number) {
   return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
 }
+
+const copyToClipboard = async (assetId: number) => {
+  try {
+    await navigator.clipboard.writeText(assetId.toString());
+  } catch (err) {
+    console.error("Failed to copy asset id:", err);
+  }
+};
 
 onMounted(async () => {
   signalrService.onAssetReceived(assetUpdateEvent);
