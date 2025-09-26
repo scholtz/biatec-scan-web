@@ -23,8 +23,8 @@
           class="bg-gray-800 border border-gray-600 rounded px-1 py-0.5 text-white text-xs"
           @change="changePageSize"
         >
-          <option v-for="s in [15, 25, 50, 100]" :key="s" :value="s">
-            {{ s }}
+          <option v-for="s in state.availablePageSizes" :key="s" :value="s">
+            {{ s }}{{ s === state.calculatedPageSize ? ' (Auto)' : '' }}
           </option>
         </select>
       </div>
@@ -228,18 +228,93 @@ interface State {
   error: string;
   assets: BiatecAsset[];
   subscribedIds: Set<number>;
+  calculatedPageSize: number;
+  availablePageSizes: number[];
 }
 
 const state = reactive<State>({
   page: 1,
-  pageSize: 15,
+  pageSize: 0, // Will be set to calculated value
   loading: false,
   error: "",
   assets: [],
   subscribedIds: new Set<number>(),
+  calculatedPageSize: 15, // Default fallback
+  availablePageSizes: [15, 25, 50, 100],
 });
 
 const api = getAVMTradeReporterAPI();
+
+// Calculate optimal page size based on available viewport space
+function calculateOptimalPageSize(): number {
+  try {
+    // Get the viewport height
+    const viewportHeight = window.innerHeight;
+    
+    // Account for the navbar height (approximately 64px)
+    const navbarHeight = 64;
+    
+    // Account for the header section with title and controls (approximately 120px)
+    const headerHeight = 120;
+    
+    // Account for pagination controls at bottom (approximately 50px)
+    const paginationHeight = 50;
+    
+    // Account for table header (approximately 40px)
+    const tableHeaderHeight = 40;
+    
+    // Account for padding and margins (approximately 60px total)
+    const paddingMargins = 60;
+    
+    // Calculate available space for table rows
+    const availableHeight = viewportHeight - navbarHeight - headerHeight - paginationHeight - tableHeaderHeight - paddingMargins;
+    
+    // Estimate row height (approximately 60px per row on desktop, 80px on mobile)
+    const isMobile = window.innerWidth < 768; // md breakpoint
+    const estimatedRowHeight = isMobile ? 80 : 60;
+    
+    // Calculate how many rows can fit
+    const calculatedRows = Math.floor(availableHeight / estimatedRowHeight);
+    
+    // Ensure we have a reasonable minimum (at least 5 rows) and maximum (150 rows)
+    const optimalPageSize = Math.max(5, Math.min(150, calculatedRows));
+    
+    console.log(`Calculated optimal page size: ${optimalPageSize} (viewport: ${viewportHeight}px, available: ${availableHeight}px, row height: ${estimatedRowHeight}px)`);
+    
+    return optimalPageSize;
+  } catch (error) {
+    console.error('Error calculating optimal page size:', error);
+    return 15; // Fallback to default
+  }
+}
+
+// Update available page sizes to include the calculated value
+function updatePageSizeOptions() {
+  const calculated = calculateOptimalPageSize();
+  state.calculatedPageSize = calculated;
+  
+  // Create a new array with the calculated value included
+  const baseOptions = [15, 25, 50, 100];
+  const allOptions = [...baseOptions];
+  
+  // Add the calculated value if it's not already in the list
+  if (!baseOptions.includes(calculated)) {
+    allOptions.push(calculated);
+    allOptions.sort((a, b) => a - b);
+  }
+  
+  state.availablePageSizes = allOptions;
+  
+  // Set the calculated value as default if pageSize hasn't been set yet
+  if (state.pageSize === 0) {
+    state.pageSize = calculated;
+  }
+}
+
+// Handle window resize to recalculate optimal page size
+function handleResize() {
+  updatePageSizeOptions();
+}
 
 async function fetchAssets() {
   state.loading = true;
@@ -424,11 +499,20 @@ watch(() => state.page, fetchAssets);
 watch(() => state.pageSize, fetchAssets);
 
 onMounted(async () => {
+  // Calculate optimal page size first
+  updatePageSizeOptions();
+  
+  // Add resize event listener
+  window.addEventListener('resize', handleResize);
+  
   signalrService.onAssetReceived(assetUpdateEvent);
   await fetchAssets();
 });
 
 onUnmounted(() => {
+  // Remove resize event listener
+  window.removeEventListener('resize', handleResize);
+  
   signalrService.unsubscribeFromAssetUpdates(assetUpdateEvent);
 });
 
