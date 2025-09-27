@@ -1,6 +1,31 @@
 <svg width="24" height="18" viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg">
-  <!-- Slovakia flag -->
+  <!-- Slovakia flag with coat of arms -->
+  <!-- White stripe -->
   <rect width="24" height="6" fill="#FFFFFF"/>
+  <!-- Blue stripe -->
   <rect width="24" height="6" y="6" fill="#0B4EA2"/>
+  <!-- Red stripe -->
   <rect width="24" height="6" y="12" fill="#EE1C25"/>
+  
+  <!-- Slovak coat of arms shield outline -->
+  <g transform="translate(3, 4)">
+    <!-- Shield background -->
+    <path d="M0 0 L5 0 Q6 0 6 1 L6 6 Q6 8 3 10 Q0 8 0 6 L0 1 Q0 0 0 0 Z" fill="#FFFFFF" stroke="#0B4EA2" stroke-width="0.3"/>
+    
+    <!-- Double cross -->
+    <g fill="#0B4EA2" stroke="none">
+      <!-- Cross base -->
+      <rect x="2.5" y="1.5" width="0.6" height="6" fill="#0B4EA2"/>
+      <!-- Horizontal bars -->
+      <rect x="1.5" y="2" width="2.6" height="0.6" fill="#0B4EA2"/>
+      <rect x="1.8" y="3.2" width="2" height="0.6" fill="#0B4EA2"/>
+    </g>
+    
+    <!-- Three hills at bottom -->
+    <g fill="#00A651">
+      <ellipse cx="1.5" cy="7.5" rx="1" ry="0.8"/>
+      <ellipse cx="3" cy="7.8" rx="1.2" ry="1"/>
+      <ellipse cx="4.5" cy="7.5" rx="1" ry="0.8"/>
+    </g>
+  </g>
 </svg>
