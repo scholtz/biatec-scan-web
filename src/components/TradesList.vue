@@ -123,7 +123,7 @@ async function fetchTrades() {
       } as Trade,
     ];
     
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching trades:', err);
     error.value = t('assetDetails.tradesFetchError');
   } finally {
