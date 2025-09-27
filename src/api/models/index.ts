@@ -172,6 +172,7 @@ export * from './getApiPoolReloadParams';
 export * from './getApiPoolStatsParams';
 export * from './getApiSearchParams';
 export * from './indexer';
+export * from './liquidity';
 export * from './pool';
 export * from './problemDetails';
 export * from './searchResponse';

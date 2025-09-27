@@ -180,7 +180,13 @@
     "viewPoolsWithUsdc": "Pools mit USDC anzeigen",
     "recentTrades": "Aktuelle Trades",
     "noTrades": "Keine aktuellen Trades für diesen Asset gefunden",
-    "tradesFetchError": "Trades können nicht geladen werden. Bitte versuchen Sie es später erneut."
+    "tradesFetchError": "Trades können nicht geladen werden. Bitte versuchen Sie es später erneut.",
+    "recentLiquidity": "Aktuelle Liquiditätsupdates",
+    "noLiquidity": "Keine aktuellen Liquiditätsupdates für diesen Asset gefunden",
+    "liquidityFetchError": "Liquiditätsupdates können nicht geladen werden. Bitte versuchen Sie es später erneut.",
+    "recentPools": "Aktuelle Pool-Updates",
+    "noPools": "Keine aktuellen Pool-Updates für diesen Asset gefunden",
+    "poolsFetchError": "Pool-Updates können nicht geladen werden. Bitte versuchen Sie es später erneut."
   },
   "poolDetails": {
     "title": "Pool-Details",

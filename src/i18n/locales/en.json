@@ -235,6 +235,12 @@
     "viewPoolsWithUsdc": "View Pools with USDC",
     "recentTrades": "Recent Trades",
     "noTrades": "No recent trades found for this asset",
-    "tradesFetchError": "Unable to load trades. Please try again later."
+    "tradesFetchError": "Unable to load trades. Please try again later.",
+    "recentLiquidity": "Recent Liquidity Updates",
+    "noLiquidity": "No recent liquidity updates found for this asset",
+    "liquidityFetchError": "Unable to load liquidity updates. Please try again later.",
+    "recentPools": "Recent Pool Updates",
+    "noPools": "No recent pool updates found for this asset",
+    "poolsFetchError": "Unable to load pool updates. Please try again later."
   }
 }

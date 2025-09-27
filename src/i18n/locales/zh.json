@@ -180,7 +180,13 @@
     "viewPoolsWithUsdc": "查看与USDC的池",
     "recentTrades": "最近交易",
     "noTrades": "未找到此资产的近期交易",
-    "tradesFetchError": "无法加载交易。请稍后重试。"
+    "tradesFetchError": "无法加载交易。请稍后重试。",
+    "recentLiquidity": "最近流动性更新",
+    "noLiquidity": "未找到此资产的近期流动性更新",
+    "liquidityFetchError": "无法加载流动性更新。请稍后重试。",
+    "recentPools": "最近池更新",
+    "noPools": "未找到此资产的近期池更新",
+    "poolsFetchError": "无法加载池更新。请稍后重试。"
   },
   "poolDetails": {
     "title": "池详情",

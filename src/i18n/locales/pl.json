@@ -180,7 +180,13 @@
     "viewPoolsWithUsdc": "Pokaż pule z USDC",
     "recentTrades": "Najnowsze transakcje",
     "noTrades": "Nie znaleziono najnowszych transakcji dla tego zasobu",
-    "tradesFetchError": "Nie można załadować transakcji. Spróbuj ponownie później."
+    "tradesFetchError": "Nie można załadować transakcji. Spróbuj ponownie później.",
+    "recentLiquidity": "Najnowsze aktualizacje płynności",
+    "noLiquidity": "Nie znaleziono najnowszych aktualizacji płynności dla tego zasobu",
+    "liquidityFetchError": "Nie można załadować aktualizacji płynności. Spróbuj ponownie później.",
+    "recentPools": "Najnowsze aktualizacje puli",
+    "noPools": "Nie znaleziono najnowszych aktualizacji puli dla tego zasobu",
+    "poolsFetchError": "Nie można załadować aktualizacji puli. Spróbuj ponownie później."
   },
   "poolDetails": {
     "title": "Szczegóły puli",
