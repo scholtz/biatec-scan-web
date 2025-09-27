@@ -1,6 +1,11 @@
 <svg width="24" height="18" viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg">
   <!-- Czech Republic flag -->
-  <polygon points="0,0 0,18 8,9" fill="#11457E"/>
-  <rect width="24" height="9" fill="#FFFFFF"/>
-  <rect width="24" height="9" y="9" fill="#D7141A"/>
+  <!-- Blue triangle on the left -->
+  <polygon points="0,0 0,18 10,9" fill="#11457E"/>
+  <!-- White stripe (top) -->
+  <rect x="0" y="0" width="24" height="9" fill="#FFFFFF"/>
+  <!-- Red stripe (bottom) -->
+  <rect x="0" y="9" width="24" height="9" fill="#D7141A"/>
+  <!-- Ensure blue triangle is on top -->
+  <polygon points="0,0 0,18 10,9" fill="#11457E"/>
 </svg>

@@ -9,7 +9,7 @@
           <button
             @click="copyToClipboard"
             class="p-2 text-gray-400 hover:text-white transition-colors"
-            title="Copy address to clipboard"
+            :title="$t('addressDetails.copyAddress')"
           >
             📋
           </button>
@@ -31,7 +31,7 @@
           @click="loadAddressInfo"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
         >
-          Retry
+          {{ $t('addressDetails.retry') }}
         </button>
       </div>
 

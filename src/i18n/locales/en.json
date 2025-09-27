@@ -107,11 +107,70 @@
     "contactDescription": "Feedback, issues or feature ideas are welcome. Feel free to open discussions or pull requests in the related repositories, or reach out at the",
     "discord": "Discord",
     "dataSourcesTitle": "Data Sources",
+    "dataSource1": "Algod block ingestion (multi-endpoint failover)",
+    "dataSource2": "Live gossip websocket integration (optional)",
+    "dataSource3": "Protocol processors: Pact, Tiny, Biatec",
+    "dataSource4": "Elasticsearch for fast querying & aggregation",
     "realtimeFeaturesTitle": "Realtime Features",
+    "realtimeFeature1": "Charts by",
+    "realtimeFeature2": "Streaming trades & liquidity updates",
+    "realtimeFeature3": "Incremental pool & aggregated pool updates",
+    "realtimeFeature4": "Dynamic asset metadata + price & TVL signals",
+    "realtimeFeature5": "Custom subscription filtering (protocol / asset / state)",
     "architectureTitle": "Architecture Overview",
     "architectureDescription": "The backend is an ASP.NET Core (.NET 8) Web API with SignalR for websocket distribution. Background services process blocks, detect DEX events, enrich and normalize pools, then index them. Redis (optional) accelerates asset & pool metadata caching. The frontend (this site) is built with Vite, Vue 3, TypeScript and Tailwind."
   },
+  "poolDetails": {
+    "title": "Pool Details",
+    "poolAddress": "Pool Address",
+    "loadingPoolInfo": "Loading pool information...",
+    "poolInformation": "Pool Information",
+    "retry": "Retry",
+    "copyPoolAddress": "Copy pool address to clipboard"
+  },
+  "aggregatedPools": {
+    "title": "Aggregated pools containing {assetName}",
+    "refresh": "Refresh",
+    "loaded": "Loaded",
+    "loadingPools": "Loading aggregated pools…",
+    "pair": "Pair",
+    "pools": "Pools",
+    "price": "Price",
+    "reserve": "Reserve ({unitName})",
+    "otherReserve": "Other Reserve",
+    "virtualReserve": "Virtual Reserve ({unitName})",
+    "otherVirtualReserve": "Other Virtual Reserve",
+    "totalTvlUsd": "Total TVL {unitName} USD",
+    "totalTvlOtherUsd": "Total TVL Other USD",
+    "updated": "Updated"
+  },
+  "poolsByAssets": {
+    "poolsContaining": "Pools containing {assetName}",
+    "poolsFor": "Pools for {asset1Name} / {asset2Name}",
+    "showingUpTo": "Showing up to {size} pools",
+    "refresh": "Refresh",
+    "aggregated": "Aggregated",
+    "totalReserveA": "Total Reserve A",
+    "totalReserveB": "Total Reserve B",
+    "loadingPools": "Loading pools…"
+  },
+  "blockDetails": {
+    "title": "Block #{round}",
+    "confirmed": "Confirmed",
+    "timestamp": "Timestamp",
+    "transactions": "Transactions",
+    "transactionCounter": "Transaction Counter",
+    "genesisId": "Genesis ID",
+    "previousBlockHash": "Previous Block Hash",
+    "currentBlockHash": "Current Block Hash"
+  },
   "transactionDetails": {
+    "title": "Transaction Details",
+    "confirmed": "Confirmed",
+    "block": "Block",
+    "fee": "Fee",
+    "roundTime": "Round Time",
+    "copyAddress": "Copy address to clipboard",
     "paymentTransaction": "Payment Transaction",
     "assetTransfer": "Asset Transfer",
     "applicationCall": "Application Call",
@@ -121,6 +180,11 @@
     "unknown": "UNKNOWN",
     "assetId": "Asset ID:",
     "noAmountInfo": "No amount information available for this transaction type."
+  },
+  "addressDetails": {
+    "title": "Address Details",
+    "copyAddress": "Copy address to clipboard",
+    "retry": "Retry"
   },
   "status": {
     "online": "ONLINE",
@@ -150,12 +214,24 @@
     "clearAll": "Clear All",
     "view": "View",
     "table": "Table",
-    "blocks": "Blocks"
+    "blocks": "Blocks",
+    "totalFavorites": "Total Favorites",
+    "noFavoritesYet": "No favorite assets yet",
+    "browseAssetsToAdd": "Browse assets to add some favorites",
+    "loadingFavoriteAssets": "Loading favorite assets…",
+    "confirmClearAll": "Are you sure you want to remove all favorite assets?",
+    "viewPools": "View Pools",
+    "assetPrefix": "Asset "
   },
   "assetDetails": {
     "title": "Asset {name}",
     "name": "Name",
     "unit": "Unit", 
-    "decimals": "Decimals"
+    "decimals": "Decimals",
+    "totalSupply": "Total Supply",
+    "assetImage": "Asset Image",
+    "viewAllPools": "View all {name} pools",
+    "viewPoolsWithAlgo": "View Pools with ALGO",
+    "viewPoolsWithUsdc": "View Pools with USDC"
   }
 }

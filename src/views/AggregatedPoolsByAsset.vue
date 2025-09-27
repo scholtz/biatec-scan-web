@@ -2,23 +2,23 @@
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
       <h1 class="text-xl font-semibold text-white">
-        Aggregated pools containing {{ assetName }}
+        {{ $t('aggregatedPools.title', { assetName }) }}
       </h1>
       <div class="flex items-center gap-2 text-sm">
         <button
           class="px-2 py-1 rounded bg-gray-700 text-gray-200 hover:bg-gray-600 text-xs"
           @click="refresh"
         >
-          Refresh
+          {{ $t('aggregatedPools.refresh') }}
         </button>
       </div>
     </div>
 
     <div class="text-xs text-gray-400">
-      Loaded: <span class="text-white">{{ pools.length }}</span>
+      {{ $t('aggregatedPools.loaded') }}: <span class="text-white">{{ pools.length }}</span>
     </div>
 
-    <div v-if="loading" class="text-gray-400">Loading aggregated pools…</div>
+    <div v-if="loading" class="text-gray-400">{{ $t('aggregatedPools.loadingPools') }}</div>
     <div v-else-if="error" class="text-red-400">{{ error }}</div>
 
     <div v-else>
@@ -26,16 +26,16 @@
       <div
         class="hidden md:grid md:grid-cols-10 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
-        <div>Pair</div>
-        <div class="text-right">Pools</div>
-        <div class="text-right">Price</div>
-        <div class="text-right">Reserve ({{ assetUnitName }})</div>
-        <div class="text-right">Other Reserve</div>
-        <div class="text-right">Virtual Reserve ({{ assetUnitName }})</div>
-        <div class="text-right">Other Virtual Reserve</div>
-        <div class="text-right">Total TVL {{ assetUnitName }} USD</div>
-        <div class="text-right">Total TVL Other USD</div>
-        <div class="text-right">Updated</div>
+        <div>{{ $t('aggregatedPools.pair') }}</div>
+        <div class="text-right">{{ $t('aggregatedPools.pools') }}</div>
+        <div class="text-right">{{ $t('aggregatedPools.price') }}</div>
+        <div class="text-right">{{ $t('aggregatedPools.reserve', { unitName: assetUnitName }) }}</div>
+        <div class="text-right">{{ $t('aggregatedPools.otherReserve') }}</div>
+        <div class="text-right">{{ $t('aggregatedPools.virtualReserve', { unitName: assetUnitName }) }}</div>
+        <div class="text-right">{{ $t('aggregatedPools.otherVirtualReserve') }}</div>
+        <div class="text-right">{{ $t('aggregatedPools.totalTvlUsd', { unitName: assetUnitName }) }}</div>
+        <div class="text-right">{{ $t('aggregatedPools.totalTvlOtherUsd') }}</div>
+        <div class="text-right">{{ $t('aggregatedPools.updated') }}</div>
       </div>
       <div class="space-y-1">
         <div

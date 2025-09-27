@@ -53,18 +53,18 @@
         </button>
       </div>
       <div>
-        Total Favorites: <span class="text-white">{{ favoriteAssets.length }}</span>
+        {{ $t('favorites.totalFavorites') }}: <span class="text-white">{{ favoriteAssets.length }}</span>
       </div>
     </div>
 
-    <div v-if="loading" class="text-gray-400">Loading favorite assets…</div>
+    <div v-if="loading" class="text-gray-400">{{ $t('favorites.loadingFavoriteAssets') }}</div>
     <div v-else-if="favoriteAssets.length === 0" class="text-center py-12">
-      <div class="text-gray-400 mb-4">No favorite assets yet</div>
+      <div class="text-gray-400 mb-4">{{ $t('favorites.noFavoritesYet') }}</div>
       <router-link 
         to="/assets" 
         class="text-blue-400 hover:text-blue-300 underline"
       >
-        Browse assets to add some favorites
+        {{ $t('favorites.browseAssetsToAdd') }}
       </router-link>
     </div>
 
@@ -102,7 +102,7 @@
                 <div class="min-w-0">
                   <div class="text-white text-sm font-medium truncate">
                     {{
-                      a.params?.name || a.params?.unitName || "Asset " + a.index
+                      a.params?.name || a.params?.unitName || t('favorites.assetPrefix') + a.index
                     }}
                   </div>
                   <div class="text-[10px] text-gray-400 truncate font-mono">
@@ -213,7 +213,7 @@
                   :to="`/aggregated-pools/${a.index}`"
                   class="text-xs text-blue-400 hover:text-blue-300"
                 >
-                  View Pools
+                  {{ $t('favorites.viewPools') }}
                 </RouterLink>
               </div>
             </div>
@@ -239,6 +239,7 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, onUnmounted, computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
 import { signalrService } from "../services/signalrService";
@@ -248,6 +249,7 @@ import AssetBlock from "../components/AssetBlock.vue";
 import { useToast } from "../composables/useToast";
 
 const { showToast } = useToast();
+const { t } = useI18n();
 
 interface State {
   loading: boolean;
@@ -416,7 +418,7 @@ function onFavoriteChanged(assetIndex: number, isFavorite: boolean) {
 }
 
 function clearAllFavorites() {
-  if (confirm('Are you sure you want to remove all favorite assets?')) {
+  if (confirm(t('favorites.confirmClearAll'))) {
     favoriteService.clearFavorites();
     state.favoriteAssets = [];
     state.subscribedIds.clear();

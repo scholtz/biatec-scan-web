@@ -14,17 +14,17 @@
       <div class="card space-y-3">
         <h2 class="text-lg font-semibold text-white">{{ $t('about.dataSourcesTitle') }}</h2>
         <ul class="list-disc list-inside text-gray-300 text-sm space-y-1">
-          <li>Algod block ingestion (multi-endpoint failover)</li>
-          <li>Live gossip websocket integration (optional)</li>
-          <li>Protocol processors: Pact, Tiny, Biatec</li>
-          <li>Elasticsearch for fast querying & aggregation</li>
+          <li>{{ $t('about.dataSource1') }}</li>
+          <li>{{ $t('about.dataSource2') }}</li>
+          <li>{{ $t('about.dataSource3') }}</li>
+          <li>{{ $t('about.dataSource4') }}</li>
         </ul>
       </div>
       <div class="card space-y-3">
         <h2 class="text-lg font-semibold text-white">{{ $t('about.realtimeFeaturesTitle') }}</h2>
         <ul class="list-disc list-inside text-gray-300 text-sm space-y-1">
           <li>
-            Charts by
+            {{ $t('about.realtimeFeature1') }}
             <a
               href="https://www.tradingview.com"
               target="_blank"
@@ -33,10 +33,10 @@
               >TradingView</a
             >.
           </li>
-          <li>Streaming trades & liquidity updates</li>
-          <li>Incremental pool & aggregated pool updates</li>
-          <li>Dynamic asset metadata + price & TVL signals</li>
-          <li>Custom subscription filtering (protocol / asset / state)</li>
+          <li>{{ $t('about.realtimeFeature2') }}</li>
+          <li>{{ $t('about.realtimeFeature3') }}</li>
+          <li>{{ $t('about.realtimeFeature4') }}</li>
+          <li>{{ $t('about.realtimeFeature5') }}</li>
         </ul>
       </div>
     </div>
