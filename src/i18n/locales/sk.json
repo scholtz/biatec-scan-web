@@ -232,6 +232,9 @@
     "assetImage": "Obrázok assetu",
     "viewAllPools": "Zobraziť všetky {name} pooly",
     "viewPoolsWithAlgo": "Zobraziť pooly s ALGO",
-    "viewPoolsWithUsdc": "Zobraziť pooly s USDC"
+    "viewPoolsWithUsdc": "Zobraziť pooly s USDC",
+    "recentTrades": "Nedávne obchody",
+    "noTrades": "Neboli nájdené žiadne nedávne obchody pre tento asset",
+    "tradesFetchError": "Nie je možné načítať obchody. Skúste to neskôr."
   }
 }

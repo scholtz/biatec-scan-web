@@ -177,7 +177,10 @@
     "assetImage": "Изображение актива",
     "viewAllPools": "Посмотреть все {name} пулы",
     "viewPoolsWithAlgo": "Посмотреть пулы с ALGO",
-    "viewPoolsWithUsdc": "Посмотреть пулы с USDC"
+    "viewPoolsWithUsdc": "Посмотреть пулы с USDC",
+    "recentTrades": "Недавние сделки",
+    "noTrades": "Не найдены недавние сделки для этого актива",
+    "tradesFetchError": "Невозможно загрузить сделки. Пожалуйста, попробуйте позже."
   },
   "poolDetails": {
     "title": "Детали пула",

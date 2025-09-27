@@ -177,7 +177,10 @@
     "assetImage": "Asset-Bild",
     "viewAllPools": "Alle {name} Pools anzeigen",
     "viewPoolsWithAlgo": "Pools mit ALGO anzeigen",
-    "viewPoolsWithUsdc": "Pools mit USDC anzeigen"
+    "viewPoolsWithUsdc": "Pools mit USDC anzeigen",
+    "recentTrades": "Aktuelle Trades",
+    "noTrades": "Keine aktuellen Trades für diesen Asset gefunden",
+    "tradesFetchError": "Trades können nicht geladen werden. Bitte versuchen Sie es später erneut."
   },
   "poolDetails": {
     "title": "Pool-Details",

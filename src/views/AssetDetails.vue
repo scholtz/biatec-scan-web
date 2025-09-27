@@ -91,6 +91,11 @@
         </router-link>
       </div>
     </div>
+
+    <!-- Recent Trades Section -->
+    <div class="card">
+      <TradesList :assetId="assetId" />
+    </div>
   </div>
 </template>
 
@@ -100,6 +105,7 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import { favoriteService } from "../services/favoriteService";
+import TradesList from "../components/TradesList.vue";
 
 const { t } = useI18n();
 

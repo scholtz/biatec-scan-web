@@ -177,7 +177,10 @@
     "assetImage": "资产图像",
     "viewAllPools": "查看所有 {name} 池",
     "viewPoolsWithAlgo": "查看与ALGO的池",
-    "viewPoolsWithUsdc": "查看与USDC的池"
+    "viewPoolsWithUsdc": "查看与USDC的池",
+    "recentTrades": "最近交易",
+    "noTrades": "未找到此资产的近期交易",
+    "tradesFetchError": "无法加载交易。请稍后重试。"
   },
   "poolDetails": {
     "title": "池详情",

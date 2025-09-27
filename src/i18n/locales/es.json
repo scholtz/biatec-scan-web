@@ -177,7 +177,10 @@
     "assetImage": "Imagen del asset",
     "viewAllPools": "Ver todos los pools de {name}",
     "viewPoolsWithAlgo": "Ver pools con ALGO",
-    "viewPoolsWithUsdc": "Ver pools con USDC"
+    "viewPoolsWithUsdc": "Ver pools con USDC",
+    "recentTrades": "Intercambios recientes",
+    "noTrades": "No se encontraron intercambios recientes para este asset",
+    "tradesFetchError": "No se pueden cargar los intercambios. Por favor intenta más tarde."
   },
   "poolDetails": {
     "title": "Detalles del pool",
