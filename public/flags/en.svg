@@ -1,0 +1,13 @@
+<svg width="24" height="18" viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg">
+  <!-- United States flag -->
+  <rect width="24" height="18" fill="#B22234"/>
+  <rect width="24" height="2" y="2" fill="#FFFFFF"/>
+  <rect width="24" height="2" y="4" fill="#B22234"/>
+  <rect width="24" height="2" y="6" fill="#FFFFFF"/>
+  <rect width="24" height="2" y="8" fill="#B22234"/>
+  <rect width="24" height="2" y="10" fill="#FFFFFF"/>
+  <rect width="24" height="2" y="12" fill="#B22234"/>
+  <rect width="24" height="2" y="14" fill="#FFFFFF"/>
+  <rect width="24" height="2" y="16" fill="#B22234"/>
+  <rect width="9.6" height="9" fill="#3C3B6E"/>
+</svg>
