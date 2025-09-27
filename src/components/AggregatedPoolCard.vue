@@ -50,11 +50,14 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive } from "vue";
+import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
 import { signalrService } from "../services/signalrService";
 import { AggregatedPool } from "../api/models";
 import StyledBox from "./StyledBox.vue";
+
+const { t } = useI18n();
 
 const props = defineProps<{ pool: AggregatedPool }>();
 
@@ -115,7 +118,7 @@ const formattedTVLA = computed(() => {
     assetService.requestAsset(state.pool.assetIdA, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
   return assetService.formatAssetBalance(
     state.pool.tvL_A,
@@ -140,7 +143,7 @@ const formattedTVLB = computed(() => {
     assetService.requestAsset(state.pool.assetIdB, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
 
   return assetService.formatAssetBalance(
@@ -165,7 +168,7 @@ const formattedPrice = computed(() => {
     assetService.requestAsset(state.pool.assetIdA, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
   const assetInfoB = assetService.getAssetInfo(state.pool.assetIdB);
   if (!assetInfoB) {
@@ -173,7 +176,7 @@ const formattedPrice = computed(() => {
     assetService.requestAsset(state.pool.assetIdB, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
 
   return assetService.formatPairBalance(

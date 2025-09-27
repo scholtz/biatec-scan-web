@@ -26,7 +26,7 @@
           >
             {{ algorandService.formatAddress(trade.trader) }}
           </router-link>
-          Sold
+          {{ $t('common.sold') }}
         </p>
         <p class="text-white text-sm">
           <router-link
@@ -82,12 +82,12 @@
       </div>
       <div class="w-full flex-grow">
         <p class="text-xs text-gray-400 mb-1 flex">
-          <span>Bought</span>
+          <span>{{ $t('common.bought') }}</span>
           <router-link
             :to="{ name: 'TransactionDetails', params: { txId: trade.txId } }"
             class="text-xs ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
-            View Tx
+            {{ $t('common.viewTx') }}
           </router-link>
         </p>
         <p class="text-white text-sm">
@@ -109,11 +109,14 @@
 
 <script setup lang="ts">
 import { computed, reactive } from "vue";
+import { useI18n } from "vue-i18n";
 import type { AMMTrade } from "../types/algorand";
 import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
 import StyledBox from "./StyledBox.vue";
+
+const { t } = useI18n();
 
 const state = reactive({
   forceUpdate: 0, // Used to trigger reactivity when assets are loaded
@@ -195,14 +198,14 @@ const formatSwapPrice = (
     assetService.requestAsset(assetIdIn, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
   if (!assetInfoOut) {
     // Request asset loading and trigger re-render when loaded
     assetService.requestAsset(assetIdOut, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
   const priceAssetIn = Number(balanceIn) / 10 ** assetInfoIn.decimals;
   const priceAssetOut = Number(balanceOut) / 10 ** assetInfoOut.decimals;
@@ -240,7 +243,7 @@ const formatAssetBalance = (
     assetService.requestAsset(assetId, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
 
   return assetService.formatAssetBalance(balance, assetId);

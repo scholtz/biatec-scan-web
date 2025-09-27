@@ -1,0 +1,161 @@
+{
+  "common": {
+    "loading": "Načítání...",
+    "refresh": "Obnovit",
+    "prev": "Předchozí",
+    "next": "Další",
+    "page": "Strana",
+    "pageSize": "Veľkosť strany",
+    "totalLoaded": "Celkom načítaných",
+    "viewPools": "Zobraziť pooly",
+    "pools": "Pooly",
+    "favorite": "Obľúbené",
+    "addToFavorites": "Pridať do obľúbených",
+    "removeFromFavorites": "Odstrániť z obľúbených",
+    "copyAssetId": "Kopírovať {name} ID assetu: {id}",
+    "copiedAssetId": "Skopírované {name} ID assetu: {id}",
+    "failedToCopy": "Nepodarilo sa skopírovať ID assetu",
+    "tryDifferentSearch": "Skúsiť iné vyhľadávanie",
+    "toggleNavigation": "Prepnúť navigáciu",
+    "toggleLanguage": "Prepnúť jazyk",
+    "searching": "Vyhľadávanie",
+    "sold": "Predané",
+    "bought": "Kúpené",
+    "viewTx": "Zobraziť TX",
+    "reserveA": "Rezerva A",
+    "reserveB": "Rezerva B",
+    "liquidityProvider": "Poskytovateľ likvidity",
+    "txId": "ID TX",
+    "loadMore": "Načítať viac"
+  },
+  "nav": {
+    "explore": "Preskúmať",
+    "search": "Vyhľadať",
+    "assets": "Assety",
+    "favorites": "Obľúbené",
+    "settings": "Nastavenia",
+    "about": "O aplikácii",
+    "searchPlaceholder": "Hľadať podľa bloku alebo tx ID...",
+    "searchMobilePlaceholder": "Hľadať blok / tx..."
+  },
+  "dashboard": {
+    "algoUsd": "ALGO/USD",
+    "latestBlock": "Posledný blok",
+    "totalTransactions": "Celkový počet transakcií",
+    "connectionStatus": "Stav pripojenia",
+    "assets": "Assety",
+    "latestBlocks": "Posledné bloky",
+    "liveAmmTrades": "Live AMM obchody",
+    "liquidityUpdates": "Aktualizácie likvidity",
+    "poolUpdates": "Aktualizácie poolov",
+    "aggregatedPools": "Agregované pooly",
+    "waitingForAggregatedPools": "Čaká sa na aktualizácie agregovaných poolov...",
+    "waitingForTrades": "Čaká sa na obchody...",
+    "waitingForLiquidity": "Čaká sa na aktualizácie likvidity...",
+    "waitingForPoolUpdates": "Čaká sa na aktualizácie poolov...",
+    "connectingToFeed": "Pripájanie k live feede...",
+    "online": "ONLINE",
+    "offline": "OFFLINE"
+  },
+  "assets": {
+    "title": "Assety",
+    "id": "ID",
+    "name": "Názov",
+    "unit": "Jednotka",
+    "decimals": "Desatinné miesta",
+    "price": "Cena (USD)",
+    "realTvl": "Reálne TVL (USD)",
+    "totalTvl": "Celkové TVL (USD)",
+    "updated": "Aktualizované",
+    "loadingAssets": "Načítavajú sa assety…",
+    "demoModeError": "Demo režim: API nedostupné, zobrazujú sa vzorové assety",
+    "auto": " (Auto)"
+  },
+  "search": {
+    "title": "Sieťové vyhľadávanie",
+    "description": "Vyhľadať assety, pooly, bloky, transakcie, adresy a obchody",
+    "foundResults": "Nájdené {count} výsledky",
+    "noResults": "Nenašli sa žiadne výsledky",
+    "noResultsDescription": "Žiadne assety, pooly, bloky, transakcie alebo adresy nezodpovedajú \"{query}\"",
+    "searchTips": "Čo môžete vyhľadávať?",
+    "exampleAsset": "Ukážkový asset",
+    "exampleBlock": "Ukážkový blok",
+    "exampleAddress": "Ukážková adresa",
+    "assetDetected": "Rozpoznané ID assetu",
+    "blockDetected": "Rozpoznaný blok",
+    "transactionDetected": "Rozpoznaná transakcia",
+    "addressDetected": "Rozpoznaná adresa",
+    "assetPlaceholder": "ID assetu rozpoznané - stlač Enter na vyhľadanie",
+    "blockPlaceholder": "Číslo bloku rozpoznané - stlač Enter na vyhľadanie",
+    "txPlaceholder": "ID transakcie rozpoznané - stlač Enter na vyhľadanie",
+    "addressPlaceholder": "Adresa rozpoznaná - stlač Enter na vyhľadanie",
+    "defaultPlaceholder": "Vyhľadať assety, pooly, bloky, transakcie, adresy..."
+  },
+  "about": {
+    "title": "O Biatec Algorand Scan",
+    "description": "Biatec Algorand Scan je real-time prieskumník zameraný na aktivitu decentralizovaných búrz (DEX) na Algorand blockchaine. Streamuje live bloky, obchody, likviditné udalosti, pooly, agregované štatistiky poolov a metadata assetov prostredníctvom vysoko výkonného SignalR hubu, podporovaného Elasticsearch indexovaním a protocol-aware obohatením (Pact, Tiny, Biatec AMMs).",
+    "company": "Biatec Scan prevádzkuje Scholtz & Company, jsa. IČO: 51882272. Projekt je open source.",
+    "disclaimer": "DISCLAIMER: Tento projekt nie je spojený s Algorand, Inc. alebo Algorand Foundation. Je to nezávislá iniciatíva vyvinutá na zlepšenie transparentnosti a dostupnosti DEX aktivít na Algorand blockchaine. Projekt je poskytovaný \"ako je\" bez akýchkoľvek záruk. Používate na vlastné riziko.",
+    "limitationsTitle": "Obmedzenia a poznámky",
+    "limitation1": "Cenové feedy pochádzajú z agregovaných virtuálnych rezerv poolov (podliehajú AMM matematike a zdraviu poolov).",
+    "limitation2": "Nedávno vytvorené alebo nelikvidné pooly môžu chýbať obohatenie, kým sa neuskutoční aktivita.",
+    "limitation3": "Niektoré assety môžu zobrazovať oneskorené metadata, ak sú dosiahnuté limity Algod.",
+    "reposTitle": "Repozitáre",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "contactTitle": "Kontakt a príspevky",
+    "contactDescription": "Spätná väzba, problémy alebo nápady na funkcie sú vítané. Neváhajte otvoriť diskusie alebo pull requesty v súvisiacich repozitároch, alebo sa ozvite na",
+    "discord": "Discorde",
+    "dataSourcesTitle": "Zdroje dát",
+    "realtimeFeaturesTitle": "Realtime funkcie",
+    "architectureTitle": "Prehľad architektúry",
+    "architectureDescription": "Backend je ASP.NET Core (.NET 8) Web API so SignalR pre websocket distribúciu. Background služby spracovávajú bloky, detekujú DEX udalosti, obohatia a normalizujú pooly, potom ich indexujú. Redis (voliteľný) urýchľuje cachovanie metadata assetov a poolov. Frontend (táto stránka) je postavený s Vite, Vue 3, TypeScript a Tailwind."
+  },
+  "transactionDetails": {
+    "paymentTransaction": "Platobná transakcia",
+    "assetTransfer": "Prevod assetu",
+    "applicationCall": "Volanie aplikácie",
+    "assetConfiguration": "Konfigurácia assetu",
+    "assetFreeze": "Zmrazenie assetu",
+    "keyRegistration": "Registrácia kľúča",
+    "unknown": "NEZNÁME",
+    "assetId": "ID assetu:",
+    "noAmountInfo": "Pre tento typ transakcie nie sú dostupné informácie o sume."
+  },
+  "status": {
+    "online": "ONLINE",
+    "offline": "OFFLINE"
+  },
+  "settings": {
+    "title": "Nastavenia",
+    "language": {
+      "title": "Jazyk",
+      "description": "Vyberte si preferovaný jazyk pre rozhranie aplikácie.",
+      "selectLabel": "Jazyk"
+    },
+    "preferences": {
+      "title": "Predvoľby",
+      "description": "Ďalšie nastavenia a predvoľby budú dostupné v budúcich aktualizáciách."
+    },
+    "about": {
+      "title": "Informácie o aplikácii",
+      "version": "Verzia",
+      "buildWith": "Postavené s",
+      "repository": "Repozitár"
+    }
+  },
+  "favorites": {
+    "title": "Obľúbené assety",
+    "addDemoAssets": "Pridať demo assety",
+    "clearAll": "Vymazať všetko",
+    "view": "Zobrazenie",
+    "table": "Tabuľka",
+    "blocks": "Bloky"
+  },
+  "assetDetails": {
+    "title": "Asset {name}",
+    "name": "Názov",
+    "unit": "Jednotka",
+    "decimals": "Desatinné miesta"
+  }
+}

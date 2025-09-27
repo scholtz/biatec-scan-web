@@ -86,7 +86,7 @@
       </div>
 
       <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400">Liquidity Provider:</span>
+        <span class="text-sm text-gray-400">{{ $t('common.liquidityProvider') }}:</span>
         <router-link
           :to="{
             name: 'AddressDetails',
@@ -100,7 +100,7 @@
       </div>
 
       <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400">Tx id:</span>
+        <span class="text-sm text-gray-400">{{ $t('common.txId') }}:</span>
         <router-link
           :to="{ name: 'TransactionDetails', params: { txId: liquidity.txId } }"
           class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
@@ -115,10 +115,13 @@
 
 <script setup lang="ts">
 import { reactive, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { AMMLiquidity } from "../types/algorand";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
 import StyledBox from "./StyledBox.vue";
+
+const { t } = useI18n();
 
 interface Props {
   liquidity: AMMLiquidity;
@@ -137,7 +140,7 @@ const formattedAssetA = computed(() => {
     assetService.requestAsset(BigInt(props.liquidity.assetIdA), () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
   return assetService.formatAssetBalance(
     props.liquidity.assetAmountA,
@@ -152,7 +155,7 @@ const formattedAssetB = computed(() => {
     assetService.requestAsset(BigInt(props.liquidity.assetIdB), () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
   return assetService.formatAssetBalance(
     props.liquidity.assetAmountB,

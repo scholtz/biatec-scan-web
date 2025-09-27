@@ -1,0 +1,161 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "refresh": "Actualizar",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "page": "Página",
+    "pageSize": "Tamaño de página",
+    "totalLoaded": "Total cargado",
+    "viewPools": "Ver pools",
+    "pools": "Pools",
+    "favorite": "Favorito",
+    "addToFavorites": "Agregar a favoritos",
+    "removeFromFavorites": "Eliminar de favoritos",
+    "copyAssetId": "Copiar ID del asset {name}: {id}",
+    "copiedAssetId": "ID del asset {name} copiado: {id}",
+    "failedToCopy": "Error al copiar ID del asset",
+    "tryDifferentSearch": "Intentar búsqueda diferente",
+    "toggleNavigation": "Alternar navegación",
+    "toggleLanguage": "Cambiar idioma",
+    "searching": "Buscando",
+    "sold": "Vendido",
+    "bought": "Comprado",
+    "viewTx": "Ver TX",
+    "reserveA": "Reserva A",
+    "reserveB": "Reserva B",
+    "liquidityProvider": "Proveedor de liquidez",
+    "txId": "ID de TX",
+    "loadMore": "Cargar más"
+  },
+  "nav": {
+    "explore": "Explorar",
+    "search": "Buscar",
+    "assets": "Assets",
+    "favorites": "Favoritos",
+    "settings": "Configuración",
+    "about": "Acerca de",
+    "searchPlaceholder": "Buscar por bloque o ID de TX...",
+    "searchMobilePlaceholder": "Buscar bloque / TX..."
+  },
+  "dashboard": {
+    "algoUsd": "ALGO/USD",
+    "latestBlock": "Último bloque",
+    "totalTransactions": "Transacciones totales",
+    "connectionStatus": "Estado de conexión",
+    "assets": "Assets",
+    "latestBlocks": "Últimos bloques",
+    "liveAmmTrades": "Operaciones AMM en vivo",
+    "liquidityUpdates": "Actualizaciones de liquidez",
+    "poolUpdates": "Actualizaciones de pools",
+    "aggregatedPools": "Pools agregados",
+    "waitingForAggregatedPools": "Esperando actualizaciones de pools agregados...",
+    "waitingForTrades": "Esperando operaciones...",
+    "waitingForLiquidity": "Esperando actualizaciones de liquidez...",
+    "waitingForPoolUpdates": "Esperando actualizaciones de pools...",
+    "connectingToFeed": "Conectando al feed en vivo...",
+    "online": "CONECTADO",
+    "offline": "DESCONECTADO"
+  },
+  "assets": {
+    "title": "Assets",
+    "id": "ID",
+    "name": "Nombre",
+    "unit": "Unidad",
+    "decimals": "Decimales",
+    "price": "Precio (USD)",
+    "realTvl": "TVL real (USD)",
+    "totalTvl": "TVL total (USD)",
+    "updated": "Actualizado",
+    "loadingAssets": "Cargando assets…",
+    "demoModeError": "Modo demo: API no disponible, mostrando assets de ejemplo",
+    "auto": " (Auto)"
+  },
+  "search": {
+    "title": "Búsqueda de red",
+    "description": "Buscar assets, pools, bloques, transacciones, direcciones y operaciones",
+    "foundResults": "Se encontraron {count} resultados",
+    "noResults": "No se encontraron resultados",
+    "noResultsDescription": "Ningún asset, pool, bloque, transacción o dirección coincide con \"{query}\"",
+    "searchTips": "¿Qué puede buscar?",
+    "exampleAsset": "Asset de ejemplo",
+    "exampleBlock": "Bloque de ejemplo",
+    "exampleAddress": "Dirección de ejemplo",
+    "assetDetected": "ID de asset detectado",
+    "blockDetected": "Bloque detectado",
+    "transactionDetected": "Transacción detectada",
+    "addressDetected": "Dirección detectada",
+    "assetPlaceholder": "ID de asset detectado - presione Enter para buscar",
+    "blockPlaceholder": "Número de bloque detectado - presione Enter para buscar",
+    "txPlaceholder": "ID de transacción detectado - presione Enter para buscar",
+    "addressPlaceholder": "Dirección detectada - presione Enter para buscar",
+    "defaultPlaceholder": "Buscar assets, pools, bloques, transacciones, direcciones..."
+  },
+  "about": {
+    "title": "Acerca de Biatec Algorand Scan",
+    "description": "Biatec Algorand Scan es un explorador en tiempo real enfocado en la actividad de intercambios descentralizados (DEX) en la blockchain de Algorand. Transmite bloques, operaciones, eventos de liquidez, pools, estadísticas agregadas de pools y metadatos de assets en vivo a través de un hub SignalR de alto rendimiento, respaldado por indexación Elasticsearch y enriquecimiento consciente del protocolo (Pact, Tiny, Biatec AMMs).",
+    "company": "Biatec Scan es operado por Scholtz & Company, jsa. IČO: 51882272. El proyecto es de código abierto.",
+    "disclaimer": "DESCARGO DE RESPONSABILIDAD: Este proyecto no está afiliado con Algorand, Inc. o la Fundación Algorand. Es una iniciativa independiente desarrollada para mejorar la transparencia y accesibilidad de las actividades DEX en la blockchain de Algorand. El proyecto se proporciona \"tal como está\" sin garantías. Úselo bajo su propio riesgo.",
+    "limitationsTitle": "Limitaciones y notas",
+    "limitation1": "Los feeds de precios derivan de reservas virtuales agregadas de pools (sujetas a matemáticas AMM y salud del pool).",
+    "limitation2": "Los pools recién creados o ilíquidos pueden carecer de enriquecimiento hasta que ocurra actividad.",
+    "limitation3": "Algunos assets pueden mostrar metadatos retrasados si se alcanzan los límites de velocidad de Algod.",
+    "reposTitle": "Repositorios",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "contactTitle": "Contacto y contribuciones",
+    "contactDescription": "Los comentarios, problemas o ideas de funciones son bienvenidos. No dude en abrir discusiones o pull requests en los repositorios relacionados, o comuníquese en el",
+    "discord": "Discord",
+    "dataSourcesTitle": "Fuentes de datos",
+    "realtimeFeaturesTitle": "Funciones en tiempo real",
+    "architectureTitle": "Descripción de la arquitectura",
+    "architectureDescription": "El backend es una API web ASP.NET Core (.NET 8) con SignalR para distribución WebSocket. Los servicios en segundo plano procesan bloques, detectan eventos DEX, enriquecen y normalizan pools, luego los indexan. Redis (opcional) acelera el almacenamiento en caché de metadatos de assets y pools. El frontend (este sitio) está construido con Vite, Vue 3, TypeScript y Tailwind."
+  },
+  "transactionDetails": {
+    "paymentTransaction": "Transacción de pago",
+    "assetTransfer": "Transferencia de asset",
+    "applicationCall": "Llamada de aplicación",
+    "assetConfiguration": "Configuración de asset",
+    "assetFreeze": "Congelación de asset",
+    "keyRegistration": "Registro de clave",
+    "unknown": "DESCONOCIDO",
+    "assetId": "ID de asset:",
+    "noAmountInfo": "No hay información de cantidad disponible para este tipo de transacción."
+  },
+  "status": {
+    "online": "CONECTADO",
+    "offline": "DESCONECTADO"
+  },
+  "settings": {
+    "title": "Configuración",
+    "language": {
+      "title": "Idioma",
+      "description": "Elija su idioma preferido para la interfaz de la aplicación.",
+      "selectLabel": "Idioma"
+    },
+    "preferences": {
+      "title": "Preferencias",
+      "description": "Configuraciones y preferencias adicionales estarán disponibles en futuras actualizaciones."
+    },
+    "about": {
+      "title": "Información de la aplicación",
+      "version": "Versión",
+      "buildWith": "Construido con",
+      "repository": "Repositorio"
+    }
+  },
+  "favorites": {
+    "title": "Assets favoritos",
+    "addDemoAssets": "Agregar assets de demostración",
+    "clearAll": "Limpiar todo",
+    "view": "Vista",
+    "table": "Tabla",
+    "blocks": "Bloques"
+  },
+  "assetDetails": {
+    "title": "Asset {name}",
+    "name": "Nombre",
+    "unit": "Unidad",
+    "decimals": "Decimales"
+  }
+}

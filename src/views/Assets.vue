@@ -1,39 +1,39 @@
 <template>
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-white">Assets</h1>
+      <h1 class="text-xl font-semibold text-white">{{ $t('assets.title') }}</h1>
       <div class="flex items-center gap-2 text-sm">
         <button
           class="px-2 py-1 rounded bg-gray-700 text-gray-200 hover:bg-gray-600 text-xs"
           @click="refresh"
         >
-          Refresh
+          {{ $t('common.refresh') }}
         </button>
       </div>
     </div>
 
     <div class="flex items-center gap-4 text-xs text-gray-400">
       <div>
-        Page: <span class="text-white">{{ page }}</span>
+        {{ $t('common.page') }}: <span class="text-white">{{ page }}</span>
       </div>
       <div>
-        Page Size:
+        {{ $t('common.pageSize') }}:
         <select
           v-model.number="pageSize"
           class="bg-gray-800 border border-gray-600 rounded px-1 py-0.5 text-white text-xs"
           @change="changePageSize"
         >
           <option v-for="s in state.availablePageSizes" :key="s" :value="s">
-            {{ s }}{{ s === state.calculatedPageSize ? ' (Auto)' : '' }}
+            {{ s }}{{ s === state.calculatedPageSize ? $t('assets.auto') : '' }}
           </option>
         </select>
       </div>
       <div>
-        Total Loaded: <span class="text-white">{{ assets.length }}</span>
+        {{ $t('common.totalLoaded') }}: <span class="text-white">{{ assets.length }}</span>
       </div>
     </div>
 
-    <div v-if="loading" class="text-gray-400">Loading assets…</div>
+    <div v-if="loading" class="text-gray-400">{{ $t('assets.loadingAssets') }}</div>
     <div v-else-if="error && assets.length === 0" class="text-red-400">{{ error }}</div>
 
     <div v-if="!loading && assets.length > 0">
@@ -41,16 +41,16 @@
       <div
         class="hidden md:grid md:grid-cols-10 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
-        <div>ID</div>
-        <div>Name</div>
-        <div>Unit</div>
-        <div class="text-right">Decimals</div>
-        <div class="text-right">Price (USD)</div>
-        <div class="text-right">Real TVL (USD)</div>
-        <div class="text-right">Total TVL (USD)</div>
-        <div class="text-right">Updated</div>
-        <div class="text-center">Favorite</div>
-        <div class="text-right">Pools</div>
+        <div>{{ $t('assets.id') }}</div>
+        <div>{{ $t('assets.name') }}</div>
+        <div>{{ $t('assets.unit') }}</div>
+        <div class="text-right">{{ $t('assets.decimals') }}</div>
+        <div class="text-right">{{ $t('assets.price') }}</div>
+        <div class="text-right">{{ $t('assets.realTvl') }}</div>
+        <div class="text-right">{{ $t('assets.totalTvl') }}</div>
+        <div class="text-right">{{ $t('assets.updated') }}</div>
+        <div class="text-center">{{ $t('common.favorite') }}</div>
+        <div class="text-right">{{ $t('common.pools') }}</div>
       </div>
       <div class="space-y-1">
         <div
@@ -77,13 +77,13 @@
               </div>
             </RouterLink>
             <div class="text-right">
-              <div class="text-[10px] text-gray-400">Price</div>
+              <div class="text-[10px] text-gray-400">{{ $t('assets.price') }}</div>
               <div class="text-xs text-white font-mono">
                 {{ formatPrice(a) }}
               </div>
             </div>
             <div class="text-right">
-              <div class="text-[10px] text-gray-400">Real TVL</div>
+              <div class="text-[10px] text-gray-400">{{ $t('assets.realTvl') }}</div>
               <div class="text-xs text-white font-mono">
                 {{ formatRealTVL(a) }}
               </div>
@@ -91,13 +91,13 @@
             <RouterLink
               :to="`/aggregated-pools/${a.index}`"
               class="text-[10px] text-blue-400 hover:text-blue-300 underline ml-2"
-              >Pools</RouterLink
+              >{{ $t('common.pools') }}</RouterLink
             >
             <button
               @click="toggleFavorite(a.index)"
               class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95 ml-2"
               :class="isFavorite(a.index) ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
-              :title="isFavorite(a.index) ? 'Remove from favorites' : 'Add to favorites'"
+              :title="isFavorite(a.index) ? $t('common.removeFromFavorites') : $t('common.addToFavorites')"
             >
               <svg
                 class="w-4 h-4 transition-all duration-300"
@@ -121,7 +121,7 @@
             <button
               @click="copyToClipboard(a.index, a.params?.name || a.params?.unitName)"
               class="p-1 text-gray-400 hover:text-white hover:bg-gray-700/50 active:bg-gray-600/50 active:scale-95 transition-all duration-150 rounded ml-2"
-              :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
+              :title="t('common.copyAssetId', { name: a.params?.name || a.params?.unitName || 'Asset', id: a.index })"
             >
               📋
             </button>
@@ -138,7 +138,7 @@
               <button
                 @click="copyToClipboard(a.index, a.params?.name || a.params?.unitName)"
                 class="p-1 text-gray-400 hover:text-white hover:bg-gray-700/50 active:bg-gray-600/50 active:scale-95 transition-all duration-150 rounded"
-                :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
+                :title="t('common.copyAssetId', { name: a.params?.name || a.params?.unitName || 'Asset', id: a.index })"
               >
                 📋
               </button>
@@ -172,7 +172,7 @@
                 @click="toggleFavorite(a.index)"
                 class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
                 :class="isFavorite(a.index) ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
-                :title="isFavorite(a.index) ? 'Remove from favorites' : 'Add to favorites'"
+                :title="isFavorite(a.index) ? $t('common.removeFromFavorites') : $t('common.addToFavorites')"
               >
                 <svg
                   class="w-5 h-5 transition-all duration-300"
@@ -199,7 +199,7 @@
                 :to="`/aggregated-pools/${a.index}`"
                 class="text-xs text-blue-400 hover:text-blue-300"
               >
-                View Pools
+                {{ $t('common.viewPools') }}
               </RouterLink>
             </div>
           </div>
@@ -212,15 +212,15 @@
           class="px-2 py-1 rounded bg-gray-700 disabled:opacity-40 text-gray-200 hover:bg-gray-600"
           @click="prevPage"
         >
-          Prev
+          {{ $t('common.prev') }}
         </button>
-        <div class="text-gray-400">Page {{ page }}</div>
+        <div class="text-gray-400">{{ $t('common.page') }} {{ page }}</div>
         <button
           :disabled="loading || assets.length < pageSize"
           class="px-2 py-1 rounded bg-gray-700 disabled:opacity-40 text-gray-200 hover:bg-gray-600"
           @click="nextPage"
         >
-          Next
+          {{ $t('common.next') }}
         </button>
       </div>
     </div>
@@ -229,6 +229,7 @@
 
 <script setup lang="ts">
 import { reactive, watch, onMounted, onUnmounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
 import { signalrService } from "../services/signalrService";
@@ -237,6 +238,7 @@ import { favoriteService } from "../services/favoriteService";
 import { useToast } from "../composables/useToast";
 
 const { showToast } = useToast();
+const { t } = useI18n();
 
 interface State {
   page: number;
@@ -438,7 +440,7 @@ function loadDemoAssets() {
   ];
   
   state.assets = demoAssets;
-  state.error = "Demo mode: API unavailable, showing sample assets";
+  state.error = t('assets.demoModeError');
 }
 
 function resubscribeToVisibleAssets() {
@@ -532,10 +534,10 @@ const copyToClipboard = async (assetId: number, assetName?: string | null) => {
     await navigator.clipboard.writeText(assetId.toString());
     // Show success toast
     const name = assetName || 'Asset';
-    showToast(`Copied ${name} asset ID: ${assetId}`, 'success');
+    showToast(t('common.copiedAssetId', { name, id: assetId }), 'success');
   } catch (err) {
     console.error("Failed to copy asset id:", err);
-    showToast("Failed to copy asset ID", 'error');
+    showToast(t('common.failedToCopy'), 'error');
   }
 };
 

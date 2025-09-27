@@ -1,34 +1,34 @@
 <template>
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-white">Favorite Assets</h1>
+      <h1 class="text-xl font-semibold text-white">{{ $t('favorites.title') }}</h1>
       <div class="flex items-center gap-2 text-sm">
         <button
           class="px-2 py-1 rounded bg-gray-700 text-gray-200 hover:bg-gray-600 text-xs"
           @click="refresh"
         >
-          Refresh
+          {{ $t('common.refresh') }}
         </button>
         <button
           class="px-2 py-1 rounded bg-green-700 text-gray-200 hover:bg-green-600 text-xs"
           @click="addDemoAssets"
           :disabled="favoriteAssets.length > 0"
         >
-          Add Demo Assets
+          {{ $t('favorites.addDemoAssets') }}
         </button>
         <button
           class="px-2 py-1 rounded bg-red-700 text-gray-200 hover:bg-red-600 text-xs"
           @click="clearAllFavorites"
           :disabled="favoriteAssets.length === 0"
         >
-          Clear All
+          {{ $t('favorites.clearAll') }}
         </button>
       </div>
     </div>
 
     <div class="flex items-center gap-4 text-xs text-gray-400">
       <div>
-        View:
+        {{ $t('favorites.view') }}:
         <button
           @click="currentView = 'table'"
           :class="[
@@ -38,7 +38,7 @@
               : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
           ]"
         >
-          Table
+          {{ $t('favorites.table') }}
         </button>
         <button
           @click="currentView = 'blocks'"
@@ -49,7 +49,7 @@
               : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
           ]"
         >
-          Blocks
+          {{ $t('favorites.blocks') }}
         </button>
       </div>
       <div>

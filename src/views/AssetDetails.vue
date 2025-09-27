@@ -1,14 +1,14 @@
 <template>
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-white">Asset {{ headerName }}</h1>
+      <h1 class="text-xl font-semibold text-white">{{ $t('assetDetails.title', { name: headerName }) }}</h1>
       <div class="flex items-center gap-3">
         <div class="text-sm text-gray-400">ID: {{ assetId }}</div>
         <button
           @click="toggleFavorite"
           class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
           :class="isFavorite ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
-          :title="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+          :title="isFavorite ? $t('common.removeFromFavorites') : $t('common.addToFavorites')"
         >
           <svg
             class="w-5 h-5 transition-all duration-300"
@@ -36,15 +36,15 @@
       <div class="flex">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-grow">
           <div>
-            <div class="text-xs text-gray-400">Name</div>
+            <div class="text-xs text-gray-400">{{ $t('assetDetails.name') }}</div>
             <div class="text-white">{{ name }}</div>
           </div>
           <div>
-            <div class="text-xs text-gray-400">Unit</div>
+            <div class="text-xs text-gray-400">{{ $t('assetDetails.unit') }}</div>
             <div class="text-white">{{ unitName }}</div>
           </div>
           <div>
-            <div class="text-xs text-gray-400">Decimals</div>
+            <div class="text-xs text-gray-400">{{ $t('assetDetails.decimals') }}</div>
             <div class="text-white">{{ decimals }}</div>
           </div>
           <div>
@@ -97,8 +97,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import { favoriteService } from "../services/favoriteService";
+
+const { t } = useI18n();
 
 const route = useRoute();
 const assetId = ref<string>(route.params.assetId as string);
@@ -108,28 +111,28 @@ const forceUpdate = ref<number>(0);
 const name = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return "Loading...";
+  if (!info) return t('common.loading');
   return info.name || `Asset ${assetId.value}`;
 });
 
 const unitName = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return "Loading...";
+  if (!info) return t('common.loading');
   return info.unitName || info.name || `Asset ${assetId.value}`;
 });
 
 const decimals = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return "Loading...";
+  if (!info) return t('common.loading');
   return info.decimals ?? 0;
 });
 
 const formattedTotal = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return "Loading...";
+  if (!info) return t('common.loading');
   const d = info.decimals || 0;
   const total = Number(info.total) / Math.pow(10, d);
   return total.toLocaleString();

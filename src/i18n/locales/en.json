@@ -1,0 +1,161 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "refresh": "Refresh",
+    "prev": "Prev",
+    "next": "Next",
+    "page": "Page",
+    "pageSize": "Page Size",
+    "totalLoaded": "Total Loaded",
+    "viewPools": "View Pools",
+    "pools": "Pools",
+    "favorite": "Favorite",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
+    "copyAssetId": "Copy {name} asset id: {id}",
+    "copiedAssetId": "Copied {name} asset ID: {id}",
+    "failedToCopy": "Failed to copy asset ID",
+    "tryDifferentSearch": "Try Different Search",
+    "toggleNavigation": "Toggle navigation",
+    "toggleLanguage": "Toggle language",
+    "searching": "Searching",
+    "sold": "Sold",
+    "bought": "Bought",
+    "viewTx": "View Tx",
+    "reserveA": "Reserve A",
+    "reserveB": "Reserve B",
+    "liquidityProvider": "Liquidity Provider",
+    "txId": "Tx ID",
+    "loadMore": "Load More"
+  },
+  "nav": {
+    "explore": "Explore",
+    "search": "Search",
+    "assets": "Assets",
+    "favorites": "Favorites",
+    "settings": "Settings",
+    "about": "About",
+    "searchPlaceholder": "Search by block or tx ID...",
+    "searchMobilePlaceholder": "Search block / tx..."
+  },
+  "dashboard": {
+    "algoUsd": "ALGO/USD",
+    "latestBlock": "Latest Block",
+    "totalTransactions": "Total Transactions",
+    "connectionStatus": "Connection Status",
+    "assets": "Assets",
+    "latestBlocks": "Latest Blocks",
+    "liveAmmTrades": "Live AMM Trades",
+    "liquidityUpdates": "Liquidity Updates",
+    "poolUpdates": "Pool Updates",
+    "aggregatedPools": "Aggregated Pools",
+    "waitingForAggregatedPools": "Waiting for aggregated pool updates...",
+    "waitingForTrades": "Waiting for trades...",
+    "waitingForLiquidity": "Waiting for liquidity updates...",
+    "waitingForPoolUpdates": "Waiting for pool updates...",
+    "connectingToFeed": "Connecting to live feed...",
+    "online": "ONLINE",
+    "offline": "OFFLINE"
+  },
+  "assets": {
+    "title": "Assets",
+    "id": "ID",
+    "name": "Name",
+    "unit": "Unit",
+    "decimals": "Decimals",
+    "price": "Price (USD)",
+    "realTvl": "Real TVL (USD)",
+    "totalTvl": "Total TVL (USD)",
+    "updated": "Updated",
+    "loadingAssets": "Loading assets…",
+    "demoModeError": "Demo mode: API unavailable, showing sample assets",
+    "auto": " (Auto)"
+  },
+  "search": {
+    "title": "Network Search",
+    "description": "Search assets, pools, blocks, transactions, addresses, and trades",
+    "foundResults": "Found {count} results",
+    "noResults": "No Results Found",
+    "noResultsDescription": "No assets, pools, blocks, transactions, or addresses match \"{query}\"",
+    "searchTips": "What can you search for?",
+    "exampleAsset": "Example Asset",
+    "exampleBlock": "Example Block",
+    "exampleAddress": "Example Address",
+    "assetDetected": "Asset ID Detected",
+    "blockDetected": "Block Detected",
+    "transactionDetected": "Transaction Detected",
+    "addressDetected": "Address Detected",
+    "assetPlaceholder": "Asset ID detected - press Enter to search",
+    "blockPlaceholder": "Block number detected - press Enter to search",
+    "txPlaceholder": "Transaction ID detected - press Enter to search",
+    "addressPlaceholder": "Address detected - press Enter to search",
+    "defaultPlaceholder": "Search assets, pools, blocks, transactions, addresses..."
+  },
+  "about": {
+    "title": "About Biatec Algorand Scan",
+    "description": "Biatec Algorand Scan is a real-time explorer focused on decentralized exchange (DEX) activity on the Algorand blockchain. It streams live blocks, trades, liquidity events, pools, aggregated pool statistics and asset metadata via a high-performance SignalR hub, backed by Elasticsearch indexing and protocol-aware enrichment (Pact, Tiny, Biatec AMMs).",
+    "company": "Biatec Scan is run by Scholtz & Company, jsa. IČO: 51882272. The project is open source.",
+    "disclaimer": "DISCLAIMER: This project is not affiliated with Algorand, Inc. or the Algorand Foundation. It is an independent initiative developed to enhance transparency and accessibility of DEX activities on the Algorand blockchain. Project is provided \"as is\" without any warranties. Use at your own risk.",
+    "limitationsTitle": "Limitations & Notes",
+    "limitation1": "Price feeds derive from aggregated pool virtual reserves (subject to AMM math and pool health).",
+    "limitation2": "Recently created or illiquid pools may lack enrichment until activity occurs.",
+    "limitation3": "Some assets may display delayed metadata if Algod rate limits are hit.",
+    "reposTitle": "Repos",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "contactTitle": "Contact & Contributions",
+    "contactDescription": "Feedback, issues or feature ideas are welcome. Feel free to open discussions or pull requests in the related repositories, or reach out at the",
+    "discord": "Discord",
+    "dataSourcesTitle": "Data Sources",
+    "realtimeFeaturesTitle": "Realtime Features",
+    "architectureTitle": "Architecture Overview",
+    "architectureDescription": "The backend is an ASP.NET Core (.NET 8) Web API with SignalR for websocket distribution. Background services process blocks, detect DEX events, enrich and normalize pools, then index them. Redis (optional) accelerates asset & pool metadata caching. The frontend (this site) is built with Vite, Vue 3, TypeScript and Tailwind."
+  },
+  "transactionDetails": {
+    "paymentTransaction": "Payment Transaction",
+    "assetTransfer": "Asset Transfer",
+    "applicationCall": "Application Call",
+    "assetConfiguration": "Asset Configuration",
+    "assetFreeze": "Asset Freeze",
+    "keyRegistration": "Key Registration",
+    "unknown": "UNKNOWN",
+    "assetId": "Asset ID:",
+    "noAmountInfo": "No amount information available for this transaction type."
+  },
+  "status": {
+    "online": "ONLINE",
+    "offline": "OFFLINE"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "title": "Language",
+      "description": "Choose your preferred language for the application interface.",
+      "selectLabel": "Language"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "description": "Additional settings and preferences will be available here in future updates."
+    },
+    "about": {
+      "title": "Application Info",
+      "version": "Version",
+      "buildWith": "Built with",
+      "repository": "Repository"
+    }
+  },
+  "favorites": {
+    "title": "Favorite Assets",
+    "addDemoAssets": "Add Demo Assets",
+    "clearAll": "Clear All",
+    "view": "View",
+    "table": "Table",
+    "blocks": "Blocks"
+  },
+  "assetDetails": {
+    "title": "Asset {name}",
+    "name": "Name",
+    "unit": "Unit", 
+    "decimals": "Decimals"
+  }
+}
