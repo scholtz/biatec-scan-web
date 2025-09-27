@@ -26,7 +26,13 @@
     "reserveB": "Rezerva B",
     "liquidityProvider": "Poskytovatel likvidity",
     "txId": "ID TX",
-    "loadMore": "Načíst více"
+    "loadMore": "Načíst více",
+    "timeAgo": {
+      "seconds": "před {count}s",
+      "minutes": "před {count}m", 
+      "hours": "před {count}h",
+      "days": "před {count}d"
+    }
   },
   "nav": {
     "explore": "Prozkoumat",

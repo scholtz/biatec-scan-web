@@ -26,7 +26,13 @@
     "reserveB": "Резерв B",
     "liquidityProvider": "Поставщик ликвидности",
     "txId": "ID TX",
-    "loadMore": "Загрузить еще"
+    "loadMore": "Загрузить еще",
+    "timeAgo": {
+      "seconds": "{count}с назад",
+      "minutes": "{count}м назад", 
+      "hours": "{count}ч назад",
+      "days": "{count}д назад"
+    }
   },
   "nav": {
     "explore": "Исследовать",

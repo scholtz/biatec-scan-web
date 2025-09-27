@@ -26,7 +26,13 @@
     "reserveB": "储备 B",
     "liquidityProvider": "流动性提供者",
     "txId": "交易 ID",
-    "loadMore": "加载更多"
+    "loadMore": "加载更多",
+    "timeAgo": {
+      "seconds": "{count}秒前",
+      "minutes": "{count}分钟前", 
+      "hours": "{count}小时前",
+      "days": "{count}天前"
+    }
   },
   "nav": {
     "explore": "浏览",

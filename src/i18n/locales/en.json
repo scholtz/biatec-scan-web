@@ -26,7 +26,13 @@
     "reserveB": "Reserve B",
     "liquidityProvider": "Liquidity Provider",
     "txId": "Tx ID",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "timeAgo": {
+      "seconds": "{count}s ago",
+      "minutes": "{count}m ago", 
+      "hours": "{count}h ago",
+      "days": "{count}d ago"
+    }
   },
   "nav": {
     "explore": "Explore",

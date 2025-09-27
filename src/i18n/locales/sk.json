@@ -1,6 +1,6 @@
 {
   "common": {
-    "loading": "Načítava...",
+    "loading": "Načíta sa...",
     "refresh": "Obnoviť",
     "prev": "Predch.",
     "next": "Ďalšia",
@@ -26,7 +26,13 @@
     "reserveB": "Rezerva B",
     "liquidityProvider": "Poskytovateľ likvidity",
     "txId": "ID TX",
-    "loadMore": "Načítať viac"
+    "loadMore": "Načítať viac",
+    "timeAgo": {
+      "seconds": "pred {count}s",
+      "minutes": "pred {count}m", 
+      "hours": "pred {count}h",
+      "days": "pred {count}d"
+    }
   },
   "nav": {
     "explore": "Preskúmať",
