@@ -18,7 +18,15 @@
     "tryDifferentSearch": "Try Different Search",
     "toggleNavigation": "Toggle navigation",
     "toggleLanguage": "Toggle language",
-    "searching": "Searching"
+    "searching": "Searching",
+    "sold": "Sold",
+    "bought": "Bought",
+    "viewTx": "View Tx",
+    "reserveA": "Reserve A",
+    "reserveB": "Reserve B",
+    "liquidityProvider": "Liquidity Provider",
+    "txId": "Tx ID",
+    "loadMore": "Load More"
   },
   "nav": {
     "explore": "Explore",

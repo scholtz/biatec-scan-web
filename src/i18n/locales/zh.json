@@ -18,7 +18,15 @@
     "tryDifferentSearch": "尝试其他搜索",
     "toggleNavigation": "切换导航",
     "toggleLanguage": "切换语言",
-    "searching": "搜索中"
+    "searching": "搜索中",
+    "sold": "已售出",
+    "bought": "已购买",
+    "viewTx": "查看交易",
+    "reserveA": "储备 A",
+    "reserveB": "储备 B",
+    "liquidityProvider": "流动性提供者",
+    "txId": "交易 ID",
+    "loadMore": "加载更多"
   },
   "nav": {
     "explore": "浏览",

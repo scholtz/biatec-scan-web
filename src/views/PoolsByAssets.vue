@@ -153,12 +153,15 @@
 <script setup lang="ts">
 import { onMounted, watch, computed, reactive, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import PoolRow from "../components/PoolRow.vue";
 import { getAVMTradeReporterAPI } from "../api";
 import { assetService } from "../services/assetService";
 import FormattedTime from "../components/FormattedTime.vue";
 import { Pool, AggregatedPool } from "../api/models";
 import { signalrService } from "../services/signalrService";
+
+const { t } = useI18n();
 
 const route = useRoute();
 
@@ -340,7 +343,7 @@ function getAssetName(assetId: bigint): string {
     assetService.requestAsset(assetId, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
   return info.unitName || info.name || `Asset ${assetId}`;
 }

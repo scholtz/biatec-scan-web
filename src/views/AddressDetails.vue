@@ -144,7 +144,7 @@
               :disabled="loadingTransactions"
               class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded transition-colors"
             >
-              {{ loadingTransactions ? "Loading..." : "Load More" }}
+              {{ loadingTransactions ? t('common.loading') : t('common.loadMore') }}
             </button>
           </div>
         </div>
@@ -156,10 +156,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
 import type { AlgorandTransaction } from "../types/algorand";
 import FormattedTime from "../components/FormattedTime.vue";
+
+const { t } = useI18n();
 
 interface AccountAsset {
   "asset-id": number;

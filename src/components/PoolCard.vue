@@ -28,7 +28,7 @@
       </div>
 
       <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400"> Reserve A: </span>
+        <span class="text-sm text-gray-400"> {{ $t('common.reserveA') }}: </span>
         <span class="text-sm text-white">
           <router-link
             :to="{
@@ -46,7 +46,7 @@
       </div>
 
       <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400"> Reserve B: </span>
+        <span class="text-sm text-gray-400"> {{ $t('common.reserveB') }}: </span>
         <span class="text-sm text-white">
           <router-link
             :to="{
@@ -68,10 +68,13 @@
 
 <script setup lang="ts">
 import { reactive, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
 import { Pool } from "../api/models";
 import StyledBox from "./StyledBox.vue";
+
+const { t } = useI18n();
 
 interface Props {
   pool: Pool;
@@ -94,7 +97,7 @@ const formattedReserveA = computed(() => {
     assetService.requestAsset(props.pool.assetIdA, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
   return assetService.formatAssetBalance(props.pool.a, props.pool.assetIdA);
 });
@@ -110,7 +113,7 @@ const formattedReserveB = computed(() => {
     assetService.requestAsset(props.pool.assetIdB, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
   return assetService.formatAssetBalance(props.pool.b, props.pool.assetIdB);
 });

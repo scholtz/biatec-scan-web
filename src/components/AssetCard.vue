@@ -43,11 +43,14 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive } from "vue";
+import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
 import { signalrService } from "../services/signalrService";
 import { BiatecAsset } from "../api/models";
 import StyledBox from "./StyledBox.vue";
+
+const { t } = useI18n();
 
 const props = defineProps<{ asset: BiatecAsset }>();
 
@@ -86,7 +89,7 @@ const formattedPrice = computed(() => {
     assetService.requestAsset(state.asset.index, () => {
       state.forceUpdate++;
     });
-    return "Loading...";
+    return t('common.loading');
   }
   return `${Number(state.asset.priceUSD).toLocaleString(undefined, {
     minimumFractionDigits: 6,

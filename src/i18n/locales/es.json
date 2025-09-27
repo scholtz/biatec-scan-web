@@ -18,7 +18,15 @@
     "tryDifferentSearch": "Intentar búsqueda diferente",
     "toggleNavigation": "Alternar navegación",
     "toggleLanguage": "Cambiar idioma",
-    "searching": "Buscando"
+    "searching": "Buscando",
+    "sold": "Vendido",
+    "bought": "Comprado",
+    "viewTx": "Ver TX",
+    "reserveA": "Reserva A",
+    "reserveB": "Reserva B",
+    "liquidityProvider": "Proveedor de liquidez",
+    "txId": "ID de TX",
+    "loadMore": "Cargar más"
   },
   "nav": {
     "explore": "Explorar",

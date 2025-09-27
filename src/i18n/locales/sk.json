@@ -18,7 +18,15 @@
     "tryDifferentSearch": "Skúsiť iné vyhľadávanie",
     "toggleNavigation": "Prepnúť navigáciu",
     "toggleLanguage": "Prepnúť jazyk",
-    "searching": "Vyhľadávanie"
+    "searching": "Vyhľadávanie",
+    "sold": "Predané",
+    "bought": "Kúpené",
+    "viewTx": "Zobraziť TX",
+    "reserveA": "Rezerva A",
+    "reserveB": "Rezerva B",
+    "liquidityProvider": "Poskytovateľ likvidity",
+    "txId": "ID TX",
+    "loadMore": "Načítať viac"
   },
   "nav": {
     "explore": "Preskúmať",
