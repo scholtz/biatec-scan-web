@@ -173,5 +173,71 @@
     "name": "Nazwa",
     "unit": "Jednostka",
     "decimals": "Miejsca dziesiętne"
+  },
+  "poolDetails": {
+    "title": "Szczegóły puli",
+    "poolAddress": "Adres puli",
+    "loadingPoolInfo": "Ładowanie informacji o puli...",
+    "poolInformation": "Informacje o puli",
+    "retry": "Ponów",
+    "copyPoolAddress": "Skopiuj adres puli do schowka"
+  },
+  "aggregatedPools": {
+    "title": "Zagregowane pule zawierające {assetName}",
+    "refresh": "Odśwież",
+    "loaded": "Załadowano",
+    "loadingPools": "Ładowanie zagregowanych pul…",
+    "pair": "Para",
+    "pools": "Pule",
+    "price": "Cena",
+    "reserve": "Rezerwa ({unitName})",
+    "otherReserve": "Inna rezerwa",
+    "virtualReserve": "Wirtualna rezerwa ({unitName})",
+    "otherVirtualReserve": "Inna wirtualna rezerwa",
+    "totalTvlUsd": "Całkowite TVL {unitName} USD",
+    "totalTvlOtherUsd": "Całkowite TVL inne USD",
+    "updated": "Zaktualizowano"
+  },
+  "poolsByAssets": {
+    "poolsContaining": "Pule zawierające {assetName}",
+    "poolsFor": "Pule dla {asset1Name} / {asset2Name}",
+    "showingUpTo": "Pokazuje do {size} pul",
+    "refresh": "Odśwież",
+    "aggregated": "Zagregowane",
+    "totalReserveA": "Całkowita rezerwa A",
+    "totalReserveB": "Całkowita rezerwa B",
+    "loadingPools": "Ładowanie pul…"
+  },
+  "blockDetails": {
+    "title": "Blok #{round}",
+    "confirmed": "Potwierdzone",
+    "timestamp": "Znacznik czasu",
+    "transactions": "Transakcje",
+    "transactionCounter": "Licznik transakcji",
+    "genesisId": "Genesis ID",
+    "previousBlockHash": "Hash poprzedniego bloku",
+    "currentBlockHash": "Hash aktualnego bloku"
+  },
+  "transactionDetails": {
+    "title": "Szczegóły transakcji",
+    "confirmed": "Potwierdzone",
+    "block": "Blok",
+    "fee": "Opłata",
+    "roundTime": "Czas rundy",
+    "copyAddress": "Skopiuj adres do schowka",
+    "paymentTransaction": "Transakcja płatności",
+    "assetTransfer": "Transfer zasobu",
+    "applicationCall": "Wywołanie aplikacji",
+    "assetConfiguration": "Konfiguracja zasobu",
+    "assetFreeze": "Zamrożenie zasobu",
+    "keyRegistration": "Rejestracja klucza",
+    "unknown": "NIEZNANE",
+    "assetId": "ID zasobu:",
+    "noAmountInfo": "Brak informacji o kwocie dla tego typu transakcji."
+  },
+  "addressDetails": {
+    "title": "Szczegóły adresu",
+    "copyAddress": "Skopiuj adres do schowka",
+    "retry": "Ponów"
   }
 }

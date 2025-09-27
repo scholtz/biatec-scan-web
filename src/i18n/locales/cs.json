@@ -173,5 +173,71 @@
     "name": "Název",
     "unit": "Jednotka",
     "decimals": "Desetinná místa"
+  },
+  "poolDetails": {
+    "title": "Detaily poolu",
+    "poolAddress": "Adresa poolu",
+    "loadingPoolInfo": "Načítají se informace o poolu...",
+    "poolInformation": "Informace o poolu",
+    "retry": "Zkusit znovu",
+    "copyPoolAddress": "Zkopírovat adresu poolu do schránky"
+  },
+  "aggregatedPools": {
+    "title": "Agregované pooly obsahující {assetName}",
+    "refresh": "Obnovit",
+    "loaded": "Načteno",
+    "loadingPools": "Načítají se agregované pooly…",
+    "pair": "Pár",
+    "pools": "Pooly",
+    "price": "Cena",
+    "reserve": "Rezerva ({unitName})",
+    "otherReserve": "Jiná rezerva",
+    "virtualReserve": "Virtuální rezerva ({unitName})",
+    "otherVirtualReserve": "Jiná virtuální rezerva",
+    "totalTvlUsd": "Celkové TVL {unitName} USD",
+    "totalTvlOtherUsd": "Celkové TVL jiné USD",
+    "updated": "Aktualizováno"
+  },
+  "poolsByAssets": {
+    "poolsContaining": "Pooly obsahující {assetName}",
+    "poolsFor": "Pooly pro {asset1Name} / {asset2Name}",
+    "showingUpTo": "Zobrazuje se až {size} poolů",
+    "refresh": "Obnovit",
+    "aggregated": "Agregované",
+    "totalReserveA": "Celková rezerva A",
+    "totalReserveB": "Celková rezerva B",
+    "loadingPools": "Načítají se pooly…"
+  },
+  "blockDetails": {
+    "title": "Blok #{round}",
+    "confirmed": "Potvrzeno",
+    "timestamp": "Časové razítko",
+    "transactions": "Transakce",
+    "transactionCounter": "Počítadlo transakcí",
+    "genesisId": "Genesis ID",
+    "previousBlockHash": "Hash předchozího bloku",
+    "currentBlockHash": "Hash aktuálního bloku"
+  },
+  "transactionDetails": {
+    "title": "Detaily transakce",
+    "confirmed": "Potvrzeno",
+    "block": "Blok",
+    "fee": "Poplatek",
+    "roundTime": "Čas kola",
+    "copyAddress": "Zkopírovat adresu do schránky",
+    "paymentTransaction": "Platební transakce",
+    "assetTransfer": "Převod assetu",
+    "applicationCall": "Volání aplikace",
+    "assetConfiguration": "Konfigurace assetu",
+    "assetFreeze": "Zmrazení assetu",
+    "keyRegistration": "Registrace klíče",
+    "unknown": "NEZNÁMÉ",
+    "assetId": "ID assetu:",
+    "noAmountInfo": "Pro tento typ transakce nejsou k dispozici informace o částce."
+  },
+  "addressDetails": {
+    "title": "Detaily adresy",
+    "copyAddress": "Zkopírovat adresu do schránky",
+    "retry": "Zkusit znovu"
   }
 }

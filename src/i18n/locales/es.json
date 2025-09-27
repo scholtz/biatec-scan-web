@@ -173,5 +173,71 @@
     "name": "Nombre",
     "unit": "Unidad",
     "decimals": "Decimales"
+  },
+  "poolDetails": {
+    "title": "Detalles del pool",
+    "poolAddress": "Dirección del pool",
+    "loadingPoolInfo": "Cargando información del pool...",
+    "poolInformation": "Información del pool",
+    "retry": "Reintentar",
+    "copyPoolAddress": "Copiar dirección del pool al portapapeles"
+  },
+  "aggregatedPools": {
+    "title": "Pools agregados que contienen {assetName}",
+    "refresh": "Actualizar",
+    "loaded": "Cargado",
+    "loadingPools": "Cargando pools agregados…",
+    "pair": "Par",
+    "pools": "Pools",
+    "price": "Precio",
+    "reserve": "Reserva ({unitName})",
+    "otherReserve": "Otra reserva",
+    "virtualReserve": "Reserva virtual ({unitName})",
+    "otherVirtualReserve": "Otra reserva virtual",
+    "totalTvlUsd": "TVL total {unitName} USD",
+    "totalTvlOtherUsd": "TVL total otro USD",
+    "updated": "Actualizado"
+  },
+  "poolsByAssets": {
+    "poolsContaining": "Pools que contienen {assetName}",
+    "poolsFor": "Pools para {asset1Name} / {asset2Name}",
+    "showingUpTo": "Mostrando hasta {size} pools",
+    "refresh": "Actualizar",
+    "aggregated": "Agregado",
+    "totalReserveA": "Reserva total A",
+    "totalReserveB": "Reserva total B",
+    "loadingPools": "Cargando pools…"
+  },
+  "blockDetails": {
+    "title": "Bloque #{round}",
+    "confirmed": "Confirmado",
+    "timestamp": "Marca de tiempo",
+    "transactions": "Transacciones",
+    "transactionCounter": "Contador de transacciones",
+    "genesisId": "Genesis ID",
+    "previousBlockHash": "Hash del bloque anterior",
+    "currentBlockHash": "Hash del bloque actual"
+  },
+  "transactionDetails": {
+    "title": "Detalles de la transacción",
+    "confirmed": "Confirmado",
+    "block": "Bloque",
+    "fee": "Tarifa",
+    "roundTime": "Tiempo de ronda",
+    "copyAddress": "Copiar dirección al portapapeles",
+    "paymentTransaction": "Transacción de pago",
+    "assetTransfer": "Transferencia de asset",
+    "applicationCall": "Llamada de aplicación",
+    "assetConfiguration": "Configuración de asset",
+    "assetFreeze": "Congelamiento de asset",
+    "keyRegistration": "Registro de clave",
+    "unknown": "DESCONOCIDO",
+    "assetId": "ID del asset:",
+    "noAmountInfo": "No hay información de cantidad disponible para este tipo de transacción."
+  },
+  "addressDetails": {
+    "title": "Detalles de dirección",
+    "copyAddress": "Copiar dirección al portapapeles",
+    "retry": "Reintentar"
   }
 }

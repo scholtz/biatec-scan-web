@@ -173,5 +173,71 @@
     "name": "Название",
     "unit": "Единица",
     "decimals": "Десятичные знаки"
+  },
+  "poolDetails": {
+    "title": "Детали пула",
+    "poolAddress": "Адрес пула",
+    "loadingPoolInfo": "Загрузка информации о пуле...",
+    "poolInformation": "Информация о пуле",
+    "retry": "Повторить",
+    "copyPoolAddress": "Скопировать адрес пула в буфер обмена"
+  },
+  "aggregatedPools": {
+    "title": "Агрегированные пулы, содержащие {assetName}",
+    "refresh": "Обновить",
+    "loaded": "Загружено",
+    "loadingPools": "Загрузка агрегированных пулов…",
+    "pair": "Пара",
+    "pools": "Пулы",
+    "price": "Цена",
+    "reserve": "Резерв ({unitName})",
+    "otherReserve": "Другой резерв",
+    "virtualReserve": "Виртуальный резерв ({unitName})",
+    "otherVirtualReserve": "Другой виртуальный резерв",
+    "totalTvlUsd": "Общий TVL {unitName} USD",
+    "totalTvlOtherUsd": "Общий TVL другой USD",
+    "updated": "Обновлено"
+  },
+  "poolsByAssets": {
+    "poolsContaining": "Пулы, содержащие {assetName}",
+    "poolsFor": "Пулы для {asset1Name} / {asset2Name}",
+    "showingUpTo": "Показано до {size} пулов",
+    "refresh": "Обновить",
+    "aggregated": "Агрегированные",
+    "totalReserveA": "Общий резерв A",
+    "totalReserveB": "Общий резерв B",
+    "loadingPools": "Загрузка пулов…"
+  },
+  "blockDetails": {
+    "title": "Блок #{round}",
+    "confirmed": "Подтверждено",
+    "timestamp": "Временная метка",
+    "transactions": "Транзакции",
+    "transactionCounter": "Счетчик транзакций",
+    "genesisId": "Genesis ID",
+    "previousBlockHash": "Хеш предыдущего блока",
+    "currentBlockHash": "Хеш текущего блока"
+  },
+  "transactionDetails": {
+    "title": "Детали транзакции",
+    "confirmed": "Подтверждено",
+    "block": "Блок",
+    "fee": "Комиссия",
+    "roundTime": "Время раунда",
+    "copyAddress": "Скопировать адрес в буфер обмена",
+    "paymentTransaction": "Платежная транзакция",
+    "assetTransfer": "Перевод актива",
+    "applicationCall": "Вызов приложения",
+    "assetConfiguration": "Конфигурация актива",
+    "assetFreeze": "Заморозка актива",
+    "keyRegistration": "Регистрация ключа",
+    "unknown": "НЕИЗВЕСТНО",
+    "assetId": "ID актива:",
+    "noAmountInfo": "Информация о сумме недоступна для этого типа транзакции."
+  },
+  "addressDetails": {
+    "title": "Детали адреса",
+    "copyAddress": "Скопировать адрес в буфер обмена",
+    "retry": "Повторить"
   }
 }

@@ -120,7 +120,57 @@
     "architectureTitle": "Prehľad architektúry",
     "architectureDescription": "Serverová časť je ASP.NET Core (.NET 8) Web API so SignalR pre websocket distribúciu. Služby na pozadí spracovávajú bloky, detekujú DEX udalosti, obohatia a normalizujú pooly, potom ich indexujú. Redis (voliteľný) urýchľuje cachovanie metadata assetov a poolov. Používateľské rozhranie (táto stránka) je postavené s Vite, Vue 3, TypeScript a Tailwind."
   },
+  "poolDetails": {
+    "title": "Detaily poolu",
+    "poolAddress": "Adresa poolu",
+    "loadingPoolInfo": "Načítavajú sa informácie o poole...",
+    "poolInformation": "Informácie o poole",
+    "retry": "Skúsiť znovu",
+    "copyPoolAddress": "Skopírovať adresu poolu do schránky"
+  },
+  "aggregatedPools": {
+    "title": "Agregované pooly obsahujúce {assetName}",
+    "refresh": "Obnoviť",
+    "loaded": "Načítané",
+    "loadingPools": "Načítavajú sa agregované pooly…",
+    "pair": "Pár",
+    "pools": "Pooly",
+    "price": "Cena",
+    "reserve": "Rezerva ({unitName})",
+    "otherReserve": "Iná rezerva",
+    "virtualReserve": "Virtuálna rezerva ({unitName})",
+    "otherVirtualReserve": "Iná virtuálna rezerva",
+    "totalTvlUsd": "Celkové TVL {unitName} USD",
+    "totalTvlOtherUsd": "Celkové TVL iné USD",
+    "updated": "Aktualizované"
+  },
+  "poolsByAssets": {
+    "poolsContaining": "Pooly obsahujúce {assetName}",
+    "poolsFor": "Pooly pre {asset1Name} / {asset2Name}",
+    "showingUpTo": "Zobrazuje sa až {size} poolov",
+    "refresh": "Obnoviť",
+    "aggregated": "Agregované",
+    "totalReserveA": "Celková rezerva A",
+    "totalReserveB": "Celková rezerva B",
+    "loadingPools": "Načítavajú sa pooly…"
+  },
+  "blockDetails": {
+    "title": "Blok #{round}",
+    "confirmed": "Potvrdené",
+    "timestamp": "Časová značka",
+    "transactions": "Transakcie",
+    "transactionCounter": "Počítadlo transakcií",
+    "genesisId": "Genesis ID",
+    "previousBlockHash": "Hash predchádzajúceho bloku",
+    "currentBlockHash": "Hash aktuálneho bloku"
+  },
   "transactionDetails": {
+    "title": "Detaily transakcie",
+    "confirmed": "Potvrdené",
+    "block": "Blok",
+    "fee": "Poplatok",
+    "roundTime": "Čas kola",
+    "copyAddress": "Skopírovať adresu do schránky",
     "paymentTransaction": "Platobná transakcia",
     "assetTransfer": "Prevod assetu",
     "applicationCall": "Volanie aplikácie",
@@ -130,6 +180,11 @@
     "unknown": "NEZNÁME",
     "assetId": "ID assetu:",
     "noAmountInfo": "Pre tento typ transakcie nie sú dostupné informácie o sume."
+  },
+  "addressDetails": {
+    "title": "Detaily adresy",
+    "copyAddress": "Skopírovať adresu do schránky",
+    "retry": "Skúsiť znovu"
   },
   "status": {
     "online": "PRIPOJENÉ",

@@ -21,15 +21,15 @@
               <h1 class="text-2xl font-bold text-white">
                 {{ getTypeLabel(transaction["tx-type"]) }}
               </h1>
-              <p class="text-gray-400">Transaction Details</p>
+              <p class="text-gray-400">{{ $t('transactionDetails.title') }}</p>
             </div>
           </div>
-          <span class="status-badge status-success">Confirmed</span>
+          <span class="status-badge status-success">{{ $t('transactionDetails.confirmed') }}</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div>
-            <p class="text-sm text-gray-400 mb-1">Block</p>
+            <p class="text-sm text-gray-400 mb-1">{{ $t('transactionDetails.block') }}</p>
             <router-link
               :to="{
                 name: 'BlockDetails',
@@ -41,13 +41,13 @@
             </router-link>
           </div>
           <div>
-            <p class="text-sm text-gray-400 mb-1">Fee</p>
+            <p class="text-sm text-gray-400 mb-1">{{ $t('transactionDetails.fee') }}</p>
             <p class="text-white font-medium">
               {{ algorandService.formatAlgoAmount(transaction.fee) }} ALGO
             </p>
           </div>
           <div>
-            <p class="text-sm text-gray-400 mb-1">Round Time</p>
+            <p class="text-sm text-gray-400 mb-1">{{ $t('transactionDetails.roundTime') }}</p>
             <p class="text-white font-medium">
               {{
                 transaction["round-time"]

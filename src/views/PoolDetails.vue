@@ -2,14 +2,14 @@
   <div class="min-h-screen bg-background text-white">
     <div class="container mx-auto px-4 py-8">
       <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-4">Pool Details</h1>
+        <h1 class="text-3xl font-bold mb-4">{{ $t('poolDetails.title') }}</h1>
         <div class="flex items-center gap-4">
-          <span class="text-gray-400">Pool Address:</span>
+          <span class="text-gray-400">{{ $t('poolDetails.poolAddress') }}:</span>
           <span class="font-mono text-blue-400">{{ poolAddress }}</span>
           <button
             @click="copyToClipboard"
             class="p-2 text-gray-400 hover:text-white transition-colors"
-            title="Copy pool address to clipboard"
+            :title="$t('poolDetails.copyPoolAddress')"
           >
             📋
           </button>
@@ -21,7 +21,7 @@
         <div
           class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
         ></div>
-        <p class="text-gray-400">Loading pool information...</p>
+        <p class="text-gray-400">{{ $t('poolDetails.loadingPoolInfo') }}</p>
       </div>
 
       <!-- Error State -->
@@ -31,7 +31,7 @@
           @click="loadPoolInfo"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
         >
-          Retry
+          {{ $t('poolDetails.retry') }}
         </button>
       </div>
 
@@ -39,10 +39,10 @@
       <div v-else-if="poolInfo" class="space-y-6">
         <!-- Basic Pool Information -->
         <div class="card">
-          <h2 class="text-xl font-semibold mb-4">Pool Information</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('poolDetails.poolInformation') }}</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Pool Address:</span>
+              <span class="text-gray-400">{{ $t('poolDetails.poolAddress') }}:</span>
               <router-link
                 :to="{
                   name: 'AddressDetails',
