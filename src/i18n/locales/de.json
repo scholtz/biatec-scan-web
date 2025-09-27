@@ -107,7 +107,16 @@
     "contactDescription": "Feedback, Probleme oder Feature-Ideen sind willkommen. Zögern Sie nicht, Diskussionen oder Pull-Requests in den entsprechenden Repositories zu eröffnen oder kontaktieren Sie uns auf",
     "discord": "Discord",
     "dataSourcesTitle": "Datenquellen",
+    "dataSource1": "Algod-Block-Einspeisung (Multi-Endpunkt-Failover)",
+    "dataSource2": "Live-Gossip-Websocket-Integration (optional)",
+    "dataSource3": "Protokollprozessoren: Pact, Tiny, Biatec",
+    "dataSource4": "Elasticsearch für schnelle Abfragen und Aggregation",
     "realtimeFeaturesTitle": "Echtzeit-Funktionen",
+    "realtimeFeature1": "Charts von",
+    "realtimeFeature2": "Streaming von Trades und Liquiditätsupdates",
+    "realtimeFeature3": "Inkrementelle Pool- und aggregierte Pool-Updates",
+    "realtimeFeature4": "Dynamische Asset-Metadaten + Preis- und TVL-Signale",
+    "realtimeFeature5": "Benutzerdefinierte Abonnement-Filterung (Protokoll / Asset / Status)",
     "architectureTitle": "Architektur-Übersicht",
     "architectureDescription": "Das Backend ist eine ASP.NET Core (.NET 8) Web-API mit SignalR für WebSocket-Verteilung. Hintergrunddienste verarbeiten Blöcke, erkennen DEX-Ereignisse, reichern Pools an und normalisieren sie, dann indizieren sie sie. Redis (optional) beschleunigt Asset- und Pool-Metadaten-Caching. Das Frontend (diese Seite) ist mit Vite, Vue 3, TypeScript und Tailwind erstellt."
   },
@@ -150,12 +159,90 @@
     "clearAll": "Alle löschen",
     "view": "Ansicht",
     "table": "Tabelle",
-    "blocks": "Blöcke"
+    "blocks": "Blöcke",
+    "totalFavorites": "Favoriten insgesamt",
+    "noFavoritesYet": "Noch keine Lieblings-Assets",
+    "browseAssetsToAdd": "Assets durchsuchen, um Favoriten hinzuzufügen",
+    "loadingFavoriteAssets": "Lieblings-Assets werden geladen…",
+    "confirmClearAll": "Sind Sie sicher, dass Sie alle Lieblings-Assets entfernen möchten?",
+    "viewPools": "Pools anzeigen",
+    "assetPrefix": "Asset "
   },
   "assetDetails": {
     "title": "Asset {name}",
     "name": "Name",
     "unit": "Einheit",
-    "decimals": "Dezimalstellen"
+    "decimals": "Dezimalstellen",
+    "totalSupply": "Gesamtangebot",
+    "assetImage": "Asset-Bild",
+    "viewAllPools": "Alle {name} Pools anzeigen",
+    "viewPoolsWithAlgo": "Pools mit ALGO anzeigen",
+    "viewPoolsWithUsdc": "Pools mit USDC anzeigen"
+  },
+  "poolDetails": {
+    "title": "Pool-Details",
+    "poolAddress": "Pool-Adresse",
+    "loadingPoolInfo": "Pool-Informationen werden geladen...",
+    "poolInformation": "Pool-Informationen",
+    "retry": "Wiederholen",
+    "copyPoolAddress": "Pool-Adresse in die Zwischenablage kopieren"
+  },
+  "aggregatedPools": {
+    "title": "Aggregierte Pools mit {assetName}",
+    "refresh": "Aktualisieren",
+    "loaded": "Geladen",
+    "loadingPools": "Aggregierte Pools werden geladen…",
+    "pair": "Paar",
+    "pools": "Pools",
+    "price": "Preis",
+    "reserve": "Reserve ({unitName})",
+    "otherReserve": "Andere Reserve",
+    "virtualReserve": "Virtuelle Reserve ({unitName})",
+    "otherVirtualReserve": "Andere virtuelle Reserve",
+    "totalTvlUsd": "Gesamt-TVL {unitName} USD",
+    "totalTvlOtherUsd": "Gesamt-TVL andere USD",
+    "updated": "Aktualisiert"
+  },
+  "poolsByAssets": {
+    "poolsContaining": "Pools mit {assetName}",
+    "poolsFor": "Pools für {asset1Name} / {asset2Name}",
+    "showingUpTo": "Zeigt bis zu {size} Pools",
+    "refresh": "Aktualisieren",
+    "aggregated": "Aggregiert",
+    "totalReserveA": "Gesamtreserve A",
+    "totalReserveB": "Gesamtreserve B",
+    "loadingPools": "Pools werden geladen…"
+  },
+  "blockDetails": {
+    "title": "Block #{round}",
+    "confirmed": "Bestätigt",
+    "timestamp": "Zeitstempel",
+    "transactions": "Transaktionen",
+    "transactionCounter": "Transaktionszähler",
+    "genesisId": "Genesis ID",
+    "previousBlockHash": "Hash des vorherigen Blocks",
+    "currentBlockHash": "Hash des aktuellen Blocks"
+  },
+  "transactionDetails": {
+    "title": "Transaktionsdetails",
+    "confirmed": "Bestätigt",
+    "block": "Block",
+    "fee": "Gebühr",
+    "roundTime": "Rundenzeit",
+    "copyAddress": "Adresse in die Zwischenablage kopieren",
+    "paymentTransaction": "Zahlungstransaktion",
+    "assetTransfer": "Asset-Transfer",
+    "applicationCall": "Anwendungsaufruf",
+    "assetConfiguration": "Asset-Konfiguration",
+    "assetFreeze": "Asset-Einfrierung",
+    "keyRegistration": "Schlüsselregistrierung",
+    "unknown": "UNBEKANNT",
+    "assetId": "Asset-ID:",
+    "noAmountInfo": "Keine Betragsangaben für diesen Transaktionstyp verfügbar."
+  },
+  "addressDetails": {
+    "title": "Adressdetails",
+    "copyAddress": "Adresse in die Zwischenablage kopieren",
+    "retry": "Wiederholen"
   }
 }

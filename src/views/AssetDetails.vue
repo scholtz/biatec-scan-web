@@ -48,14 +48,14 @@
             <div class="text-white">{{ decimals }}</div>
           </div>
           <div>
-            <div class="text-xs text-gray-400">Total Supply</div>
+            <div class="text-xs text-gray-400">{{ $t('assetDetails.totalSupply') }}</div>
             <div class="text-white">{{ formattedTotal }}</div>
           </div>
         </div>
         <div class="align-right text-right">
           <img
             :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${assetId}`"
-            alt="Asset Image"
+            :alt="$t('assetDetails.assetImage')"
             class="inline-block w-50 h-50 ml-1"
           />
         </div>
@@ -69,7 +69,7 @@
           }"
           class="btn-secondary"
         >
-          View all {{ name }} pools
+          {{ $t('assetDetails.viewAllPools', { name }) }}
         </router-link>
         <router-link
           :to="{
@@ -78,7 +78,7 @@
           }"
           class="btn-secondary"
         >
-          View Pools with ALGO
+          {{ $t('assetDetails.viewPoolsWithAlgo') }}
         </router-link>
         <router-link
           :to="{
@@ -87,7 +87,7 @@
           }"
           class="btn-secondary"
         >
-          View Pools with USDC
+          {{ $t('assetDetails.viewPoolsWithUsdc') }}
         </router-link>
       </div>
     </div>

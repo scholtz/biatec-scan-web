@@ -107,7 +107,16 @@
     "contactDescription": "欢迎反馈、问题或功能建议。请随时在相关存储库中开放讨论或拉取请求，或在",
     "discord": "Discord",
     "dataSourcesTitle": "数据源",
+    "dataSource1": "Algod区块摄取（多端点故障转移）",
+    "dataSource2": "实时gossip WebSocket集成（可选）",
+    "dataSource3": "协议处理器：Pact、Tiny、Biatec",
+    "dataSource4": "Elasticsearch用于快速查询和聚合",
     "realtimeFeaturesTitle": "实时功能",
+    "realtimeFeature1": "图表由",
+    "realtimeFeature2": "交易和流动性更新流",
+    "realtimeFeature3": "增量池和聚合池更新",
+    "realtimeFeature4": "动态资产元数据+价格和TVL信号",
+    "realtimeFeature5": "自定义订阅过滤（协议/资产/状态）",
     "architectureTitle": "架构概述",
     "architectureDescription": "后端是带有 SignalR 的 ASP.NET Core (.NET 8) Web API，用于 WebSocket 分发。后台服务处理区块，检测 DEX 事件，丰富和规范化资金池，然后索引它们。Redis（可选）加速资产和资金池元数据缓存。前端（本网站）使用 Vite、Vue 3、TypeScript 和 Tailwind 构建。"
   },
@@ -150,12 +159,90 @@
     "clearAll": "清除全部",
     "view": "查看",
     "table": "表格",
-    "blocks": "区块"
+    "blocks": "区块",
+    "totalFavorites": "收藏总数",
+    "noFavoritesYet": "暂无收藏资产",
+    "browseAssetsToAdd": "浏览资产以添加收藏",
+    "loadingFavoriteAssets": "加载收藏资产中…",
+    "confirmClearAll": "您确定要删除所有收藏资产吗？",
+    "viewPools": "查看池",
+    "assetPrefix": "资产 "
   },
   "assetDetails": {
     "title": "资产 {name}",
     "name": "名称",
     "unit": "单位",
-    "decimals": "小数位"
+    "decimals": "小数位",
+    "totalSupply": "总供应量",
+    "assetImage": "资产图像",
+    "viewAllPools": "查看所有 {name} 池",
+    "viewPoolsWithAlgo": "查看与ALGO的池",
+    "viewPoolsWithUsdc": "查看与USDC的池"
+  },
+  "poolDetails": {
+    "title": "池详情",
+    "poolAddress": "池地址",
+    "loadingPoolInfo": "正在加载池信息...",
+    "poolInformation": "池信息",
+    "retry": "重试",
+    "copyPoolAddress": "复制池地址到剪贴板"
+  },
+  "aggregatedPools": {
+    "title": "包含 {assetName} 的聚合池",
+    "refresh": "刷新",
+    "loaded": "已加载",
+    "loadingPools": "正在加载聚合池…",
+    "pair": "交易对",
+    "pools": "池",
+    "price": "价格",
+    "reserve": "储备 ({unitName})",
+    "otherReserve": "其他储备",
+    "virtualReserve": "虚拟储备 ({unitName})",
+    "otherVirtualReserve": "其他虚拟储备",
+    "totalTvlUsd": "总TVL {unitName} USD",
+    "totalTvlOtherUsd": "总TVL 其他 USD",
+    "updated": "已更新"
+  },
+  "poolsByAssets": {
+    "poolsContaining": "包含 {assetName} 的池",
+    "poolsFor": "{asset1Name} / {asset2Name} 的池",
+    "showingUpTo": "显示最多 {size} 个池",
+    "refresh": "刷新",
+    "aggregated": "聚合",
+    "totalReserveA": "总储备 A",
+    "totalReserveB": "总储备 B",
+    "loadingPools": "正在加载池…"
+  },
+  "blockDetails": {
+    "title": "区块 #{round}",
+    "confirmed": "已确认",
+    "timestamp": "时间戳",
+    "transactions": "交易",
+    "transactionCounter": "交易计数器",
+    "genesisId": "创世ID",
+    "previousBlockHash": "前一区块哈希",
+    "currentBlockHash": "当前区块哈希"
+  },
+  "transactionDetails": {
+    "title": "交易详情",
+    "confirmed": "已确认",
+    "block": "区块",
+    "fee": "费用",
+    "roundTime": "轮次时间",
+    "copyAddress": "复制地址到剪贴板",
+    "paymentTransaction": "支付交易",
+    "assetTransfer": "资产转移",
+    "applicationCall": "应用调用",
+    "assetConfiguration": "资产配置",
+    "assetFreeze": "资产冻结",
+    "keyRegistration": "密钥注册",
+    "unknown": "未知",
+    "assetId": "资产ID:",
+    "noAmountInfo": "此交易类型没有可用的金额信息。"
+  },
+  "addressDetails": {
+    "title": "地址详情",
+    "copyAddress": "复制地址到剪贴板",
+    "retry": "重试"
   }
 }

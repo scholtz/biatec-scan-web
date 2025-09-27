@@ -9,32 +9,32 @@
       <div class="card mb-8">
         <div class="flex items-center justify-between mb-6">
           <h1 class="text-3xl font-bold text-white">
-            Block #{{ block.round.toLocaleString() }}
+            {{ $t('blockDetails.title', { round: block.round.toLocaleString() }) }}
           </h1>
-          <span class="status-badge status-success">Confirmed</span>
+          <span class="status-badge status-success">{{ $t('blockDetails.confirmed') }}</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div>
-            <p class="text-sm text-gray-400 mb-1">Timestamp</p>
+            <p class="text-sm text-gray-400 mb-1">{{ $t('blockDetails.timestamp') }}</p>
             <p class="text-white font-medium">
               {{ new Date(Number(block.timestamp) * 1000).toLocaleString() }}
             </p>
           </div>
           <div>
-            <p class="text-sm text-gray-400 mb-1">Transactions</p>
+            <p class="text-sm text-gray-400 mb-1">{{ $t('blockDetails.transactions') }}</p>
             <p class="text-white font-medium">
               {{ block.txnCounter.toLocaleString() }}
             </p>
           </div>
           <div>
-            <p class="text-sm text-gray-400 mb-1">Transaction Counter</p>
+            <p class="text-sm text-gray-400 mb-1">{{ $t('blockDetails.transactionCounter') }}</p>
             <p class="text-white font-medium">
               {{ block.txnCounter.toLocaleString() }}
             </p>
           </div>
           <div>
-            <p class="text-sm text-gray-400 mb-1">Genesis ID</p>
+            <p class="text-sm text-gray-400 mb-1">{{ $t('blockDetails.genesisId') }}</p>
             <p class="text-white font-medium font-mono text-sm">
               {{ block.genesisID }}
             </p>
@@ -44,7 +44,7 @@
         <div class="mt-6 pt-6 border-t border-dark-700">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
-              <p class="text-sm text-gray-400 mb-2">Previous Block Hash</p>
+              <p class="text-sm text-gray-400 mb-2">{{ $t('blockDetails.previousBlockHash') }}</p>
               <p
                 class="text-white font-mono text-sm bg-dark-900 p-3 rounded border break-all"
               >

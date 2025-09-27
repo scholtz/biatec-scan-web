@@ -3,18 +3,18 @@
     <h1 class="text-xl font-semibold text-white">
       {{
         isSingleAsset
-          ? `Pools containing ${asset1Name}`
-          : `Pools for ${asset1Name} / ${asset2Name}`
+          ? $t('poolsByAssets.poolsContaining', { assetName: asset1Name })
+          : $t('poolsByAssets.poolsFor', { asset1Name, asset2Name })
       }}
     </h1>
 
     <div class="flex items-center gap-2 text-sm text-gray-400">
-      <span>Showing up to {{ state.size }} pools</span>
+      <span>{{ $t('poolsByAssets.showingUpTo', { size: state.size }) }}</span>
       <button
         class="px-2 py-1 rounded bg-gray-700 text-gray-200 hover:bg-gray-600 text-xs transition-colors"
         @click="refresh"
       >
-        Refresh
+        {{ $t('poolsByAssets.refresh') }}
       </button>
     </div>
 
@@ -22,7 +22,7 @@
     <div class="card" v-if="state.aggregated && !isSingleAsset">
       <div class="flex items-start justify-between">
         <div>
-          <div class="text-xs text-gray-400">Aggregated</div>
+          <div class="text-xs text-gray-400">{{ $t('poolsByAssets.aggregated') }}</div>
           <div class="text-lg text-white">{{ aggregatedPrice }}</div>
         </div>
         <div class="text-right text-xs text-gray-400">
@@ -34,7 +34,7 @@
       </div>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
         <div>
-          <div class="text-xs text-gray-400">Total Reserve A</div>
+          <div class="text-xs text-gray-400">{{ $t('poolsByAssets.totalReserveA') }}</div>
           <div class="text-white" title="Real reserve">
             <router-link
               :to="{
@@ -75,7 +75,7 @@
           </div>
         </div>
         <div>
-          <div class="text-xs text-gray-400">Total Reserve B</div>
+          <div class="text-xs text-gray-400">{{ $t('poolsByAssets.totalReserveB') }}</div>
           <div class="text-white" title="Real reserve">
             <router-link
               :to="{
@@ -125,7 +125,7 @@
       </div>
     </div>
 
-    <div v-if="state.loading" class="text-gray-400">Loading pools…</div>
+    <div v-if="state.loading" class="text-gray-400">{{ $t('poolsByAssets.loadingPools') }}</div>
     <div v-else-if="state.error" class="text-red-400">{{ state.error }}</div>
 
     <div v-else class="space-y-1">
