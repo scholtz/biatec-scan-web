@@ -45,7 +45,7 @@
     "connectionStatus": "Stav pripojenia",
     "assets": "Assety",
     "latestBlocks": "Posledné bloky",
-    "liveAmmTrades": "Live AMM obchody",
+    "liveAmmTrades": "Obchody AMM v reálnom čase",
     "liquidityUpdates": "Aktualizácie likvidity",
     "poolUpdates": "Aktualizácie poolov",
     "aggregatedPools": "Agregované pooly",
@@ -53,9 +53,9 @@
     "waitingForTrades": "Čaká sa na obchody...",
     "waitingForLiquidity": "Čaká sa na aktualizácie likvidity...",
     "waitingForPoolUpdates": "Čaká sa na aktualizácie poolov...",
-    "connectingToFeed": "Pripájanie k live feede...",
-    "online": "ONLINE",
-    "offline": "OFFLINE"
+    "connectingToFeed": "Pripájanie k údajom v reálnom čase...",
+    "online": "PRIPOJENÉ",
+    "offline": "ODPOJENÉ"
   },
   "assets": {
     "title": "Assety",
@@ -68,7 +68,7 @@
     "totalTvl": "Celkové TVL (USD)",
     "updated": "Aktualizované",
     "loadingAssets": "Načítavajú sa assety…",
-    "demoModeError": "Demo režim: API nedostupné, zobrazujú sa vzorové assety",
+    "demoModeError": "Ukážkový režim: rozhranie nedostupné, zobrazujú sa vzorové assety",
     "auto": " (Auto)"
   },
   "search": {
@@ -93,23 +93,23 @@
   },
   "about": {
     "title": "O Biatec Algorand Scan",
-    "description": "Biatec Algorand Scan je real-time prieskumník zameraný na aktivitu decentralizovaných búrz (DEX) na Algorand blockchaine. Streamuje live bloky, obchody, likviditné udalosti, pooly, agregované štatistiky poolov a metadata assetov prostredníctvom vysoko výkonného SignalR hubu, podporovaného Elasticsearch indexovaním a protocol-aware obohatením (Pact, Tiny, Biatec AMMs).",
-    "company": "Biatec Scan prevádzkuje Scholtz & Company, jsa. IČO: 51882272. Projekt je open source.",
+    "description": "Biatec Algorand Scan je prieskumník v reálnom čase zameraný na aktivitu decentralizovaných búrz (DEX) na Algorand blockchaine. Streamuje bloky v reálnom čase, obchody, likviditné udalosti, pooly, agregované štatistiky poolov a metadata assetov prostredníctvom vysoko výkonného SignalR hubu, podporovaného Elasticsearch indexovaním a protocol-aware obohatením (Pact, Tiny, Biatec AMMs).",
+    "company": "Biatec Scan prevádzkuje Scholtz & Company, jsa. IČO: 51882272. Projekt má otvorený zdrojový kód.",
     "disclaimer": "DISCLAIMER: Tento projekt nie je spojený s Algorand, Inc. alebo Algorand Foundation. Je to nezávislá iniciatíva vyvinutá na zlepšenie transparentnosti a dostupnosti DEX aktivít na Algorand blockchaine. Projekt je poskytovaný \"ako je\" bez akýchkoľvek záruk. Používate na vlastné riziko.",
     "limitationsTitle": "Obmedzenia a poznámky",
     "limitation1": "Cenové feedy pochádzajú z agregovaných virtuálnych rezerv poolov (podliehajú AMM matematike a zdraviu poolov).",
     "limitation2": "Nedávno vytvorené alebo nelikvidné pooly môžu chýbať obohatenie, kým sa neuskutoční aktivita.",
     "limitation3": "Niektoré assety môžu zobrazovať oneskorené metadata, ak sú dosiahnuté limity Algod.",
     "reposTitle": "Repozitáre",
-    "frontend": "Frontend",
-    "backend": "Backend",
+    "frontend": "Používateľské rozhranie",
+    "backend": "Serverová časť",
     "contactTitle": "Kontakt a príspevky",
-    "contactDescription": "Spätná väzba, problémy alebo nápady na funkcie sú vítané. Neváhajte otvoriť diskusie alebo pull requesty v súvisiacich repozitároch, alebo sa ozvite na",
+    "contactDescription": "Spätná väzba, problémy alebo nápady na funkcie sú vítané. Neváhajte otvoriť diskusie alebo požiadavky na začlenenie v súvisiacich repozitároch, alebo sa ozvite na",
     "discord": "Discorde",
     "dataSourcesTitle": "Zdroje dát",
-    "realtimeFeaturesTitle": "Realtime funkcie",
+    "realtimeFeaturesTitle": "Funkcie v reálnom čase",
     "architectureTitle": "Prehľad architektúry",
-    "architectureDescription": "Backend je ASP.NET Core (.NET 8) Web API so SignalR pre websocket distribúciu. Background služby spracovávajú bloky, detekujú DEX udalosti, obohatia a normalizujú pooly, potom ich indexujú. Redis (voliteľný) urýchľuje cachovanie metadata assetov a poolov. Frontend (táto stránka) je postavený s Vite, Vue 3, TypeScript a Tailwind."
+    "architectureDescription": "Serverová časť je ASP.NET Core (.NET 8) Web API so SignalR pre websocket distribúciu. Služby na pozadí spracovávajú bloky, detekujú DEX udalosti, obohatia a normalizujú pooly, potom ich indexujú. Redis (voliteľný) urýchľuje cachovanie metadata assetov a poolov. Používateľské rozhranie (táto stránka) je postavené s Vite, Vue 3, TypeScript a Tailwind."
   },
   "transactionDetails": {
     "paymentTransaction": "Platobná transakcia",
@@ -123,8 +123,8 @@
     "noAmountInfo": "Pre tento typ transakcie nie sú dostupné informácie o sume."
   },
   "status": {
-    "online": "ONLINE",
-    "offline": "OFFLINE"
+    "online": "PRIPOJENÉ",
+    "offline": "ODPOJENÉ"
   },
   "settings": {
     "title": "Nastavenia",
@@ -146,7 +146,7 @@
   },
   "favorites": {
     "title": "Obľúbené assety",
-    "addDemoAssets": "Pridať demo assety",
+    "addDemoAssets": "Pridať ukážkové assety",
     "clearAll": "Vymazať všetko",
     "view": "Zobrazenie",
     "table": "Tabuľka",
