@@ -107,7 +107,16 @@
     "contactDescription": "欢迎反馈、问题或功能建议。请随时在相关存储库中开放讨论或拉取请求，或在",
     "discord": "Discord",
     "dataSourcesTitle": "数据源",
+    "dataSource1": "Algod区块摄取（多端点故障转移）",
+    "dataSource2": "实时gossip WebSocket集成（可选）",
+    "dataSource3": "协议处理器：Pact、Tiny、Biatec",
+    "dataSource4": "Elasticsearch用于快速查询和聚合",
     "realtimeFeaturesTitle": "实时功能",
+    "realtimeFeature1": "图表由",
+    "realtimeFeature2": "交易和流动性更新流",
+    "realtimeFeature3": "增量池和聚合池更新",
+    "realtimeFeature4": "动态资产元数据+价格和TVL信号",
+    "realtimeFeature5": "自定义订阅过滤（协议/资产/状态）",
     "architectureTitle": "架构概述",
     "architectureDescription": "后端是带有 SignalR 的 ASP.NET Core (.NET 8) Web API，用于 WebSocket 分发。后台服务处理区块，检测 DEX 事件，丰富和规范化资金池，然后索引它们。Redis（可选）加速资产和资金池元数据缓存。前端（本网站）使用 Vite、Vue 3、TypeScript 和 Tailwind 构建。"
   },
@@ -150,7 +159,14 @@
     "clearAll": "清除全部",
     "view": "查看",
     "table": "表格",
-    "blocks": "区块"
+    "blocks": "区块",
+    "totalFavorites": "收藏总数",
+    "noFavoritesYet": "暂无收藏资产",
+    "browseAssetsToAdd": "浏览资产以添加收藏",
+    "loadingFavoriteAssets": "加载收藏资产中…",
+    "confirmClearAll": "您确定要删除所有收藏资产吗？",
+    "viewPools": "查看池",
+    "assetPrefix": "资产 "
   },
   "assetDetails": {
     "title": "资产 {name}",

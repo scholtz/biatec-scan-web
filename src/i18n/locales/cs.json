@@ -107,7 +107,16 @@
     "contactDescription": "Zpětná vazba, problémy nebo nápady na funkce jsou vítány. Neváhejte otevřít diskuse nebo pull requesty v souvisejících repozitářích, nebo se ozvěte na",
     "discord": "Discordu",
     "dataSourcesTitle": "Zdroje dat",
-    "realtimeFeaturesTitle": "Realtime funkce",
+    "dataSource1": "Načítání Algod bloků (záložní koncové body)",
+    "dataSource2": "Integrace live gossip websocket (volitelné)",
+    "dataSource3": "Procesory protokolů: Pact, Tiny, Biatec",
+    "dataSource4": "Elasticsearch pro rychlé vyhledávání a agregaci",
+    "realtimeFeaturesTitle": "Funkce v reálném čase",
+    "realtimeFeature1": "Grafy od",
+    "realtimeFeature2": "Streaming obchodů a aktualizací likvidity",
+    "realtimeFeature3": "Postupné aktualizace poolů a agregovaných poolů",
+    "realtimeFeature4": "Dynamická metadata assetů + cenové a TVL signály",
+    "realtimeFeature5": "Vlastní filtrování předplatného (protokol / asset / stav)",
     "architectureTitle": "Přehled architektury",
     "architectureDescription": "Backend je ASP.NET Core (.NET 8) Web API se SignalR pro websocket distribuci. Background služby zpracovávají bloky, detekují DEX události, obohacují a normalizují pooly, poté je indexují. Redis (volitelný) urychluje cachování metadata assetů a poolů. Frontend (tato stránka) je postaven s Vite, Vue 3, TypeScript a Tailwind."
   },
@@ -146,11 +155,18 @@
   },
   "favorites": {
     "title": "Oblíbené assety",
-    "addDemoAssets": "Přidat demo assety",
+    "addDemoAssets": "Přidat ukázkové assety",
     "clearAll": "Vymazat vše",
     "view": "Zobrazení",
     "table": "Tabulka",
-    "blocks": "Bloky"
+    "blocks": "Bloky",
+    "totalFavorites": "Celkem oblíbených",
+    "noFavoritesYet": "Zatím žádné oblíbené assety",
+    "browseAssetsToAdd": "Procházejte assety a přidejte některé oblíbené",
+    "loadingFavoriteAssets": "Načítají se oblíbené assety…",
+    "confirmClearAll": "Jste si jisti, že chcete odstranit všechny oblíbené assety?",
+    "viewPools": "Zobrazit pooly",
+    "assetPrefix": "Asset "
   },
   "assetDetails": {
     "title": "Asset {name}",

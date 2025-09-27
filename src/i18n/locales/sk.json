@@ -107,7 +107,16 @@
     "contactDescription": "Spätná väzba, problémy alebo nápady na funkcie sú vítané. Neváhajte otvoriť diskusie alebo požiadavky na začlenenie v súvisiacich repozitároch, alebo sa ozvite na",
     "discord": "Discorde",
     "dataSourcesTitle": "Zdroje dát",
+    "dataSource1": "Načítavanie Algod blokov (záložné koncové body)",
+    "dataSource2": "Integrácia live gossip websocket (voliteľné)",
+    "dataSource3": "Procesory protokolov: Pact, Tiny, Biatec",
+    "dataSource4": "Elasticsearch pre rýchle vyhľadávanie a agregáciu",
     "realtimeFeaturesTitle": "Funkcie v reálnom čase",
+    "realtimeFeature1": "Grafy od",
+    "realtimeFeature2": "Streaming obchodov a aktualizácií likvidity",
+    "realtimeFeature3": "Postupné aktualizácie poolov a agregovaných poolov",
+    "realtimeFeature4": "Dynamické metadata assetov + cenové a TVL signály",
+    "realtimeFeature5": "Vlastné filtrovanie predplatného (protokol / asset / stav)",
     "architectureTitle": "Prehľad architektúry",
     "architectureDescription": "Serverová časť je ASP.NET Core (.NET 8) Web API so SignalR pre websocket distribúciu. Služby na pozadí spracovávajú bloky, detekujú DEX udalosti, obohatia a normalizujú pooly, potom ich indexujú. Redis (voliteľný) urýchľuje cachovanie metadata assetov a poolov. Používateľské rozhranie (táto stránka) je postavené s Vite, Vue 3, TypeScript a Tailwind."
   },
@@ -150,7 +159,14 @@
     "clearAll": "Vymazať všetko",
     "view": "Zobrazenie",
     "table": "Tabuľka",
-    "blocks": "Bloky"
+    "blocks": "Bloky",
+    "totalFavorites": "Celkom obľúbených",
+    "noFavoritesYet": "Zatiaľ žiadne obľúbené assety",
+    "browseAssetsToAdd": "Prehliadnite assety a pridajte nejaké obľúbené",
+    "loadingFavoriteAssets": "Načítavajú sa obľúbené assety…",
+    "confirmClearAll": "Ste si istí, že chcete odstrániť všetky obľúbené assety?",
+    "viewPools": "Zobraziť pooly",
+    "assetPrefix": "Asset "
   },
   "assetDetails": {
     "title": "Asset {name}",

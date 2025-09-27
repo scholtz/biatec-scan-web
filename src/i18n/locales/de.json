@@ -107,7 +107,16 @@
     "contactDescription": "Feedback, Probleme oder Feature-Ideen sind willkommen. Zögern Sie nicht, Diskussionen oder Pull-Requests in den entsprechenden Repositories zu eröffnen oder kontaktieren Sie uns auf",
     "discord": "Discord",
     "dataSourcesTitle": "Datenquellen",
+    "dataSource1": "Algod-Block-Einspeisung (Multi-Endpunkt-Failover)",
+    "dataSource2": "Live-Gossip-Websocket-Integration (optional)",
+    "dataSource3": "Protokollprozessoren: Pact, Tiny, Biatec",
+    "dataSource4": "Elasticsearch für schnelle Abfragen und Aggregation",
     "realtimeFeaturesTitle": "Echtzeit-Funktionen",
+    "realtimeFeature1": "Charts von",
+    "realtimeFeature2": "Streaming von Trades und Liquiditätsupdates",
+    "realtimeFeature3": "Inkrementelle Pool- und aggregierte Pool-Updates",
+    "realtimeFeature4": "Dynamische Asset-Metadaten + Preis- und TVL-Signale",
+    "realtimeFeature5": "Benutzerdefinierte Abonnement-Filterung (Protokoll / Asset / Status)",
     "architectureTitle": "Architektur-Übersicht",
     "architectureDescription": "Das Backend ist eine ASP.NET Core (.NET 8) Web-API mit SignalR für WebSocket-Verteilung. Hintergrunddienste verarbeiten Blöcke, erkennen DEX-Ereignisse, reichern Pools an und normalisieren sie, dann indizieren sie sie. Redis (optional) beschleunigt Asset- und Pool-Metadaten-Caching. Das Frontend (diese Seite) ist mit Vite, Vue 3, TypeScript und Tailwind erstellt."
   },
@@ -150,7 +159,14 @@
     "clearAll": "Alle löschen",
     "view": "Ansicht",
     "table": "Tabelle",
-    "blocks": "Blöcke"
+    "blocks": "Blöcke",
+    "totalFavorites": "Favoriten insgesamt",
+    "noFavoritesYet": "Noch keine Lieblings-Assets",
+    "browseAssetsToAdd": "Assets durchsuchen, um Favoriten hinzuzufügen",
+    "loadingFavoriteAssets": "Lieblings-Assets werden geladen…",
+    "confirmClearAll": "Sind Sie sicher, dass Sie alle Lieblings-Assets entfernen möchten?",
+    "viewPools": "Pools anzeigen",
+    "assetPrefix": "Asset "
   },
   "assetDetails": {
     "title": "Asset {name}",

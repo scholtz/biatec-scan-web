@@ -107,7 +107,16 @@
     "contactDescription": "Opinie, problemy lub pomysły na funkcje są mile widziane. Nie wahaj się otworzyć dyskusji lub pull requestów w powiązanych repozytoriach lub skontaktuj się na",
     "discord": "Discordzie",
     "dataSourcesTitle": "Źródła danych",
+    "dataSource1": "Pozyskiwanie bloków Algod (failover wielu punktów końcowych)",
+    "dataSource2": "Integracja live gossip websocket (opcjonalna)",
+    "dataSource3": "Procesory protokołów: Pact, Tiny, Biatec",
+    "dataSource4": "Elasticsearch do szybkiego wyszukiwania i agregacji",
     "realtimeFeaturesTitle": "Funkcje w czasie rzeczywistym",
+    "realtimeFeature1": "Wykresy od",
+    "realtimeFeature2": "Streaming transakcji i aktualizacji płynności",
+    "realtimeFeature3": "Przyrostowe aktualizacje pul i zagregowanych pul",
+    "realtimeFeature4": "Dynamiczne metadane zasobów + sygnały cen i TVL",
+    "realtimeFeature5": "Niestandardowe filtrowanie subskrypcji (protokół / zasób / stan)",
     "architectureTitle": "Przegląd architektury",
     "architectureDescription": "Backend to ASP.NET Core (.NET 8) Web API z SignalR dla dystrybucji websocket. Usługi w tle przetwarzają bloki, wykrywają wydarzenia DEX, wzbogacają i normalizują pule, a następnie je indeksują. Redis (opcjonalny) przyspiesza buforowanie metadanych zasobów i pul. Frontend (ta strona) jest zbudowany z Vite, Vue 3, TypeScript i Tailwind."
   },
@@ -150,7 +159,14 @@
     "clearAll": "Wyczyść wszystko",
     "view": "Widok",
     "table": "Tabela",
-    "blocks": "Bloki"
+    "blocks": "Bloki",
+    "totalFavorites": "Łącznie ulubionych",
+    "noFavoritesYet": "Nie ma jeszcze ulubionych zasobów",
+    "browseAssetsToAdd": "Przeglądaj zasoby, aby dodać ulubione",
+    "loadingFavoriteAssets": "Ładowanie ulubionych zasobów…",
+    "confirmClearAll": "Czy na pewno chcesz usunąć wszystkie ulubione zasoby?",
+    "viewPools": "Pokaż pule",
+    "assetPrefix": "Zasób "
   },
   "assetDetails": {
     "title": "Zasób {name}",

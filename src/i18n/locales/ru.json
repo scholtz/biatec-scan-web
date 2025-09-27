@@ -107,7 +107,16 @@
     "contactDescription": "Отзывы, проблемы или идеи функций приветствуются. Не стесняйтесь открывать обсуждения или pull request в связанных репозиториях или свяжитесь в",
     "discord": "Discord",
     "dataSourcesTitle": "Источники данных",
+    "dataSource1": "Поглощение блоков Algod (failover нескольких конечных точек)",
+    "dataSource2": "Интеграция live gossip websocket (опционально)",
+    "dataSource3": "Обработчики протоколов: Pact, Tiny, Biatec",
+    "dataSource4": "Elasticsearch для быстрого поиска и агрегации",
     "realtimeFeaturesTitle": "Функции в реальном времени",
+    "realtimeFeature1": "Графики от",
+    "realtimeFeature2": "Стриминг сделок и обновлений ликвидности",
+    "realtimeFeature3": "Инкрементальные обновления пулов и агрегированных пулов",
+    "realtimeFeature4": "Динамические метаданные активов + сигналы цен и TVL",
+    "realtimeFeature5": "Настраиваемая фильтрация подписки (протокол / актив / состояние)",
     "architectureTitle": "Обзор архитектуры",
     "architectureDescription": "Бэкенд - это ASP.NET Core (.NET 8) Web API с SignalR для распространения websocket. Фоновые службы обрабатывают блоки, обнаруживают события DEX, обогащают и нормализуют пулы, затем индексируют их. Redis (опционально) ускоряет кэширование метаданных активов и пулов. Фронтенд (эта страница) построен с Vite, Vue 3, TypeScript и Tailwind."
   },
@@ -150,7 +159,14 @@
     "clearAll": "Очистить все",
     "view": "Вид",
     "table": "Таблица",
-    "blocks": "Блоки"
+    "blocks": "Блоки",
+    "totalFavorites": "Всего избранных",
+    "noFavoritesYet": "Пока нет избранных активов",
+    "browseAssetsToAdd": "Просмотрите активы, чтобы добавить избранные",
+    "loadingFavoriteAssets": "Загрузка избранных активов…",
+    "confirmClearAll": "Вы уверены, что хотите удалить все избранные активы?",
+    "viewPools": "Показать пулы",
+    "assetPrefix": "Актив "
   },
   "assetDetails": {
     "title": "Актив {name}",
