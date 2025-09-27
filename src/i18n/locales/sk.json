@@ -227,6 +227,11 @@
     "title": "Asset {name}",
     "name": "Názov",
     "unit": "Jednotka",
-    "decimals": "Desatinné miesta"
+    "decimals": "Desatinné miesta",
+    "totalSupply": "Celková ponuka",
+    "assetImage": "Obrázok assetu",
+    "viewAllPools": "Zobraziť všetky {name} pooly",
+    "viewPoolsWithAlgo": "Zobraziť pooly s ALGO",
+    "viewPoolsWithUsdc": "Zobraziť pooly s USDC"
   }
 }

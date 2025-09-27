@@ -172,7 +172,12 @@
     "title": "Актив {name}",
     "name": "Название",
     "unit": "Единица",
-    "decimals": "Десятичные знаки"
+    "decimals": "Десятичные знаки",
+    "totalSupply": "Общее предложение",
+    "assetImage": "Изображение актива",
+    "viewAllPools": "Посмотреть все {name} пулы",
+    "viewPoolsWithAlgo": "Посмотреть пулы с ALGO",
+    "viewPoolsWithUsdc": "Посмотреть пулы с USDC"
   },
   "poolDetails": {
     "title": "Детали пула",

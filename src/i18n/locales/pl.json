@@ -172,7 +172,12 @@
     "title": "Zasób {name}",
     "name": "Nazwa",
     "unit": "Jednostka",
-    "decimals": "Miejsca dziesiętne"
+    "decimals": "Miejsca dziesiętne",
+    "totalSupply": "Całkowita podaż",
+    "assetImage": "Obraz zasobu",
+    "viewAllPools": "Pokaż wszystkie {name} pule",
+    "viewPoolsWithAlgo": "Pokaż pule z ALGO",
+    "viewPoolsWithUsdc": "Pokaż pule z USDC"
   },
   "poolDetails": {
     "title": "Szczegóły puli",

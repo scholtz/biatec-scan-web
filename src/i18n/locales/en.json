@@ -227,6 +227,11 @@
     "title": "Asset {name}",
     "name": "Name",
     "unit": "Unit", 
-    "decimals": "Decimals"
+    "decimals": "Decimals",
+    "totalSupply": "Total Supply",
+    "assetImage": "Asset Image",
+    "viewAllPools": "View all {name} pools",
+    "viewPoolsWithAlgo": "View Pools with ALGO",
+    "viewPoolsWithUsdc": "View Pools with USDC"
   }
 }

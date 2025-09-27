@@ -172,7 +172,12 @@
     "title": "Asset {name}",
     "name": "Název",
     "unit": "Jednotka",
-    "decimals": "Desetinná místa"
+    "decimals": "Desetinná místa",
+    "totalSupply": "Celková nabídka",
+    "assetImage": "Obrázek assetu",
+    "viewAllPools": "Zobrazit všechny {name} pooly",
+    "viewPoolsWithAlgo": "Zobrazit pooly s ALGO",
+    "viewPoolsWithUsdc": "Zobrazit pooly s USDC"
   },
   "poolDetails": {
     "title": "Detaily poolu",

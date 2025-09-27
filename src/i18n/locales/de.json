@@ -172,7 +172,12 @@
     "title": "Asset {name}",
     "name": "Name",
     "unit": "Einheit",
-    "decimals": "Dezimalstellen"
+    "decimals": "Dezimalstellen",
+    "totalSupply": "Gesamtangebot",
+    "assetImage": "Asset-Bild",
+    "viewAllPools": "Alle {name} Pools anzeigen",
+    "viewPoolsWithAlgo": "Pools mit ALGO anzeigen",
+    "viewPoolsWithUsdc": "Pools mit USDC anzeigen"
   },
   "poolDetails": {
     "title": "Pool-Details",
