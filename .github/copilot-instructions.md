@@ -143,16 +143,29 @@ src/
 
 ## Internationalization (i18n)
 
-The application supports multiple languages using Vue I18n:
+The application supports **8 languages** using Vue I18n with comprehensive multilingual support:
 
-### Current Languages
-- **English (en)** - Default language
-- **Slovak (sk)** - Complete translation available
+### Supported Languages
+- **English (en)** 🇺🇸 - Default fallback language
+- **Slovak (sk)** 🇸🇰 - Slovenčina
+- **Chinese (zh)** 🇨🇳 - 中文 (Simplified Chinese)
+- **German (de)** 🇩🇪 - Deutsch
+- **Spanish (es)** 🇪🇸 - Español
+- **Czech (cs)** 🇨🇿 - Čeština
+- **Russian (ru)** 🇷🇺 - Русский
+- **Polish (pl)** 🇵🇱 - Polski
 
 ### Language Files Location
 - `src/i18n/locales/en.json` - English translations
 - `src/i18n/locales/sk.json` - Slovak translations
-- `src/i18n/index.ts` - i18n configuration
+- `src/i18n/locales/zh.json` - Chinese translations
+- `src/i18n/locales/de.json` - German translations
+- `src/i18n/locales/es.json` - Spanish translations
+- `src/i18n/locales/cs.json` - Czech translations
+- `src/i18n/locales/ru.json` - Russian translations
+- `src/i18n/locales/pl.json` - Polish translations
+- `src/i18n/index.ts` - i18n configuration with browser locale detection
+- `public/flags/` - SVG flag icons for all supported countries
 
 ### Using Translations in Components
 ```vue
@@ -160,49 +173,92 @@ The application supports multiple languages using Vue I18n:
   <!-- Use $t() in templates -->
   <h1>{{ $t('common.loading') }}</h1>
   <button :title="$t('common.refresh')">{{ $t('common.refresh') }}</button>
+  
+  <!-- With interpolation for dynamic content -->
+  <span>{{ $t('common.copiedAssetId', { name: assetName, id: assetId }) }}</span>
+  
+  <!-- For computed/reactive translations -->
+  <p>{{ computedTitle }}</p>
 </template>
 
 <script setup>
 // Use t() in script (requires import)
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
+
 const { t } = useI18n()
 
+// Simple translation
 const message = t('common.loading')
+
+// Computed translation for reactive updates
+const computedTitle = computed(() => t('dashboard.title'))
 </script>
 ```
 
-### Language Switcher
-- Available in the top navigation bar
+### Language Switcher with Flags
+- Available in Settings page at `/settings`
+- Shows flag icons for visual language identification
 - Persists selection to localStorage
-- Switches between EN/SK dynamically
+- **Browser locale detection**: Automatically detects user's browser language on first visit
+- **Smart fallback**: Saved preference → browser language → English
+- Dynamic switching without page reload
+- **Z-index properly configured** for dropdown display
 
 ### Translation Key Structure
-- `common.*` - Shared UI elements (buttons, labels, etc.)
+- `common.*` - Shared UI elements (buttons, labels, loading states, etc.)
 - `nav.*` - Navigation menu items
 - `dashboard.*` - Dashboard page content
 - `assets.*` - Assets page content
 - `search.*` - Search page content
+- `favorites.*` - Favorites page content
+- `settings.*` - Settings page content including language selection
 - `about.*` - About page content
 - `status.*` - Status messages (online/offline)
 
-### Adding New Translations
-1. Add key to both `en.json` and `sk.json`
-2. Use descriptive nested keys: `section.element`
-3. Support interpolation with named parameters: `{variableName}`
-4. Always provide both English and Slovak translations
-5. Test language switching works properly
+### Professional Translation Guidelines
+1. **Add keys to ALL language files**: English, Slovak, Chinese, German, Spanish, Czech, Russian, Polish
+2. **Use descriptive nested keys**: `section.element` or `page.section.element`
+3. **Support interpolation**: Use named parameters `{variableName}` for dynamic content
+4. **Maintain technical accuracy**: Use proper blockchain/DeFi terminology for each language
+5. **Cultural adaptation**: Consider cultural context and appropriate phrasing
+6. **Test thoroughly**: Verify language switching works across all supported languages
+7. **Character encoding**: Ensure proper display of Chinese characters, Cyrillic, umlauts, accents
 
-### Example Translation Entry
+### Adding New Translations
+1. Add key to **all 8 language files**: `en.json`, `sk.json`, `zh.json`, `de.json`, `es.json`, `cs.json`, `ru.json`, `pl.json`
+2. Provide professional translations appropriate for technical/blockchain context
+3. Test with language switcher to ensure proper display
+4. Use computed properties for reactive translation updates when needed
+5. Verify text length doesn't break responsive design in any language
+
+### Translation Examples
 ```json
 {
   "common": {
-    "copyAssetId": "Copy {name} asset id: {id}",
-    "copiedAssetId": "Copied {name} asset ID: {id}"
+    "loading": "Loading...",
+    "refresh": "Refresh", 
+    "copyAssetId": "Copy {name} asset ID: {id}",
+    "copiedAssetId": "Copied {name} asset ID: {id}",
+    "sold": "Sold",
+    "bought": "Bought",
+    "liquidityProvider": "Liquidity Provider"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "latestBlocks": "Latest Blocks",
+    "liveAmmTrades": "Live AMM Trades"
   }
 }
 ```
 
-**IMPORTANT**: Never hardcode user-facing text in components. Always use translation keys.
+### Z-Index and UI Considerations
+- **Language switcher dropdown**: Uses `z-[9999]` for proper layering
+- **Parent containers**: Include `relative z-10` when needed for stacking context
+- **Responsive design**: All languages tested for proper text wrapping and layout
+- **Flag integration**: SVG flags optimized for performance and accessibility
+
+**CRITICAL**: Never hardcode user-facing text in components. Always use translation keys with $t() function calls. All new user-facing text must be translated into all 8 supported languages.
 
 ## Validation Checklist
 Before considering any changes complete:

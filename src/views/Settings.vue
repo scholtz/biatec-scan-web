@@ -9,7 +9,7 @@
           {{ $t('settings.language.description') }}
         </p>
         
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-4 relative z-10">
           <label class="text-gray-300 text-sm font-medium">
             {{ $t('settings.language.selectLabel') }}:
           </label>

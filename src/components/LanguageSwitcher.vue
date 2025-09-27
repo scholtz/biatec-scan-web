@@ -26,7 +26,7 @@
     
     <div
       v-if="isDropdownOpen"
-      class="absolute right-0 mt-1 min-w-[140px] bg-dark-800 border border-dark-700/50 rounded-lg shadow-lg z-50"
+      class="absolute right-0 mt-1 min-w-[140px] bg-dark-800 border border-dark-700/50 rounded-lg shadow-lg z-[9999]"
     >
       <button
         v-for="locale in availableLocales"
