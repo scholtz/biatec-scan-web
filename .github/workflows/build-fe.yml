@@ -28,7 +28,7 @@ jobs:
           echo "version=1.$DATE-main" >> $GITHUB_OUTPUT
 
       # -----------------------
-      # Push to Docker Hub
+      # Build & Push (Docker Hub + Private Registry)
       # -----------------------
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -36,7 +36,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & Push Docker Hub
+      - name: Log in to Private Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.PRIVATE_REGISTRY }}
+          username: ${{ secrets.PRIVATE_REGISTRY_USER }}
+          password: ${{ secrets.PRIVATE_REGISTRY_TOKEN }}
+
+      - name: Build & Push Images
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -45,23 +52,8 @@ jobs:
           tags: |
             ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }}
             ${{ env.DOCKERHUB_IMAGE }}:latest
-
-      # -----------------------
-      # Push to Private Registry
-      # -----------------------
-      - name: Log in to Private Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.PRIVATE_REGISTRY }}
-          username: ${{ secrets.PRIVATE_REGISTRY_USER }}
-          password: ${{ secrets.PRIVATE_REGISTRY_TOKEN }}
-
-      - name: Push to Private Registry
-        run: |
-          docker tag ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }} ${{ env.PRIVATE_IMAGE }}:${{ steps.vars.outputs.version }}
-          docker tag ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }} ${{ env.PRIVATE_IMAGE }}:latest
-          docker push ${{ env.PRIVATE_IMAGE }}:${{ steps.vars.outputs.version }}
-          docker push ${{ env.PRIVATE_IMAGE }}:latest
+            ${{ env.PRIVATE_IMAGE }}:${{ steps.vars.outputs.version }}
+            ${{ env.PRIVATE_IMAGE }}:latest
 
       # -----------------------
       # Deploy to Kubernetes
