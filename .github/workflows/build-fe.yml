@@ -1,29 +1,85 @@
-name: Build and Deploy FE
+name: CI/CD - Biatec Scan
+
 on:
   push:
     branches:
       - main
 
+env:
+  DOCKERHUB_IMAGE: scholtz2/biatec-scan-fe
+  PRIVATE_REGISTRY: harbor.de-4.biatec.io
+  PRIVATE_IMAGE: harbor.de-4.biatec.io/biatec/biatec-scan-fe
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    steps:
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/staging.key
-          chmod 600 ~/.ssh/staging.key
-          cat >>~/.ssh/config <<END
-          Host staging
-            HostName $SSH_HOST
-            User $SSH_USER
-            IdentityFile ~/.ssh/staging.key
-            StrictHostKeyChecking no
-          END
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      - name: Deploy
-        run: ssh staging 'cd ~/BiatecScan && ./deploy-fe.sh'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Generate version
+        id: vars
+        run: |
+          DATE=$(date +'%Y.%m.%d')
+          echo "version=1.$DATE-main" >> $GITHUB_OUTPUT
+
+      # -----------------------
+      # Push to Docker Hub
+      # -----------------------
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push Docker Hub
+        uses: docker/build-push-action@v6
+        with:
+          context: ./docker
+          push: true
+          tags: |
+            ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }}
+            ${{ env.DOCKERHUB_IMAGE }}:latest
+
+      # -----------------------
+      # Push to Private Registry
+      # -----------------------
+      - name: Log in to Private Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.PRIVATE_REGISTRY }}
+          username: ${{ secrets.PRIVATE_REGISTRY_USER }}
+          password: ${{ secrets.PRIVATE_REGISTRY_TOKEN }}
+
+      - name: Push to Private Registry
+        run: |
+          docker tag ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }} ${{ env.PRIVATE_IMAGE }}:${{ steps.vars.outputs.version }}
+          docker tag ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }} ${{ env.PRIVATE_IMAGE }}:latest
+          docker push ${{ env.PRIVATE_IMAGE }}:${{ steps.vars.outputs.version }}
+          docker push ${{ env.PRIVATE_IMAGE }}:latest
+
+      # -----------------------
+      # Deploy to Kubernetes
+      # -----------------------
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.30.0
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+
+      - name: Update k8s deployment
+        run: |
+          kubectl set image deployment/biatec-scan-fe \
+            biatec-scan-fe=${{ env.PRIVATE_IMAGE }}:${{ steps.vars.outputs.version }} \
+            -n your-namespace
+
+      - name: Verify rollout
+        run: kubectl rollout status deployment/biatec-scan-fe -n your-namespace
