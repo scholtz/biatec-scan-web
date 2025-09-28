@@ -80,5 +80,7 @@ jobs:
         run: |
           kubectl apply -f k8s/main/deployment-fe.yaml
 
-      - name: Verify rollout
-        run: kubectl rollout status deployment/biatec-scan-fe-app-deployment -n biatec-scan
+      - name: Restart & Verify rollout
+        run: |
+          kubectl rollout restart deployment/biatec-scan-fe-app-deployment -n biatec-scan
+          kubectl rollout status deployment/biatec-scan-fe-app-deployment -n biatec-scan
