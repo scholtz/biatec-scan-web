@@ -39,7 +39,7 @@ jobs:
       - name: Build & Push Docker Hub
         uses: docker/build-push-action@v6
         with:
-          context: ./docker
+          context: ./
           push: true
           tags: |
             ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }}
