@@ -49,6 +49,8 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }}
             ${{ env.DOCKERHUB_IMAGE }}:latest
