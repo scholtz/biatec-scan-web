@@ -28,7 +28,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Trade, DEXProtocol, TxState } from '../api/models';
+import type { Trade } from '../api/models';
+import { getAVMTradeReporterAPI } from '../api';
 import { signalrService } from '../services/signalrService';
 import type { AMMTrade } from '../types/algorand';
 import TradeCard from './TradeCard.vue';
@@ -54,12 +55,12 @@ function convertToAMMTrade(trade: Trade): AMMTrade {
     blockId: BigInt(trade.blockId ?? 0),
     txGroup: trade.txGroup ?? '',
     timestamp: trade.timestamp ?? '',
-    protocol: (trade.protocol as DEXProtocol) ?? 'Biatec',
+    protocol: trade.protocol ?? 'Biatec',
     trader: trade.trader ?? '',
     poolAddress: trade.poolAddress ?? '',
     poolAppId: BigInt(trade.poolAppId ?? 0),
     topTxId: trade.topTxId ?? '',
-    tradeState: (trade.tradeState as TxState) ?? 'Confirmed',
+    tradeState: trade.tradeState ?? 'Confirmed',
   };
 }
 
@@ -72,10 +73,25 @@ async function fetchTrades() {
     
     console.log(`Fetching trades for asset ${props.assetId}`);
     
-    // The /api/trade endpoint is not yet available in the generated API
-    // TODO: Regenerate API when the backend /api/trade endpoint is added to swagger
-    error.value = t('assetDetails.tradesFetchError') + ' - /api/trade endpoint not yet available in API specification';
-    trades.value = [];
+    // Use the real API endpoint
+    const api = getAVMTradeReporterAPI();
+    const response = await api.getApiTrade({
+      assetIdIn: Number(props.assetId),
+      size: 20 // Fetch last 20 trades
+    });
+    
+    // Also fetch trades where this asset is the output
+    const responseOut = await api.getApiTrade({
+      assetIdOut: Number(props.assetId),
+      size: 20 // Fetch last 20 trades
+    });
+    
+    // Combine and sort by timestamp (most recent first)
+    const allTrades = [...(response.data || []), ...(responseOut.data || [])];
+    allTrades.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+    
+    // Take only the 20 most recent
+    trades.value = allTrades.slice(0, 20);
     
   } catch (err: unknown) {
     console.error('Error fetching trades:', err);
@@ -101,12 +117,12 @@ function handleTradeUpdate(trade: AMMTrade) {
       blockId: Number(trade.blockId),
       txGroup: trade.txGroup,
       timestamp: trade.timestamp,
-      protocol: (trade.protocol as DEXProtocol) ?? 'Biatec',
+      protocol: trade.protocol as any, // Type assertion needed for compatibility
       trader: trade.trader,
       poolAddress: trade.poolAddress,
       poolAppId: Number(trade.poolAppId),
       topTxId: trade.topTxId,
-      tradeState: (trade.tradeState as TxState) ?? 'Confirmed',
+      tradeState: trade.tradeState as any, // Type assertion needed for compatibility
     };
     
     // Add to beginning of list and keep only 20 most recent
