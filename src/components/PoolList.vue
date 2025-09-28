@@ -31,6 +31,7 @@ import { useI18n } from 'vue-i18n';
 import { getAVMTradeReporterAPI } from '../api';
 import { Pool } from '../api/models';
 import { signalrService } from '../services/signalrService';
+import type { SubscriptionFilter } from '../types/SubscriptionFilter';
 import PoolCard from './PoolCard.vue';
 
 const { t } = useI18n();
@@ -42,6 +43,7 @@ const props = defineProps<{
 const pools = ref<Pool[]>([]);
 const loading = ref(false);
 const error = ref<string>('');
+let subscriptionFilter: SubscriptionFilter | null = null;
 
 async function fetchPools() {
   if (!props.assetId || props.assetId === '0') return;
@@ -81,7 +83,7 @@ onMounted(() => {
   signalrService.onPoolReceived(handlePoolUpdate);
   
   // Subscribe to pool updates for this specific asset
-  signalrService.subscribe({
+  subscriptionFilter = {
     RecentBlocks: false,
     RecentTrades: false,
     RecentLiquidity: false,
@@ -92,11 +94,15 @@ onMounted(() => {
     PoolsAddresses: [],
     AggregatedPoolsIds: [],
     AssetIds: [props.assetId], // Subscribe to pools for this specific asset
-  });
+  };
+  signalrService.subscribe(subscriptionFilter);
 });
 
 onUnmounted(() => {
   signalrService.unsubscribeFromPoolUpdates(handlePoolUpdate);
+  if (subscriptionFilter) {
+    signalrService.unsubscribeFilter(subscriptionFilter);
+  }
 });
 </script>
 

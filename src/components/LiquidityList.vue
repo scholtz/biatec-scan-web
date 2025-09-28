@@ -32,6 +32,7 @@ import type { Liquidity } from '../api/models';
 import { getAVMTradeReporterAPI } from '../api';
 import { signalrService } from '../services/signalrService';
 import type { AMMLiquidity } from '../types/algorand';
+import type { SubscriptionFilter } from '../types/SubscriptionFilter';
 import LiquidityCard from './LiquidityCard.vue';
 
 const { t } = useI18n();
@@ -43,6 +44,7 @@ const props = defineProps<{
 const liquidity = ref<Liquidity[]>([]);
 const loading = ref(false);
 const error = ref<string>('');
+let subscriptionFilter: SubscriptionFilter | null = null;
 
 // Convert Liquidity API model to AMMLiquidity interface expected by LiquidityCard
 function convertToAMMLiquidity(liquidityItem: Liquidity): AMMLiquidity {
@@ -149,7 +151,7 @@ onMounted(() => {
   signalrService.onLiquidityReceived(handleLiquidityUpdate);
   
   // Subscribe to liquidity updates for this specific asset
-  signalrService.subscribe({
+  subscriptionFilter = {
     RecentBlocks: false,
     RecentTrades: false,
     RecentLiquidity: true,
@@ -160,11 +162,15 @@ onMounted(() => {
     PoolsAddresses: [],
     AggregatedPoolsIds: [],
     AssetIds: [props.assetId], // Subscribe to liquidity for this specific asset
-  });
+  };
+  signalrService.subscribe(subscriptionFilter);
 });
 
 onUnmounted(() => {
   signalrService.unsubscribeFromLiquidityUpdates(handleLiquidityUpdate);
+  if (subscriptionFilter) {
+    signalrService.unsubscribeFilter(subscriptionFilter);
+  }
 });
 </script>
 
