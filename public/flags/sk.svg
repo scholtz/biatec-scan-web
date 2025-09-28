@@ -1,6 +1,25 @@
 <svg width="24" height="18" viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg">
-  <!-- Slovakia flag -->
+  <!-- Slovakia flag with coat of arms -->
+  <!-- White stripe -->
   <rect width="24" height="6" fill="#FFFFFF"/>
+  <!-- Blue stripe -->
   <rect width="24" height="6" y="6" fill="#0B4EA2"/>
+  <!-- Red stripe -->
   <rect width="24" height="6" y="12" fill="#EE1C25"/>
+  <!-- Coat of arms shield -->
+  <g transform="translate(6,4)">
+    <!-- Shield background -->
+    <path d="M0,2 Q0,1 1,1 L5,1 Q6,1 6,2 L6,7 Q6,8.5 3,10 Q0,8.5 0,7 Z" fill="#FFFFFF" stroke="#0B4EA2" stroke-width="0.3"/>
+    <!-- Double cross -->
+    <g transform="translate(1.5,2)" fill="#0B4EA2">
+      <!-- Vertical bars -->
+      <rect x="1" y="0" width="0.4" height="4"/>
+      <rect x="2.6" y="0" width="0.4" height="4"/>
+      <!-- Horizontal bars -->
+      <rect x="0.3" y="0.8" width="2.4" height="0.4"/>
+      <rect x="0.5" y="1.6" width="2" height="0.4"/>
+    </g>
+    <!-- Hills -->
+    <path d="M1,6 L2,5 L3,6 L4,5 L5,6 L6,7 L0,7 Z" fill="#EE1C25"/>
+  </g>
 </svg>
