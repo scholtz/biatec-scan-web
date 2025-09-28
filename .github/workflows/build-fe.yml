@@ -70,11 +70,15 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
 
-      - name: Update k8s deployment
+      - name: Update manifest image tag
         run: |
-          kubectl set image deployment/biatec-scan-fe \
-            biatec-scan-fe=${{ env.PRIVATE_IMAGE }}:${{ steps.vars.outputs.version }} \
-            -n your-namespace
+          sed -i "s#image: \\S\+#image: ${{ env.PRIVATE_IMAGE }}:${{ steps.vars.outputs.version }}#" k8s/main/deployment-fe.yaml
+          echo '----- Modified manifest (image lines) -----'
+          grep -n 'image:' k8s/main/deployment-fe.yaml
+
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f k8s/main/deployment-fe.yaml
 
       - name: Verify rollout
-        run: kubectl rollout status deployment/biatec-scan-fe -n your-namespace
+        run: kubectl rollout status deployment/biatec-scan-fe-app-deployment -n biatec-scan
