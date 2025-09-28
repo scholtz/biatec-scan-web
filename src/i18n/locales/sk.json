@@ -1,6 +1,6 @@
 {
   "common": {
-    "loading": "Načítava...",
+    "loading": "Načíta sa...",
     "refresh": "Obnoviť",
     "prev": "Predch.",
     "next": "Ďalšia",
@@ -26,7 +26,13 @@
     "reserveB": "Rezerva B",
     "liquidityProvider": "Poskytovateľ likvidity",
     "txId": "ID TX",
-    "loadMore": "Načítať viac"
+    "loadMore": "Načítať viac",
+    "timeAgo": {
+      "seconds": "pred {count}s",
+      "minutes": "pred {count}m", 
+      "hours": "pred {count}h",
+      "days": "pred {count}d"
+    }
   },
   "nav": {
     "explore": "Preskúmať",
@@ -232,6 +238,15 @@
     "assetImage": "Obrázok assetu",
     "viewAllPools": "Zobraziť všetky {name} pooly",
     "viewPoolsWithAlgo": "Zobraziť pooly s ALGO",
-    "viewPoolsWithUsdc": "Zobraziť pooly s USDC"
+    "viewPoolsWithUsdc": "Zobraziť pooly s USDC",
+    "recentTrades": "Nedávne obchody",
+    "noTrades": "Neboli nájdené žiadne nedávne obchody pre tento asset",
+    "tradesFetchError": "Nie je možné načítať obchody. Skúste to neskôr.",
+    "recentLiquidity": "Nedávne aktualizácie likvidity",
+    "noLiquidity": "Neboli nájdené žiadne nedávne aktualizácie likvidity pre tento asset",
+    "liquidityFetchError": "Nie je možné načítať aktualizácie likvidity. Skúste to neskôr.",
+    "recentPools": "Nedávne aktualizácie poolov",
+    "noPools": "Neboli nájdené žiadne nedávne aktualizácie poolov pre tento asset",
+    "poolsFetchError": "Nie je možné načítať aktualizácie poolov. Skúste to neskôr."
   }
 }

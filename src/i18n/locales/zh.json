@@ -26,7 +26,13 @@
     "reserveB": "储备 B",
     "liquidityProvider": "流动性提供者",
     "txId": "交易 ID",
-    "loadMore": "加载更多"
+    "loadMore": "加载更多",
+    "timeAgo": {
+      "seconds": "{count}秒前",
+      "minutes": "{count}分钟前", 
+      "hours": "{count}小时前",
+      "days": "{count}天前"
+    }
   },
   "nav": {
     "explore": "浏览",
@@ -177,7 +183,16 @@
     "assetImage": "资产图像",
     "viewAllPools": "查看所有 {name} 池",
     "viewPoolsWithAlgo": "查看与ALGO的池",
-    "viewPoolsWithUsdc": "查看与USDC的池"
+    "viewPoolsWithUsdc": "查看与USDC的池",
+    "recentTrades": "最近交易",
+    "noTrades": "未找到此资产的近期交易",
+    "tradesFetchError": "无法加载交易。请稍后重试。",
+    "recentLiquidity": "最近流动性更新",
+    "noLiquidity": "未找到此资产的近期流动性更新",
+    "liquidityFetchError": "无法加载流动性更新。请稍后重试。",
+    "recentPools": "最近池更新",
+    "noPools": "未找到此资产的近期池更新",
+    "poolsFetchError": "无法加载池更新。请稍后重试。"
   },
   "poolDetails": {
     "title": "池详情",

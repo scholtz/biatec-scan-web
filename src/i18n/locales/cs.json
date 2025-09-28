@@ -26,7 +26,13 @@
     "reserveB": "Rezerva B",
     "liquidityProvider": "Poskytovatel likvidity",
     "txId": "ID TX",
-    "loadMore": "Načíst více"
+    "loadMore": "Načíst více",
+    "timeAgo": {
+      "seconds": "před {count}s",
+      "minutes": "před {count}m", 
+      "hours": "před {count}h",
+      "days": "před {count}d"
+    }
   },
   "nav": {
     "explore": "Prozkoumat",
@@ -177,7 +183,16 @@
     "assetImage": "Obrázek assetu",
     "viewAllPools": "Zobrazit všechny {name} pooly",
     "viewPoolsWithAlgo": "Zobrazit pooly s ALGO",
-    "viewPoolsWithUsdc": "Zobrazit pooly s USDC"
+    "viewPoolsWithUsdc": "Zobrazit pooly s USDC",
+    "recentTrades": "Nedávné obchody",
+    "noTrades": "Nebyly nalezeny žádné nedávné obchody pro tento asset",
+    "tradesFetchError": "Nelze načíst obchody. Zkuste to později.",
+    "recentLiquidity": "Nedávné aktualizace likvidity",
+    "noLiquidity": "Nebyly nalezeny žádné nedávné aktualizace likvidity pro tento asset",
+    "liquidityFetchError": "Nelze načíst aktualizace likvidity. Zkuste to později.",
+    "recentPools": "Nedávné aktualizace poolů",
+    "noPools": "Nebyly nalezeny žádné nedávné aktualizace poolů pro tento asset",
+    "poolsFetchError": "Nelze načíst aktualizace poolů. Zkuste to později."
   },
   "poolDetails": {
     "title": "Detaily poolu",

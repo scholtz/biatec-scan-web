@@ -155,35 +155,39 @@ Troubleshooting
 
  * OpenAPI spec version: v1
  */
-import type { Address } from './address';
+import type { LiqudityDirection } from './liqudityDirection';
+import type { DEXProtocol } from './dEXProtocol';
+import type { TxState } from './txState';
 
-export interface AssetParams {
-  clawback?: Address;
-  creator?: Address;
-  /**
-   * @minimum 0
-   * @maximum 19
-   */
-  decimals?: number;
+export interface Liquidity {
+  direction?: LiqudityDirection;
+  assetIdA?: number;
+  assetIdB?: number;
+  assetIdLP?: number;
+  assetAmountA?: number;
+  assetAmountB?: number;
+  assetAmountLP?: number;
+  a?: number;
+  b?: number;
   /** @nullable */
-  defaultFrozen?: boolean | null;
-  freeze?: Address;
-  manager?: Address;
+  af?: number | null;
   /** @nullable */
-  metadataHash?: string | null;
+  bf?: number | null;
+  l?: number;
   /** @nullable */
-  name?: string | null;
+  txId?: string | null;
+  blockId?: number;
   /** @nullable */
-  nameB64?: string | null;
-  reserve?: Address;
+  txGroup?: string | null;
   /** @nullable */
-  total?: number | null;
+  timestamp?: string | null;
+  protocol?: DEXProtocol;
   /** @nullable */
-  unitName?: string | null;
+  liquidityProvider?: string | null;
   /** @nullable */
-  unitNameB64?: string | null;
+  poolAddress?: string | null;
+  poolAppId?: number;
   /** @nullable */
-  url?: string | null;
-  /** @nullable */
-  urlB64?: string | null;
+  topTxId?: string | null;
+  txState?: TxState;
 }

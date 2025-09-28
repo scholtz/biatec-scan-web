@@ -4,6 +4,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useI18n } from "vue-i18n";
 
 interface Props {
   timestamp: string | bigint;
@@ -13,6 +14,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   format: "relative",
 });
+
+const { t } = useI18n();
 
 // Create a reactive timestamp that updates every second
 const currentTime = ref(Date.now());
@@ -37,13 +40,13 @@ const formatRelativeTime = (timestamp: string | bigint): string => {
   const diffDays = Math.floor(diffHours / 24);
 
   if (diffSecs < 60) {
-    return `${Math.max(0, diffSecs)}s ago`;
+    return t('common.timeAgo.seconds', { count: Math.max(0, diffSecs) });
   } else if (diffMins < 60) {
-    return `${diffMins}m ago`;
+    return t('common.timeAgo.minutes', { count: diffMins });
   } else if (diffHours < 24) {
-    return `${diffHours}h ago`;
+    return t('common.timeAgo.hours', { count: diffHours });
   } else {
-    return `${diffDays}d ago`;
+    return t('common.timeAgo.days', { count: diffDays });
   }
 };
 

@@ -26,7 +26,13 @@
     "reserveB": "Reserva B",
     "liquidityProvider": "Proveedor de liquidez",
     "txId": "ID de TX",
-    "loadMore": "Cargar más"
+    "loadMore": "Cargar más",
+    "timeAgo": {
+      "seconds": "hace {count}s",
+      "minutes": "hace {count}m", 
+      "hours": "hace {count}h",
+      "days": "hace {count}d"
+    }
   },
   "nav": {
     "explore": "Explorar",
@@ -177,7 +183,16 @@
     "assetImage": "Imagen del asset",
     "viewAllPools": "Ver todos los pools de {name}",
     "viewPoolsWithAlgo": "Ver pools con ALGO",
-    "viewPoolsWithUsdc": "Ver pools con USDC"
+    "viewPoolsWithUsdc": "Ver pools con USDC",
+    "recentTrades": "Intercambios recientes",
+    "noTrades": "No se encontraron intercambios recientes para este asset",
+    "tradesFetchError": "No se pueden cargar los intercambios. Por favor intenta más tarde.",
+    "recentLiquidity": "Actualizaciones de liquidez recientes",
+    "noLiquidity": "No se encontraron actualizaciones de liquidez recientes para este asset",
+    "liquidityFetchError": "No se pueden cargar las actualizaciones de liquidez. Por favor intenta más tarde.",
+    "recentPools": "Actualizaciones de pools recientes",
+    "noPools": "No se encontraron actualizaciones de pools recientes para este asset",
+    "poolsFetchError": "No se pueden cargar las actualizaciones de pools. Por favor intenta más tarde."
   },
   "poolDetails": {
     "title": "Detalles del pool",

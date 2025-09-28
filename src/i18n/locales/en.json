@@ -26,7 +26,13 @@
     "reserveB": "Reserve B",
     "liquidityProvider": "Liquidity Provider",
     "txId": "Tx ID",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "timeAgo": {
+      "seconds": "{count}s ago",
+      "minutes": "{count}m ago", 
+      "hours": "{count}h ago",
+      "days": "{count}d ago"
+    }
   },
   "nav": {
     "explore": "Explore",
@@ -232,6 +238,15 @@
     "assetImage": "Asset Image",
     "viewAllPools": "View all {name} pools",
     "viewPoolsWithAlgo": "View Pools with ALGO",
-    "viewPoolsWithUsdc": "View Pools with USDC"
+    "viewPoolsWithUsdc": "View Pools with USDC",
+    "recentTrades": "Recent Trades",
+    "noTrades": "No recent trades found for this asset",
+    "tradesFetchError": "Unable to load trades. Please try again later.",
+    "recentLiquidity": "Recent Liquidity Updates",
+    "noLiquidity": "No recent liquidity updates found for this asset",
+    "liquidityFetchError": "Unable to load liquidity updates. Please try again later.",
+    "recentPools": "Recent Pool Updates",
+    "noPools": "No recent pool updates found for this asset",
+    "poolsFetchError": "Unable to load pool updates. Please try again later."
   }
 }

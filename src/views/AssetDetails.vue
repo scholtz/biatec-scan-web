@@ -91,6 +91,24 @@
         </router-link>
       </div>
     </div>
+
+    <!-- Recent Activity Sections -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <!-- Recent Trades Section -->
+      <div class="card">
+        <TradesList :assetId="assetId" />
+      </div>
+
+      <!-- Recent Liquidity Updates Section -->
+      <div class="card">
+        <LiquidityList :assetId="assetId" />
+      </div>
+
+      <!-- Recent Pool Updates Section -->
+      <div class="card">
+        <PoolList :assetId="assetId" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -100,6 +118,9 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import { favoriteService } from "../services/favoriteService";
+import TradesList from "../components/TradesList.vue";
+import LiquidityList from "../components/LiquidityList.vue";
+import PoolList from "../components/PoolList.vue";
 
 const { t } = useI18n();
 

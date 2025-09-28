@@ -160,6 +160,8 @@ import type {
   AxiosRequestConfig,
   AxiosResponse
 } from 'axios';
+import type { Trade } from './models/trade';
+import type { Liquidity } from './models/liquidity';
 
 export type AMMType = typeof AMMType[keyof typeof AMMType];
 
@@ -262,6 +264,22 @@ assetIdA?: number;
 assetIdB?: number;
 };
 
+export type GetApiTradeParams = {
+assetIdIn?: number;
+assetIdOut?: number;
+assetId?: number;
+protocol?: DEXProtocol;
+size?: number;
+};
+
+export type GetApiLiquidityParams = {
+assetIdA?: number;
+assetIdB?: number;
+assetId?: number;
+protocol?: DEXProtocol;
+size?: number;
+};
+
 export const getAVMTradeReporterAPI = () => {
 const getApiIndexerStatus = <TData = AxiosResponse<Indexer>>(
      options?: AxiosRequestConfig
@@ -340,11 +358,33 @@ const getApiSignalrConnections = <TData = AxiosResponse<null>>(
     ).then((res) => {if (res.data === "") res.data = null; return res as TData;});
   }
 
-return {getApiIndexerStatus,getApiPool,getApiPoolPoolAddress,getApiPoolStats,getApiSignalrAuthTest,getApiSignalrAuthTestAuthorized,postApiSignalrTestBroadcast,postApiSignalrTestTrade,getApiSignalrConnections}};
+const getApiTrade = <TData = AxiosResponse<Trade[]>>(
+    params?: GetApiTradeParams, options?: AxiosRequestConfig
+ ): Promise<TData> => {
+    return axios.default.get(
+      `/api/trade`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+const getApiLiquidity = <TData = AxiosResponse<Liquidity[]>>(
+    params?: GetApiLiquidityParams, options?: AxiosRequestConfig
+ ): Promise<TData> => {
+    return axios.default.get(
+      `/api/liquidity`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+return {getApiIndexerStatus,getApiPool,getApiPoolPoolAddress,getApiPoolStats,getApiSignalrAuthTest,getApiSignalrAuthTestAuthorized,postApiSignalrTestBroadcast,postApiSignalrTestTrade,getApiSignalrConnections,getApiTrade,getApiLiquidity}};
 export type GetApiIndexerStatusResult = AxiosResponse<Indexer>
 export type GetApiPoolResult = AxiosResponse<Pool[]>
 export type GetApiPoolPoolAddressResult = AxiosResponse<Pool>
 export type GetApiPoolStatsResult = AxiosResponse<null>
+export type GetApiTradeResult = AxiosResponse<Trade[]>
+export type GetApiLiquidityResult = AxiosResponse<Liquidity[]>
 export type GetApiSignalrAuthTestResult = AxiosResponse<null>
 export type GetApiSignalrAuthTestAuthorizedResult = AxiosResponse<null>
 export type PostApiSignalrTestBroadcastResult = AxiosResponse<null>
