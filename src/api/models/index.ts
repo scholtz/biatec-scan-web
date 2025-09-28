@@ -171,6 +171,7 @@ export * from './getApiPoolParams';
 export * from './getApiPoolReloadParams';
 export * from './getApiPoolStatsParams';
 export * from './getApiSearchParams';
+export * from './getApiTradeParams';
 export * from './indexer';
 export * from './liquidity';
 export * from './pool';
