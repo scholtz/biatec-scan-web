@@ -1,6 +1,6 @@
 <svg width="24" height="18" viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg">
-  <!-- Germany flag -->
+  <!-- Germany flag (official black-red-gold) -->
   <rect width="24" height="6" fill="#000000"/>
-  <rect width="24" height="6" y="6" fill="#DD0000"/>
+  <rect width="24" height="6" y="6" fill="#DE3831"/>
   <rect width="24" height="6" y="12" fill="#FFCE00"/>
 </svg>

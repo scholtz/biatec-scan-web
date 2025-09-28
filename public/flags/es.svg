@@ -1,6 +1,20 @@
 <svg width="24" height="18" viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg">
-  <!-- Spain flag -->
+  <!-- Spain flag with coat of arms -->
+  <!-- Red stripe (top) -->
   <rect width="24" height="4.5" fill="#AA151B"/>
+  <!-- Yellow stripe (middle) -->
   <rect width="24" height="9" y="4.5" fill="#F1BF00"/>
+  <!-- Red stripe (bottom) -->
   <rect width="24" height="4.5" y="13.5" fill="#AA151B"/>
+  
+  <!-- Simplified coat of arms -->
+  <g transform="translate(8,6)">
+    <!-- Shield -->
+    <path d="M0,1.5 Q0,0.5 1,0.5 L7,0.5 Q8,0.5 8,1.5 L8,4.5 Q8,6 4,7 Q0,6 0,4.5 Z" fill="#FFFFFF" stroke="#AA151B" stroke-width="0.2"/>
+    <!-- Crown -->
+    <rect x="1" y="0" width="6" height="0.8" fill="#F1BF00"/>
+    <rect x="1.5" y="-0.3" width="1" height="0.3" fill="#F1BF00"/>
+    <rect x="3.5" y="-0.3" width="1" height="0.3" fill="#F1BF00"/>
+    <rect x="5.5" y="-0.3" width="1" height="0.3" fill="#F1BF00"/>
+  </g>
 </svg>
