@@ -7,6 +7,7 @@ import es from './locales/es.json'
 import cs from './locales/cs.json'
 import ru from './locales/ru.json'
 import pl from './locales/pl.json'
+import hu from './locales/hu.json'
 
 export type MessageLanguages = keyof typeof messages
 export type MessageSchema = typeof messages['en']
@@ -19,7 +20,8 @@ const messages = {
   es,
   cs,
   ru,
-  pl
+  pl,
+  hu
 }
 
 // Function to detect browser language
