@@ -60,43 +60,6 @@ async function fetchPools() {
   } catch (err: unknown) {
     console.error('Error fetching pools:', err);
     error.value = t('assetDetails.poolsFetchError');
-    
-    // Set demo data in case of API error
-    pools.value = [
-      {
-        poolAddress: 'POOL7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAppId: 67890,
-        assetIdA: Number(props.assetId),
-        assetIdB: 0,
-        a: 1000000,
-        b: 500000,
-        l: 750000,
-        protocol: 'Biatec',
-        timestamp: new Date(Date.now() - 180000).toISOString(), // 3 minutes ago
-      } as Pool,
-      {
-        poolAddress: 'POOL2LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAppId: 67891,
-        assetIdA: 0,
-        assetIdB: Number(props.assetId),
-        a: 300000,
-        b: 200000,
-        l: 250000,
-        protocol: 'Pact',
-        timestamp: new Date(Date.now() - 540000).toISOString(), // 9 minutes ago
-      } as Pool,
-      {
-        poolAddress: 'POOL3LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAppId: 67892,
-        assetIdA: Number(props.assetId),
-        assetIdB: 31566704, // USDC
-        a: 2000000,
-        b: 1000000,
-        l: 1500000,
-        protocol: 'Tiny',
-        timestamp: new Date(Date.now() - 840000).toISOString(), // 14 minutes ago
-      } as Pool,
-    ];
   } finally {
     loading.value = false;
   }

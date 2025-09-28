@@ -76,76 +76,12 @@ async function fetchLiquidity() {
     loading.value = true;
     error.value = '';
     
-    // For now, we'll use demo data since the API endpoint might not exist yet
-    // TODO: Replace with actual API call when /api/liquidity endpoint is available
     console.log(`Fetching liquidity for asset ${props.assetId}`);
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Demo data
-    liquidity.value = [
-      {
-        assetIdA: Number(props.assetId),
-        assetIdB: 0,
-        assetIdLP: 1234567,
-        assetAmountA: 1000000,
-        assetAmountB: 500000,
-        assetAmountLP: 750000,
-        txId: 'LIQDEM1XW7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJ',
-        blockId: 32145678,
-        timestamp: new Date(Date.now() - 120000).toISOString(), // 2 minutes ago
-        protocol: 'Biatec',
-        liquidityProvider: 'LPDEMO7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHL',
-        poolAddress: 'POOL7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAppId: 67890,
-        txState: 'Confirmed',
-        direction: 'DepositLiquidity',
-        a: 1000000,
-        b: 500000,
-        l: 750000,
-      } as Liquidity,
-      {
-        assetIdA: 0,
-        assetIdB: Number(props.assetId),
-        assetIdLP: 1234568,
-        assetAmountA: 300000,
-        assetAmountB: 200000,
-        assetAmountLP: 100000,
-        txId: 'LIQDEM2XW7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJ',
-        blockId: 32145670,
-        timestamp: new Date(Date.now() - 480000).toISOString(), // 8 minutes ago
-        protocol: 'Pact',
-        liquidityProvider: 'LPDEMO2LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHL',
-        poolAddress: 'POOL2LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAppId: 67891,
-        txState: 'Confirmed',
-        direction: 'WithdrawLiquidity',
-        a: 300000,
-        b: 200000,
-        l: 100000,
-      } as Liquidity,
-      {
-        assetIdA: Number(props.assetId),
-        assetIdB: 31566704, // USDC
-        assetIdLP: 1234569,
-        assetAmountA: 2000000,
-        assetAmountB: 1000000,
-        assetAmountLP: 1500000,
-        txId: 'LIQDEM3XW7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJ',
-        blockId: 32145665,
-        timestamp: new Date(Date.now() - 720000).toISOString(), // 12 minutes ago
-        protocol: 'Tiny',
-        liquidityProvider: 'LPDEMO3LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHL',
-        poolAddress: 'POOL3LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAppId: 67892,
-        txState: 'Confirmed',
-        direction: 'DepositLiquidity',
-        a: 2000000,
-        b: 1000000,
-        l: 1500000,
-      } as Liquidity,
-    ];
+    // The /api/liquidity endpoint is not yet available in the generated API
+    // TODO: Regenerate API when the backend /api/liquidity endpoint is added to swagger
+    error.value = t('assetDetails.liquidityFetchError') + ' - /api/liquidity endpoint not yet available in API specification';
+    liquidity.value = [];
     
   } catch (err: unknown) {
     console.error('Error fetching liquidity:', err);

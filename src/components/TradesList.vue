@@ -70,58 +70,12 @@ async function fetchTrades() {
     loading.value = true;
     error.value = '';
     
-    // For now, we'll use demo data since the API endpoint might not exist yet
-    // TODO: Replace with actual API call when /api/trade endpoint is available
     console.log(`Fetching trades for asset ${props.assetId}`);
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Demo data
-    trades.value = [
-      {
-        assetIdIn: Number(props.assetId),
-        assetIdOut: 0,
-        assetAmountIn: 1000000,
-        assetAmountOut: 500000,
-        txId: 'DEMO1XW7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAH',
-        blockId: 32145678,
-        timestamp: new Date(Date.now() - 300000).toISOString(), // 5 minutes ago
-        protocol: 'Biatec',
-        trader: 'DEMO7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAddress: 'POOL7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAppId: 67890,
-        tradeState: 'Confirmed',
-      } as Trade,
-      {
-        assetIdIn: 0,
-        assetIdOut: Number(props.assetId),
-        assetAmountIn: 500000,
-        assetAmountOut: 750000,
-        txId: 'DEMO2XW7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAH',
-        blockId: 32145670,
-        timestamp: new Date(Date.now() - 600000).toISOString(), // 10 minutes ago
-        protocol: 'Pact',
-        trader: 'DEMO2LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAddress: 'POOL2LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAppId: 67891,
-        tradeState: 'Confirmed',
-      } as Trade,
-      {
-        assetIdIn: Number(props.assetId),
-        assetIdOut: 31566704, // USDC
-        assetAmountIn: 2000000,
-        assetAmountOut: 1000000,
-        txId: 'DEMO3XW7LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAH',
-        blockId: 32145665,
-        timestamp: new Date(Date.now() - 900000).toISOString(), // 15 minutes ago
-        protocol: 'Tiny',
-        trader: 'DEMO3LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAddress: 'POOL3LJKDSH8ALKJSDHALK7DJASHLDKJSAHLDKJSAHLDKJSAHLDKJ',
-        poolAppId: 67892,
-        tradeState: 'Confirmed',
-      } as Trade,
-    ];
+    // The /api/trade endpoint is not yet available in the generated API
+    // TODO: Regenerate API when the backend /api/trade endpoint is added to swagger
+    error.value = t('assetDetails.tradesFetchError') + ' - /api/trade endpoint not yet available in API specification';
+    trades.value = [];
     
   } catch (err: unknown) {
     console.error('Error fetching trades:', err);
