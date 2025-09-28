@@ -62,7 +62,8 @@ const availableLocales = [
   { code: 'es', name: 'Español', flag: '/flags/es.svg' },
   { code: 'cs', name: 'Čeština', flag: '/flags/cs.svg' },
   { code: 'ru', name: 'Русский', flag: '/flags/ru.svg' },
-  { code: 'pl', name: 'Polski', flag: '/flags/pl.svg' }
+  { code: 'pl', name: 'Polski', flag: '/flags/pl.svg' },
+  { code: 'hu', name: 'Magyar', flag: '/flags/hu.svg' }
 ]
 
 const currentLocale = computed(() => locale.value)
