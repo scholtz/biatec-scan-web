@@ -28,7 +28,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Liquidity, DEXProtocol, TxState } from '../api/models';
+import type { Liquidity } from '../api/models';
+import { getAVMTradeReporterAPI } from '../api';
 import { signalrService } from '../services/signalrService';
 import type { AMMLiquidity } from '../types/algorand';
 import LiquidityCard from './LiquidityCard.vue';
@@ -56,12 +57,12 @@ function convertToAMMLiquidity(liquidityItem: Liquidity): AMMLiquidity {
     blockId: liquidityItem.blockId ?? 0,
     txGroup: liquidityItem.txGroup ?? '',
     timestamp: liquidityItem.timestamp ?? '',
-    protocol: (liquidityItem.protocol as string) ?? 'Biatec',
+    protocol: liquidityItem.protocol ?? 'Biatec',
     liquidityProvider: liquidityItem.liquidityProvider ?? '',
     poolAddress: liquidityItem.poolAddress ?? '',
     poolAppId: liquidityItem.poolAppId ?? 0,
     topTxId: liquidityItem.topTxId ?? '',
-    txState: (liquidityItem.txState as string) ?? 'Confirmed',
+    txState: liquidityItem.txState ?? 'Confirmed',
     direction: liquidityItem.direction ?? 'DepositLiquidity',
     a: liquidityItem.a ?? 0,
     b: liquidityItem.b ?? 0,
@@ -78,10 +79,27 @@ async function fetchLiquidity() {
     
     console.log(`Fetching liquidity for asset ${props.assetId}`);
     
-    // The /api/liquidity endpoint is not yet available in the generated API
-    // TODO: Regenerate API when the backend /api/liquidity endpoint is added to swagger
-    error.value = t('assetDetails.liquidityFetchError') + ' - /api/liquidity endpoint not yet available in API specification';
-    liquidity.value = [];
+    // Use the real API endpoint
+    const api = getAVMTradeReporterAPI();
+    
+    // Fetch liquidity where this asset is assetIdA
+    const responseA = await api.getApiLiquidity({
+      assetIdA: Number(props.assetId),
+      size: 20 // Fetch last 20 liquidity updates
+    });
+    
+    // Fetch liquidity where this asset is assetIdB
+    const responseB = await api.getApiLiquidity({
+      assetIdB: Number(props.assetId),
+      size: 20 // Fetch last 20 liquidity updates
+    });
+    
+    // Combine and sort by timestamp (most recent first)
+    const allLiquidity = [...(responseA.data || []), ...(responseB.data || [])];
+    allLiquidity.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+    
+    // Take only the 20 most recent
+    liquidity.value = allLiquidity.slice(0, 20);
     
   } catch (err: unknown) {
     console.error('Error fetching liquidity:', err);
@@ -109,13 +127,13 @@ function handleLiquidityUpdate(liquidityUpdate: AMMLiquidity) {
       blockId: liquidityUpdate.blockId,
       txGroup: liquidityUpdate.txGroup,
       timestamp: liquidityUpdate.timestamp,
-      protocol: (liquidityUpdate.protocol as DEXProtocol) ?? 'Biatec',
+      protocol: liquidityUpdate.protocol as any, // Type assertion needed for compatibility
       liquidityProvider: liquidityUpdate.liquidityProvider,
       poolAddress: liquidityUpdate.poolAddress,
       poolAppId: liquidityUpdate.poolAppId,
       topTxId: liquidityUpdate.topTxId,
-      txState: (liquidityUpdate.txState as TxState) ?? 'Confirmed',
-      direction: liquidityUpdate.direction,
+      txState: liquidityUpdate.txState as any, // Type assertion needed for compatibility
+      direction: liquidityUpdate.direction as any, // Type assertion needed for compatibility
       a: liquidityUpdate.a,
       b: liquidityUpdate.b,
       l: liquidityUpdate.l,
