@@ -72,7 +72,7 @@ jobs:
 
       - name: Update manifest image tag
         run: |
-          sed -i "s#image: \\S\+#image: ${{ env.PRIVATE_IMAGE }}:${{ steps.vars.outputs.version }}#" k8s/main/deployment-fe.yaml
+          sed -i "s#image: \\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }}#" k8s/main/deployment-fe.yaml
           echo '----- Modified manifest (image lines) -----'
           grep -n 'image:' k8s/main/deployment-fe.yaml
 
