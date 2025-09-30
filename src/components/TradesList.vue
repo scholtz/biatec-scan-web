@@ -127,8 +127,10 @@ function handleTradeUpdate(trade: AMMTrade) {
       tradeState: trade.tradeState as any, // Type assertion needed for compatibility
     };
     
-    // Add to beginning of list and keep only 20 most recent
-    trades.value = [apiTrade, ...trades.value].slice(0, 20);
+    // Add to list, sort by timestamp, and keep only 20 most recent
+    const updatedTrades = [apiTrade, ...trades.value];
+    updatedTrades.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+    trades.value = updatedTrades.slice(0, 20);
   }
 }
 

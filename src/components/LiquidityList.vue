@@ -141,8 +141,10 @@ function handleLiquidityUpdate(liquidityUpdate: AMMLiquidity) {
       l: liquidityUpdate.l,
     };
     
-    // Add to beginning of list and keep only 20 most recent
-    liquidity.value = [apiLiquidity, ...liquidity.value].slice(0, 20);
+    // Add to list, sort by timestamp, and keep only 20 most recent
+    const updatedLiquidity = [apiLiquidity, ...liquidity.value];
+    updatedLiquidity.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+    liquidity.value = updatedLiquidity.slice(0, 20);
   }
 }
 

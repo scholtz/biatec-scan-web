@@ -58,7 +58,10 @@ async function fetchPools() {
       size: 20
     });
     
-    pools.value = response.data;
+    // Sort by timestamp (most recent first) and take only 20 most recent
+    const sortedPools = (response.data || []);
+    sortedPools.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+    pools.value = sortedPools.slice(0, 20);
   } catch (err: unknown) {
     console.error('Error fetching pools:', err);
     error.value = t('assetDetails.poolsFetchError');
@@ -73,8 +76,10 @@ function handlePoolUpdate(pool: Pool) {
     pool.assetIdA?.toString() === props.assetId ||
     pool.assetIdB?.toString() === props.assetId
   ) {
-    // Add to beginning of list and keep only 20 most recent
-    pools.value = [pool, ...pools.value].slice(0, 20);
+    // Add to list, sort by timestamp, and keep only 20 most recent
+    const updatedPools = [pool, ...pools.value];
+    updatedPools.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+    pools.value = updatedPools.slice(0, 20);
   }
 }
 
