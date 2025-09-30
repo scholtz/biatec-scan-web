@@ -17,7 +17,7 @@ let callbacksAggregatedPools: ((pool: AMMAggregatedPool) => void)[] = [];
 let callbacksBlocks: ((block: BiatecBlock) => void)[] = [];
 let callbacksAssets: ((block: BiatecAsset) => void)[] = [];
 
-let currentSubscription: SubscriptionFilter | null = null;
+let pendingSubscriptions: SubscriptionFilter[] = [];
 
 class SignalRService {
   private connection: HubConnection | null = null;
@@ -51,9 +51,14 @@ class SignalRService {
       this.connection.onreconnected(() => {
         console.log("SignalR reconnected");
         this.isConnected = true;
-        // Re-subscribe after reconnection
-        if (currentSubscription !== null) {
-          this.subscribe(currentSubscription);
+        // Re-subscribe after reconnection with merged filters
+        if (pendingSubscriptions.length > 0) {
+          const mergedFilter = this.mergeSubscriptionFilters(pendingSubscriptions);
+          this.connection?.invoke("Subscribe", mergedFilter)
+            .then(() => {
+              console.log("Re-subscribed after reconnection:", mergedFilter);
+            })
+            .catch(error => console.error("Error re-subscribing after reconnection:", error));
         }
       });
 
@@ -126,8 +131,50 @@ class SignalRService {
     }
   }
 
+  private mergeSubscriptionFilters(filters: SubscriptionFilter[]): SubscriptionFilter {
+    const merged: SubscriptionFilter = {
+      RecentBlocks: false,
+      RecentTrades: false,
+      RecentLiquidity: false,
+      RecentPool: false,
+      RecentAggregatedPool: false,
+      RecentAssets: false,
+      MainAggregatedPools: false,
+      PoolsAddresses: [],
+      AggregatedPoolsIds: [],
+      AssetIds: [],
+    };
+
+    // Merge all filters
+    filters.forEach((filter) => {
+      merged.RecentBlocks = merged.RecentBlocks || filter.RecentBlocks;
+      merged.RecentTrades = merged.RecentTrades || filter.RecentTrades;
+      merged.RecentLiquidity = merged.RecentLiquidity || filter.RecentLiquidity;
+      merged.RecentPool = merged.RecentPool || filter.RecentPool;
+      merged.RecentAggregatedPool = merged.RecentAggregatedPool || filter.RecentAggregatedPool;
+      merged.RecentAssets = merged.RecentAssets || filter.RecentAssets;
+      merged.MainAggregatedPools = merged.MainAggregatedPools || filter.MainAggregatedPools;
+
+      // Merge arrays and remove duplicates
+      merged.PoolsAddresses = [...new Set([...merged.PoolsAddresses, ...filter.PoolsAddresses])];
+      merged.AggregatedPoolsIds = [...new Set([...merged.AggregatedPoolsIds, ...filter.AggregatedPoolsIds])];
+      merged.AssetIds = [...new Set([...merged.AssetIds, ...filter.AssetIds])];
+    });
+
+    return merged;
+  }
+
   public async subscribe(filter: SubscriptionFilter): Promise<void> {
-    console.log("subscribing to AMM trades");
+    console.log("subscribing with filter:", filter);
+    
+    // Add this filter to pending subscriptions if not already present
+    const existingIndex = pendingSubscriptions.findIndex(f => 
+      JSON.stringify(f) === JSON.stringify(filter)
+    );
+    if (existingIndex === -1) {
+      pendingSubscriptions.push(filter);
+    }
+
     const timeoutMs = 5000;
     const start = Date.now();
 
@@ -158,19 +205,47 @@ class SignalRService {
     }
 
     try {
-      currentSubscription = filter;
-      await this.connection.invoke("Subscribe", filter);
-      console.log(`Subscribed to updates with filter: `, filter);
+      // Merge all pending subscriptions into one
+      const mergedFilter = this.mergeSubscriptionFilters(pendingSubscriptions);
+      
+      await this.connection.invoke("Subscribe", mergedFilter);
+      console.log(`Subscribed to updates with merged filter:`, mergedFilter);
     } catch (error) {
       console.error("Error subscribing to updates:", error);
     }
   }
+  public async unsubscribeFilter(filter: SubscriptionFilter): Promise<void> {
+    // Remove this specific filter from pending subscriptions
+    const filterStr = JSON.stringify(filter);
+    pendingSubscriptions = pendingSubscriptions.filter(f => 
+      JSON.stringify(f) !== filterStr
+    );
+
+    if (!this.connection || !this.isConnected) return;
+
+    try {
+      if (pendingSubscriptions.length > 0) {
+        // Re-subscribe with remaining filters
+        const mergedFilter = this.mergeSubscriptionFilters(pendingSubscriptions);
+        await this.connection.invoke("Subscribe", mergedFilter);
+        console.log(`Re-subscribed with remaining filters:`, mergedFilter);
+      } else {
+        // No more subscriptions, unsubscribe completely
+        await this.connection.invoke("Unsubscribe");
+        console.log(`Unsubscribed from all updates`);
+      }
+    } catch (error) {
+      console.error("Error updating subscription:", error);
+    }
+  }
+
   public async unsubscribe(): Promise<void> {
     if (!this.connection || !this.isConnected) return;
 
     try {
       await this.connection.invoke("Unsubscribe");
-      console.log(`Unsubscribed"`);
+      pendingSubscriptions = [];
+      console.log(`Unsubscribed from all updates`);
     } catch (error) {
       console.error("Error unsubscribing:", error);
     }

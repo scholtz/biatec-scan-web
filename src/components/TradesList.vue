@@ -32,6 +32,7 @@ import type { Trade } from '../api/models';
 import { getAVMTradeReporterAPI } from '../api';
 import { signalrService } from '../services/signalrService';
 import type { AMMTrade } from '../types/algorand';
+import type { SubscriptionFilter } from '../types/SubscriptionFilter';
 import TradeCard from './TradeCard.vue';
 
 const { t } = useI18n();
@@ -43,6 +44,7 @@ const props = defineProps<{
 const trades = ref<Trade[]>([]);
 const loading = ref(false);
 const error = ref<string>('');
+let subscriptionFilter: SubscriptionFilter | null = null;
 
 // Convert Trade API model to AMMTrade interface expected by TradeCard
 function convertToAMMTrade(trade: Trade): AMMTrade {
@@ -125,8 +127,10 @@ function handleTradeUpdate(trade: AMMTrade) {
       tradeState: trade.tradeState as any, // Type assertion needed for compatibility
     };
     
-    // Add to beginning of list and keep only 20 most recent
-    trades.value = [apiTrade, ...trades.value].slice(0, 20);
+    // Add to list, sort by timestamp, and keep only 20 most recent
+    const updatedTrades = [apiTrade, ...trades.value];
+    updatedTrades.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+    trades.value = updatedTrades.slice(0, 20);
   }
 }
 
@@ -135,7 +139,7 @@ onMounted(() => {
   signalrService.onTradeReceived(handleTradeUpdate);
   
   // Subscribe to trades for this specific asset
-  signalrService.subscribe({
+  subscriptionFilter = {
     RecentBlocks: false,
     RecentTrades: true,
     RecentLiquidity: false,
@@ -146,11 +150,15 @@ onMounted(() => {
     PoolsAddresses: [],
     AggregatedPoolsIds: [],
     AssetIds: [props.assetId], // Subscribe to trades for this specific asset
-  });
+  };
+  signalrService.subscribe(subscriptionFilter);
 });
 
 onUnmounted(() => {
   signalrService.unsubscribeFromTradeUpdates(handleTradeUpdate);
+  if (subscriptionFilter) {
+    signalrService.unsubscribeFilter(subscriptionFilter);
+  }
 });
 </script>
 

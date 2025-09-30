@@ -113,11 +113,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import { favoriteService } from "../services/favoriteService";
+import { signalrService } from "../services/signalrService";
+import type { SubscriptionFilter } from "../types/SubscriptionFilter";
+import type { BiatecAsset } from "../api/models";
 import TradesList from "../components/TradesList.vue";
 import LiquidityList from "../components/LiquidityList.vue";
 import PoolList from "../components/PoolList.vue";
@@ -128,6 +131,7 @@ const route = useRoute();
 const assetId = ref<string>(route.params.assetId as string);
 
 const forceUpdate = ref<number>(0);
+let assetSubscriptionFilter: SubscriptionFilter | null = null;
 
 const name = computed(() => {
   void forceUpdate.value;
@@ -181,13 +185,70 @@ function ensureLoaded() {
   });
 }
 
-onMounted(ensureLoaded);
+function handleAssetUpdate(asset: BiatecAsset) {
+  // Check if this update is for the current asset
+  if (asset.index?.toString() === assetId.value) {
+    console.log("Asset update received for current asset:", asset);
+    forceUpdate.value++;
+  }
+}
+
+onMounted(() => {
+  ensureLoaded();
+  
+  // Subscribe to asset updates for this specific asset
+  signalrService.onAssetReceived(handleAssetUpdate);
+  assetSubscriptionFilter = {
+    RecentBlocks: false,
+    RecentTrades: false,
+    RecentLiquidity: false,
+    RecentPool: false,
+    RecentAggregatedPool: false,
+    RecentAssets: true,
+    MainAggregatedPools: false,
+    PoolsAddresses: [],
+    AggregatedPoolsIds: [],
+    AssetIds: [assetId.value], // Subscribe to this specific asset
+  };
+  signalrService.subscribe(assetSubscriptionFilter);
+});
+
+onUnmounted(() => {
+  signalrService.unsubscribeFromAssetUpdates(handleAssetUpdate);
+  if (assetSubscriptionFilter) {
+    signalrService.unsubscribeFilter(assetSubscriptionFilter);
+  }
+});
 
 watch(
   () => route.params.assetId,
   (v) => {
-    assetId.value = String(v ?? "0");
-    ensureLoaded();
+    const newAssetId = String(v ?? "0");
+    if (newAssetId !== assetId.value) {
+      // Unsubscribe from the old asset
+      if (assetSubscriptionFilter) {
+        signalrService.unsubscribeFilter(assetSubscriptionFilter);
+      }
+      
+      // Update asset ID and reload
+      assetId.value = newAssetId;
+      ensureLoaded();
+      
+      // Subscribe to the new asset
+      assetSubscriptionFilter = {
+        RecentBlocks: false,
+        RecentTrades: false,
+        RecentLiquidity: false,
+        RecentPool: false,
+        RecentAggregatedPool: false,
+        RecentAssets: true,
+        MainAggregatedPools: false,
+        PoolsAddresses: [],
+        AggregatedPoolsIds: [],
+        AssetIds: [newAssetId], // Subscribe to this specific asset
+      };
+      signalrService.subscribe(assetSubscriptionFilter);
+    }
   }
 );
 </script>
