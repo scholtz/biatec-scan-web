@@ -92,19 +92,16 @@
       </div>
     </div>
 
-    <!-- Recent Activity Sections -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <!-- Aggregated Pools and Recent Trades Section -->
-      <div class="space-y-4">
-        <!-- Aggregated Pools -->
-        <div class="card">
-          <AggregatedPoolsList :assetId="assetId" />
-        </div>
-        
-        <!-- Recent Trades Section -->
-        <div class="card">
-          <TradesList :assetId="assetId" />
-        </div>
+    <!-- Recent Activity Sections - 4 column layout on wide screens -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <!-- Aggregated Pools Section -->
+      <div class="card">
+        <AggregatedPoolsList :assetId="assetId" :maxItems="20" />
+      </div>
+
+      <!-- Recent Trades Section -->
+      <div class="card">
+        <TradesList :assetId="assetId" />
       </div>
 
       <!-- Recent Liquidity Updates Section -->

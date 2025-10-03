@@ -27,78 +27,79 @@
       {{ $t('assetDetails.noAggregatedPools') }}
     </div>
     
-    <div v-else>
-      <!-- Grid Layout: 1 column on mobile, 2 on tablet, 4 on wide screens -->
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-        <div
-          v-for="pool in pools.slice(0, maxItems)"
-          :key="pool.id || `${pool.assetIdA}-${pool.assetIdB}`"
-          v-observe-visibility="poolKey(pool)"
-          class="bg-gray-800/40 hover:bg-gray-800/60 rounded-lg p-3 transition-colors"
-        >
-          <!-- Pool Header with Assets -->
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-2">
-              <div class="flex -space-x-1">
-                <img
-                  :src="assetImageUrl(pool.assetIdA)"
-                  class="w-5 h-5 rounded border border-gray-700 bg-gray-900"
-                  :alt="assetUnitName"
-                />
-                <img
-                  :src="assetImageUrl(pool.assetIdB)"
-                  class="w-5 h-5 rounded border border-gray-700 bg-gray-900"
-                  :alt="String(otherAssetUnitName(pool))"
-                />
-              </div>
-              <RouterLink
-                :to="`/pools/${assetId}/${pool.assetIdB}`"
-                class="text-sm font-mono text-blue-100 hover:text-blue-300 transition-colors"
-              >
-                {{ pairLabel(pool) }}
-              </RouterLink>
+    <div v-else class="space-y-2">
+      <div
+        v-for="pool in pools.slice(0, maxItems)"
+        :key="pool.id || `${pool.assetIdA}-${pool.assetIdB}`"
+        v-observe-visibility="poolKey(pool)"
+        class="bg-gray-800/40 hover:bg-gray-800/60 rounded-lg p-3 transition-colors"
+      >
+        <!-- Pool Header with Assets -->
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div class="flex -space-x-1">
+              <img
+                :src="assetImageUrl(pool.assetIdA)"
+                class="w-5 h-5 rounded border border-gray-700 bg-gray-900"
+                :alt="assetUnitName"
+              />
+              <img
+                :src="assetImageUrl(pool.assetIdB)"
+                class="w-5 h-5 rounded border border-gray-700 bg-gray-900"
+                :alt="String(otherAssetUnitName(pool))"
+              />
             </div>
-            <div class="text-xs text-amber-400">
-              {{ pool.poolCount }} {{ $t('common.pools') }}
-            </div>
+            <RouterLink
+              :to="`/pools/${assetId}/${pool.assetIdB}`"
+              class="text-sm font-mono text-blue-100 hover:text-blue-300 transition-colors"
+            >
+              {{ pairLabel(pool) }}
+            </RouterLink>
           </div>
+          <div class="text-xs text-amber-400">
+            {{ pool.poolCount }} {{ $t('common.pools') }}
+          </div>
+        </div>
 
-          <!-- Pool Details -->
-          <div class="space-y-2 text-xs">
-            <div>
-              <div class="text-gray-400">{{ $t('assetDetails.price') }}</div>
-              <div class="text-white font-mono">{{ formatPrice(pool) }}</div>
-            </div>
-            <div>
-              <div class="text-gray-400">{{ $t('assetDetails.reserve', { unitName: assetUnitName }) }}</div>
-              <RouterLink
-                :to="{
-                  name: 'PoolsByAssets',
-                  params: { asset1: pool.assetIdA, asset2: pool.assetIdB },
-                }"
-                class="text-white font-mono hover:text-blue-300 transition-colors"
-              >
-                {{ formatReserveSelected(pool) }}
-              </RouterLink>
-            </div>
-            <div>
-              <div class="text-gray-400">{{ $t('assetDetails.tvlUsd', { unitName: assetUnitName }) }}</div>
-              <div class="text-white">{{ formatTVLAUSD(pool) }}</div>
-            </div>
-            <div>
-              <div class="text-gray-400">{{ $t('assetDetails.updated') }}</div>
-              <div class="text-gray-400">
-                <FormattedTime
-                  :timestamp="pool.lastUpdated || new Date().toISOString()"
-                />
-              </div>
+        <!-- Pool Details -->
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <div class="text-gray-400">{{ $t('assetDetails.price') }}</div>
+            <div class="text-white font-mono">{{ formatPrice(pool) }}</div>
+          </div>
+          <div>
+            <div class="text-gray-400">{{ $t('assetDetails.reserve', { unitName: assetUnitName }) }}</div>
+            <RouterLink
+              :to="{
+                name: 'PoolsByAssets',
+                params: { asset1: pool.assetIdA, asset2: pool.assetIdB },
+              }"
+              class="text-white font-mono hover:text-blue-300 transition-colors"
+            >
+              {{ formatReserveSelected(pool) }}
+            </RouterLink>
+          </div>
+        </div>
+
+        <!-- TVL Information -->
+        <div class="grid grid-cols-2 gap-3 text-xs mt-2">
+          <div>
+            <div class="text-gray-400">{{ $t('assetDetails.tvlUsd', { unitName: assetUnitName }) }}</div>
+            <div class="text-white">{{ formatTVLAUSD(pool) }}</div>
+          </div>
+          <div>
+            <div class="text-gray-400">{{ $t('assetDetails.updated') }}</div>
+            <div class="text-gray-400">
+              <FormattedTime
+                :timestamp="pool.lastUpdated || new Date().toISOString()"
+              />
             </div>
           </div>
         </div>
       </div>
       
       <!-- Show More Link -->
-      <div v-if="pools.length > maxItems" class="text-center pt-4">
+      <div v-if="pools.length > maxItems" class="text-center pt-2">
         <RouterLink
           :to="{
             name: 'AggregatedPoolsByAsset',
@@ -143,7 +144,7 @@ const state = reactive<State>({
 });
 
 const api = getAVMTradeReporterAPI();
-const maxItems = computed(() => props.maxItems || 20);
+const maxItems = computed(() => props.maxItems || 5);
 
 async function fetchAggregatedPools() {
   state.loading = true;
