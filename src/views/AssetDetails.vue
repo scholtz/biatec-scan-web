@@ -98,7 +98,7 @@
       <div class="space-y-4">
         <!-- Aggregated Pools -->
         <div class="card">
-          <AggregatedPoolsList :assetId="assetId" :maxItems="5" />
+          <AggregatedPoolsList :assetId="assetId" />
         </div>
         
         <!-- Recent Trades Section -->
