@@ -1,113 +1,89 @@
 <template>
-  <div class="space-y-3">
-    <div class="flex items-center justify-between mb-4">
+  <div class="space-y-2">
+    <div class="flex items-center justify-between mb-2">
       <RouterLink
         :to="{
           name: 'AggregatedPoolsByAsset',
           params: { assetId },
         }"
-        class="text-lg font-semibold text-white hover:text-blue-300 transition-colors"
+        class="text-base font-semibold text-white hover:text-blue-300 transition-colors"
       >
         {{ $t('assetDetails.aggregatedPools') }}
       </RouterLink>
       <div class="text-xs text-gray-400">
-        {{ pools.length }} {{ $t('assetDetails.pools') }}
+        {{ pools.length }}
       </div>
     </div>
 
-    <div v-if="loading" class="text-gray-400 text-center py-4">
+    <div v-if="loading" class="text-gray-400 text-center py-3 text-xs">
       {{ $t('common.loading') }}
     </div>
     
-    <div v-else-if="error" class="text-red-400 text-center py-4">
+    <div v-else-if="error" class="text-red-400 text-center py-3 text-xs">
       {{ error }}
     </div>
     
-    <div v-else-if="!pools.length" class="text-gray-400 text-center py-4">
+    <div v-else-if="!pools.length" class="text-gray-400 text-center py-3 text-xs">
       {{ $t('assetDetails.noAggregatedPools') }}
     </div>
     
-    <div v-else class="space-y-2">
+    <div v-else class="space-y-1.5">
       <div
         v-for="pool in pools.slice(0, maxItems)"
         :key="pool.id || `${pool.assetIdA}-${pool.assetIdB}`"
         v-observe-visibility="poolKey(pool)"
-        class="bg-gray-800/40 hover:bg-gray-800/60 rounded-lg p-3 transition-colors"
+        class="bg-gray-800/40 hover:bg-gray-800/60 rounded p-2 transition-colors"
       >
         <!-- Pool Header with Assets -->
-        <div class="flex items-center justify-between mb-2">
-          <div class="flex items-center gap-2">
+        <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center gap-1.5">
             <div class="flex -space-x-1">
               <img
                 :src="assetImageUrl(pool.assetIdA)"
-                class="w-5 h-5 rounded border border-gray-700 bg-gray-900"
+                class="w-4 h-4 rounded border border-gray-700 bg-gray-900"
                 :alt="assetUnitName"
               />
               <img
                 :src="assetImageUrl(pool.assetIdB)"
-                class="w-5 h-5 rounded border border-gray-700 bg-gray-900"
+                class="w-4 h-4 rounded border border-gray-700 bg-gray-900"
                 :alt="String(otherAssetUnitName(pool))"
               />
             </div>
             <RouterLink
               :to="`/pools/${assetId}/${pool.assetIdB}`"
-              class="text-sm font-mono text-blue-100 hover:text-blue-300 transition-colors"
+              class="text-xs font-mono text-blue-100 hover:text-blue-300 transition-colors truncate"
             >
               {{ pairLabel(pool) }}
             </RouterLink>
           </div>
-          <div class="text-xs text-amber-400">
-            {{ pool.poolCount }} {{ $t('common.pools') }}
+          <div class="text-[10px] text-amber-400 whitespace-nowrap ml-1">
+            {{ pool.poolCount }}
           </div>
         </div>
 
-        <!-- Pool Details -->
-        <div class="grid grid-cols-2 gap-3 text-xs">
+        <!-- Pool Details - Condensed -->
+        <div class="grid grid-cols-2 gap-1.5 text-[10px]">
           <div>
-            <div class="text-gray-400">{{ $t('assetDetails.price') }}</div>
-            <div class="text-white font-mono">{{ formatPrice(pool) }}</div>
+            <div class="text-gray-500">{{ $t('assetDetails.price') }}</div>
+            <div class="text-white font-mono truncate">{{ formatPrice(pool) }}</div>
           </div>
           <div>
-            <div class="text-gray-400">{{ $t('assetDetails.reserve', { unitName: assetUnitName }) }}</div>
-            <RouterLink
-              :to="{
-                name: 'PoolsByAssets',
-                params: { asset1: pool.assetIdA, asset2: pool.assetIdB },
-              }"
-              class="text-white font-mono hover:text-blue-300 transition-colors"
-            >
-              {{ formatReserveSelected(pool) }}
-            </RouterLink>
-          </div>
-        </div>
-
-        <!-- TVL Information -->
-        <div class="grid grid-cols-2 gap-3 text-xs mt-2">
-          <div>
-            <div class="text-gray-400">{{ $t('assetDetails.tvlUsd', { unitName: assetUnitName }) }}</div>
-            <div class="text-white">{{ formatTVLAUSD(pool) }}</div>
-          </div>
-          <div>
-            <div class="text-gray-400">{{ $t('assetDetails.updated') }}</div>
-            <div class="text-gray-400">
-              <FormattedTime
-                :timestamp="pool.lastUpdated || new Date().toISOString()"
-              />
-            </div>
+            <div class="text-gray-500">TVL</div>
+            <div class="text-white truncate">{{ formatTVLAUSD(pool) }}</div>
           </div>
         </div>
       </div>
       
       <!-- Show More Link -->
-      <div v-if="pools.length > maxItems" class="text-center pt-2">
+      <div v-if="pools.length > maxItems" class="text-center pt-1">
         <RouterLink
           :to="{
             name: 'AggregatedPoolsByAsset',
             params: { assetId },
           }"
-          class="text-sm text-blue-300 hover:text-blue-100 transition-colors"
+          class="text-xs text-blue-300 hover:text-blue-100 transition-colors"
         >
-          {{ $t('assetDetails.viewAllPools', { count: pools.length }) }}
+          +{{ pools.length - maxItems }} {{ $t('assetDetails.pools') }}
         </RouterLink>
       </div>
     </div>
@@ -120,7 +96,6 @@ import { getAVMTradeReporterAPI } from "../api";
 import { AggregatedPool } from "../api/models";
 import { assetService } from "../services/assetService";
 import { signalrService } from "../services/signalrService";
-import FormattedTime from "./FormattedTime.vue";
 
 const props = defineProps<{
   assetId: string;
@@ -253,11 +228,6 @@ function pairLabel(p: AggregatedPool) {
   const other = otherAssetInfo(p);
   const otherName = other?.unitName || other?.name || p.assetIdB;
   return `${assetUnitName.value}/${otherName}`;
-}
-
-function formatReserveSelected(p: AggregatedPool) {
-  if (p.tvL_A === undefined || p.assetIdA === undefined) return "-";
-  return assetService.formatAssetBalance(p.tvL_A, BigInt(p.assetIdA), false);
 }
 
 function formatPrice(p: AggregatedPool) {
