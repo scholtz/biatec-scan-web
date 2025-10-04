@@ -141,10 +141,27 @@ function handleLiquidityUpdate(liquidityUpdate: AMMLiquidity) {
       l: liquidityUpdate.l,
     };
     
-    // Add to list, sort by timestamp, and keep only 20 most recent
-    const updatedLiquidity = [apiLiquidity, ...liquidity.value];
-    updatedLiquidity.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
-    liquidity.value = updatedLiquidity.slice(0, 20);
+    // Check if liquidity update with same txId already exists
+    const existingIndex = liquidity.value.findIndex((l) => l.txId === apiLiquidity.txId);
+    
+    if (existingIndex !== -1) {
+      // Liquidity update already exists
+      if (liquidityUpdate.txState === 'Confirmed') {
+        // Replace the existing liquidity update with confirmed version
+        liquidity.value[existingIndex] = apiLiquidity;
+      } else if (liquidityUpdate.txState === 'TxPool') {
+        // Ignore TxPool updates if liquidity update already exists
+        return;
+      } else {
+        // For any other state, replace the existing liquidity update
+        liquidity.value[existingIndex] = apiLiquidity;
+      }
+    } else {
+      // New liquidity update, add to list, sort by timestamp, and keep only 20 most recent
+      const updatedLiquidity = [apiLiquidity, ...liquidity.value];
+      updatedLiquidity.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+      liquidity.value = updatedLiquidity.slice(0, 20);
+    }
   }
 }
 

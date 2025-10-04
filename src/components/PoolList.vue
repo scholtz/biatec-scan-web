@@ -76,10 +76,18 @@ function handlePoolUpdate(pool: Pool) {
     pool.assetIdA?.toString() === props.assetId ||
     pool.assetIdB?.toString() === props.assetId
   ) {
-    // Add to list, sort by timestamp, and keep only 20 most recent
-    const updatedPools = [pool, ...pools.value];
-    updatedPools.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
-    pools.value = updatedPools.slice(0, 20);
+    // Check if pool with same poolAppId already exists
+    const existingIndex = pools.value.findIndex((p) => p.poolAppId === pool.poolAppId);
+    
+    if (existingIndex !== -1) {
+      // Pool already exists, replace it with updated version
+      pools.value[existingIndex] = pool;
+    } else {
+      // New pool, add to list, sort by timestamp, and keep only 20 most recent
+      const updatedPools = [pool, ...pools.value];
+      updatedPools.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+      pools.value = updatedPools.slice(0, 20);
+    }
   }
 }
 
