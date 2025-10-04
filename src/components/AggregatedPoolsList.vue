@@ -27,17 +27,18 @@
       {{ $t('assetDetails.noAggregatedPools') }}
     </div>
     
-    <div v-else class="space-y-1.5">
+    <div v-else class="space-y-1">
       <div
         v-for="pool in pools.slice(0, maxItems)"
         :key="pool.id || `${pool.assetIdA}-${pool.assetIdB}`"
         v-observe-visibility="poolKey(pool)"
-        class="bg-gray-800/40 hover:bg-gray-800/60 rounded p-2 transition-colors"
+        class="bg-gray-800/40 hover:bg-gray-800/60 rounded px-2 py-1.5 transition-colors"
       >
-        <!-- Pool Header with Assets -->
-        <div class="flex items-center justify-between mb-1">
-          <div class="flex items-center gap-1.5">
-            <div class="flex -space-x-1">
+        <!-- Single Row with 3 Columns -->
+        <div class="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-xs">
+          <!-- Column 1: Icons, Name and Pool Count -->
+          <div class="flex items-center gap-1.5 min-w-0">
+            <div class="flex -space-x-1 flex-shrink-0">
               <img
                 :src="assetImageUrl(pool.assetIdA)"
                 class="w-4 h-4 rounded border border-gray-700 bg-gray-900"
@@ -51,25 +52,20 @@
             </div>
             <RouterLink
               :to="`/pools/${assetId}/${pool.assetIdB}`"
-              class="text-xs font-mono text-blue-100 hover:text-blue-300 transition-colors truncate"
+              class="font-mono text-blue-100 hover:text-blue-300 transition-colors truncate"
             >
-              {{ pairLabel(pool) }}
+              {{ pairLabel(pool) }} <span class="text-amber-400">({{ pool.poolCount }})</span>
             </RouterLink>
           </div>
-          <div class="text-[10px] text-amber-400 whitespace-nowrap ml-1">
-            {{ pool.poolCount }}
+          
+          <!-- Column 2: Price (right-aligned) -->
+          <div class="text-right font-mono text-white whitespace-nowrap">
+            {{ formatPrice(pool) }}
           </div>
-        </div>
-
-        <!-- Pool Details - Condensed -->
-        <div class="grid grid-cols-2 gap-1.5 text-[10px]">
-          <div>
-            <div class="text-gray-500">{{ $t('assetDetails.price') }}</div>
-            <div class="text-white font-mono truncate">{{ formatPrice(pool) }}</div>
-          </div>
-          <div>
-            <div class="text-gray-500">TVL</div>
-            <div class="text-white truncate">{{ formatTVLAUSD(pool) }}</div>
+          
+          <!-- Column 3: TVL with $ (right-aligned) -->
+          <div class="text-right text-white whitespace-nowrap">
+            ${{ formatTVLAUSD(pool) }}
           </div>
         </div>
       </div>
