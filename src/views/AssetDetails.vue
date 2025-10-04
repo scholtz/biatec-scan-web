@@ -92,8 +92,13 @@
       </div>
     </div>
 
-    <!-- Recent Activity Sections -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- Recent Activity Sections - 4 column layout on wide screens -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <!-- Aggregated Pools Section -->
+      <div class="card">
+        <AggregatedPoolsList :assetId="assetId" :maxItems="20" />
+      </div>
+
       <!-- Recent Trades Section -->
       <div class="card">
         <TradesList :assetId="assetId" />
@@ -124,6 +129,7 @@ import type { BiatecAsset } from "../api/models";
 import TradesList from "../components/TradesList.vue";
 import LiquidityList from "../components/LiquidityList.vue";
 import PoolList from "../components/PoolList.vue";
+import AggregatedPoolsList from "../components/AggregatedPoolsList.vue";
 
 const { t } = useI18n();
 
