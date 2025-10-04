@@ -127,10 +127,27 @@ function handleTradeUpdate(trade: AMMTrade) {
       tradeState: trade.tradeState as any, // Type assertion needed for compatibility
     };
     
-    // Add to list, sort by timestamp, and keep only 20 most recent
-    const updatedTrades = [apiTrade, ...trades.value];
-    updatedTrades.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
-    trades.value = updatedTrades.slice(0, 20);
+    // Check if trade with same txId already exists
+    const existingIndex = trades.value.findIndex((t) => t.txId === apiTrade.txId);
+    
+    if (existingIndex !== -1) {
+      // Trade already exists
+      if (trade.tradeState === 'Confirmed') {
+        // Replace the existing trade with confirmed version
+        trades.value[existingIndex] = apiTrade;
+      } else if (trade.tradeState === 'TxPool') {
+        // Ignore TxPool updates if trade already exists
+        return;
+      } else {
+        // For any other state, replace the existing trade
+        trades.value[existingIndex] = apiTrade;
+      }
+    } else {
+      // New trade, add to list, sort by timestamp, and keep only 20 most recent
+      const updatedTrades = [apiTrade, ...trades.value];
+      updatedTrades.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+      trades.value = updatedTrades.slice(0, 20);
+    }
   }
 }
 
