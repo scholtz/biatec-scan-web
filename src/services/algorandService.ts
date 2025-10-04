@@ -86,7 +86,34 @@ class AlgorandService {
         .do();
       return (response.transaction || null) as unknown as AlgorandTransaction;
     } catch (error) {
-      console.error("Error fetching transaction:", error);
+      console.error("Error fetching transaction from indexer:", error);
+      
+      // Fallback to API
+      try {
+        const apiUrl = `https://algorand-trades.de-4.biatec.io/api/trade?txId=${txId}&size=1`;
+        const apiResponse = await fetch(apiUrl);
+        
+        if (!apiResponse.ok) {
+          console.error("Error fetching transaction from API:", apiResponse.statusText);
+          return null;
+        }
+        
+        const apiData = await apiResponse.json();
+        
+        if (apiData && apiData.length > 0) {
+          const trade = apiData[0];
+          // Convert trade data to AlgorandTransaction format
+          // This is a simplified conversion - actual trade data from API may not have all tx details
+          console.log("Found transaction in API trade data:", trade);
+          
+          // We should still fetch from indexer if we have the txId
+          // The API trade endpoint doesn't return full transaction details
+          // So we can't fully reconstruct the transaction from this
+        }
+      } catch (apiError) {
+        console.error("Error fetching transaction from API:", apiError);
+      }
+      
       return null;
     }
   }
