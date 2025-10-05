@@ -56,22 +56,10 @@
         <div class="mt-6 pt-6 border-t border-dark-700">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
-              <p class="text-sm text-gray-400 mb-2">
-                {{ $t("blockDetails.previousBlockHash") }}
-              </p>
-              <p
-                class="text-white font-mono text-sm bg-dark-900 p-3 rounded border break-all"
-              >
-                {{ block.branch || "Genesis Block" }}
-              </p>
+              <BufferDisplay :value="block.branch" title="Previous Block Hash" default-encoding="hex" />
             </div>
             <div>
-              <p class="text-sm text-gray-400 mb-2">Genesis Hash</p>
-              <p
-                class="text-white font-mono text-sm bg-dark-900 p-3 rounded border break-all"
-              >
-                {{ block.genesisHash }}
-              </p>
+              <BufferDisplay :value="block.genesisHash" title="Genesis Hash" default-encoding="hex" />
             </div>
           </div>
         </div>

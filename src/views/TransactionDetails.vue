@@ -77,49 +77,7 @@
           </p>
         </div>
         <div v-if="transaction.note" class="mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-lg font-semibold text-white">Note</h3>
-            <div class="flex space-x-2">
-              <button
-                @click="noteEncoding = 'utf8'"
-                :class="
-                  noteEncoding === 'utf8'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-dark-900 text-gray-400'
-                "
-                class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
-              >
-                UTF-8
-              </button>
-              <button
-                @click="noteEncoding = 'base64'"
-                :class="
-                  noteEncoding === 'base64'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-dark-900 text-gray-400'
-                "
-                class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
-              >
-                Base64
-              </button>
-              <button
-                @click="noteEncoding = 'hex'"
-                :class="
-                  noteEncoding === 'hex'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-dark-900 text-gray-400'
-                "
-                class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
-              >
-                Hex
-              </button>
-            </div>
-          </div>
-          <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-            <p class="text-gray-300 text-sm break-all font-mono">
-              {{ decodeNote(Buffer.from(transaction.note).toString("base64")) }}
-            </p>
-          </div>
+          <BufferDisplay :value="transaction.note" title="Note" />
         </div>
       </div>
 
@@ -839,12 +797,7 @@
             </div>
           </div>
           <div class="md:col-span-2">
-            <p class="text-sm text-gray-400 mb-2">Genesis Hash</p>
-            <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-              <p class="text-white font-mono text-xs break-all">
-                {{ transaction.genesisHash }}
-              </p>
-            </div>
+            <BufferDisplay :value="transaction.genesisHash" title="Genesis Hash" default-encoding="hex" />
           </div>
         </div>
       </div>
@@ -1014,19 +967,13 @@
               }})
             </p>
             <div class="space-y-2">
-              <div
+              <BufferDisplay
                 v-for="(arg, index) in transaction.applicationTransaction
                   .applicationArgs"
                 :key="index"
-                class="bg-dark-900 p-3 rounded-lg border border-gray-700"
-              >
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs text-gray-500"
-                    >Argument {{ index }}</span
-                  >
-                </div>
-                <p class="text-white font-mono text-xs break-all">{{ arg }}</p>
-              </div>
+                :value="arg"
+                :title="`Argument ${index}`"
+              />
             </div>
           </div>
 
@@ -1096,65 +1043,11 @@ import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { algorandService } from "../services/algorandService";
 import algosdk from "algosdk";
-import { Buffer } from "buffer";
+import BufferDisplay from "../components/BufferDisplay.vue";
 
 const route = useRoute();
 const transaction = ref<algosdk.indexerModels.Transaction | null>(null);
 const isLoading = ref(true);
-const noteEncoding = ref<"utf8" | "base64" | "hex">("utf8");
-
-const decodeNote = (note: string | undefined): string => {
-  if (!note) return "";
-
-  try {
-    if (noteEncoding.value === "base64") {
-      return note;
-    } else if (noteEncoding.value === "hex") {
-      // Convert base64 to hex
-      const decoded = atob(note);
-      return Array.from(decoded)
-        .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
-        .join("");
-    } else {
-      // UTF-8 - try to decode base64 to string
-      try {
-        const decoded = atob(note);
-        // Check if it's valid UTF-8
-        const utf8String = decodeURIComponent(escape(decoded));
-        // Test if it contains mostly printable characters
-        const printableRatio =
-          utf8String.split("").filter((c) => {
-            const code = c.charCodeAt(0);
-            return (
-              (code >= 32 && code <= 126) ||
-              code === 10 ||
-              code === 13 ||
-              code === 9
-            );
-          }).length / utf8String.length;
-
-        if (printableRatio > 0.8) {
-          return utf8String;
-        } else {
-          // Not valid UTF-8, switch to hex
-          noteEncoding.value = "hex";
-          return Array.from(decoded)
-            .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
-            .join("");
-        }
-      } catch (e) {
-        // If UTF-8 decoding fails, switch to hex
-        noteEncoding.value = "hex";
-        const decoded = atob(note);
-        return Array.from(decoded)
-          .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
-          .join("");
-      }
-    }
-  } catch (e) {
-    return note;
-  }
-};
 
 const getTypeLabel = (type: string) => {
   const labels: Record<string, string> = {
