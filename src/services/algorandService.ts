@@ -84,7 +84,115 @@ class AlgorandService {
       const response = await this.indexerClient
         .lookupTransactionByID(txId)
         .do();
-      return (response.transaction || null) as unknown as AlgorandTransaction;
+      
+      const txData = response.transaction;
+      
+      if (!txData) {
+        return null;
+      }
+      
+      // Log the transaction data for debugging
+      console.log("Transaction data from indexer:", txData);
+      console.log("Transaction type:", txData.txType);
+      
+      // Map algosdk's camelCase properties to our kebab-case interface
+      const transaction: AlgorandTransaction = {
+        id: txData.id || txId,
+        "confirmed-round": Number(txData.confirmedRound) || 0,
+        fee: Number(txData.fee) || 0,
+        "first-valid": Number(txData.firstValid) || 0,
+        "genesis-hash": typeof txData.genesisHash === 'string' ? txData.genesisHash : 
+          (txData.genesisHash ? Buffer.from(txData.genesisHash).toString('base64') : ""),
+        "genesis-id": txData.genesisId || "",
+        "intra-round-offset": Number(txData.intraRoundOffset) || 0,
+        "last-valid": Number(txData.lastValid) || 0,
+        "round-time": Number(txData.roundTime) || 0,
+        sender: txData.sender || "",
+        "tx-type": txData.txType || "",
+        signature: txData.signature || {},
+        note: txData.note ? Buffer.from(txData.note).toString('base64') : undefined,
+        "payment-transaction": txData.paymentTransaction ? {
+          amount: Number(txData.paymentTransaction.amount) || 0,
+          receiver: txData.paymentTransaction.receiver || "",
+          "close-remainder-to": txData.paymentTransaction.closeRemainderTo || undefined,
+        } : undefined,
+        "asset-transfer-transaction": txData.assetTransferTransaction ? {
+          amount: Number(txData.assetTransferTransaction.amount) || 0,
+          "asset-id": Number(txData.assetTransferTransaction.assetId) || 0,
+          receiver: txData.assetTransferTransaction.receiver || "",
+          "close-to": txData.assetTransferTransaction.closeTo || undefined,
+          sender: txData.assetTransferTransaction.sender || undefined,
+        } : undefined,
+        "application-transaction": txData.applicationTransaction ? {
+          "application-id": Number(txData.applicationTransaction.applicationId) || 0,
+          "on-completion": txData.applicationTransaction.onCompletion || "",
+          "application-args": txData.applicationTransaction.applicationArgs?.map((arg: Uint8Array) => 
+            Buffer.from(arg).toString('base64')
+          ) || undefined,
+          accounts: txData.applicationTransaction.accounts?.map((addr: any) => String(addr)) || undefined,
+          "foreign-apps": txData.applicationTransaction.foreignApps?.map((id: bigint) => Number(id)) || undefined,
+          "foreign-assets": txData.applicationTransaction.foreignAssets?.map((id: bigint) => Number(id)) || undefined,
+          "approval-program": txData.applicationTransaction.approvalProgram ? 
+            Buffer.from(txData.applicationTransaction.approvalProgram).toString('base64') : undefined,
+          "clear-state-program": txData.applicationTransaction.clearStateProgram ? 
+            Buffer.from(txData.applicationTransaction.clearStateProgram).toString('base64') : undefined,
+          "global-state-schema": txData.applicationTransaction.globalStateSchema ? {
+            "num-uint": Number(txData.applicationTransaction.globalStateSchema.numUint) || 0,
+            "num-byte-slice": Number(txData.applicationTransaction.globalStateSchema.numByteSlice) || 0,
+          } : undefined,
+          "local-state-schema": txData.applicationTransaction.localStateSchema ? {
+            "num-uint": Number(txData.applicationTransaction.localStateSchema.numUint) || 0,
+            "num-byte-slice": Number(txData.applicationTransaction.localStateSchema.numByteSlice) || 0,
+          } : undefined,
+          "extra-program-pages": txData.applicationTransaction.extraProgramPages || undefined,
+        } : undefined,
+        "asset-config-transaction": txData.assetConfigTransaction ? {
+          "asset-id": Number(txData.assetConfigTransaction.assetId) || undefined,
+          params: txData.assetConfigTransaction.params ? {
+            creator: txData.assetConfigTransaction.params.creator || undefined,
+            total: Number(txData.assetConfigTransaction.params.total) || undefined,
+            decimals: txData.assetConfigTransaction.params.decimals || undefined,
+            "default-frozen": txData.assetConfigTransaction.params.defaultFrozen || undefined,
+            "unit-name": txData.assetConfigTransaction.params.unitName || undefined,
+            name: txData.assetConfigTransaction.params.name || undefined,
+            url: txData.assetConfigTransaction.params.url || undefined,
+            "metadata-hash": txData.assetConfigTransaction.params.metadataHash ? 
+              Buffer.from(txData.assetConfigTransaction.params.metadataHash).toString('base64') : undefined,
+            manager: txData.assetConfigTransaction.params.manager || undefined,
+            reserve: txData.assetConfigTransaction.params.reserve || undefined,
+            freeze: txData.assetConfigTransaction.params.freeze || undefined,
+            clawback: txData.assetConfigTransaction.params.clawback || undefined,
+          } : undefined,
+        } : undefined,
+        "asset-freeze-transaction": txData.assetFreezeTransaction ? {
+          address: txData.assetFreezeTransaction.address || "",
+          "asset-id": Number(txData.assetFreezeTransaction.assetId) || 0,
+          "new-freeze-status": txData.assetFreezeTransaction.newFreezeStatus || false,
+        } : undefined,
+        "keyreg-transaction": txData.keyregTransaction ? {
+          "non-participation": txData.keyregTransaction.nonParticipation || undefined,
+          "vote-key-dilution": Number(txData.keyregTransaction.voteKeyDilution) || undefined,
+          "vote-first-valid": Number(txData.keyregTransaction.voteFirstValid) || undefined,
+          "vote-last-valid": Number(txData.keyregTransaction.voteLastValid) || undefined,
+          "vote-participation-key": txData.keyregTransaction.voteParticipationKey ? 
+            Buffer.from(txData.keyregTransaction.voteParticipationKey).toString('base64') : undefined,
+          "selection-participation-key": txData.keyregTransaction.selectionParticipationKey ? 
+            Buffer.from(txData.keyregTransaction.selectionParticipationKey).toString('base64') : undefined,
+          "state-proof-key": txData.keyregTransaction.stateProofKey ? 
+            Buffer.from(txData.keyregTransaction.stateProofKey).toString('base64') : undefined,
+        } : undefined,
+        "state-proof-transaction": txData.stateProofTransaction ? {
+          message: txData.stateProofTransaction.message || undefined,
+          "state-proof": txData.stateProofTransaction.stateProof || undefined,
+          "state-proof-type": txData.stateProofTransaction.stateProofType || undefined,
+        } : undefined,
+        "close-rewards": Number(txData.closeRewards) || undefined,
+        "closing-amount": Number(txData.closingAmount) || undefined,
+        "receiver-rewards": Number(txData.receiverRewards) || undefined,
+        "sender-rewards": Number(txData.senderRewards) || undefined,
+      };
+      
+      return transaction;
     } catch (error) {
       console.error("Error fetching transaction from indexer:", error);
       

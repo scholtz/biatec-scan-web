@@ -736,7 +736,7 @@ const transaction = ref<AlgorandTransaction | null>(null);
 const isLoading = ref(true);
 const noteEncoding = ref<'utf8' | 'base64' | 'hex'>('utf8');
 
-const decodeNote = (note: string) => {
+const decodeNote = (note: string | undefined): string => {
   if (!note) return '';
   
   try {
