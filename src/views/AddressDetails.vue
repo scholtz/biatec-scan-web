@@ -31,7 +31,7 @@
           @click="loadAddressInfo"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
         >
-          {{ $t('addressDetails.retry') }}
+          {{ $t("addressDetails.retry") }}
         </button>
       </div>
 
@@ -112,22 +112,23 @@
                 <router-link
                   :to="{ name: 'TransactionDetails', params: { txId: tx.id } }"
                   class="text-blue-400 hover:text-blue-300 font-mono text-sm"
+                  v-if="tx.id"
                 >
                   {{ algorandService.formatTransactionId(tx.id) }}
                 </router-link>
-                <span class="text-xs text-gray-400">
+                <span class="text-xs text-gray-400" v-if="tx.roundTime">
                   <FormattedTime
-                    :timestamp="(tx['round-time'] * 1000).toString()"
+                    :timestamp="(tx.roundTime * 1000).toString()"
                   />
                 </span>
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-gray-400 text-sm">{{
-                  formatTransactionType(tx["tx-type"])
+                  formatTransactionType(tx.txType || "unknown")
                 }}</span>
                 <div class="text-right">
                   <div class="text-white text-sm">
-                    Round: {{ tx["confirmed-round"] }}
+                    Round: {{ tx.confirmedRound || "N/A" }}
                   </div>
                   <div class="text-gray-400 text-xs">
                     Fee: {{ algorandService.formatAlgoAmount(tx.fee) }} ALGO
@@ -144,7 +145,9 @@
               :disabled="loadingTransactions"
               class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded transition-colors"
             >
-              {{ loadingTransactions ? t('common.loading') : t('common.loadMore') }}
+              {{
+                loadingTransactions ? t("common.loading") : t("common.loadMore")
+              }}
             </button>
           </div>
         </div>
@@ -159,8 +162,8 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
-import type { AlgorandTransaction } from "../types/algorand";
 import FormattedTime from "../components/FormattedTime.vue";
+import algosdk from "algosdk";
 
 const { t } = useI18n();
 
@@ -184,7 +187,7 @@ const address = computed(() => route.params.address as string);
 const loading = ref(false);
 const error = ref("");
 const accountInfo = ref<AccountInfo | null>(null);
-const transactions = ref<AlgorandTransaction[]>([]);
+const transactions = ref<algosdk.indexerModels.Transaction[]>([]);
 const loadingTransactions = ref(false);
 const hasMoreTransactions = ref(true);
 const nextToken = ref("");

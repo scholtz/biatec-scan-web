@@ -11,15 +11,15 @@
           <div class="flex items-center space-x-4">
             <div
               class="w-16 h-16 rounded-full flex items-center justify-center shadow-lg"
-              :class="getTypeColor(transaction['tx-type'])"
+              :class="getTypeColor(transaction.txType ?? '')"
             >
               <span class="font-bold text-2xl">{{
-                getTypeIcon(transaction["tx-type"])
+                getTypeIcon(transaction.txType ?? "")
               }}</span>
             </div>
             <div>
               <h1 class="text-3xl font-bold text-white">
-                {{ getTypeLabel(transaction["tx-type"]) }}
+                {{ getTypeLabel(transaction.txType ?? "") }}
               </h1>
               <p class="text-gray-400">Transaction Details</p>
             </div>
@@ -28,16 +28,19 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
+          <div
+            class="bg-dark-900 p-4 rounded-lg border border-gray-700"
+            v-if="transaction.confirmedRound"
+          >
             <p class="text-sm text-gray-400 mb-1">Block</p>
             <router-link
               :to="{
                 name: 'BlockDetails',
-                params: { round: transaction['confirmed-round'] },
+                params: { round: transaction.confirmedRound.toString() },
               }"
               class="text-primary-400 hover:text-primary-300 font-medium transition-colors duration-200 text-lg"
             >
-              #{{ transaction["confirmed-round"]?.toLocaleString() }}
+              #{{ transaction.confirmedRound?.toString() }}
             </router-link>
           </div>
           <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
@@ -50,8 +53,8 @@
             <p class="text-sm text-gray-400 mb-1">Time</p>
             <p class="text-white font-medium">
               {{
-                transaction["round-time"]
-                  ? new Date(transaction["round-time"] * 1000).toLocaleString()
+                transaction.roundTime
+                  ? new Date(transaction.roundTime * 1000).toLocaleString()
                   : "Unknown"
               }}
             </p>
@@ -59,7 +62,7 @@
           <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
             <p class="text-sm text-gray-400 mb-1">Valid Rounds</p>
             <p class="text-white font-medium text-sm">
-              {{ transaction["first-valid"] }} - {{ transaction["last-valid"] }}
+              {{ transaction.firstValid }} - {{ transaction.lastValid }}
             </p>
           </div>
         </div>
@@ -79,21 +82,33 @@
             <div class="flex space-x-2">
               <button
                 @click="noteEncoding = 'utf8'"
-                :class="noteEncoding === 'utf8' ? 'bg-primary-600 text-white' : 'bg-dark-900 text-gray-400'"
+                :class="
+                  noteEncoding === 'utf8'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-dark-900 text-gray-400'
+                "
                 class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
               >
                 UTF-8
               </button>
               <button
                 @click="noteEncoding = 'base64'"
-                :class="noteEncoding === 'base64' ? 'bg-primary-600 text-white' : 'bg-dark-900 text-gray-400'"
+                :class="
+                  noteEncoding === 'base64'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-dark-900 text-gray-400'
+                "
                 class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
               >
                 Base64
               </button>
               <button
                 @click="noteEncoding = 'hex'"
-                :class="noteEncoding === 'hex' ? 'bg-primary-600 text-white' : 'bg-dark-900 text-gray-400'"
+                :class="
+                  noteEncoding === 'hex'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-dark-900 text-gray-400'
+                "
                 class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
               >
                 Hex
@@ -101,13 +116,18 @@
             </div>
           </div>
           <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-            <p class="text-gray-300 text-sm break-all font-mono">{{ decodeNote(transaction.note) }}</p>
+            <p class="text-gray-300 text-sm break-all font-mono">
+              {{ decodeNote(Buffer.from(transaction.note).toString("base64")) }}
+            </p>
           </div>
         </div>
       </div>
 
       <!-- Payment Transaction Details -->
-      <div v-if="transaction['payment-transaction']" class="card mb-6 bg-gradient-to-br from-green-900/20 to-dark-800 border-green-700">
+      <div
+        v-if="transaction.paymentTransaction"
+        class="card mb-6 bg-gradient-to-br from-green-900/20 to-dark-800 border-green-700"
+      >
         <h2 class="text-xl font-semibold text-green-400 mb-4 flex items-center">
           <span class="mr-2">💸</span> Payment Transaction
         </h2>
@@ -115,10 +135,15 @@
           <div>
             <p class="text-sm text-gray-400 mb-2">From</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction.sender } }"
+              :to="{
+                name: 'AddressDetails',
+                params: { address: transaction.sender },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-green-500 transition-colors"
             >
-              <p class="text-green-400 font-mono text-sm break-all hover:text-green-300">
+              <p
+                class="text-green-400 font-mono text-sm break-all hover:text-green-300"
+              >
                 {{ transaction.sender }}
               </p>
             </router-link>
@@ -126,11 +151,18 @@
           <div>
             <p class="text-sm text-gray-400 mb-2">To</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction['payment-transaction'].receiver } }"
+              :to="{
+                name: 'AddressDetails',
+                params: {
+                  address: transaction.paymentTransaction.receiver,
+                },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-green-500 transition-colors"
             >
-              <p class="text-green-400 font-mono text-sm break-all hover:text-green-300">
-                {{ transaction["payment-transaction"].receiver }}
+              <p
+                class="text-green-400 font-mono text-sm break-all hover:text-green-300"
+              >
+                {{ transaction.paymentTransaction.receiver }}
               </p>
             </router-link>
           </div>
@@ -138,18 +170,33 @@
             <p class="text-sm text-gray-400 mb-2">Amount</p>
             <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
               <p class="text-3xl font-bold text-green-400">
-                {{ algorandService.formatAlgoAmount(transaction["payment-transaction"].amount) }} ALGO
+                {{
+                  algorandService.formatAlgoAmount(
+                    transaction.paymentTransaction.amount
+                  )
+                }}
+                ALGO
               </p>
             </div>
           </div>
-          <div v-if="transaction['payment-transaction']['close-remainder-to']" class="lg:col-span-2">
+          <div
+            v-if="transaction.paymentTransaction.closeRemainderTo"
+            class="lg:col-span-2"
+          >
             <p class="text-sm text-gray-400 mb-2">Close Remainder To</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction['payment-transaction']['close-remainder-to'] } }"
+              :to="{
+                name: 'AddressDetails',
+                params: {
+                  address: transaction.paymentTransaction.closeRemainderTo,
+                },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-green-500 transition-colors"
             >
-              <p class="text-green-400 font-mono text-sm break-all hover:text-green-300">
-                {{ transaction["payment-transaction"]["close-remainder-to"] }}
+              <p
+                class="text-green-400 font-mono text-sm break-all hover:text-green-300"
+              >
+                {{ transaction.paymentTransaction.closeRemainderTo }}
               </p>
             </router-link>
           </div>
@@ -157,7 +204,10 @@
       </div>
 
       <!-- Asset Transfer Transaction Details -->
-      <div v-if="transaction['asset-transfer-transaction']" class="card mb-6 bg-gradient-to-br from-blue-900/20 to-dark-800 border-blue-700">
+      <div
+        v-if="transaction.assetTransferTransaction"
+        class="card mb-6 bg-gradient-to-br from-blue-900/20 to-dark-800 border-blue-700"
+      >
         <h2 class="text-xl font-semibold text-blue-400 mb-4 flex items-center">
           <span class="mr-2">🪙</span> Asset Transfer
         </h2>
@@ -165,10 +215,15 @@
           <div>
             <p class="text-sm text-gray-400 mb-2">From</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction.sender } }"
+              :to="{
+                name: 'AddressDetails',
+                params: { address: transaction.sender },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-blue-500 transition-colors"
             >
-              <p class="text-blue-400 font-mono text-sm break-all hover:text-blue-300">
+              <p
+                class="text-blue-400 font-mono text-sm break-all hover:text-blue-300"
+              >
                 {{ transaction.sender }}
               </p>
             </router-link>
@@ -176,22 +231,35 @@
           <div>
             <p class="text-sm text-gray-400 mb-2">To</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction['asset-transfer-transaction'].receiver } }"
+              :to="{
+                name: 'AddressDetails',
+                params: {
+                  address: transaction.assetTransferTransaction.receiver,
+                },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-blue-500 transition-colors"
             >
-              <p class="text-blue-400 font-mono text-sm break-all hover:text-blue-300">
-                {{ transaction["asset-transfer-transaction"].receiver }}
+              <p
+                class="text-blue-400 font-mono text-sm break-all hover:text-blue-300"
+              >
+                {{ transaction.assetTransferTransaction.receiver }}
               </p>
             </router-link>
           </div>
           <div>
             <p class="text-sm text-gray-400 mb-2">Asset ID</p>
             <router-link
-              :to="{ name: 'AssetDetails', params: { assetId: transaction['asset-transfer-transaction']['asset-id'] } }"
+              :to="{
+                name: 'AssetDetails',
+                params: {
+                  assetId:
+                    transaction.assetTransferTransaction.assetId.toString(),
+                },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-blue-500 transition-colors"
             >
               <p class="text-blue-400 font-medium text-lg hover:text-blue-300">
-                {{ transaction["asset-transfer-transaction"]["asset-id"] }}
+                {{ transaction.assetTransferTransaction.assetId }}
               </p>
             </router-link>
           </div>
@@ -199,18 +267,30 @@
             <p class="text-sm text-gray-400 mb-2">Amount</p>
             <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
               <p class="text-2xl font-bold text-blue-400">
-                {{ transaction["asset-transfer-transaction"].amount.toLocaleString() }}
+                {{
+                  transaction.assetTransferTransaction.amount.toLocaleString()
+                }}
               </p>
             </div>
           </div>
-          <div v-if="transaction['asset-transfer-transaction']['close-to']" class="lg:col-span-2">
+          <div
+            v-if="transaction.assetTransferTransaction.closeTo"
+            class="lg:col-span-2"
+          >
             <p class="text-sm text-gray-400 mb-2">Close Asset To</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction['asset-transfer-transaction']['close-to'] } }"
+              :to="{
+                name: 'AddressDetails',
+                params: {
+                  address: transaction.assetTransferTransaction.closeTo,
+                },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-blue-500 transition-colors"
             >
-              <p class="text-blue-400 font-mono text-sm break-all hover:text-blue-300">
-                {{ transaction["asset-transfer-transaction"]["close-to"] }}
+              <p
+                class="text-blue-400 font-mono text-sm break-all hover:text-blue-300"
+              >
+                {{ transaction.assetTransferTransaction.closeTo }}
               </p>
             </router-link>
           </div>
@@ -218,8 +298,13 @@
       </div>
 
       <!-- Asset Configuration Transaction Details -->
-      <div v-if="transaction['asset-config-transaction']" class="card mb-6 bg-gradient-to-br from-orange-900/20 to-dark-800 border-orange-700">
-        <h2 class="text-xl font-semibold text-orange-400 mb-4 flex items-center">
+      <div
+        v-if="transaction.assetConfigTransaction"
+        class="card mb-6 bg-gradient-to-br from-orange-900/20 to-dark-800 border-orange-700"
+      >
+        <h2
+          class="text-xl font-semibold text-orange-400 mb-4 flex items-center"
+        >
           <span class="mr-2">🔧</span> Asset Configuration
         </h2>
         <div class="space-y-6">
@@ -227,99 +312,177 @@
           <div>
             <p class="text-sm text-gray-400 mb-2">Sender</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction.sender } }"
+              :to="{
+                name: 'AddressDetails',
+                params: { address: transaction.sender },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-orange-500 transition-colors"
             >
-              <p class="text-orange-400 font-mono text-sm break-all hover:text-orange-300">
+              <p
+                class="text-orange-400 font-mono text-sm break-all hover:text-orange-300"
+              >
                 {{ transaction.sender }}
               </p>
             </router-link>
           </div>
 
           <!-- Asset ID -->
-          <div v-if="transaction['asset-config-transaction']['asset-id']">
+          <div v-if="transaction.assetConfigTransaction.assetId">
             <p class="text-sm text-gray-400 mb-2">Asset ID</p>
             <router-link
-              :to="{ name: 'AssetDetails', params: { assetId: transaction['asset-config-transaction']['asset-id'] } }"
+              :to="{
+                name: 'AssetDetails',
+                params: {
+                  assetId:
+                    transaction.assetConfigTransaction.assetId.toString(),
+                },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-orange-500 transition-colors"
             >
-              <p class="text-orange-400 font-medium text-lg hover:text-orange-300">
-                {{ transaction["asset-config-transaction"]["asset-id"] }}
+              <p
+                class="text-orange-400 font-medium text-lg hover:text-orange-300"
+              >
+                {{ transaction.assetConfigTransaction.assetId }}
               </p>
             </router-link>
           </div>
 
           <!-- Asset Parameters -->
-          <div v-if="transaction['asset-config-transaction'].params">
+          <div v-if="transaction.assetConfigTransaction.params">
             <p class="text-sm text-gray-400 mb-3">Asset Parameters</p>
-            <div class="bg-dark-900 p-4 rounded-lg border border-gray-700 space-y-3">
-              <div v-if="transaction['asset-config-transaction'].params.name" class="grid grid-cols-3 gap-2">
+            <div
+              class="bg-dark-900 p-4 rounded-lg border border-gray-700 space-y-3"
+            >
+              <div
+                v-if="transaction.assetConfigTransaction.params.name"
+                class="grid grid-cols-3 gap-2"
+              >
                 <span class="text-gray-400 text-sm">Name:</span>
-                <span class="text-white col-span-2">{{ transaction['asset-config-transaction'].params.name }}</span>
+                <span class="text-white col-span-2">{{
+                  transaction.assetConfigTransaction.params.name
+                }}</span>
               </div>
-              <div v-if="transaction['asset-config-transaction'].params['unit-name']" class="grid grid-cols-3 gap-2">
+              <div
+                v-if="transaction.assetConfigTransaction.params.unitName"
+                class="grid grid-cols-3 gap-2"
+              >
                 <span class="text-gray-400 text-sm">Unit Name:</span>
-                <span class="text-white col-span-2">{{ transaction['asset-config-transaction'].params['unit-name'] }}</span>
+                <span class="text-white col-span-2">{{
+                  transaction.assetConfigTransaction.params.unitName
+                }}</span>
               </div>
-              <div v-if="transaction['asset-config-transaction'].params.total !== undefined" class="grid grid-cols-3 gap-2">
+              <div
+                v-if="
+                  transaction.assetConfigTransaction.params.total !== undefined
+                "
+                class="grid grid-cols-3 gap-2"
+              >
                 <span class="text-gray-400 text-sm">Total:</span>
-                <span class="text-white col-span-2">{{ transaction['asset-config-transaction'].params.total.toLocaleString() }}</span>
+                <span class="text-white col-span-2">{{
+                  transaction.assetConfigTransaction.params.total.toLocaleString()
+                }}</span>
               </div>
-              <div v-if="transaction['asset-config-transaction'].params.decimals !== undefined" class="grid grid-cols-3 gap-2">
+              <div
+                v-if="
+                  transaction.assetConfigTransaction.params.decimals !==
+                  undefined
+                "
+                class="grid grid-cols-3 gap-2"
+              >
                 <span class="text-gray-400 text-sm">Decimals:</span>
-                <span class="text-white col-span-2">{{ transaction['asset-config-transaction'].params.decimals }}</span>
+                <span class="text-white col-span-2">{{
+                  transaction.assetConfigTransaction.params.decimals
+                }}</span>
               </div>
-              <div v-if="transaction['asset-config-transaction'].params.url" class="grid grid-cols-3 gap-2">
+              <div
+                v-if="transaction.assetConfigTransaction.params.url"
+                class="grid grid-cols-3 gap-2"
+              >
                 <span class="text-gray-400 text-sm">URL:</span>
-                <a :href="transaction['asset-config-transaction'].params.url" target="_blank" class="text-orange-400 hover:text-orange-300 col-span-2 break-all">
-                  {{ transaction['asset-config-transaction'].params.url }}
+                <a
+                  :href="transaction.assetConfigTransaction.params.url"
+                  target="_blank"
+                  class="text-orange-400 hover:text-orange-300 col-span-2 break-all"
+                >
+                  {{ transaction.assetConfigTransaction.params.url }}
                 </a>
               </div>
             </div>
 
             <!-- Asset Addresses -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div v-if="transaction['asset-config-transaction'].params.manager">
+              <div v-if="transaction.assetConfigTransaction.params.manager">
                 <p class="text-sm text-gray-400 mb-2">Manager</p>
                 <router-link
-                  :to="{ name: 'AddressDetails', params: { address: transaction['asset-config-transaction'].params.manager } }"
+                  :to="{
+                    name: 'AddressDetails',
+                    params: {
+                      address:
+                        transaction.assetConfigTransaction.params.manager,
+                    },
+                  }"
                   class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-orange-500 transition-colors"
                 >
-                  <p class="text-orange-400 font-mono text-xs break-all hover:text-orange-300">
-                    {{ transaction['asset-config-transaction'].params.manager }}
+                  <p
+                    class="text-orange-400 font-mono text-xs break-all hover:text-orange-300"
+                  >
+                    {{ transaction.assetConfigTransaction.params.manager }}
                   </p>
                 </router-link>
               </div>
-              <div v-if="transaction['asset-config-transaction'].params.reserve">
+              <div v-if="transaction.assetConfigTransaction.params.reserve">
                 <p class="text-sm text-gray-400 mb-2">Reserve</p>
                 <router-link
-                  :to="{ name: 'AddressDetails', params: { address: transaction['asset-config-transaction'].params.reserve } }"
+                  :to="{
+                    name: 'AddressDetails',
+                    params: {
+                      address:
+                        transaction.assetConfigTransaction.params.reserve,
+                    },
+                  }"
                   class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-orange-500 transition-colors"
                 >
-                  <p class="text-orange-400 font-mono text-xs break-all hover:text-orange-300">
-                    {{ transaction['asset-config-transaction'].params.reserve }}
+                  <p
+                    class="text-orange-400 font-mono text-xs break-all hover:text-orange-300"
+                  >
+                    {{ transaction.assetConfigTransaction.params.reserve }}
                   </p>
                 </router-link>
               </div>
-              <div v-if="transaction['asset-config-transaction'].params.freeze">
+              <div v-if="transaction.assetConfigTransaction.params.freeze">
                 <p class="text-sm text-gray-400 mb-2">Freeze</p>
                 <router-link
-                  :to="{ name: 'AddressDetails', params: { address: transaction['asset-config-transaction'].params.freeze } }"
+                  :to="{
+                    name: 'AddressDetails',
+                    params: {
+                      address: transaction.assetConfigTransaction.params.freeze,
+                    },
+                  }"
                   class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-orange-500 transition-colors"
                 >
-                  <p class="text-orange-400 font-mono text-xs break-all hover:text-orange-300">
-                    {{ transaction['asset-config-transaction'].params.freeze }}
+                  <p
+                    class="text-orange-400 font-mono text-xs break-all hover:text-orange-300"
+                  >
+                    {{ transaction.assetConfigTransaction.params.freeze }}
                   </p>
                 </router-link>
               </div>
-              <div v-if="transaction['asset-config-transaction'].params.clawback">
+              <div v-if="transaction.assetConfigTransaction.params.clawback">
                 <p class="text-sm text-gray-400 mb-2">Clawback</p>
                 <router-link
-                  :to="{ name: 'AddressDetails', params: { address: transaction['asset-config-transaction'].params.clawback } }"
+                  :to="{
+                    name: 'AddressDetails',
+                    params: {
+                      address:
+                        transaction.assetConfigTransaction.params.clawback,
+                    },
+                  }"
                   class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-orange-500 transition-colors"
                 >
-                  <p class="text-orange-400 font-mono text-xs break-all hover:text-orange-300">
-                    {{ transaction['asset-config-transaction'].params.clawback }}
+                  <p
+                    class="text-orange-400 font-mono text-xs break-all hover:text-orange-300"
+                  >
+                    {{ transaction.assetConfigTransaction.params.clawback }}
                   </p>
                 </router-link>
               </div>
@@ -329,7 +492,10 @@
       </div>
 
       <!-- Asset Freeze Transaction Details -->
-      <div v-if="transaction['asset-freeze-transaction']" class="card mb-6 bg-gradient-to-br from-cyan-900/20 to-dark-800 border-cyan-700">
+      <div
+        v-if="transaction.assetFreezeTransaction"
+        class="card mb-6 bg-gradient-to-br from-cyan-900/20 to-dark-800 border-cyan-700"
+      >
         <h2 class="text-xl font-semibold text-cyan-400 mb-4 flex items-center">
           <span class="mr-2">❄️</span> Asset Freeze
         </h2>
@@ -338,10 +504,15 @@
           <div>
             <p class="text-sm text-gray-400 mb-2">Sender (Freeze Authority)</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction.sender } }"
+              :to="{
+                name: 'AddressDetails',
+                params: { address: transaction.sender },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-cyan-500 transition-colors"
             >
-              <p class="text-cyan-400 font-mono text-sm break-all hover:text-cyan-300">
+              <p
+                class="text-cyan-400 font-mono text-sm break-all hover:text-cyan-300"
+              >
                 {{ transaction.sender }}
               </p>
             </router-link>
@@ -351,11 +522,18 @@
           <div>
             <p class="text-sm text-gray-400 mb-2">Target Address</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction['asset-freeze-transaction'].address } }"
+              :to="{
+                name: 'AddressDetails',
+                params: {
+                  address: transaction.assetFreezeTransaction.address,
+                },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-cyan-500 transition-colors"
             >
-              <p class="text-cyan-400 font-mono text-sm break-all hover:text-cyan-300">
-                {{ transaction['asset-freeze-transaction'].address }}
+              <p
+                class="text-cyan-400 font-mono text-sm break-all hover:text-cyan-300"
+              >
+                {{ transaction.assetFreezeTransaction.address }}
               </p>
             </router-link>
           </div>
@@ -365,11 +543,19 @@
             <div>
               <p class="text-sm text-gray-400 mb-2">Asset ID</p>
               <router-link
-                :to="{ name: 'AssetDetails', params: { assetId: transaction['asset-freeze-transaction']['asset-id'] } }"
+                :to="{
+                  name: 'AssetDetails',
+                  params: {
+                    assetId:
+                      transaction.assetFreezeTransaction.assetId.toString(),
+                  },
+                }"
                 class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-cyan-500 transition-colors"
               >
-                <p class="text-cyan-400 font-medium text-lg hover:text-cyan-300">
-                  {{ transaction['asset-freeze-transaction']['asset-id'] }}
+                <p
+                  class="text-cyan-400 font-medium text-lg hover:text-cyan-300"
+                >
+                  {{ transaction.assetFreezeTransaction.assetId }}
                 </p>
               </router-link>
             </div>
@@ -378,8 +564,19 @@
             <div>
               <p class="text-sm text-gray-400 mb-2">New Freeze Status</p>
               <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-                <p class="text-lg font-bold" :class="transaction['asset-freeze-transaction']['new-freeze-status'] ? 'text-red-400' : 'text-green-400'">
-                  {{ transaction['asset-freeze-transaction']['new-freeze-status'] ? 'FROZEN' : 'UNFROZEN' }}
+                <p
+                  class="text-lg font-bold"
+                  :class="
+                    transaction.assetFreezeTransaction.newFreezeStatus
+                      ? 'text-red-400'
+                      : 'text-green-400'
+                  "
+                >
+                  {{
+                    transaction.assetFreezeTransaction.newFreezeStatus
+                      ? "FROZEN"
+                      : "UNFROZEN"
+                  }}
                 </p>
               </div>
             </div>
@@ -388,7 +585,10 @@
       </div>
 
       <!-- Key Registration Transaction Details -->
-      <div v-if="transaction['keyreg-transaction']" class="card mb-6 bg-gradient-to-br from-pink-900/20 to-dark-800 border-pink-700">
+      <div
+        v-if="transaction.keyregTransaction"
+        class="card mb-6 bg-gradient-to-br from-pink-900/20 to-dark-800 border-pink-700"
+      >
         <h2 class="text-xl font-semibold text-pink-400 mb-4 flex items-center">
           <span class="mr-2">🔑</span> Key Registration
         </h2>
@@ -397,60 +597,86 @@
           <div>
             <p class="text-sm text-gray-400 mb-2">Account</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction.sender } }"
+              :to="{
+                name: 'AddressDetails',
+                params: { address: transaction.sender },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-pink-500 transition-colors"
             >
-              <p class="text-pink-400 font-mono text-sm break-all hover:text-pink-300">
+              <p
+                class="text-pink-400 font-mono text-sm break-all hover:text-pink-300"
+              >
                 {{ transaction.sender }}
               </p>
             </router-link>
           </div>
 
-          <div v-if="transaction['keyreg-transaction']['non-participation']" class="bg-dark-900 p-4 rounded-lg border border-gray-700">
-            <p class="text-pink-400 font-medium text-lg">Non-Participation Key Registration</p>
-            <p class="text-gray-400 text-sm mt-1">This account marks itself as non-participating</p>
+          <div
+            v-if="transaction.keyregTransaction.nonParticipation"
+            class="bg-dark-900 p-4 rounded-lg border border-gray-700"
+          >
+            <p class="text-pink-400 font-medium text-lg">
+              Non-Participation Key Registration
+            </p>
+            <p class="text-gray-400 text-sm mt-1">
+              This account marks itself as non-participating
+            </p>
           </div>
 
           <div v-else class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div v-if="transaction['keyreg-transaction']['vote-first-valid']">
+              <div v-if="transaction.keyregTransaction.voteFirstValid">
                 <p class="text-sm text-gray-400 mb-2">Vote First Valid</p>
                 <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-                  <p class="text-white font-medium">{{ transaction['keyreg-transaction']['vote-first-valid'] }}</p>
+                  <p class="text-white font-medium">
+                    {{ transaction.keyregTransaction.voteFirstValid }}
+                  </p>
                 </div>
               </div>
-              <div v-if="transaction['keyreg-transaction']['vote-last-valid']">
+              <div v-if="transaction.keyregTransaction.voteLastValid">
                 <p class="text-sm text-gray-400 mb-2">Vote Last Valid</p>
                 <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-                  <p class="text-white font-medium">{{ transaction['keyreg-transaction']['vote-last-valid'] }}</p>
+                  <p class="text-white font-medium">
+                    {{ transaction.keyregTransaction.voteLastValid }}
+                  </p>
                 </div>
               </div>
-              <div v-if="transaction['keyreg-transaction']['vote-key-dilution']">
+              <div v-if="transaction.keyregTransaction.voteKeyDilution">
                 <p class="text-sm text-gray-400 mb-2">Vote Key Dilution</p>
                 <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-                  <p class="text-white font-medium">{{ transaction['keyreg-transaction']['vote-key-dilution'] }}</p>
+                  <p class="text-white font-medium">
+                    {{ transaction.keyregTransaction.voteKeyDilution }}
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div v-if="transaction['keyreg-transaction']['vote-participation-key']">
+            <div v-if="transaction.keyregTransaction.voteParticipationKey">
               <p class="text-sm text-gray-400 mb-2">Vote Participation Key</p>
               <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-                <p class="text-white font-mono text-xs break-all">{{ transaction['keyreg-transaction']['vote-participation-key'] }}</p>
+                <p class="text-white font-mono text-xs break-all">
+                  {{ transaction.keyregTransaction.voteParticipationKey }}
+                </p>
               </div>
             </div>
 
-            <div v-if="transaction['keyreg-transaction']['selection-participation-key']">
-              <p class="text-sm text-gray-400 mb-2">Selection Participation Key</p>
+            <div v-if="transaction.keyregTransaction.selectionParticipationKey">
+              <p class="text-sm text-gray-400 mb-2">
+                Selection Participation Key
+              </p>
               <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-                <p class="text-white font-mono text-xs break-all">{{ transaction['keyreg-transaction']['selection-participation-key'] }}</p>
+                <p class="text-white font-mono text-xs break-all">
+                  {{ transaction.keyregTransaction.selectionParticipationKey }}
+                </p>
               </div>
             </div>
 
-            <div v-if="transaction['keyreg-transaction']['state-proof-key']">
+            <div v-if="transaction.keyregTransaction.stateProofKey">
               <p class="text-sm text-gray-400 mb-2">State Proof Key</p>
               <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-                <p class="text-white font-mono text-xs break-all">{{ transaction['keyreg-transaction']['state-proof-key'] }}</p>
+                <p class="text-white font-mono text-xs break-all">
+                  {{ transaction.keyregTransaction.stateProofKey }}
+                </p>
               </div>
             </div>
           </div>
@@ -458,50 +684,85 @@
       </div>
 
       <!-- State Proof Transaction Details -->
-      <div v-if="transaction['state-proof-transaction']" class="card mb-6 bg-gradient-to-br from-yellow-900/20 to-dark-800 border-yellow-700">
-        <h2 class="text-xl font-semibold text-yellow-400 mb-4 flex items-center">
+      <div
+        v-if="transaction.stateProofTransaction"
+        class="card mb-6 bg-gradient-to-br from-yellow-900/20 to-dark-800 border-yellow-700"
+      >
+        <h2
+          class="text-xl font-semibold text-yellow-400 mb-4 flex items-center"
+        >
           <span class="mr-2">🔐</span> State Proof Transaction
         </h2>
         <div class="space-y-4">
           <div v-if="transaction.sender">
             <p class="text-sm text-gray-400 mb-2">Sender</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction.sender } }"
+              :to="{
+                name: 'AddressDetails',
+                params: { address: transaction.sender },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-yellow-500 transition-colors"
             >
-              <p class="text-yellow-400 font-mono text-sm break-all hover:text-yellow-300">
+              <p
+                class="text-yellow-400 font-mono text-sm break-all hover:text-yellow-300"
+              >
                 {{ transaction.sender }}
               </p>
             </router-link>
           </div>
 
-          <div v-if="transaction['state-proof-transaction']['state-proof-type'] !== undefined">
+          <div
+            v-if="
+              transaction.stateProofTransaction.stateProofType !== undefined
+            "
+          >
             <p class="text-sm text-gray-400 mb-2">State Proof Type</p>
             <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-              <p class="text-white font-medium">{{ transaction['state-proof-transaction']['state-proof-type'] }}</p>
+              <p class="text-white font-medium">
+                {{ transaction.stateProofTransaction.stateProofType }}
+              </p>
             </div>
           </div>
 
           <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
             <p class="text-gray-400 text-sm">
-              State proof transactions are special transactions used by the Algorand protocol for state proofs. 
-              They do not transfer funds and are automatically generated by the protocol.
+              State proof transactions are special transactions used by the
+              Algorand protocol for state proofs. They do not transfer funds and
+              are automatically generated by the protocol.
             </p>
           </div>
         </div>
       </div>
 
       <!-- Sender/Receiver for All Transactions -->
-      <div v-if="!transaction['payment-transaction'] && !transaction['asset-transfer-transaction'] && !transaction['application-transaction'] && !transaction['asset-config-transaction'] && !transaction['asset-freeze-transaction'] && !transaction['keyreg-transaction'] && transaction.sender" class="card mb-6">
-        <h2 class="text-xl font-semibold text-white mb-4">Transaction Participants</h2>
+      <div
+        v-if="
+          !transaction.paymentTransaction &&
+          !transaction.assetTransferTransaction &&
+          !transaction.applicationTransaction &&
+          !transaction.assetConfigTransaction &&
+          !transaction.assetFreezeTransaction &&
+          !transaction.keyregTransaction &&
+          transaction.sender
+        "
+        class="card mb-6"
+      >
+        <h2 class="text-xl font-semibold text-white mb-4">
+          Transaction Participants
+        </h2>
         <div class="grid grid-cols-1 gap-4">
           <div>
             <p class="text-sm text-gray-400 mb-2">Sender</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction.sender } }"
+              :to="{
+                name: 'AddressDetails',
+                params: { address: transaction.sender },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-primary-500 transition-colors"
             >
-              <p class="text-primary-400 font-mono text-sm break-all hover:text-primary-300">
+              <p
+                class="text-primary-400 font-mono text-sm break-all hover:text-primary-300"
+              >
                 {{ transaction.sender }}
               </p>
             </router-link>
@@ -517,53 +778,63 @@
             <p class="text-sm text-gray-400 mb-2">Genesis ID</p>
             <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
               <p class="text-white font-mono text-sm">
-                {{ transaction["genesis-id"] }}
+                {{ transaction.genesisId }}
               </p>
             </div>
           </div>
           <div>
             <p class="text-sm text-gray-400 mb-2">Transaction Type</p>
             <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-              <p class="text-white font-medium">{{ transaction["tx-type"] }}</p>
+              <p class="text-white font-medium">{{ transaction.txType }}</p>
             </div>
           </div>
           <div>
             <p class="text-sm text-gray-400 mb-2">Intra Round Offset</p>
             <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
               <p class="text-white font-medium">
-                {{ transaction["intra-round-offset"] }}
+                {{ transaction.intraRoundOffset }}
               </p>
             </div>
           </div>
-          <div v-if="transaction['sender-rewards']">
+          <div v-if="transaction.senderRewards">
             <p class="text-sm text-gray-400 mb-2">Sender Rewards</p>
             <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
               <p class="text-white font-medium">
-                {{ algorandService.formatAlgoAmount(transaction["sender-rewards"]) }} ALGO
+                {{
+                  algorandService.formatAlgoAmount(transaction.senderRewards)
+                }}
+                ALGO
               </p>
             </div>
           </div>
-          <div v-if="transaction['receiver-rewards']">
+          <div v-if="transaction.receiverRewards">
             <p class="text-sm text-gray-400 mb-2">Receiver Rewards</p>
             <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
               <p class="text-white font-medium">
-                {{ algorandService.formatAlgoAmount(transaction["receiver-rewards"]) }} ALGO
+                {{
+                  algorandService.formatAlgoAmount(transaction.receiverRewards)
+                }}
+                ALGO
               </p>
             </div>
           </div>
-          <div v-if="transaction['close-rewards']">
+          <div v-if="transaction.closeRewards">
             <p class="text-sm text-gray-400 mb-2">Close Rewards</p>
             <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
               <p class="text-white font-medium">
-                {{ algorandService.formatAlgoAmount(transaction["close-rewards"]) }} ALGO
+                {{ algorandService.formatAlgoAmount(transaction.closeRewards) }}
+                ALGO
               </p>
             </div>
           </div>
-          <div v-if="transaction['closing-amount']">
+          <div v-if="transaction.closingAmount">
             <p class="text-sm text-gray-400 mb-2">Closing Amount</p>
             <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
               <p class="text-white font-medium">
-                {{ algorandService.formatAlgoAmount(transaction["closing-amount"]) }} ALGO
+                {{
+                  algorandService.formatAlgoAmount(transaction.closingAmount)
+                }}
+                ALGO
               </p>
             </div>
           </div>
@@ -571,7 +842,7 @@
             <p class="text-sm text-gray-400 mb-2">Genesis Hash</p>
             <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
               <p class="text-white font-mono text-xs break-all">
-                {{ transaction["genesis-hash"] }}
+                {{ transaction.genesisHash }}
               </p>
             </div>
           </div>
@@ -579,8 +850,13 @@
       </div>
 
       <!-- Application Call Details -->
-      <div v-if="transaction['application-transaction']" class="card mb-6 bg-gradient-to-br from-purple-900/20 to-dark-800 border-purple-700">
-        <h2 class="text-xl font-semibold text-purple-400 mb-4 flex items-center">
+      <div
+        v-if="transaction.applicationTransaction"
+        class="card mb-6 bg-gradient-to-br from-purple-900/20 to-dark-800 border-purple-700"
+      >
+        <h2
+          class="text-xl font-semibold text-purple-400 mb-4 flex items-center"
+        >
           <span class="mr-2">⚙️</span> Application Call
         </h2>
         <div class="space-y-6">
@@ -588,10 +864,15 @@
           <div>
             <p class="text-sm text-gray-400 mb-2">Sender</p>
             <router-link
-              :to="{ name: 'AddressDetails', params: { address: transaction.sender } }"
+              :to="{
+                name: 'AddressDetails',
+                params: { address: transaction.sender },
+              }"
               class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-purple-500 transition-colors"
             >
-              <p class="text-purple-400 font-mono text-sm break-all hover:text-purple-300">
+              <p
+                class="text-purple-400 font-mono text-sm break-all hover:text-purple-300"
+              >
                 {{ transaction.sender }}
               </p>
             </router-link>
@@ -602,15 +883,26 @@
             <div>
               <p class="text-sm text-gray-400 mb-2">Application ID</p>
               <router-link
-                v-if="transaction['application-transaction']['application-id']"
-                :to="{ name: 'ApplicationDetails', params: { appId: transaction['application-transaction']['application-id'] } }"
+                v-if="transaction.applicationTransaction.applicationId"
+                :to="{
+                  name: 'ApplicationDetails',
+                  params: {
+                    appId:
+                      transaction.applicationTransaction.applicationId.toString(),
+                  },
+                }"
                 class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-purple-500 transition-colors"
               >
-                <p class="text-purple-400 font-medium text-lg hover:text-purple-300">
-                  {{ transaction["application-transaction"]["application-id"] }}
+                <p
+                  class="text-purple-400 font-medium text-lg hover:text-purple-300"
+                >
+                  {{ transaction.applicationTransaction.applicationId }}
                 </p>
               </router-link>
-              <div v-else class="bg-dark-900 p-3 rounded-lg border border-gray-700">
+              <div
+                v-else
+                class="bg-dark-900 p-3 rounded-lg border border-gray-700"
+              >
                 <p class="text-purple-400 font-medium text-lg">Create New</p>
               </div>
             </div>
@@ -618,38 +910,61 @@
               <p class="text-sm text-gray-400 mb-2">On Completion</p>
               <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
                 <p class="text-white font-medium">
-                  {{ transaction["application-transaction"]["on-completion"] }}
+                  {{ transaction.applicationTransaction.onCompletion }}
                 </p>
               </div>
             </div>
           </div>
 
           <!-- Referenced Accounts -->
-          <div v-if="transaction['application-transaction'].accounts && transaction['application-transaction'].accounts.length > 0">
-            <p class="text-sm text-gray-400 mb-3">Referenced Accounts ({{ transaction['application-transaction'].accounts.length }})</p>
+          <div
+            v-if="
+              transaction.applicationTransaction.accounts &&
+              transaction.applicationTransaction.accounts.length > 0
+            "
+          >
+            <p class="text-sm text-gray-400 mb-3">
+              Referenced Accounts ({{
+                transaction.applicationTransaction.accounts.length
+              }})
+            </p>
             <div class="grid grid-cols-1 gap-3">
               <router-link
-                v-for="(account, index) in transaction['application-transaction'].accounts"
+                v-for="(account, index) in transaction.applicationTransaction
+                  .accounts"
                 :key="index"
-                :to="{ name: 'AddressDetails', params: { address: account } }"
+                :to="{
+                  name: 'AddressDetails',
+                  params: { address: account.toString() },
+                }"
                 class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-purple-500 transition-colors"
               >
                 <div class="flex items-center justify-between">
-                  <p class="text-purple-400 font-mono text-sm break-all hover:text-purple-300">
+                  <p
+                    class="text-purple-400 font-mono text-sm break-all hover:text-purple-300"
+                  >
                     {{ account }}
                   </p>
-                  <span class="text-xs text-gray-500 ml-2">Account {{ index + 1 }}</span>
+                  <span class="text-xs text-gray-500 ml-2"
+                    >Account {{ index + 1 }}</span
+                  >
                 </div>
               </router-link>
             </div>
           </div>
 
           <!-- Foreign Apps -->
-          <div v-if="transaction['application-transaction']['foreign-apps'] && transaction['application-transaction']['foreign-apps'].length > 0">
+          <div
+            v-if="
+              transaction.applicationTransaction.foreignApps &&
+              transaction.applicationTransaction.foreignApps.length > 0
+            "
+          >
             <p class="text-sm text-gray-400 mb-3">Foreign Applications</p>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div
-                v-for="(appId, index) in transaction['application-transaction']['foreign-apps']"
+                v-for="(appId, index) in transaction.applicationTransaction
+                  .foreignApps"
                 :key="index"
                 class="bg-dark-900 p-3 rounded-lg border border-gray-700"
               >
@@ -660,32 +975,55 @@
           </div>
 
           <!-- Foreign Assets -->
-          <div v-if="transaction['application-transaction']['foreign-assets'] && transaction['application-transaction']['foreign-assets'].length > 0">
+          <div
+            v-if="
+              transaction.applicationTransaction.foreignAssets &&
+              transaction.applicationTransaction.foreignAssets.length > 0
+            "
+          >
             <p class="text-sm text-gray-400 mb-3">Foreign Assets</p>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
               <router-link
-                v-for="(assetId, index) in transaction['application-transaction']['foreign-assets']"
+                v-for="(assetId, index) in transaction.applicationTransaction
+                  .foreignAssets"
                 :key="index"
-                :to="{ name: 'AssetDetails', params: { assetId } }"
+                :to="{
+                  name: 'AssetDetails',
+                  params: { assetId: assetId.toString() },
+                }"
                 class="block bg-dark-900 p-3 rounded-lg border border-gray-700 hover:border-purple-500 transition-colors"
               >
                 <p class="text-xs text-gray-500 mb-1">Asset {{ index + 1 }}</p>
-                <p class="text-purple-400 font-medium hover:text-purple-300">{{ assetId }}</p>
+                <p class="text-purple-400 font-medium hover:text-purple-300">
+                  {{ assetId }}
+                </p>
               </router-link>
             </div>
           </div>
 
           <!-- Application Arguments -->
-          <div v-if="transaction['application-transaction']['application-args'] && transaction['application-transaction']['application-args'].length > 0">
-            <p class="text-sm text-gray-400 mb-3">Application Arguments ({{ transaction['application-transaction']['application-args'].length }})</p>
+          <div
+            v-if="
+              transaction.applicationTransaction.applicationArgs &&
+              transaction.applicationTransaction.applicationArgs.length > 0
+            "
+          >
+            <p class="text-sm text-gray-400 mb-3">
+              Application Arguments ({{
+                transaction.applicationTransaction.applicationArgs.length
+              }})
+            </p>
             <div class="space-y-2">
               <div
-                v-for="(arg, index) in transaction['application-transaction']['application-args']"
+                v-for="(arg, index) in transaction.applicationTransaction
+                  .applicationArgs"
                 :key="index"
                 class="bg-dark-900 p-3 rounded-lg border border-gray-700"
               >
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs text-gray-500">Argument {{ index }}</span>
+                  <span class="text-xs text-gray-500"
+                    >Argument {{ index }}</span
+                  >
                 </div>
                 <p class="text-white font-mono text-xs break-all">{{ arg }}</p>
               </div>
@@ -693,19 +1031,47 @@
           </div>
 
           <!-- Schema Information -->
-          <div v-if="transaction['application-transaction']['global-state-schema'] || transaction['application-transaction']['local-state-schema']" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div v-if="transaction['application-transaction']['global-state-schema']">
+          <div
+            v-if="
+              transaction.applicationTransaction.globalStateSchema ||
+              transaction.applicationTransaction.localStateSchema
+            "
+            class="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <div v-if="transaction.applicationTransaction.globalStateSchema">
               <p class="text-sm text-gray-400 mb-2">Global State Schema</p>
               <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-                <p class="text-sm text-white">Uints: {{ transaction['application-transaction']['global-state-schema']['num-uint'] }}</p>
-                <p class="text-sm text-white">Byte Slices: {{ transaction['application-transaction']['global-state-schema']['num-byte-slice'] }}</p>
+                <p class="text-sm text-white">
+                  Uints:
+                  {{
+                    transaction.applicationTransaction.globalStateSchema.numUint
+                  }}
+                </p>
+                <p class="text-sm text-white">
+                  Byte Slices:
+                  {{
+                    transaction.applicationTransaction.globalStateSchema
+                      .numByteSlice
+                  }}
+                </p>
               </div>
             </div>
-            <div v-if="transaction['application-transaction']['local-state-schema']">
+            <div v-if="transaction.applicationTransaction.localStateSchema">
               <p class="text-sm text-gray-400 mb-2">Local State Schema</p>
               <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
-                <p class="text-sm text-white">Uints: {{ transaction['application-transaction']['local-state-schema']['num-uint'] }}</p>
-                <p class="text-sm text-white">Byte Slices: {{ transaction['application-transaction']['local-state-schema']['num-byte-slice'] }}</p>
+                <p class="text-sm text-white">
+                  Uints:
+                  {{
+                    transaction.applicationTransaction.localStateSchema.numUint
+                  }}
+                </p>
+                <p class="text-sm text-white">
+                  Byte Slices:
+                  {{
+                    transaction.applicationTransaction.localStateSchema
+                      .numByteSlice
+                  }}
+                </p>
               </div>
             </div>
           </div>
@@ -729,23 +1095,26 @@
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { algorandService } from "../services/algorandService";
-import type { AlgorandTransaction } from "../types/algorand";
+import algosdk from "algosdk";
+import { Buffer } from "buffer";
 
 const route = useRoute();
-const transaction = ref<AlgorandTransaction | null>(null);
+const transaction = ref<algosdk.indexerModels.Transaction | null>(null);
 const isLoading = ref(true);
-const noteEncoding = ref<'utf8' | 'base64' | 'hex'>('utf8');
+const noteEncoding = ref<"utf8" | "base64" | "hex">("utf8");
 
 const decodeNote = (note: string | undefined): string => {
-  if (!note) return '';
-  
+  if (!note) return "";
+
   try {
-    if (noteEncoding.value === 'base64') {
+    if (noteEncoding.value === "base64") {
       return note;
-    } else if (noteEncoding.value === 'hex') {
+    } else if (noteEncoding.value === "hex") {
       // Convert base64 to hex
       const decoded = atob(note);
-      return Array.from(decoded).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+      return Array.from(decoded)
+        .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
+        .join("");
     } else {
       // UTF-8 - try to decode base64 to string
       try {
@@ -753,23 +1122,33 @@ const decodeNote = (note: string | undefined): string => {
         // Check if it's valid UTF-8
         const utf8String = decodeURIComponent(escape(decoded));
         // Test if it contains mostly printable characters
-        const printableRatio = utf8String.split('').filter(c => {
-          const code = c.charCodeAt(0);
-          return code >= 32 && code <= 126 || code === 10 || code === 13 || code === 9;
-        }).length / utf8String.length;
-        
+        const printableRatio =
+          utf8String.split("").filter((c) => {
+            const code = c.charCodeAt(0);
+            return (
+              (code >= 32 && code <= 126) ||
+              code === 10 ||
+              code === 13 ||
+              code === 9
+            );
+          }).length / utf8String.length;
+
         if (printableRatio > 0.8) {
           return utf8String;
         } else {
           // Not valid UTF-8, switch to hex
-          noteEncoding.value = 'hex';
-          return Array.from(decoded).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+          noteEncoding.value = "hex";
+          return Array.from(decoded)
+            .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
+            .join("");
         }
       } catch (e) {
         // If UTF-8 decoding fails, switch to hex
-        noteEncoding.value = 'hex';
+        noteEncoding.value = "hex";
         const decoded = atob(note);
-        return Array.from(decoded).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+        return Array.from(decoded)
+          .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
+          .join("");
       }
     }
   } catch (e) {

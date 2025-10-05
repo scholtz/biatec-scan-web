@@ -19,15 +19,15 @@
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
-            {{ $t('search.title') }}
+            {{ $t("search.title") }}
             <span
               v-if="searchResult && hasResults"
               class="ml-2 text-sm text-gray-400 font-normal"
-              >({{ $t('search.foundResults', { count: totalResults }) }})</span
+              >({{ $t("search.foundResults", { count: totalResults }) }})</span
             >
           </h1>
           <p class="text-gray-400 text-sm mb-3 md:mb-4">
-            {{ $t('search.description') }}
+            {{ $t("search.description") }}
           </p>
           <div class="relative group">
             <input
@@ -69,7 +69,7 @@
                 >
                   <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                 </svg>
-                {{ t('common.searching') }}
+                {{ t("common.searching") }}
               </span>
               <span v-else class="flex items-center gap-1">
                 <svg
@@ -83,7 +83,7 @@
                 >
                   <path d="M21 21l-6-6m2-5a7 7 0 1 0-14 0 7 7 0 0 0 14 0Z" />
                 </svg>
-                {{ t('nav.search') }}
+                {{ t("nav.search") }}
               </span>
             </button>
           </div>
@@ -94,7 +94,7 @@
               @click="prefillExample(example.value)"
               class="px-2 py-1 rounded bg-dark-700/60 hover:bg-dark-600 text-gray-300 transition-colors"
             >
-            >
+              >
               {{ example.label }}
             </button>
             <span
@@ -144,11 +144,20 @@
       </div>
 
       <!-- Assets Section -->
-      <div v-if="searchResult.assets?.length" class="space-y-4 animate-slide-up">
+      <div
+        v-if="searchResult.assets?.length"
+        class="space-y-4 animate-slide-up"
+      >
         <h3 class="text-lg font-medium text-white flex items-center gap-2">
-          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
+          <svg
+            class="w-5 h-5 text-blue-400"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
           </svg>
           Assets ({{ searchResult.assets.length }})
         </h3>
@@ -161,13 +170,21 @@
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <div class="text-white font-medium">{{ formatAssetName(asset) }}</div>
+                <div class="text-white font-medium">
+                  {{ formatAssetName(asset) }}
+                </div>
                 <div class="text-sm text-gray-400">ID: {{ asset.index }}</div>
-                <div v-if="asset.params.unitName" class="text-sm text-gray-500">{{ asset.params.unitName }}</div>
+                <div v-if="asset.params.unitName" class="text-sm text-gray-500">
+                  {{ asset.params.unitName }}
+                </div>
               </div>
               <div class="text-right">
-                <div v-if="asset.priceUSD" class="text-sm text-green-400">{{ formatUSD(asset.priceUSD) }}</div>
-                <div v-if="asset.tvL_USD" class="text-xs text-gray-400">TVL: {{ formatUSD(asset.tvL_USD) }}</div>
+                <div v-if="asset.priceUSD" class="text-sm text-green-400">
+                  {{ formatUSD(asset.priceUSD) }}
+                </div>
+                <div v-if="asset.tvL_USD" class="text-xs text-gray-400">
+                  TVL: {{ formatUSD(asset.tvL_USD) }}
+                </div>
               </div>
             </div>
           </div>
@@ -177,8 +194,16 @@
       <!-- Pools Section -->
       <div v-if="searchResult.pools?.length" class="space-y-4 animate-slide-up">
         <h3 class="text-lg font-medium text-white flex items-center gap-2">
-          <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/>
+          <svg
+            class="w-5 h-5 text-green-400"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"
+            />
           </svg>
           Pools ({{ searchResult.pools.length }})
         </h3>
@@ -191,14 +216,29 @@
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <div class="text-white font-medium">{{ formatPoolName(pool) }}</div>
-                <div class="text-sm text-gray-400">{{ formatAddress(pool.poolAddress || '') }}</div>
-                <div class="text-sm text-gray-500">App ID: {{ pool.poolAppId }}</div>
+                <div class="text-white font-medium">
+                  {{ formatPoolName(pool) }}
+                </div>
+                <div class="text-sm text-gray-400">
+                  {{ formatAddress(pool.poolAddress || "") }}
+                </div>
+                <div class="text-sm text-gray-500">
+                  App ID: {{ pool.poolAppId }}
+                </div>
               </div>
               <div class="text-right">
                 <div class="text-xs text-gray-400">{{ pool.protocol }}</div>
-                <div v-if="pool.totalTVLAssetAInUSD || pool.totalTVLAssetBInUSD" class="text-sm text-green-400">
-                  TVL: {{ formatUSD((pool.totalTVLAssetAInUSD || 0) + (pool.totalTVLAssetBInUSD || 0)) }}
+                <div
+                  v-if="pool.totalTVLAssetAInUSD || pool.totalTVLAssetBInUSD"
+                  class="text-sm text-green-400"
+                >
+                  TVL:
+                  {{
+                    formatUSD(
+                      (pool.totalTVLAssetAInUSD || 0) +
+                        (pool.totalTVLAssetBInUSD || 0)
+                    )
+                  }}
                 </div>
               </div>
             </div>
@@ -207,10 +247,21 @@
       </div>
 
       <!-- Aggregated Pools Section -->
-      <div v-if="searchResult.aggregatedPools?.length" class="space-y-4 animate-slide-up">
+      <div
+        v-if="searchResult.aggregatedPools?.length"
+        class="space-y-4 animate-slide-up"
+      >
         <h3 class="text-lg font-medium text-white flex items-center gap-2">
-          <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+          <svg
+            class="w-5 h-5 text-yellow-400"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
+            />
           </svg>
           Aggregated Pools ({{ searchResult.aggregatedPools.length }})
         </h3>
@@ -223,13 +274,28 @@
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <div class="text-white font-medium">{{ aggPool.assetIdA }}/{{ aggPool.assetIdB }}</div>
-                <div class="text-sm text-gray-400">{{ aggPool.poolCount }} pools</div>
+                <div class="text-white font-medium">
+                  {{ aggPool.assetIdA }}/{{ aggPool.assetIdB }}
+                </div>
+                <div class="text-sm text-gray-400">
+                  {{ aggPool.poolCount }} pools
+                </div>
                 <div class="text-sm text-gray-500">ID: {{ aggPool.id }}</div>
               </div>
               <div class="text-right">
-                <div v-if="aggPool.totalTVLAssetAInUSD || aggPool.totalTVLAssetBInUSD" class="text-sm text-green-400">
-                  TVL: {{ formatUSD((aggPool.totalTVLAssetAInUSD || 0) + (aggPool.totalTVLAssetBInUSD || 0)) }}
+                <div
+                  v-if="
+                    aggPool.totalTVLAssetAInUSD || aggPool.totalTVLAssetBInUSD
+                  "
+                  class="text-sm text-green-400"
+                >
+                  TVL:
+                  {{
+                    formatUSD(
+                      (aggPool.totalTVLAssetAInUSD || 0) +
+                        (aggPool.totalTVLAssetBInUSD || 0)
+                    )
+                  }}
                 </div>
               </div>
             </div>
@@ -238,10 +304,21 @@
       </div>
 
       <!-- Addresses Section -->
-      <div v-if="searchResult.addresses?.length" class="space-y-4 animate-slide-up">
+      <div
+        v-if="searchResult.addresses?.length"
+        class="space-y-4 animate-slide-up"
+      >
         <h3 class="text-lg font-medium text-white flex items-center gap-2">
-          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"/>
+          <svg
+            class="w-5 h-5 text-purple-400"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"
+            />
           </svg>
           Addresses ({{ searchResult.addresses.length }})
         </h3>
@@ -253,7 +330,9 @@
             class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <div class="flex items-center justify-between">
-              <div class="text-white font-mono text-sm">{{ formatAddress(address) }}</div>
+              <div class="text-white font-mono text-sm">
+                {{ formatAddress(address) }}
+              </div>
               <button
                 @click.stop="copyToClipboard(address)"
                 class="px-2 py-1 rounded bg-dark-700/70 hover:bg-dark-600 text-xs text-gray-300 transition-colors"
@@ -266,10 +345,21 @@
       </div>
 
       <!-- Blocks Section -->
-      <div v-if="searchResult.blocks?.length" class="space-y-4 animate-slide-up">
+      <div
+        v-if="searchResult.blocks?.length"
+        class="space-y-4 animate-slide-up"
+      >
         <h3 class="text-lg font-medium text-white flex items-center gap-2">
-          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          <svg
+            class="w-5 h-5 text-emerald-400"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+            />
           </svg>
           Blocks ({{ searchResult.blocks.length }})
         </h3>
@@ -280,38 +370,59 @@
             @click="navigateToBlock(blockNum)"
             class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] text-center"
           >
-            <div class="text-white font-medium">{{ blockNum.toLocaleString() }}</div>
+            <div class="text-white font-medium">
+              {{ blockNum.toLocaleString() }}
+            </div>
             <div class="text-xs text-gray-400">Block</div>
           </div>
         </div>
       </div>
 
       <!-- Trades Section -->
-      <div v-if="searchResult.trades?.length" class="space-y-4 animate-slide-up">
+      <div
+        v-if="searchResult.trades?.length"
+        class="space-y-4 animate-slide-up"
+      >
         <h3 class="text-lg font-medium text-white flex items-center gap-2">
-          <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M7 17L17 7M17 7H7M17 7V17"/>
+          <svg
+            class="w-5 h-5 text-orange-400"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M7 17L17 7M17 7H7M17 7V17" />
           </svg>
           Trades ({{ searchResult.trades.length }})
         </h3>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div
             v-for="trade in searchResult.trades"
-            :key="trade.txId || trade.blockId + '-' + trade.assetIdIn + '-' + trade.assetIdOut"
+            :key="
+              trade.txId ||
+              trade.blockId + '-' + trade.assetIdIn + '-' + trade.assetIdOut
+            "
             @click="navigateToTransaction(trade.txId || '')"
             class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <div class="text-white font-medium">{{ trade.assetIdIn }} → {{ trade.assetIdOut }}</div>
-                <div class="text-sm text-gray-400">{{ formatAddress(trade.trader || '') }}</div>
+                <div class="text-white font-medium">
+                  {{ trade.assetIdIn }} → {{ trade.assetIdOut }}
+                </div>
+                <div class="text-sm text-gray-400">
+                  {{ formatAddress(trade.trader || "") }}
+                </div>
                 <div class="text-sm text-gray-500">{{ trade.protocol }}</div>
               </div>
               <div class="text-right">
                 <div class="text-sm text-gray-300">
-                  {{ formatTradeAmount(trade.assetAmountIn || 0) }} → {{ formatTradeAmount(trade.assetAmountOut || 0) }}
+                  {{ formatTradeAmount(trade.assetAmountIn || 0) }} →
+                  {{ formatTradeAmount(trade.assetAmountOut || 0) }}
                 </div>
-                <div class="text-xs text-gray-400">Block: {{ trade.blockId }}</div>
+                <div class="text-xs text-gray-400">
+                  Block: {{ trade.blockId }}
+                </div>
               </div>
             </div>
           </div>
@@ -324,50 +435,67 @@
       v-else-if="hasSearched && !isSearching && (!searchResult || !hasResults)"
       class="card text-center py-10 animate-fade-in"
     >
-      <svg class="w-16 h-16 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8"/>
-        <path d="m21 21-4.35-4.35"/>
+      <svg
+        class="w-16 h-16 text-gray-500 mx-auto mb-4"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1"
+        viewBox="0 0 24 24"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.35-4.35" />
       </svg>
       <h2 class="text-lg md:text-xl font-semibold text-white mb-2">
-        {{ $t('search.noResults') }}
+        {{ $t("search.noResults") }}
       </h2>
       <p class="text-gray-400 mb-4 text-sm md:text-base">
-        {{ $t('search.noResultsDescription', { query: lastSearchQuery }) }}
+        {{ $t("search.noResultsDescription", { query: lastSearchQuery }) }}
       </p>
       <button
         @click="resetSearch"
         class="px-4 py-2 rounded bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium transition-colors"
       >
-        {{ $t('common.tryDifferentSearch') }}
+        {{ $t("common.tryDifferentSearch") }}
       </button>
     </div>
 
     <!-- Tips (initial) -->
     <div v-if="!hasSearched && !searchResult" class="card animate-fade-in">
       <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-        <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+        <svg
+          class="w-5 h-5 text-primary-400"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
+          />
         </svg>
-        {{ $t('search.searchTips') }}
+        {{ $t("search.searchTips") }}
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-3 text-gray-300 text-sm">
           <div class="flex gap-3">
             <span class="text-blue-400">•</span>
             <div>
-              <span class="font-medium text-blue-300">Assets:</span> Enter asset ID (e.g., 452399768) to find token information, prices, and TVL
+              <span class="font-medium text-blue-300">Assets:</span> Enter asset
+              ID (e.g., 452399768) to find token information, prices, and TVL
             </div>
           </div>
           <div class="flex gap-3">
             <span class="text-green-400">•</span>
             <div>
-              <span class="font-medium text-green-300">Pools:</span> Search by asset ID to find liquidity pools and trading pairs
+              <span class="font-medium text-green-300">Pools:</span> Search by
+              asset ID to find liquidity pools and trading pairs
             </div>
           </div>
           <div class="flex gap-3">
             <span class="text-emerald-400">•</span>
             <div>
-              <span class="font-medium text-emerald-300">Blocks:</span> Enter block number (e.g., 50,000,000) to view block details
+              <span class="font-medium text-emerald-300">Blocks:</span> Enter
+              block number (e.g., 50,000,000) to view block details
             </div>
           </div>
         </div>
@@ -375,29 +503,41 @@
           <div class="flex gap-3">
             <span class="text-indigo-400">•</span>
             <div>
-              <span class="font-medium text-indigo-300">Transactions:</span> Paste transaction ID to view trade details
+              <span class="font-medium text-indigo-300">Transactions:</span>
+              Paste transaction ID to view trade details
             </div>
           </div>
           <div class="flex gap-3">
             <span class="text-purple-400">•</span>
             <div>
-              <span class="font-medium text-purple-300">Addresses:</span> Enter Algorand address to find related activity
+              <span class="font-medium text-purple-300">Addresses:</span> Enter
+              Algorand address to find related activity
             </div>
           </div>
           <div class="flex gap-3">
             <span class="text-orange-400">•</span>
             <div>
-              <span class="font-medium text-orange-300">Trades:</span> Find swap transactions and DEX activity
+              <span class="font-medium text-orange-300">Trades:</span> Find swap
+              transactions and DEX activity
             </div>
           </div>
         </div>
       </div>
       <div class="mt-6 p-4 bg-dark-800/40 rounded-lg border border-dark-700/30">
         <p class="text-xs text-gray-400 text-center">
-          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+          <svg
+            class="w-4 h-4 inline mr-1"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
+            />
           </svg>
-          Our search automatically detects the type of your query and shows relevant results
+          Our search automatically detects the type of your query and shows
+          relevant results
         </p>
       </div>
     </div>
@@ -410,7 +550,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import type { SearchResponse, BiatecAsset, Pool } from "../api/models";
-import type { AlgorandTransaction } from "../types/algorand";
+import algosdk from "algosdk";
 
 const route = useRoute();
 const router = useRouter();
@@ -418,7 +558,7 @@ const { t } = useI18n();
 const api = getAVMTradeReporterAPI();
 const searchQuery = ref("");
 const searchResult = ref<SearchResponse | null>(null);
-const blockTransactions = ref<AlgorandTransaction[]>([]);
+const blockTransactions = ref<algosdk.indexerModels.Transaction[]>([]);
 const isSearching = ref(false);
 const hasSearched = ref(false);
 const lastSearchQuery = ref("");
@@ -459,15 +599,19 @@ const isAssetQuery = computed(() => {
 
 const inputPlaceholder = computed(() => {
   if (isAssetQuery.value) return "Asset ID detected - press Enter to search";
-  if (isBlockQuery.value) return "Block number detected - press Enter to search";
+  if (isBlockQuery.value)
+    return "Block number detected - press Enter to search";
   if (isTxQuery.value) return "Transaction ID detected - press Enter to search";
   if (isAddressQuery.value) return "Address detected - press Enter to search";
   return "Search assets, pools, blocks, transactions, addresses...";
 });
 const sampleQueries = computed(() => [
-  { label: t('search.exampleAsset'), value: "452399768" },
-  { label: t('search.exampleBlock'), value: "50000000" },
-  { label: t('search.exampleAddress'), value: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" },
+  { label: t("search.exampleAsset"), value: "452399768" },
+  { label: t("search.exampleBlock"), value: "50000000" },
+  {
+    label: t("search.exampleAddress"),
+    value: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  },
 ]);
 
 const performSearch = async () => {
@@ -492,7 +636,7 @@ const performSearch = async () => {
       aggregatedPools: null,
       addresses: null,
       blocks: null,
-      trades: null
+      trades: null,
     };
   }
 
