@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card hover:shadow-lg transition-shadow">
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center space-x-3">
         <div
@@ -24,54 +24,65 @@
       </span>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-      <div>
-        <p class="text-sm text-gray-400 mb-1">From</p>
-        <p
-          class="text-white font-mono text-sm bg-dark-900 p-2 rounded border truncate"
+    <div class="grid grid-cols-1 gap-3 mb-4">
+      <!-- Sender - Always show -->
+      <div v-if="transaction.sender">
+        <p class="text-xs text-gray-400 mb-1">From</p>
+        <router-link
+          :to="{ name: 'AddressDetails', params: { address: transaction.sender } }"
+          class="block text-primary-400 hover:text-primary-300 font-mono text-sm bg-dark-900 p-2 rounded border border-gray-700 hover:border-primary-500 transition-colors truncate"
         >
           {{ algorandService.formatAddress(transaction.sender) }}
-        </p>
+        </router-link>
       </div>
+
+      <!-- Receiver - Show for pay and axfer -->
       <div v-if="getReceiver(transaction)">
-        <p class="text-sm text-gray-400 mb-1">To</p>
-        <p
-          class="text-white font-mono text-sm bg-dark-900 p-2 rounded border truncate"
+        <p class="text-xs text-gray-400 mb-1">To</p>
+        <router-link
+          :to="{ name: 'AddressDetails', params: { address: getReceiver(transaction) || '' } }"
+          class="block text-primary-400 hover:text-primary-300 font-mono text-sm bg-dark-900 p-2 rounded border border-gray-700 hover:border-primary-500 transition-colors truncate"
         >
           {{ algorandService.formatAddress(getReceiver(transaction) || "") }}
-        </p>
+        </router-link>
+      </div>
+
+      <!-- Amount and Asset Info -->
+      <div v-if="getAmount(transaction)" class="bg-gradient-to-r from-green-900/20 to-blue-900/20 p-3 rounded-lg border border-gray-700">
+        <p class="text-xs text-gray-400 mb-1">Amount</p>
+        <p class="text-white font-semibold">{{ getAmount(transaction) }}</p>
+        <router-link
+          v-if="getAssetId(transaction)"
+          :to="{ name: 'AssetDetails', params: { assetId: getAssetId(transaction) } }"
+          class="text-xs text-blue-400 hover:text-blue-300 mt-1 inline-block"
+        >
+          View Asset →
+        </router-link>
+      </div>
+
+      <!-- App ID for app calls -->
+      <div v-if="transaction['application-transaction']" class="bg-gradient-to-r from-purple-900/20 to-pink-900/20 p-3 rounded-lg border border-gray-700">
+        <p class="text-xs text-gray-400 mb-1">Application</p>
+        <router-link
+          v-if="transaction['application-transaction']['application-id']"
+          :to="{ name: 'ApplicationDetails', params: { appId: transaction['application-transaction']['application-id'] } }"
+          class="text-white font-semibold hover:text-purple-300 transition-colors"
+        >
+          App #{{ transaction["application-transaction"]["application-id"] }} →
+        </router-link>
+        <p v-else class="text-white font-semibold">Create New App</p>
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 mb-4">
-      <div>
-        <p class="text-sm text-gray-400 mb-1">Fee</p>
-        <p class="text-white font-medium">
-          {{ algorandService.formatAlgoAmount(transaction.fee) }} ALGO
-        </p>
+    <div class="flex justify-between items-center pt-3 border-t border-gray-700">
+      <div class="text-xs text-gray-400">
+        Fee: {{ algorandService.formatAlgoAmount(transaction.fee) }} ALGO
       </div>
-      <div v-if="getAmount(transaction)">
-        <p class="text-sm text-gray-400 mb-1">Amount</p>
-        <p class="text-white font-medium">{{ getAmount(transaction) }}</p>
-      </div>
-    </div>
-
-    <div class="mb-4">
-      <p class="text-sm text-gray-400 mb-1">Transaction ID</p>
-      <p
-        class="text-white font-mono text-xs bg-dark-900 p-2 rounded border truncate"
-      >
-        {{ transaction.id }}
-      </p>
-    </div>
-
-    <div class="flex justify-between items-center">
-      <span class="status-badge status-success"> Confirmed </span>
       <router-link
         :to="{ name: 'TransactionDetails', params: { txId: transaction.id } }"
-        class="btn-primary text-sm"
+        class="text-primary-400 hover:text-primary-300 text-sm font-medium transition-colors"
       >
-        View Details
+        Details →
       </router-link>
     </div>
   </div>
@@ -93,6 +104,7 @@ const getTypeLabel = (type: string) => {
     acfg: "Asset Config",
     afrz: "Asset Freeze",
     keyreg: "Key Registration",
+    stpf: "State Proof",
   };
   return labels[type] || type?.toUpperCase() || "UNKNOWN";
 };
@@ -105,6 +117,7 @@ const getTypeIcon = (type: string) => {
     acfg: "🔧",
     afrz: "❄",
     keyreg: "🔑",
+    stpf: "🔐",
   };
   return icons[type] || "?";
 };
@@ -117,6 +130,7 @@ const getTypeColor = (type: string) => {
     acfg: "bg-orange-600",
     afrz: "bg-cyan-600",
     keyreg: "bg-pink-600",
+    stpf: "bg-yellow-600",
   };
   return colors[type] || "bg-gray-600";
 };
@@ -136,7 +150,14 @@ const getAmount = (tx: AlgorandTransaction) => {
     return `${algorandService.formatAlgoAmount(tx["payment-transaction"].amount)} ALGO`;
   }
   if (tx["asset-transfer-transaction"]) {
-    return `${tx["asset-transfer-transaction"].amount.toLocaleString()} (Asset #${tx["asset-transfer-transaction"]["asset-id"]})`;
+    return `${tx["asset-transfer-transaction"].amount.toLocaleString()} units`;
+  }
+  return null;
+};
+
+const getAssetId = (tx: AlgorandTransaction) => {
+  if (tx["asset-transfer-transaction"]) {
+    return tx["asset-transfer-transaction"]["asset-id"];
   }
   return null;
 };

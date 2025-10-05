@@ -74,6 +74,11 @@ export interface AlgorandTransaction {
     "selection-participation-key"?: string;
     "state-proof-key"?: string;
   };
+  "state-proof-transaction"?: {
+    message?: any;
+    "state-proof"?: any;
+    "state-proof-type"?: number;
+  };
   "close-rewards"?: number;
   "closing-amount"?: number;
   "receiver-rewards"?: number;
