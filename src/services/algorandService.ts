@@ -1,5 +1,4 @@
 import algosdk from "algosdk";
-import type { AlgorandTransaction } from "../types/algorand";
 
 class AlgorandService {
   private algodUrl = "https://algorand-algod-public.de-4.biatec.io";
@@ -69,24 +68,70 @@ class AlgorandService {
     }
   }
 
-  async getBlockTransactions(round: bigint): Promise<AlgorandTransaction[]> {
+  async getBlockTransactions(
+    round: bigint
+  ): Promise<algosdk.indexerModels.Transaction[]> {
     try {
       const response = await this.indexerClient.lookupBlock(round).do();
-      return (response.transactions || []) as unknown as AlgorandTransaction[];
+      return (response.transactions ||
+        []) as algosdk.indexerModels.Transaction[];
     } catch (error) {
       console.error("Error fetching block transactions:", error);
       return [];
     }
   }
 
-  async getTransaction(txId: string): Promise<AlgorandTransaction | null> {
+  async getTransaction(
+    txId: string
+  ): Promise<algosdk.indexerModels.Transaction | null> {
     try {
       const response = await this.indexerClient
         .lookupTransactionByID(txId)
         .do();
-      return (response.transaction || null) as unknown as AlgorandTransaction;
+
+      const txData = response.transaction;
+
+      if (!txData) {
+        return null;
+      }
+
+      // Log the transaction data for debugging
+      console.log("Transaction data from indexer:", txData);
+      console.log("Transaction type:", txData.txType);
+
+      return txData;
     } catch (error) {
-      console.error("Error fetching transaction:", error);
+      console.error("Error fetching transaction from indexer:", error);
+
+      // Fallback to API
+      try {
+        const apiUrl = `https://algorand-trades.de-4.biatec.io/api/trade?txId=${txId}&size=1`;
+        const apiResponse = await fetch(apiUrl);
+
+        if (!apiResponse.ok) {
+          console.error(
+            "Error fetching transaction from API:",
+            apiResponse.statusText
+          );
+          return null;
+        }
+
+        const apiData = await apiResponse.json();
+
+        if (apiData && apiData.length > 0) {
+          const trade = apiData[0];
+          // Convert trade data to algosdk.indexerModels.Transaction format
+          // This is a simplified conversion - actual trade data from API may not have all tx details
+          console.log("Found transaction in API trade data:", trade);
+
+          // We should still fetch from indexer if we have the txId
+          // The API trade endpoint doesn't return full transaction details
+          // So we can't fully reconstruct the transaction from this
+        }
+      } catch (apiError) {
+        console.error("Error fetching transaction from API:", apiError);
+      }
+
       return null;
     }
   }
@@ -111,7 +156,7 @@ class AlgorandService {
     return null;
   }
 
-  formatAlgoAmount(microAlgos: number): string {
+  formatAlgoAmount(microAlgos: number | bigint): string {
     return (Number(microAlgos) / 1000000).toLocaleString("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 6,

@@ -7,6 +7,7 @@ import PoolDetails from "../views/PoolDetails.vue";
 import Search from "../views/Search.vue";
 import PoolsByAssets from "../views/PoolsByAssets.vue";
 import AssetDetails from "../views/AssetDetails.vue";
+import ApplicationDetails from "../views/ApplicationDetails.vue";
 import Assets from "../views/Assets.vue";
 import FavoriteAssets from "../views/FavoriteAssets.vue";
 import Settings from "../views/Settings.vue";
@@ -40,6 +41,12 @@ const router = createRouter({
       path: "/asset/:assetId",
       name: "AssetDetails",
       component: AssetDetails,
+      props: true,
+    },
+    {
+      path: "/application/:appId",
+      name: "ApplicationDetails",
+      component: ApplicationDetails,
       props: true,
     },
     {

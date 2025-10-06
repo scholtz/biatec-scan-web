@@ -29,10 +29,10 @@
             :to="`/pools/0/31566704`"
             class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
-            {{ $t('common.loading') }}
+            {{ $t("common.loading") }}
           </RouterLink>
         </h3>
-        <p class="text-gray-400">{{ $t('dashboard.algoUsd') }}</p>
+        <p class="text-gray-400">{{ $t("dashboard.algoUsd") }}</p>
       </StyledBox>
       <StyledBox class="text-center">
         <h3 class="text-2xl font-bold text-white">
@@ -43,7 +43,7 @@
             {{ state.latestBlocks[0]?.round.toLocaleString() || "..." }}
           </RouterLink>
         </h3>
-        <p class="text-gray-400">{{ $t('dashboard.latestBlock') }}</p>
+        <p class="text-gray-400">{{ $t("dashboard.latestBlock") }}</p>
       </StyledBox>
       <StyledBox class="text-center">
         <h3 class="text-2xl font-bold text-white">
@@ -51,13 +51,13 @@
             state.latestBlocks[0]?.totalTransactions.toLocaleString() || "..."
           }}
         </h3>
-        <p class="text-gray-400">{{ $t('dashboard.totalTransactions') }}</p>
+        <p class="text-gray-400">{{ $t("dashboard.totalTransactions") }}</p>
       </StyledBox>
       <StyledBox class="text-center">
         <h3 class="text-2xl font-bold" :class="networkStatus.color">
           {{ networkStatus.status }}
         </h3>
-        <p class="text-gray-400">{{ $t('dashboard.connectionStatus') }}</p>
+        <p class="text-gray-400">{{ $t("dashboard.connectionStatus") }}</p>
       </StyledBox>
     </div>
 
@@ -65,15 +65,17 @@
       <!-- Assets Updates Sidebar -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">{{ $t('dashboard.assets') }}</h2>
+          <h2 class="text-xl font-bold text-white">
+            {{ $t("dashboard.assets") }}
+          </h2>
         </div>
 
         <div v-if="!state.recentAssets.length" class="card text-center py-8">
           <p class="text-gray-400">
             {{
               state.connectionStatus
-                ? $t('dashboard.waitingForAggregatedPools')
-                : $t('dashboard.connectingToFeed')
+                ? $t("dashboard.waitingForAggregatedPools")
+                : $t("dashboard.connectingToFeed")
             }}
           </p>
         </div>
@@ -89,7 +91,9 @@
       <!-- Latest Blocks -->
       <div class="">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-bold text-white">{{ $t('dashboard.latestBlocks') }}</h2>
+          <h2 class="text-2xl font-bold text-white">
+            {{ $t("dashboard.latestBlocks") }}
+          </h2>
         </div>
 
         <div
@@ -110,15 +114,17 @@
       <!-- AMM Trades Sidebar -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">{{ $t('dashboard.liveAmmTrades') }}</h2>
+          <h2 class="text-xl font-bold text-white">
+            {{ $t("dashboard.liveAmmTrades") }}
+          </h2>
         </div>
 
         <div v-if="!state.recentTrades.length" class="card text-center py-8">
           <p class="text-gray-400">
             {{
               state.connectionStatus
-                ? $t('dashboard.waitingForTrades')
-                : $t('dashboard.connectingToFeed')
+                ? $t("dashboard.waitingForTrades")
+                : $t("dashboard.connectingToFeed")
             }}
           </p>
         </div>
@@ -135,15 +141,17 @@
       <!-- Liquidity Updates Sidebar -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">{{ $t('dashboard.liquidityUpdates') }}</h2>
+          <h2 class="text-xl font-bold text-white">
+            {{ $t("dashboard.liquidityUpdates") }}
+          </h2>
         </div>
 
         <div v-if="!state.recentLiquidity.length" class="card text-center py-8">
           <p class="text-gray-400">
             {{
               state.connectionStatus
-                ? $t('dashboard.waitingForLiquidity')
-                : $t('dashboard.connectingToFeed')
+                ? $t("dashboard.waitingForLiquidity")
+                : $t("dashboard.connectingToFeed")
             }}
           </p>
         </div>
@@ -160,15 +168,17 @@
       <!-- Pool Updates Sidebar -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">{{ $t('dashboard.poolUpdates') }}</h2>
+          <h2 class="text-xl font-bold text-white">
+            {{ $t("dashboard.poolUpdates") }}
+          </h2>
         </div>
 
         <div v-if="!state.recentPools.length" class="card text-center py-8">
           <p class="text-gray-400">
             {{
               state.connectionStatus
-                ? $t('dashboard.waitingForPoolUpdates')
-                : $t('dashboard.connectingToFeed')
+                ? $t("dashboard.waitingForPoolUpdates")
+                : $t("dashboard.connectingToFeed")
             }}
           </p>
         </div>
@@ -185,7 +195,9 @@
       <!-- Aggregated Pool Updates Sidebar -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">{{ $t('dashboard.aggregatedPools') }}</h2>
+          <h2 class="text-xl font-bold text-white">
+            {{ $t("dashboard.aggregatedPools") }}
+          </h2>
         </div>
 
         <div
@@ -195,8 +207,8 @@
           <p class="text-gray-400">
             {{
               state.connectionStatus
-                ? $t('dashboard.waitingForAggregatedPools')
-                : $t('dashboard.connectingToFeed')
+                ? $t("dashboard.waitingForAggregatedPools")
+                : $t("dashboard.connectingToFeed")
             }}
           </p>
         </div>
@@ -233,7 +245,7 @@ import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
 import StyledBox from "../components/StyledBox.vue";
 import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 const state = reactive({
   latestBlocks: [] as BiatecBlock[],
@@ -267,7 +279,7 @@ let timeInterval: number | null = null;
 
 const networkStatus = computed(() => {
   if (state.latestBlocks.length === 0)
-    return { status: t('status.offline'), color: "text-red-400" };
+    return { status: t("status.offline"), color: "text-red-400" };
 
   const latestBlock = state.latestBlocks[0];
   const now = new Date();
@@ -276,9 +288,9 @@ const networkStatus = computed(() => {
 
   // If latest block is less than 60 seconds old, consider network online
   if (timeDiff < 60000) {
-    return { status: t('status.online'), color: "text-green-400" };
+    return { status: t("status.online"), color: "text-green-400" };
   } else {
-    return { status: t('status.offline'), color: "text-red-400" };
+    return { status: t("status.offline"), color: "text-red-400" };
   }
 });
 

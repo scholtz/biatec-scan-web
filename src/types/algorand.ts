@@ -11,20 +11,78 @@ export interface AlgorandTransaction {
   sender: string;
   "tx-type": string;
   signature: any;
+  note?: string;
   "payment-transaction"?: {
     amount: number;
     receiver: string;
+    "close-remainder-to"?: string;
   };
   "asset-transfer-transaction"?: {
     amount: number;
     "asset-id": number;
     receiver: string;
+    "close-to"?: string;
+    sender?: string;
   };
   "application-transaction"?: {
     "application-id": number;
     "on-completion": string;
-    "application-args": string[];
+    "application-args"?: string[];
+    accounts?: string[];
+    "foreign-apps"?: number[];
+    "foreign-assets"?: number[];
+    "approval-program"?: string;
+    "clear-state-program"?: string;
+    "global-state-schema"?: {
+      "num-uint": number;
+      "num-byte-slice": number;
+    };
+    "local-state-schema"?: {
+      "num-uint": number;
+      "num-byte-slice": number;
+    };
+    "extra-program-pages"?: number;
   };
+  "asset-config-transaction"?: {
+    "asset-id"?: number;
+    params?: {
+      creator?: string;
+      total?: number;
+      decimals?: number;
+      "default-frozen"?: boolean;
+      "unit-name"?: string;
+      name?: string;
+      url?: string;
+      "metadata-hash"?: string;
+      manager?: string;
+      reserve?: string;
+      freeze?: string;
+      clawback?: string;
+    };
+  };
+  "asset-freeze-transaction"?: {
+    address: string;
+    "asset-id": number;
+    "new-freeze-status": boolean;
+  };
+  "keyreg-transaction"?: {
+    "non-participation"?: boolean;
+    "vote-key-dilution"?: number;
+    "vote-first-valid"?: number;
+    "vote-last-valid"?: number;
+    "vote-participation-key"?: string;
+    "selection-participation-key"?: string;
+    "state-proof-key"?: string;
+  };
+  "state-proof-transaction"?: {
+    message?: any;
+    "state-proof"?: any;
+    "state-proof-type"?: number;
+  };
+  "close-rewards"?: number;
+  "closing-amount"?: number;
+  "receiver-rewards"?: number;
+  "sender-rewards"?: number;
 }
 export interface AssetParams {
   name: string;
