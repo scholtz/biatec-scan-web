@@ -1,21 +1,28 @@
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-white">{{ $t('assetDetails.recentLiquidity') }}</h3>
-      <div v-if="loading" class="text-sm text-gray-400">{{ $t('common.loading') }}...</div>
+      <h3 class="text-lg font-semibold text-white">
+        {{ $t("assetDetails.recentLiquidity") }}
+      </h3>
+      <div v-if="loading" class="text-sm text-gray-400">
+        {{ $t("common.loading") }}...
+      </div>
     </div>
-    
+
     <div v-if="error" class="text-red-400 text-sm bg-red-900/20 p-3 rounded">
       {{ error }}
     </div>
-    
-    <div v-if="!loading && liquidity.length === 0" class="text-gray-400 text-center py-8">
-      {{ $t('assetDetails.noLiquidity') }}
+
+    <div
+      v-if="!loading && liquidity.length === 0"
+      class="text-gray-400 text-center py-8"
+    >
+      {{ $t("assetDetails.noLiquidity") }}
     </div>
-    
+
     <div v-else class="space-y-2">
-      <div 
-        v-for="liquidityItem in liquidity" 
+      <div
+        v-for="liquidityItem in liquidity"
         :key="`${liquidityItem.txId}-${liquidityItem.timestamp}`"
         class="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800/70 transition-colors"
       >
@@ -26,14 +33,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import type { Liquidity } from '../api/models';
-import { getAVMTradeReporterAPI } from '../api';
-import { signalrService } from '../services/signalrService';
-import type { AMMLiquidity } from '../types/algorand';
-import type { SubscriptionFilter } from '../types/SubscriptionFilter';
-import LiquidityCard from './LiquidityCard.vue';
+import { ref, onMounted, onUnmounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import type { Liquidity } from "../api/models";
+import { getAVMTradeReporterAPI } from "../api";
+import { signalrService } from "../services/signalrService";
+import type { AMMLiquidity } from "../types/algorand";
+import type { SubscriptionFilter } from "../types/SubscriptionFilter";
+import LiquidityCard from "./LiquidityCard.vue";
 
 const { t } = useI18n();
 
@@ -43,7 +50,7 @@ const props = defineProps<{
 
 const liquidity = ref<Liquidity[]>([]);
 const loading = ref(false);
-const error = ref<string>('');
+const error = ref<string>("");
 let subscriptionFilter: SubscriptionFilter | null = null;
 
 // Convert Liquidity API model to AMMLiquidity interface expected by LiquidityCard
@@ -55,57 +62,67 @@ function convertToAMMLiquidity(liquidityItem: Liquidity): AMMLiquidity {
     assetAmountA: liquidityItem.assetAmountA ?? 0,
     assetAmountB: liquidityItem.assetAmountB ?? 0,
     assetAmountLP: liquidityItem.assetAmountLP ?? 0,
-    txId: liquidityItem.txId ?? '',
+    txId: liquidityItem.txId ?? "",
     blockId: liquidityItem.blockId ?? 0,
-    txGroup: liquidityItem.txGroup ?? '',
-    timestamp: liquidityItem.timestamp ?? '',
-    protocol: liquidityItem.protocol ?? 'Biatec',
-    liquidityProvider: liquidityItem.liquidityProvider ?? '',
-    poolAddress: liquidityItem.poolAddress ?? '',
+    txGroup: liquidityItem.txGroup ?? "",
+    timestamp: liquidityItem.timestamp ?? "",
+    protocol: liquidityItem.protocol ?? "Biatec",
+    liquidityProvider: liquidityItem.liquidityProvider ?? "",
+    poolAddress: liquidityItem.poolAddress ?? "",
     poolAppId: liquidityItem.poolAppId ?? 0,
-    topTxId: liquidityItem.topTxId ?? '',
-    txState: liquidityItem.txState ?? 'Confirmed',
-    direction: liquidityItem.direction ?? 'DepositLiquidity',
+    topTxId: liquidityItem.topTxId ?? "",
+    txState: liquidityItem.txState ?? "Confirmed",
+    direction: liquidityItem.direction ?? "DepositLiquidity",
     a: liquidityItem.a ?? 0,
     b: liquidityItem.b ?? 0,
     l: liquidityItem.l ?? 0,
   };
 }
 
-async function fetchLiquidity() {
-  if (!props.assetId || props.assetId === '0') return;
-  
+async function fetchLiquidity(assetId: string = props.assetId) {
+  if (!assetId || assetId === "0") {
+    liquidity.value = [];
+    return;
+  }
+
   try {
     loading.value = true;
-    error.value = '';
-    
-    console.log(`Fetching liquidity for asset ${props.assetId}`);
-    
+    error.value = "";
+
+    console.log(`Fetching liquidity for asset ${assetId}`);
+
     // Use the real API endpoint
     const api = getAVMTradeReporterAPI();
-    
+
     // Fetch liquidity where this asset is assetIdA
     const responseA = await api.getApiLiquidity({
-      assetIdA: Number(props.assetId),
-      size: 20 // Fetch last 20 liquidity updates
+      assetIdA: Number(assetId),
+      size: 20, // Fetch last 20 liquidity updates
     });
-    
+
     // Fetch liquidity where this asset is assetIdB
     const responseB = await api.getApiLiquidity({
-      assetIdB: Number(props.assetId),
-      size: 20 // Fetch last 20 liquidity updates
+      assetIdB: Number(assetId),
+      size: 20, // Fetch last 20 liquidity updates
     });
-    
-    // Combine and sort by timestamp (most recent first)
+
+    // Combine and deduplicate by txId, then sort by timestamp (most recent first)
     const allLiquidity = [...(responseA.data || []), ...(responseB.data || [])];
-    allLiquidity.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
-    
+    const uniqueLiquidity = allLiquidity.filter(
+      (item, index, self) =>
+        index === self.findIndex((t) => t.txId === item.txId)
+    );
+    uniqueLiquidity.sort(
+      (a, b) =>
+        new Date(b.timestamp || 0).getTime() -
+        new Date(a.timestamp || 0).getTime()
+    );
+
     // Take only the 20 most recent
-    liquidity.value = allLiquidity.slice(0, 20);
-    
+    liquidity.value = uniqueLiquidity.slice(0, 20);
   } catch (err: unknown) {
-    console.error('Error fetching liquidity:', err);
-    error.value = t('assetDetails.liquidityFetchError');
+    console.error("Error fetching liquidity:", err);
+    error.value = t("assetDetails.liquidityFetchError");
   } finally {
     loading.value = false;
   }
@@ -140,37 +157,32 @@ function handleLiquidityUpdate(liquidityUpdate: AMMLiquidity) {
       b: liquidityUpdate.b,
       l: liquidityUpdate.l,
     };
-    
+
     // Check if liquidity update with same txId already exists
-    const existingIndex = liquidity.value.findIndex((l) => l.txId === apiLiquidity.txId);
-    
+    const existingIndex = liquidity.value.findIndex(
+      (l) => l.txId === apiLiquidity.txId
+    );
+
     if (existingIndex !== -1) {
-      // Liquidity update already exists
-      if (liquidityUpdate.txState === 'Confirmed') {
-        // Replace the existing liquidity update with confirmed version
-        liquidity.value[existingIndex] = apiLiquidity;
-      } else if (liquidityUpdate.txState === 'TxPool') {
-        // Ignore TxPool updates if liquidity update already exists
-        return;
-      } else {
-        // For any other state, replace the existing liquidity update
-        liquidity.value[existingIndex] = apiLiquidity;
-      }
+      // Liquidity update already exists, replace it
+      liquidity.value[existingIndex] = apiLiquidity;
     } else {
-      // New liquidity update, add to list, sort by timestamp, and keep only 20 most recent
-      const updatedLiquidity = [apiLiquidity, ...liquidity.value];
-      updatedLiquidity.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
-      liquidity.value = updatedLiquidity.slice(0, 20);
+      // New liquidity update, add to list
+      liquidity.value.unshift(apiLiquidity);
     }
+
+    // Always sort by timestamp (most recent first) and keep only 20 most recent
+    liquidity.value.sort(
+      (a, b) =>
+        new Date(b.timestamp || 0).getTime() -
+        new Date(a.timestamp || 0).getTime()
+    );
+    liquidity.value = liquidity.value.slice(0, 20);
   }
 }
 
-onMounted(() => {
-  fetchLiquidity();
-  signalrService.onLiquidityReceived(handleLiquidityUpdate);
-  
-  // Subscribe to liquidity updates for this specific asset
-  subscriptionFilter = {
+function createSubscriptionFilter(assetId: string): SubscriptionFilter {
+  return {
     RecentBlocks: false,
     RecentTrades: false,
     RecentLiquidity: true,
@@ -180,17 +192,49 @@ onMounted(() => {
     MainAggregatedPools: false,
     PoolsAddresses: [],
     AggregatedPoolsIds: [],
-    AssetIds: [props.assetId], // Subscribe to liquidity for this specific asset
+    AssetIds: [assetId],
   };
-  signalrService.subscribe(subscriptionFilter);
+}
+
+async function subscribeToLiquidityUpdates(assetId: string) {
+  await unsubscribeFromLiquidityUpdates();
+  const filter = createSubscriptionFilter(assetId);
+  subscriptionFilter = filter;
+  await signalrService.subscribe(filter);
+}
+
+async function unsubscribeFromLiquidityUpdates() {
+  if (!subscriptionFilter) {
+    return;
+  }
+
+  const filter = subscriptionFilter;
+  subscriptionFilter = null;
+  await signalrService.unsubscribeFilter(filter);
+}
+
+onMounted(async () => {
+  await fetchLiquidity();
+  signalrService.onLiquidityReceived(handleLiquidityUpdate);
+  await subscribeToLiquidityUpdates(props.assetId);
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   signalrService.unsubscribeFromLiquidityUpdates(handleLiquidityUpdate);
-  if (subscriptionFilter) {
-    signalrService.unsubscribeFilter(subscriptionFilter);
-  }
+  await unsubscribeFromLiquidityUpdates();
 });
+
+watch(
+  () => props.assetId,
+  async (newAssetId, oldAssetId) => {
+    if (newAssetId === oldAssetId) {
+      return;
+    }
+
+    await fetchLiquidity(newAssetId);
+    await subscribeToLiquidityUpdates(newAssetId);
+  }
+);
 </script>
 
 <style scoped>
