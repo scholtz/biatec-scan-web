@@ -56,10 +56,20 @@
         <div class="mt-6 pt-6 border-t border-dark-700">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
-              <BufferDisplay :value="block.branch" title="Previous Block Hash" default-encoding="hex" />
+              <BufferDisplay
+                :value="block.branch"
+                :allowUTF8="false"
+                title="Previous Block Hash"
+                default-encoding="hex"
+              />
             </div>
             <div>
-              <BufferDisplay :value="block.genesisHash" title="Genesis Hash" default-encoding="hex" />
+              <BufferDisplay
+                :value="block.genesisHash"
+                :allowUTF8="false"
+                title="Genesis Hash"
+                default-encoding="hex"
+              />
             </div>
           </div>
         </div>
@@ -181,6 +191,7 @@ import { useRoute } from "vue-router";
 import { algorandService } from "../services/algorandService";
 import TransactionCard from "../components/TransactionCard.vue";
 import algosdk, { BlockHeader } from "algosdk";
+import BufferDisplay from "../components/BufferDisplay.vue";
 
 const route = useRoute();
 const block = ref<BlockHeader | null>(null);

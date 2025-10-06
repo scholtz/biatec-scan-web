@@ -4,6 +4,7 @@
       <h3 v-if="title" class="text-lg font-semibold text-white">{{ title }}</h3>
       <div class="flex space-x-2">
         <button
+          v-if="props.allowUTF8"
           @click="encoding = 'utf8'"
           :class="
             encoding === 'utf8'
@@ -53,11 +54,13 @@ import { Buffer } from "buffer";
 interface Props {
   value: string | Uint8Array | undefined;
   title?: string;
+  allowUTF8?: boolean;
   defaultEncoding?: "utf8" | "base64" | "hex";
 }
 
 const props = withDefaults(defineProps<Props>(), {
   defaultEncoding: "utf8",
+  allowUTF8: true,
 });
 
 const encoding = ref<"utf8" | "base64" | "hex">(props.defaultEncoding);
