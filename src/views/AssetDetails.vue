@@ -1,14 +1,24 @@
 <template>
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-white">{{ $t('assetDetails.title', { name: headerName }) }}</h1>
+      <h1 class="text-xl font-semibold text-white">
+        {{ $t("assetDetails.title", { name: headerName }) }}
+      </h1>
       <div class="flex items-center gap-3">
         <div class="text-sm text-gray-400">ID: {{ assetId }}</div>
         <button
           @click="toggleFavorite"
           class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
-          :class="isFavorite ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
-          :title="isFavorite ? $t('common.removeFromFavorites') : $t('common.addToFavorites')"
+          :class="
+            isFavorite
+              ? 'text-yellow-400 animate-pulse'
+              : 'text-gray-400 hover:text-yellow-300'
+          "
+          :title="
+            isFavorite
+              ? $t('common.removeFromFavorites')
+              : $t('common.addToFavorites')
+          "
         >
           <svg
             class="w-5 h-5 transition-all duration-300"
@@ -36,19 +46,27 @@
       <div class="flex">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-grow">
           <div>
-            <div class="text-xs text-gray-400">{{ $t('assetDetails.name') }}</div>
+            <div class="text-xs text-gray-400">
+              {{ $t("assetDetails.name") }}
+            </div>
             <div class="text-white">{{ name }}</div>
           </div>
           <div>
-            <div class="text-xs text-gray-400">{{ $t('assetDetails.unit') }}</div>
+            <div class="text-xs text-gray-400">
+              {{ $t("assetDetails.unit") }}
+            </div>
             <div class="text-white">{{ unitName }}</div>
           </div>
           <div>
-            <div class="text-xs text-gray-400">{{ $t('assetDetails.decimals') }}</div>
+            <div class="text-xs text-gray-400">
+              {{ $t("assetDetails.decimals") }}
+            </div>
             <div class="text-white">{{ decimals }}</div>
           </div>
           <div>
-            <div class="text-xs text-gray-400">{{ $t('assetDetails.totalSupply') }}</div>
+            <div class="text-xs text-gray-400">
+              {{ $t("assetDetails.totalSupply") }}
+            </div>
             <div class="text-white">{{ formattedTotal }}</div>
           </div>
         </div>
@@ -69,7 +87,7 @@
           }"
           class="btn-secondary"
         >
-          {{ $t('assetDetails.viewAllPools', { name }) }}
+          {{ $t("assetDetails.viewAllPools", { name }) }}
         </router-link>
         <router-link
           :to="{
@@ -78,7 +96,7 @@
           }"
           class="btn-secondary"
         >
-          {{ $t('assetDetails.viewPoolsWithAlgo') }}
+          {{ $t("assetDetails.viewPoolsWithAlgo") }}
         </router-link>
         <router-link
           :to="{
@@ -87,7 +105,7 @@
           }"
           class="btn-secondary"
         >
-          {{ $t('assetDetails.viewPoolsWithUsdc') }}
+          {{ $t("assetDetails.viewPoolsWithUsdc") }}
         </router-link>
       </div>
     </div>
@@ -142,28 +160,28 @@ let assetSubscriptionFilter: SubscriptionFilter | null = null;
 const name = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return t('common.loading');
+  if (!info) return t("common.loading");
   return info.name || `Asset ${assetId.value}`;
 });
 
 const unitName = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return t('common.loading');
+  if (!info) return t("common.loading");
   return info.unitName || info.name || `Asset ${assetId.value}`;
 });
 
 const decimals = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return t('common.loading');
+  if (!info) return t("common.loading");
   return info.decimals ?? 0;
 });
 
 const formattedTotal = computed(() => {
   void forceUpdate.value;
   const info = assetService.getAssetInfo(BigInt(assetId.value));
-  if (!info) return t('common.loading');
+  if (!info) return t("common.loading");
   const d = info.decimals || 0;
   const total = Number(info.total) / Math.pow(10, d);
   return total.toLocaleString();
@@ -178,7 +196,7 @@ const isFavorite = computed(() => {
 const toggleFavorite = () => {
   const assetIndex = Number(assetId.value);
   favoriteService.toggleFavorite(assetIndex);
-  
+
   // Force reactivity update
   const favoritesRef = favoriteService.getReactiveFavorites();
   favoritesRef.value = new Set(favoritesRef.value);
@@ -191,20 +209,8 @@ function ensureLoaded() {
   });
 }
 
-function handleAssetUpdate(asset: BiatecAsset) {
-  // Check if this update is for the current asset
-  if (asset.index?.toString() === assetId.value) {
-    console.log("Asset update received for current asset:", asset);
-    forceUpdate.value++;
-  }
-}
-
-onMounted(() => {
-  ensureLoaded();
-  
-  // Subscribe to asset updates for this specific asset
-  signalrService.onAssetReceived(handleAssetUpdate);
-  assetSubscriptionFilter = {
+function createAssetSubscriptionFilter(id: string): SubscriptionFilter {
+  return {
     RecentBlocks: false,
     RecentTrades: false,
     RecentLiquidity: false,
@@ -214,47 +220,61 @@ onMounted(() => {
     MainAggregatedPools: false,
     PoolsAddresses: [],
     AggregatedPoolsIds: [],
-    AssetIds: [assetId.value], // Subscribe to this specific asset
+    AssetIds: [id],
   };
-  signalrService.subscribe(assetSubscriptionFilter);
+}
+
+async function subscribeToAssetUpdates(id: string) {
+  await unsubscribeFromAssetUpdates();
+  const filter = createAssetSubscriptionFilter(id);
+  assetSubscriptionFilter = filter;
+  await signalrService.subscribe(filter);
+}
+
+async function unsubscribeFromAssetUpdates() {
+  if (!assetSubscriptionFilter) {
+    return;
+  }
+
+  const filter = assetSubscriptionFilter;
+  assetSubscriptionFilter = null;
+  await signalrService.unsubscribeFilter(filter);
+}
+
+function handleAssetUpdate(asset: BiatecAsset) {
+  try {
+    if (asset.index?.toString() === assetId.value) {
+      console.log("Asset update received for current asset:", asset);
+      forceUpdate.value++;
+    }
+  } catch (error) {
+    console.error("Error handling asset update:", error);
+  }
+}
+
+onMounted(async () => {
+  ensureLoaded();
+
+  signalrService.onAssetReceived(handleAssetUpdate);
+  await subscribeToAssetUpdates(assetId.value);
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   signalrService.unsubscribeFromAssetUpdates(handleAssetUpdate);
-  if (assetSubscriptionFilter) {
-    signalrService.unsubscribeFilter(assetSubscriptionFilter);
-  }
+  await unsubscribeFromAssetUpdates();
 });
 
 watch(
   () => route.params.assetId,
-  (v) => {
+  async (v) => {
     const newAssetId = String(v ?? "0");
-    if (newAssetId !== assetId.value) {
-      // Unsubscribe from the old asset
-      if (assetSubscriptionFilter) {
-        signalrService.unsubscribeFilter(assetSubscriptionFilter);
-      }
-      
-      // Update asset ID and reload
-      assetId.value = newAssetId;
-      ensureLoaded();
-      
-      // Subscribe to the new asset
-      assetSubscriptionFilter = {
-        RecentBlocks: false,
-        RecentTrades: false,
-        RecentLiquidity: false,
-        RecentPool: false,
-        RecentAggregatedPool: false,
-        RecentAssets: true,
-        MainAggregatedPools: false,
-        PoolsAddresses: [],
-        AggregatedPoolsIds: [],
-        AssetIds: [newAssetId], // Subscribe to this specific asset
-      };
-      signalrService.subscribe(assetSubscriptionFilter);
+    if (newAssetId === assetId.value) {
+      return;
     }
+
+    assetId.value = newAssetId;
+    ensureLoaded();
+    await subscribeToAssetUpdates(newAssetId);
   }
 );
 </script>
