@@ -93,11 +93,13 @@ class AlgorandService {
   ): algosdk.indexerModels.Transaction | null {
     // Check if this is the transaction we're looking for
     if (tx.id === targetTxId) {
+      console.log(`Found transaction by direct ID match: ${targetTxId}`);
       return tx;
     }
 
     // Search through inner transactions recursively
     if (tx.innerTxns && tx.innerTxns.length > 0) {
+      console.log(`Searching through ${tx.innerTxns.length} inner transactions of parent ${tx.id}`);
       for (const innerTx of tx.innerTxns) {
         // For inner transactions, we need to fill in parameters from parent and block
         // and recalculate the transaction ID
@@ -113,8 +115,11 @@ class AlgorandService {
           blockHeader
         );
 
+        console.log(`Inner tx original ID: ${innerTx.id}, calculated ID: ${calculatedTxId}, target: ${targetTxId}, type: ${innerTx.txType}`);
+
         // Check if this inner transaction matches our target
         if (calculatedTxId === targetTxId) {
+          console.log(`Found transaction by calculated ID match: ${targetTxId}`);
           // Update the transaction ID to the calculated one
           innerTx.id = calculatedTxId;
           return innerTx;
@@ -188,154 +193,163 @@ class AlgorandService {
       let sdkTx: algosdk.Transaction | null = null;
 
       // Create transaction based on type
-      switch (tx.txType) {
-        case "pay":
-          if (tx.paymentTransaction) {
-            sdkTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-              sender: tx.sender,
-              receiver: tx.paymentTransaction.receiver,
-              amount: BigInt(tx.paymentTransaction.amount || 0),
-              closeRemainderTo: tx.paymentTransaction.closeRemainderTo,
-              note: tx.note,
-              lease: tx.lease,
-              rekeyTo: tx.rekeyTo,
-              suggestedParams,
-            });
-          }
-          break;
-
-        case "axfer":
-          if (tx.assetTransferTransaction) {
-            sdkTx = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-              sender: tx.sender,
-              receiver: tx.assetTransferTransaction.receiver,
-              amount: BigInt(tx.assetTransferTransaction.amount || 0),
-              assetIndex: Number(tx.assetTransferTransaction.assetId || 0),
-              closeRemainderTo: tx.assetTransferTransaction.closeTo,
-              assetSender: tx.assetTransferTransaction.sender,
-              note: tx.note,
-              lease: tx.lease,
-              rekeyTo: tx.rekeyTo,
-              suggestedParams,
-            });
-          }
-          break;
-
-        case "appl":
-          if (tx.applicationTransaction) {
-            sdkTx = algosdk.makeApplicationCallTxnFromObject({
-              sender: tx.sender,
-              appIndex: BigInt(tx.applicationTransaction.applicationId || 0),
-              onComplete: Number(tx.applicationTransaction.onCompletion || 0),
-              appArgs: tx.applicationTransaction.applicationArgs,
-              accounts: tx.applicationTransaction.accounts,
-              foreignApps: tx.applicationTransaction.foreignApps?.map((id) =>
-                BigInt(id)
-              ),
-              foreignAssets: tx.applicationTransaction.foreignAssets?.map(
-                (id) => BigInt(id)
-              ),
-              approvalProgram: tx.applicationTransaction.approvalProgram,
-              clearProgram: tx.applicationTransaction.clearStateProgram,
-              numGlobalInts:
-                tx.applicationTransaction.globalStateSchema?.numUint,
-              numGlobalByteSlices:
-                tx.applicationTransaction.globalStateSchema?.numByteSlice,
-              numLocalInts: tx.applicationTransaction.localStateSchema?.numUint,
-              numLocalByteSlices:
-                tx.applicationTransaction.localStateSchema?.numByteSlice,
-              extraPages: tx.applicationTransaction.extraProgramPages,
-              note: tx.note,
-              lease: tx.lease,
-              rekeyTo: tx.rekeyTo,
-              suggestedParams,
-            });
-          }
-          break;
-
-        case "acfg":
-          if (tx.assetConfigTransaction) {
-            if (tx.assetConfigTransaction.assetId) {
-              // Asset modification
-              sdkTx = algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject({
+      try {
+        switch (tx.txType) {
+          case "pay":
+            if (tx.paymentTransaction) {
+              sdkTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
                 sender: tx.sender,
-                assetIndex: Number(tx.assetConfigTransaction.assetId),
-                manager: tx.assetConfigTransaction.params?.manager,
-                reserve: tx.assetConfigTransaction.params?.reserve,
-                freeze: tx.assetConfigTransaction.params?.freeze,
-                clawback: tx.assetConfigTransaction.params?.clawback,
-                strictEmptyAddressChecking: false,
-                note: tx.note,
-                lease: tx.lease,
-                rekeyTo: tx.rekeyTo,
-                suggestedParams,
-              });
-            } else if (tx.assetConfigTransaction.params) {
-              // Asset creation
-              const params = tx.assetConfigTransaction.params;
-              sdkTx = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
-                sender: tx.sender,
-                total: BigInt(params.total || 0),
-                decimals: params.decimals || 0,
-                defaultFrozen: params.defaultFrozen || false,
-                manager: params.manager,
-                reserve: params.reserve,
-                freeze: params.freeze,
-                clawback: params.clawback,
-                unitName: params.unitName,
-                assetName: params.name,
-                assetURL: params.url,
-                assetMetadataHash: params.metadataHash,
+                receiver: tx.paymentTransaction.receiver,
+                amount: BigInt(tx.paymentTransaction.amount || 0),
+                closeRemainderTo: tx.paymentTransaction.closeRemainderTo,
                 note: tx.note,
                 lease: tx.lease,
                 rekeyTo: tx.rekeyTo,
                 suggestedParams,
               });
             }
-          }
-          break;
+            break;
 
-        case "afrz":
-          if (tx.assetFreezeTransaction) {
-            sdkTx = algosdk.makeAssetFreezeTxnWithSuggestedParamsFromObject({
-              sender: tx.sender,
-              assetIndex: Number(tx.assetFreezeTransaction.assetId),
-              freezeTarget: tx.assetFreezeTransaction.address,
-              frozen: tx.assetFreezeTransaction.newFreezeStatus,
-              note: tx.note,
-              lease: tx.lease,
-              rekeyTo: tx.rekeyTo,
-              suggestedParams,
-            });
-          }
-          break;
-
-        case "keyreg":
-          if (tx.keyregTransaction) {
-            sdkTx = algosdk.makeKeyRegistrationTxnWithSuggestedParamsFromObject(
-              {
+          case "axfer":
+            if (tx.assetTransferTransaction) {
+              sdkTx = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
                 sender: tx.sender,
-                voteKey: tx.keyregTransaction.voteParticipationKey,
-                selectionKey: tx.keyregTransaction.selectionParticipationKey,
-                stateProofKey: tx.keyregTransaction.stateProofKey,
-                voteFirst: tx.keyregTransaction.voteFirstValid
-                  ? BigInt(tx.keyregTransaction.voteFirstValid)
-                  : undefined,
-                voteLast: tx.keyregTransaction.voteLastValid
-                  ? BigInt(tx.keyregTransaction.voteLastValid)
-                  : undefined,
-                voteKeyDilution: tx.keyregTransaction.voteKeyDilution
-                  ? BigInt(tx.keyregTransaction.voteKeyDilution)
-                  : undefined,
-                nonParticipation: tx.keyregTransaction.nonParticipation,
+                receiver: tx.assetTransferTransaction.receiver,
+                amount: BigInt(tx.assetTransferTransaction.amount || 0),
+                assetIndex: Number(tx.assetTransferTransaction.assetId || 0),
+                closeRemainderTo: tx.assetTransferTransaction.closeTo,
+                assetSender: tx.assetTransferTransaction.sender,
                 note: tx.note,
                 lease: tx.lease,
                 rekeyTo: tx.rekeyTo,
                 suggestedParams,
+              });
+            }
+            break;
+
+          case "appl":
+            if (tx.applicationTransaction) {
+              sdkTx = algosdk.makeApplicationCallTxnFromObject({
+                sender: tx.sender,
+                appIndex: BigInt(tx.applicationTransaction.applicationId || 0),
+                onComplete: Number(tx.applicationTransaction.onCompletion || 0),
+                appArgs: tx.applicationTransaction.applicationArgs || [],
+                accounts: tx.applicationTransaction.accounts || [],
+                foreignApps: (tx.applicationTransaction.foreignApps || []).map(
+                  (id) => BigInt(id)
+                ),
+                foreignAssets: (
+                  tx.applicationTransaction.foreignAssets || []
+                ).map((id) => BigInt(id)),
+                approvalProgram: tx.applicationTransaction.approvalProgram,
+                clearProgram: tx.applicationTransaction.clearStateProgram,
+                numGlobalInts:
+                  tx.applicationTransaction.globalStateSchema?.numUint,
+                numGlobalByteSlices:
+                  tx.applicationTransaction.globalStateSchema?.numByteSlice,
+                numLocalInts:
+                  tx.applicationTransaction.localStateSchema?.numUint,
+                numLocalByteSlices:
+                  tx.applicationTransaction.localStateSchema?.numByteSlice,
+                extraPages: tx.applicationTransaction.extraProgramPages,
+                note: tx.note,
+                lease: tx.lease,
+                rekeyTo: tx.rekeyTo,
+                suggestedParams,
+              });
+            }
+            break;
+
+          case "acfg":
+            if (tx.assetConfigTransaction) {
+              if (tx.assetConfigTransaction.assetId) {
+                // Asset modification
+                sdkTx = algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject({
+                  sender: tx.sender,
+                  assetIndex: Number(tx.assetConfigTransaction.assetId),
+                  manager: tx.assetConfigTransaction.params?.manager,
+                  reserve: tx.assetConfigTransaction.params?.reserve,
+                  freeze: tx.assetConfigTransaction.params?.freeze,
+                  clawback: tx.assetConfigTransaction.params?.clawback,
+                  strictEmptyAddressChecking: false,
+                  note: tx.note,
+                  lease: tx.lease,
+                  rekeyTo: tx.rekeyTo,
+                  suggestedParams,
+                });
+              } else if (tx.assetConfigTransaction.params) {
+                // Asset creation
+                const params = tx.assetConfigTransaction.params;
+                sdkTx = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
+                  sender: tx.sender,
+                  total: BigInt(params.total || 0),
+                  decimals: params.decimals || 0,
+                  defaultFrozen: params.defaultFrozen || false,
+                  manager: params.manager,
+                  reserve: params.reserve,
+                  freeze: params.freeze,
+                  clawback: params.clawback,
+                  unitName: params.unitName,
+                  assetName: params.name,
+                  assetURL: params.url,
+                  assetMetadataHash: params.metadataHash,
+                  note: tx.note,
+                  lease: tx.lease,
+                  rekeyTo: tx.rekeyTo,
+                  suggestedParams,
+                });
               }
-            );
-          }
-          break;
+            }
+            break;
+
+          case "afrz":
+            if (tx.assetFreezeTransaction) {
+              sdkTx = algosdk.makeAssetFreezeTxnWithSuggestedParamsFromObject({
+                sender: tx.sender,
+                assetIndex: Number(tx.assetFreezeTransaction.assetId),
+                freezeTarget: tx.assetFreezeTransaction.address,
+                frozen: tx.assetFreezeTransaction.newFreezeStatus,
+                note: tx.note,
+                lease: tx.lease,
+                rekeyTo: tx.rekeyTo,
+                suggestedParams,
+              });
+            }
+            break;
+
+          case "keyreg":
+            if (tx.keyregTransaction) {
+              sdkTx =
+                algosdk.makeKeyRegistrationTxnWithSuggestedParamsFromObject({
+                  sender: tx.sender,
+                  voteKey: tx.keyregTransaction.voteParticipationKey,
+                  selectionKey: tx.keyregTransaction.selectionParticipationKey,
+                  stateProofKey: tx.keyregTransaction.stateProofKey,
+                  voteFirst: tx.keyregTransaction.voteFirstValid
+                    ? BigInt(tx.keyregTransaction.voteFirstValid)
+                    : undefined,
+                  voteLast: tx.keyregTransaction.voteLastValid
+                    ? BigInt(tx.keyregTransaction.voteLastValid)
+                    : undefined,
+                  voteKeyDilution: tx.keyregTransaction.voteKeyDilution
+                    ? BigInt(tx.keyregTransaction.voteKeyDilution)
+                    : undefined,
+                  nonParticipation: tx.keyregTransaction.nonParticipation,
+                  note: tx.note,
+                  lease: tx.lease,
+                  rekeyTo: tx.rekeyTo,
+                  suggestedParams,
+                });
+            }
+            break;
+        }
+      } catch (txBuildError) {
+        console.error(
+          `Error building transaction for ID calculation (type: ${tx.txType}):`,
+          txBuildError,
+          tx
+        );
+        return tx.id || "";
       }
 
       if (sdkTx) {
@@ -345,10 +359,17 @@ class AlgorandService {
         }
 
         // Calculate and return the transaction ID
-        return sdkTx.txID();
+        const calculatedId = sdkTx.txID();
+        console.log(
+          `Calculated ID for tx type ${tx.txType}: ${calculatedId} (original: ${tx.id})`
+        );
+        return calculatedId;
       }
 
       // Fall back to original ID if we couldn't create the transaction
+      console.warn(
+        `Could not create SDK transaction for ID calculation (type: ${tx.txType}), using original ID`
+      );
       return tx.id || "";
     } catch (error) {
       console.error("Error calculating transaction ID:", error, tx);
@@ -441,13 +462,20 @@ class AlgorandService {
     round: bigint
   ): Promise<algosdk.indexerModels.Transaction | null> {
     try {
+      console.log(`Starting search for transaction ${txId} in block ${round}`);
       // Get both block header and transactions
       const [blockHeader, transactions] = await Promise.all([
         this.getBlock(round),
         this.getBlockTransactions(round),
       ]);
 
+      console.log(`Block header: ${blockHeader ? 'found' : 'not found'}, Transactions count: ${transactions.length}`);
+      if (blockHeader) {
+        console.log(`Block genesis: ${blockHeader.genesisID}, genesisHash length: ${blockHeader.genesisHash?.length || 0}`);
+      }
+
       for (const tx of transactions) {
+        console.log(`Checking transaction ${tx.id}, type: ${tx.txType}, innerTxns: ${tx.innerTxns?.length || 0}`);
         // Use recursive search with block header to properly calculate inner transaction IDs
         const found = this.findTransactionRecursive(
           tx,
@@ -460,7 +488,7 @@ class AlgorandService {
         }
       }
 
-      console.log(`Transaction ${txId} not found in block ${round}`);
+      console.log(`Transaction ${txId} not found in block ${round} after checking ${transactions.length} transactions`);
       return null;
     } catch (error) {
       console.error(
