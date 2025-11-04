@@ -62,6 +62,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: "/transaction/:txId/block/:round",
+      name: "TransactionDetailsWithBlock",
+      component: TransactionDetails,
+      props: true,
+    },
+    {
       path: "/transaction/:txId",
       name: "TransactionDetails",
       component: TransactionDetails,

@@ -110,7 +110,17 @@
             >
               <div class="flex justify-between items-start mb-2">
                 <router-link
-                  :to="{ name: 'TransactionDetails', params: { txId: tx.id } }"
+                  :to="
+                    tx.confirmedRound
+                      ? {
+                          name: 'TransactionDetailsWithBlock',
+                          params: {
+                            txId: tx.id,
+                            round: tx.confirmedRound.toString(),
+                          },
+                        }
+                      : { name: 'TransactionDetails', params: { txId: tx.id } }
+                  "
                   class="text-blue-400 hover:text-blue-300 font-mono text-sm"
                   v-if="tx.id"
                 >

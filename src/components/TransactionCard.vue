@@ -102,7 +102,17 @@
         Fee: {{ algorandService.formatAlgoAmount(transaction.fee) }} ALGO
       </div>
       <router-link
-        :to="{ name: 'TransactionDetails', params: { txId: transaction.id } }"
+        :to="
+          transaction.confirmedRound
+            ? {
+                name: 'TransactionDetailsWithBlock',
+                params: {
+                  txId: transaction.id,
+                  round: transaction.confirmedRound.toString(),
+                },
+              }
+            : { name: 'TransactionDetails', params: { txId: transaction.id } }
+        "
         class="text-primary-400 hover:text-primary-300 text-sm font-medium transition-colors"
       >
         Details →

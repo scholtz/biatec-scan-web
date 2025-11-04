@@ -81,8 +81,34 @@ class AlgorandService {
     }
   }
 
+  /**
+   * Recursively search for a transaction by ID in a transaction and its inner transactions
+   */
+  private findTransactionRecursive(
+    tx: algosdk.indexerModels.Transaction,
+    targetTxId: string
+  ): algosdk.indexerModels.Transaction | null {
+    // Check if this is the transaction we're looking for
+    if (tx.id === targetTxId) {
+      return tx;
+    }
+
+    // Search through inner transactions recursively
+    if (tx.innerTxns && tx.innerTxns.length > 0) {
+      for (const innerTx of tx.innerTxns) {
+        const found = this.findTransactionRecursive(innerTx, targetTxId);
+        if (found) {
+          return found;
+        }
+      }
+    }
+
+    return null;
+  }
+
   async getTransaction(
-    txId: string
+    txId: string,
+    round?: number | bigint
   ): Promise<algosdk.indexerModels.Transaction | null> {
     try {
       const response = await this.indexerClient
@@ -92,6 +118,13 @@ class AlgorandService {
       const txData = response.transaction;
 
       if (!txData) {
+        // If not found in indexer and we have a round number, search in the block
+        if (round !== undefined) {
+          console.log(
+            `Transaction not found in indexer, searching in block ${round}`
+          );
+          return await this.findTransactionInBlock(txId, BigInt(round));
+        }
         return null;
       }
 
@@ -102,6 +135,18 @@ class AlgorandService {
       return txData;
     } catch (error) {
       console.error("Error fetching transaction from indexer:", error);
+
+      // If we have a round number, try searching in the block
+      if (round !== undefined) {
+        console.log(
+          `Indexer failed, searching for transaction in block ${round}`
+        );
+        try {
+          return await this.findTransactionInBlock(txId, BigInt(round));
+        } catch (blockError) {
+          console.error("Error searching in block:", blockError);
+        }
+      }
 
       // Fallback to API
       try {
@@ -132,6 +177,33 @@ class AlgorandService {
         console.error("Error fetching transaction from API:", apiError);
       }
 
+      return null;
+    }
+  }
+
+  /**
+   * Search for a transaction in a specific block, including inner transactions
+   */
+  private async findTransactionInBlock(
+    txId: string,
+    round: bigint
+  ): Promise<algosdk.indexerModels.Transaction | null> {
+    try {
+      const transactions = await this.getBlockTransactions(round);
+
+      for (const tx of transactions) {
+        // Use recursive search to check the transaction and all its inner transactions
+        const found = this.findTransactionRecursive(tx, txId);
+        if (found) {
+          console.log(`Found transaction ${txId} in block ${round}`);
+          return found;
+        }
+      }
+
+      console.log(`Transaction ${txId} not found in block ${round}`);
+      return null;
+    } catch (error) {
+      console.error(`Error searching for transaction in block ${round}:`, error);
       return null;
     }
   }
