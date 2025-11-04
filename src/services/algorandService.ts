@@ -537,4 +537,5 @@ class AlgorandService {
   }
 }
 
+export default AlgorandService;
 export const algorandService = new AlgorandService();
