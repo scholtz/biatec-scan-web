@@ -82,11 +82,14 @@ class AlgorandService {
   }
 
   /**
-   * Recursively search for a transaction by ID in a transaction and its inner transactions
+   * Recursively search for a transaction by ID in a transaction and its inner transactions.
+   * For inner transactions, recalculates the transaction ID after filling in missing parameters
+   * from the parent transaction and block header.
    */
   private findTransactionRecursive(
     tx: algosdk.indexerModels.Transaction,
-    targetTxId: string
+    targetTxId: string,
+    blockHeader?: algosdk.BlockHeader
   ): algosdk.indexerModels.Transaction | null {
     // Check if this is the transaction we're looking for
     if (tx.id === targetTxId) {
@@ -96,7 +99,33 @@ class AlgorandService {
     // Search through inner transactions recursively
     if (tx.innerTxns && tx.innerTxns.length > 0) {
       for (const innerTx of tx.innerTxns) {
-        const found = this.findTransactionRecursive(innerTx, targetTxId);
+        // For inner transactions, we need to fill in parameters from parent and block
+        // and recalculate the transaction ID
+        const reconstructedInnerTx = this.reconstructInnerTransaction(
+          innerTx,
+          tx, // parent transaction
+          blockHeader
+        );
+
+        // Calculate the proper transaction ID for the inner transaction
+        const calculatedTxId = this.calculateTransactionId(
+          reconstructedInnerTx,
+          blockHeader
+        );
+
+        // Check if this inner transaction matches our target
+        if (calculatedTxId === targetTxId) {
+          // Update the transaction ID to the calculated one
+          innerTx.id = calculatedTxId;
+          return innerTx;
+        }
+
+        // Continue recursive search with the reconstructed inner transaction
+        const found = this.findTransactionRecursive(
+          reconstructedInnerTx,
+          targetTxId,
+          blockHeader
+        );
         if (found) {
           return found;
         }
@@ -104,6 +133,228 @@ class AlgorandService {
     }
 
     return null;
+  }
+
+  /**
+   * Reconstructs an inner transaction by filling in parameters from the parent transaction
+   * and block header (genesisHash, genesisID, group)
+   */
+  private reconstructInnerTransaction(
+    innerTx: algosdk.indexerModels.Transaction,
+    parentTx: algosdk.indexerModels.Transaction,
+    blockHeader?: algosdk.BlockHeader
+  ): algosdk.indexerModels.Transaction {
+    // Create a copy to avoid mutating the original
+    const reconstructed = { ...innerTx } as algosdk.indexerModels.Transaction;
+
+    // Fill in genesisHash and genesisID from block header if available
+    if (blockHeader) {
+      if (blockHeader.genesisHash && !reconstructed.genesisHash) {
+        reconstructed.genesisHash = blockHeader.genesisHash;
+      }
+      if (blockHeader.genesisID && !reconstructed.genesisId) {
+        reconstructed.genesisId = blockHeader.genesisID;
+      }
+    }
+
+    // Fill in group from parent transaction
+    if (parentTx.group && !reconstructed.group) {
+      reconstructed.group = parentTx.group;
+    }
+
+    return reconstructed;
+  }
+
+  /**
+   * Calculates the transaction ID from transaction data.
+   * This follows the same logic as the Algorand SDK's txID() method.
+   */
+  private calculateTransactionId(
+    tx: algosdk.indexerModels.Transaction,
+    blockHeader?: algosdk.BlockHeader
+  ): string {
+    try {
+      // Build suggested params from transaction and block data
+      const suggestedParams: algosdk.SuggestedParams = {
+        fee: Number(tx.fee || 0),
+        minFee: 1000, // Minimum fee
+        firstValid: Number(tx.firstValid || 0),
+        lastValid: Number(tx.lastValid || 0),
+        genesisID: tx.genesisId || blockHeader?.genesisID || "",
+        genesisHash:
+          tx.genesisHash || blockHeader?.genesisHash || new Uint8Array(),
+      };
+
+      let sdkTx: algosdk.Transaction | null = null;
+
+      // Create transaction based on type
+      switch (tx.txType) {
+        case "pay":
+          if (tx.paymentTransaction) {
+            sdkTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+              sender: tx.sender,
+              receiver: tx.paymentTransaction.receiver,
+              amount: BigInt(tx.paymentTransaction.amount || 0),
+              closeRemainderTo: tx.paymentTransaction.closeRemainderTo,
+              note: tx.note,
+              lease: tx.lease,
+              rekeyTo: tx.rekeyTo,
+              suggestedParams,
+            });
+          }
+          break;
+
+        case "axfer":
+          if (tx.assetTransferTransaction) {
+            sdkTx = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+              sender: tx.sender,
+              receiver: tx.assetTransferTransaction.receiver,
+              amount: BigInt(tx.assetTransferTransaction.amount || 0),
+              assetIndex: Number(tx.assetTransferTransaction.assetId || 0),
+              closeRemainderTo: tx.assetTransferTransaction.closeTo,
+              assetSender: tx.assetTransferTransaction.sender,
+              note: tx.note,
+              lease: tx.lease,
+              rekeyTo: tx.rekeyTo,
+              suggestedParams,
+            });
+          }
+          break;
+
+        case "appl":
+          if (tx.applicationTransaction) {
+            sdkTx = algosdk.makeApplicationCallTxnFromObject({
+              sender: tx.sender,
+              appIndex: BigInt(tx.applicationTransaction.applicationId || 0),
+              onComplete: Number(tx.applicationTransaction.onCompletion || 0),
+              appArgs: tx.applicationTransaction.applicationArgs,
+              accounts: tx.applicationTransaction.accounts,
+              foreignApps: tx.applicationTransaction.foreignApps?.map((id) =>
+                BigInt(id)
+              ),
+              foreignAssets: tx.applicationTransaction.foreignAssets?.map(
+                (id) => BigInt(id)
+              ),
+              approvalProgram: tx.applicationTransaction.approvalProgram,
+              clearProgram: tx.applicationTransaction.clearStateProgram,
+              numGlobalInts:
+                tx.applicationTransaction.globalStateSchema?.numUint,
+              numGlobalByteSlices:
+                tx.applicationTransaction.globalStateSchema?.numByteSlice,
+              numLocalInts: tx.applicationTransaction.localStateSchema?.numUint,
+              numLocalByteSlices:
+                tx.applicationTransaction.localStateSchema?.numByteSlice,
+              extraPages: tx.applicationTransaction.extraProgramPages,
+              note: tx.note,
+              lease: tx.lease,
+              rekeyTo: tx.rekeyTo,
+              suggestedParams,
+            });
+          }
+          break;
+
+        case "acfg":
+          if (tx.assetConfigTransaction) {
+            if (tx.assetConfigTransaction.assetId) {
+              // Asset modification
+              sdkTx = algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject({
+                sender: tx.sender,
+                assetIndex: Number(tx.assetConfigTransaction.assetId),
+                manager: tx.assetConfigTransaction.params?.manager,
+                reserve: tx.assetConfigTransaction.params?.reserve,
+                freeze: tx.assetConfigTransaction.params?.freeze,
+                clawback: tx.assetConfigTransaction.params?.clawback,
+                strictEmptyAddressChecking: false,
+                note: tx.note,
+                lease: tx.lease,
+                rekeyTo: tx.rekeyTo,
+                suggestedParams,
+              });
+            } else if (tx.assetConfigTransaction.params) {
+              // Asset creation
+              const params = tx.assetConfigTransaction.params;
+              sdkTx = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
+                sender: tx.sender,
+                total: BigInt(params.total || 0),
+                decimals: params.decimals || 0,
+                defaultFrozen: params.defaultFrozen || false,
+                manager: params.manager,
+                reserve: params.reserve,
+                freeze: params.freeze,
+                clawback: params.clawback,
+                unitName: params.unitName,
+                assetName: params.name,
+                assetURL: params.url,
+                assetMetadataHash: params.metadataHash,
+                note: tx.note,
+                lease: tx.lease,
+                rekeyTo: tx.rekeyTo,
+                suggestedParams,
+              });
+            }
+          }
+          break;
+
+        case "afrz":
+          if (tx.assetFreezeTransaction) {
+            sdkTx = algosdk.makeAssetFreezeTxnWithSuggestedParamsFromObject({
+              sender: tx.sender,
+              assetIndex: Number(tx.assetFreezeTransaction.assetId),
+              freezeTarget: tx.assetFreezeTransaction.address,
+              frozen: tx.assetFreezeTransaction.newFreezeStatus,
+              note: tx.note,
+              lease: tx.lease,
+              rekeyTo: tx.rekeyTo,
+              suggestedParams,
+            });
+          }
+          break;
+
+        case "keyreg":
+          if (tx.keyregTransaction) {
+            sdkTx = algosdk.makeKeyRegistrationTxnWithSuggestedParamsFromObject(
+              {
+                sender: tx.sender,
+                voteKey: tx.keyregTransaction.voteParticipationKey,
+                selectionKey: tx.keyregTransaction.selectionParticipationKey,
+                stateProofKey: tx.keyregTransaction.stateProofKey,
+                voteFirst: tx.keyregTransaction.voteFirstValid
+                  ? BigInt(tx.keyregTransaction.voteFirstValid)
+                  : undefined,
+                voteLast: tx.keyregTransaction.voteLastValid
+                  ? BigInt(tx.keyregTransaction.voteLastValid)
+                  : undefined,
+                voteKeyDilution: tx.keyregTransaction.voteKeyDilution
+                  ? BigInt(tx.keyregTransaction.voteKeyDilution)
+                  : undefined,
+                nonParticipation: tx.keyregTransaction.nonParticipation,
+                note: tx.note,
+                lease: tx.lease,
+                rekeyTo: tx.rekeyTo,
+                suggestedParams,
+              }
+            );
+          }
+          break;
+      }
+
+      if (sdkTx) {
+        // Set the group if present
+        if (tx.group) {
+          sdkTx.group = tx.group;
+        }
+
+        // Calculate and return the transaction ID
+        return sdkTx.txID();
+      }
+
+      // Fall back to original ID if we couldn't create the transaction
+      return tx.id || "";
+    } catch (error) {
+      console.error("Error calculating transaction ID:", error, tx);
+      // Fall back to the original ID if calculation fails
+      return tx.id || "";
+    }
   }
 
   async getTransaction(
@@ -182,18 +433,27 @@ class AlgorandService {
   }
 
   /**
-   * Search for a transaction in a specific block, including inner transactions
+   * Search for a transaction in a specific block, including inner transactions.
+   * Properly reconstructs inner transactions with parameters from parent and block header.
    */
   private async findTransactionInBlock(
     txId: string,
     round: bigint
   ): Promise<algosdk.indexerModels.Transaction | null> {
     try {
-      const transactions = await this.getBlockTransactions(round);
+      // Get both block header and transactions
+      const [blockHeader, transactions] = await Promise.all([
+        this.getBlock(round),
+        this.getBlockTransactions(round),
+      ]);
 
       for (const tx of transactions) {
-        // Use recursive search to check the transaction and all its inner transactions
-        const found = this.findTransactionRecursive(tx, txId);
+        // Use recursive search with block header to properly calculate inner transaction IDs
+        const found = this.findTransactionRecursive(
+          tx,
+          txId,
+          blockHeader || undefined
+        );
         if (found) {
           console.log(`Found transaction ${txId} in block ${round}`);
           return found;
@@ -203,7 +463,10 @@ class AlgorandService {
       console.log(`Transaction ${txId} not found in block ${round}`);
       return null;
     } catch (error) {
-      console.error(`Error searching for transaction in block ${round}:`, error);
+      console.error(
+        `Error searching for transaction in block ${round}:`,
+        error
+      );
       return null;
     }
   }

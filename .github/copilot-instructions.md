@@ -260,6 +260,54 @@ const computedTitle = computed(() => t('dashboard.title'))
 
 **CRITICAL**: Never hardcode user-facing text in components. Always use translation keys with $t() function calls. All new user-facing text must be translated into all 8 supported languages.
 
+## Inner Transaction ID Calculation
+
+When searching for transactions in blocks (especially inner transactions from application calls), transaction IDs must be properly calculated by filling in parameters from the parent transaction and block header.
+
+### Key Principles
+
+1. **Inner transactions don't have complete data**: Inner transactions from the indexer API may be missing `genesisHash`, `genesisID`, and `group` fields
+2. **These fields are required for proper ID calculation**: The transaction ID is calculated by hashing the complete transaction, including these parameters
+3. **Fill parameters from parent and block**: To calculate the correct ID, fill in:
+   - `genesisHash` and `genesisID` from the block header
+   - `group` from the parent transaction
+
+### Implementation Details
+
+The implementation follows the pattern from [AVMTradeReporter](https://raw.githubusercontent.com/scholtz/AVMTradeReporter/87c8a5165a2f79d38ba799f60f917948a2992262/AVMTradeReporter/Services/TransactionProcessor.cs):
+
+```typescript
+// 1. Fill in parameters from block header
+if (blockHeader) {
+  if (!innerTx.genesisHash) innerTx.genesisHash = blockHeader.genesisHash;
+  if (!innerTx.genesisId) innerTx.genesisId = blockHeader.genesisID;
+}
+
+// 2. Fill in group from parent transaction
+if (parentTx.group && !innerTx.group) {
+  innerTx.group = parentTx.group;
+}
+
+// 3. Recreate transaction using algosdk and calculate ID
+const sdkTx = algosdk.makeApplicationCallTxnFromObject({...params});
+if (innerTx.group) sdkTx.group = innerTx.group;
+const calculatedTxId = sdkTx.txID();
+```
+
+### Location in Code
+
+See `src/services/algorandService.ts`:
+- `findTransactionRecursive()`: Recursively searches transactions including inner transactions
+- `reconstructInnerTransaction()`: Fills in missing parameters from parent and block
+- `calculateTransactionId()`: Recreates transaction using algosdk and calculates proper ID
+- `findTransactionInBlock()`: Fetches block header and transactions, then searches recursively
+
+### Important Notes
+
+- This is **required** for inner transactions to be found by their proper transaction ID
+- Without this, inner transactions may not be found even when searching in the correct block
+- The calculation uses the same algosdk transaction builder functions (`makePaymentTxnWithSuggestedParamsFromObject`, `makeApplicationCallTxnFromObject`, etc.) to ensure ID calculation matches the protocol
+
 ## Validation Checklist
 Before considering any changes complete:
 - [ ] `npm install` completes successfully
