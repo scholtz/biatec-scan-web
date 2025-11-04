@@ -2,7 +2,7 @@ import algosdk from "algosdk";
 
 class AlgorandService {
   private algodUrl = "https://algorand-algod-public.de-4.biatec.io";
-  private indexerUrl = "https://mainnet-idx.algonode.cloud";
+  private indexerUrl = "https://mainnet-idx.voi.nodely.dev";
   private algodClient: algosdk.Algodv2;
   private indexerClient: algosdk.Indexer;
 
