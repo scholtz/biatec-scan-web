@@ -1,8 +1,9 @@
 import algosdk from "algosdk";
 
 class AlgorandService {
-  private algodUrl = "https://algorand-algod-public.de-4.biatec.io";
-  private indexerUrl = "https://mainnet-idx.voi.nodely.dev";
+  private algodUrl = "https://mainnet-api.4160.nodely.dev";
+  private indexerUrl = "https://mainnet-idx.4160.nodely.dev";
+  private tradeReporterUrl = "https://algorand-trades.de-4.biatec.io";
   private algodClient: algosdk.Algodv2;
   private indexerClient: algosdk.Indexer;
 
@@ -99,7 +100,9 @@ class AlgorandService {
 
     // Search through inner transactions recursively
     if (tx.innerTxns && tx.innerTxns.length > 0) {
-      console.log(`Searching through ${tx.innerTxns.length} inner transactions of parent ${tx.id}`);
+      console.log(
+        `Searching through ${tx.innerTxns.length} inner transactions of parent ${tx.id}`
+      );
       for (const innerTx of tx.innerTxns) {
         // For inner transactions, we need to fill in parameters from parent and block
         // and recalculate the transaction ID
@@ -115,11 +118,15 @@ class AlgorandService {
           blockHeader
         );
 
-        console.log(`Inner tx original ID: ${innerTx.id}, calculated ID: ${calculatedTxId}, target: ${targetTxId}, type: ${innerTx.txType}`);
+        console.log(
+          `Inner tx original ID: ${innerTx.id}, calculated ID: ${calculatedTxId}, target: ${targetTxId}, type: ${innerTx.txType}`
+        );
 
         // Check if this inner transaction matches our target
         if (calculatedTxId === targetTxId) {
-          console.log(`Found transaction by calculated ID match: ${targetTxId}`);
+          console.log(
+            `Found transaction by calculated ID match: ${targetTxId}`
+          );
           // Update the transaction ID to the calculated one
           innerTx.id = calculatedTxId;
           return innerTx;
@@ -212,18 +219,20 @@ class AlgorandService {
 
           case "axfer":
             if (tx.assetTransferTransaction) {
-              sdkTx = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-                sender: tx.sender,
-                receiver: tx.assetTransferTransaction.receiver,
-                amount: BigInt(tx.assetTransferTransaction.amount || 0),
-                assetIndex: Number(tx.assetTransferTransaction.assetId || 0),
-                closeRemainderTo: tx.assetTransferTransaction.closeTo,
-                assetSender: tx.assetTransferTransaction.sender,
-                note: tx.note,
-                lease: tx.lease,
-                rekeyTo: tx.rekeyTo,
-                suggestedParams,
-              });
+              sdkTx = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject(
+                {
+                  sender: tx.sender,
+                  receiver: tx.assetTransferTransaction.receiver,
+                  amount: BigInt(tx.assetTransferTransaction.amount || 0),
+                  assetIndex: Number(tx.assetTransferTransaction.assetId || 0),
+                  closeRemainderTo: tx.assetTransferTransaction.closeTo,
+                  assetSender: tx.assetTransferTransaction.sender,
+                  note: tx.note,
+                  lease: tx.lease,
+                  rekeyTo: tx.rekeyTo,
+                  suggestedParams,
+                }
+              );
             }
             break;
 
@@ -264,40 +273,44 @@ class AlgorandService {
             if (tx.assetConfigTransaction) {
               if (tx.assetConfigTransaction.assetId) {
                 // Asset modification
-                sdkTx = algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject({
-                  sender: tx.sender,
-                  assetIndex: Number(tx.assetConfigTransaction.assetId),
-                  manager: tx.assetConfigTransaction.params?.manager,
-                  reserve: tx.assetConfigTransaction.params?.reserve,
-                  freeze: tx.assetConfigTransaction.params?.freeze,
-                  clawback: tx.assetConfigTransaction.params?.clawback,
-                  strictEmptyAddressChecking: false,
-                  note: tx.note,
-                  lease: tx.lease,
-                  rekeyTo: tx.rekeyTo,
-                  suggestedParams,
-                });
+                sdkTx = algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject(
+                  {
+                    sender: tx.sender,
+                    assetIndex: Number(tx.assetConfigTransaction.assetId),
+                    manager: tx.assetConfigTransaction.params?.manager,
+                    reserve: tx.assetConfigTransaction.params?.reserve,
+                    freeze: tx.assetConfigTransaction.params?.freeze,
+                    clawback: tx.assetConfigTransaction.params?.clawback,
+                    strictEmptyAddressChecking: false,
+                    note: tx.note,
+                    lease: tx.lease,
+                    rekeyTo: tx.rekeyTo,
+                    suggestedParams,
+                  }
+                );
               } else if (tx.assetConfigTransaction.params) {
                 // Asset creation
                 const params = tx.assetConfigTransaction.params;
-                sdkTx = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
-                  sender: tx.sender,
-                  total: BigInt(params.total || 0),
-                  decimals: params.decimals || 0,
-                  defaultFrozen: params.defaultFrozen || false,
-                  manager: params.manager,
-                  reserve: params.reserve,
-                  freeze: params.freeze,
-                  clawback: params.clawback,
-                  unitName: params.unitName,
-                  assetName: params.name,
-                  assetURL: params.url,
-                  assetMetadataHash: params.metadataHash,
-                  note: tx.note,
-                  lease: tx.lease,
-                  rekeyTo: tx.rekeyTo,
-                  suggestedParams,
-                });
+                sdkTx = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject(
+                  {
+                    sender: tx.sender,
+                    total: BigInt(params.total || 0),
+                    decimals: params.decimals || 0,
+                    defaultFrozen: params.defaultFrozen || false,
+                    manager: params.manager,
+                    reserve: params.reserve,
+                    freeze: params.freeze,
+                    clawback: params.clawback,
+                    unitName: params.unitName,
+                    assetName: params.name,
+                    assetURL: params.url,
+                    assetMetadataHash: params.metadataHash,
+                    note: tx.note,
+                    lease: tx.lease,
+                    rekeyTo: tx.rekeyTo,
+                    suggestedParams,
+                  }
+                );
               }
             }
             break;
@@ -422,7 +435,7 @@ class AlgorandService {
 
       // Fallback to API
       try {
-        const apiUrl = `https://algorand-trades.de-4.biatec.io/api/trade?txId=${txId}&size=1`;
+        const apiUrl = `${this.tradeReporterUrl}/api/trade?txId=${txId}&size=1`;
         const apiResponse = await fetch(apiUrl);
 
         if (!apiResponse.ok) {
@@ -469,13 +482,19 @@ class AlgorandService {
         this.getBlockTransactions(round),
       ]);
 
-      console.log(`Block header: ${blockHeader ? 'found' : 'not found'}, Transactions count: ${transactions.length}`);
+      console.log(
+        `Block header: ${blockHeader ? "found" : "not found"}, Transactions count: ${transactions.length}`
+      );
       if (blockHeader) {
-        console.log(`Block genesis: ${blockHeader.genesisID}, genesisHash length: ${blockHeader.genesisHash?.length || 0}`);
+        console.log(
+          `Block genesis: ${blockHeader.genesisID}, genesisHash length: ${blockHeader.genesisHash?.length || 0}`
+        );
       }
 
       for (const tx of transactions) {
-        console.log(`Checking transaction ${tx.id}, type: ${tx.txType}, innerTxns: ${tx.innerTxns?.length || 0}`);
+        console.log(
+          `Checking transaction ${tx.id}, type: ${tx.txType}, innerTxns: ${tx.innerTxns?.length || 0}`
+        );
         // Use recursive search with block header to properly calculate inner transaction IDs
         const found = this.findTransactionRecursive(
           tx,
@@ -488,7 +507,9 @@ class AlgorandService {
         }
       }
 
-      console.log(`Transaction ${txId} not found in block ${round} after checking ${transactions.length} transactions`);
+      console.log(
+        `Transaction ${txId} not found in block ${round} after checking ${transactions.length} transactions`
+      );
       return null;
     } catch (error) {
       console.error(
