@@ -13,9 +13,7 @@
     <div class="order-2 md:order-none">
       <span
         class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300"
-        v-if="
-          state.pool.ammType == 'StableSwap' || (state.pool.stableA ?? 0) > 0
-        "
+        v-if="state.pool.ammType == AMMType.StableSwap"
       >
         Stable swap
       </span>
@@ -170,7 +168,7 @@ import { reactive, computed, onMounted, onUnmounted } from "vue";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
 import { signalrService } from "../services/signalrService";
-import { Pool } from "../api/models";
+import { AMMType, Pool } from "../api/models";
 
 interface Props {
   pool: Pool;
@@ -273,7 +271,11 @@ const formattedReserveA = computed(() => {
 
 const formattedVirtualReserveA = computed(() => {
   void state.forceUpdate;
-  if (state.pool.virtualAmountA == state.pool.realAmountA) return "";
+  if (
+    state.pool.ammType === AMMType.OldAMM &&
+    state.pool.virtualAmountA == state.pool.realAmountA
+  )
+    return "";
   if (
     !state.pool.virtualAmountA ||
     state.pool.assetIdA === undefined ||
@@ -288,7 +290,11 @@ const formattedVirtualReserveA = computed(() => {
 });
 const formattedVirtualReserveB = computed(() => {
   void state.forceUpdate;
-  if (state.pool.virtualAmountB == state.pool.realAmountB) return "";
+  if (
+    state.pool.ammType === AMMType.OldAMM &&
+    state.pool.virtualAmountB == state.pool.realAmountB
+  )
+    return "";
   if (
     !state.pool.virtualAmountB ||
     state.pool.assetIdB === undefined ||
