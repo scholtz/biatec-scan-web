@@ -84,7 +84,13 @@
         <p class="text-xs text-gray-400 mb-1 flex">
           <span>{{ $t('common.bought') }}</span>
           <router-link
-            :to="{ name: 'TransactionDetails', params: { txId: trade.txId } }"
+            :to="{
+              name: 'TransactionDetailsWithBlock',
+              params: {
+                txId: trade.txId,
+                round: trade.blockId.toString(),
+              },
+            }"
             class="text-xs ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
             {{ $t('common.viewTx') }}

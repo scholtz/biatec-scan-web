@@ -102,7 +102,13 @@
       <div class="flex justify-between items-center">
         <span class="text-sm text-gray-400">{{ $t('common.txId') }}:</span>
         <router-link
-          :to="{ name: 'TransactionDetails', params: { txId: liquidity.txId } }"
+          :to="{
+            name: 'TransactionDetailsWithBlock',
+            params: {
+              txId: liquidity.txId,
+              round: liquidity.blockId.toString(),
+            },
+          }"
           class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
           :title="liquidity.txId"
         >

@@ -1088,10 +1088,11 @@ const getTypeColor = (type: string) => {
   return colors[type] || "bg-gray-600";
 };
 
-const loadTransaction = async (txId: string) => {
+const loadTransaction = async (txId: string, round?: string) => {
   isLoading.value = true;
   try {
-    const txData = await algorandService.getTransaction(txId);
+    const roundNumber = round ? Number(round) : undefined;
+    const txData = await algorandService.getTransaction(txId, roundNumber);
     transaction.value = txData;
   } catch (error) {
     console.error("Error loading transaction:", error);
@@ -1101,18 +1102,19 @@ const loadTransaction = async (txId: string) => {
 };
 
 watch(
-  () => route.params.txId,
-  (newTxId) => {
+  () => [route.params.txId, route.params.round],
+  ([newTxId, newRound]) => {
     if (newTxId) {
-      loadTransaction(newTxId as string);
+      loadTransaction(newTxId as string, newRound as string | undefined);
     }
   }
 );
 
 onMounted(() => {
   const txId = route.params.txId as string;
+  const round = route.params.round as string | undefined;
   if (txId) {
-    loadTransaction(txId);
+    loadTransaction(txId, round);
   }
 });
 </script>
