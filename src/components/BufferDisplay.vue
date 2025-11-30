@@ -102,8 +102,8 @@ const base64Value = computed(() => {
 
 const numericValue = computed(() => {
   const buf = bufferValue.value;
-  // Limit to 8 bytes (64-bit integer)
-  if (buf.length === 0 || buf.length > 8) return null;
+  // Limit to 128 bytes (1024-bit integer) to support large numbers but avoid huge blobs
+  if (buf.length === 0 || buf.length > 128) return null;
   try {
     // Big Endian conversion
     let val = BigInt(0);
