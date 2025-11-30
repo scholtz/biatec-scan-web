@@ -143,9 +143,7 @@
                   {{ algorandService.formatTransactionId(tx.id) }}
                 </router-link>
                 <span class="text-xs text-gray-400" v-if="tx['round-time']">
-                  <FormattedTime
-                    :timestamp="(tx['round-time'] * 1000).toString()"
-                  />
+                  <FormattedTime :timestamp="BigInt(tx['round-time'])" />
                 </span>
               </div>
               <div class="flex justify-between items-center">
