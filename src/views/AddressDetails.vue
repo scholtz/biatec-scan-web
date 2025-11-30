@@ -80,6 +80,63 @@
           </div>
         </div>
 
+        <!-- External Links -->
+        <div class="card">
+          <h2 class="text-xl font-semibold mb-4">
+            {{ $t("common.externalLinks") }}
+          </h2>
+          <div class="flex flex-wrap gap-4">
+            <a
+              :href="`https://allo.info/account/${address}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+            >
+              Allo <span class="text-xs">↗</span>
+            </a>
+            <a
+              :href="`https://lora.algokit.io/mainnet/account/${address}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+            >
+              Lora <span class="text-xs">↗</span>
+            </a>
+            <a
+              :href="`https://vestige.fi/wallet/${address}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+            >
+              Vestige <span class="text-xs">↗</span>
+            </a>
+            <a
+              :href="`https://explorer.perawallet.app/address/${address}/`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+            >
+              Pera <span class="text-xs">↗</span>
+            </a>
+            <a
+              :href="`https://algonoderewards.com/${address}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+            >
+              NodeRewards <span class="text-xs">↗</span>
+            </a>
+            <a
+              :href="`https://www.asastats.com/${address}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+            >
+              ASA Stats <span class="text-xs">↗</span>
+            </a>
+          </div>
+        </div>
+
         <!-- Assets -->
         <div v-if="enrichedAssets.length > 0" class="card">
           <h2 class="text-xl font-semibold mb-4">

@@ -47,6 +47,39 @@
 
       <!-- Application Call Details -->
       <TransactionApplication :transaction="transaction" />
+
+      <!-- External Links -->
+      <div class="card mt-6">
+        <h2 class="text-xl font-semibold mb-4">
+          {{ $t("common.externalLinks") }}
+        </h2>
+        <div class="flex flex-wrap gap-4">
+          <a
+            :href="`https://allo.info/tx/${transaction.id}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+          >
+            Allo <span class="text-xs">↗</span>
+          </a>
+          <a
+            :href="`https://lora.algokit.io/mainnet/transaction/${transaction.id}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+          >
+            Lora <span class="text-xs">↗</span>
+          </a>
+          <a
+            :href="`https://explorer.perawallet.app/tx/${transaction.id}/`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+          >
+            Pera <span class="text-xs">↗</span>
+          </a>
+        </div>
+      </div>
     </div>
 
     <div v-else class="card text-center py-12">

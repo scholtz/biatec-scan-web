@@ -48,6 +48,7 @@
     "account": "Account",
     "app": "App",
     "asset": "Asset",
+    "externalLinks": "外部链接",
     "argument": "Argument",
     "uints": "Uints",
     "byteSlices": "Byte Slices",
