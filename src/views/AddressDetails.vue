@@ -2,9 +2,13 @@
   <div class="min-h-screen bg-background text-white">
     <div class="container mx-auto px-4 py-8">
       <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-4">{{ $t('addressDetails.title') }}</h1>
+        <h1 class="text-3xl font-bold mb-4">
+          {{ $t("addressDetails.title") }}
+        </h1>
         <div class="flex items-center gap-4">
-          <span class="text-gray-400">{{ $t('addressDetails.addressLabel') }}</span>
+          <span class="text-gray-400">{{
+            $t("addressDetails.addressLabel")
+          }}</span>
           <span class="font-mono text-blue-400 break-all">{{ address }}</span>
           <button
             @click="copyToClipboard"
@@ -21,7 +25,7 @@
         <div
           class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
         ></div>
-        <p class="text-gray-400">{{ $t('addressDetails.loading') }}</p>
+        <p class="text-gray-400">{{ $t("addressDetails.loading") }}</p>
       </div>
 
       <!-- Error State -->
@@ -39,26 +43,36 @@
       <div v-else class="space-y-6">
         <!-- Account Balance -->
         <div class="card">
-          <h2 class="text-xl font-semibold mb-4">{{ $t('addressDetails.accountInfo') }}</h2>
+          <h2 class="text-xl font-semibold mb-4">
+            {{ $t("addressDetails.accountInfo") }}
+          </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">{{ $t('addressDetails.balance') }}</span>
+              <span class="text-gray-400">{{
+                $t("addressDetails.balance")
+              }}</span>
               <span class="text-white font-mono">
                 {{ formatAlgoAmount(accountInfo?.amount || 0) }} ALGO
               </span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">{{ $t('addressDetails.minBalance') }}</span>
+              <span class="text-gray-400">{{
+                $t("addressDetails.minBalance")
+              }}</span>
               <span class="text-white font-mono">
                 {{ formatAlgoAmount(accountInfo?.["min-balance"] || 0) }} ALGO
               </span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">{{ $t('addressDetails.round') }}</span>
+              <span class="text-gray-400">{{
+                $t("addressDetails.round")
+              }}</span>
               <span class="text-white">{{ accountInfo?.round || "N/A" }}</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">{{ $t('addressDetails.status') }}</span>
+              <span class="text-gray-400">{{
+                $t("addressDetails.status")
+              }}</span>
               <span class="text-white">{{
                 formatStatus(accountInfo?.status)
               }}</span>
@@ -68,7 +82,9 @@
 
         <!-- Assets -->
         <div v-if="enrichedAssets.length > 0" class="card">
-          <h2 class="text-xl font-semibold mb-4">{{ $t('addressDetails.assets') }}</h2>
+          <h2 class="text-xl font-semibold mb-4">
+            {{ $t("addressDetails.assets") }}
+          </h2>
           <div class="space-y-3">
             <div
               v-for="asset in enrichedAssets"
@@ -85,7 +101,8 @@
                   >
                 </div>
                 <div class="text-xs text-gray-500" v-if="asset.priceUSD > 0">
-                  {{ formatUSD(asset.priceUSD) }} {{ $t('addressDetails.perUnit') }}
+                  {{ formatUSD(asset.priceUSD) }}
+                  {{ $t("addressDetails.perUnit") }}
                 </div>
               </div>
               <div class="text-right">
@@ -102,12 +119,14 @@
 
         <!-- Recent Transactions -->
         <div class="card">
-          <h2 class="text-xl font-semibold mb-4">{{ $t('addressDetails.recentTransactions') }}</h2>
+          <h2 class="text-xl font-semibold mb-4">
+            {{ $t("addressDetails.recentTransactions") }}
+          </h2>
           <div
             v-if="transactions.length === 0"
             class="text-center py-8 text-gray-400"
           >
-            {{ $t('addressDetails.noTransactions') }}
+            {{ $t("addressDetails.noTransactions") }}
           </div>
           <div v-else class="space-y-3">
             <div
@@ -123,22 +142,24 @@
                 >
                   {{ algorandService.formatTransactionId(tx.id) }}
                 </router-link>
-                <span class="text-xs text-gray-400" v-if="tx.roundTime">
+                <span class="text-xs text-gray-400" v-if="tx['round-time']">
                   <FormattedTime
-                    :timestamp="(tx.roundTime * 1000).toString()"
+                    :timestamp="(tx['round-time'] * 1000).toString()"
                   />
                 </span>
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-gray-400 text-sm">{{
-                  formatTransactionType(tx.txType || "unknown")
+                  formatTransactionType(tx["tx-type"] || "unknown")
                 }}</span>
                 <div class="text-right">
                   <div class="text-white text-sm">
-                    {{ $t('addressDetails.round') }} {{ tx.confirmedRound || "N/A" }}
+                    {{ $t("addressDetails.round") }}
+                    {{ tx["confirmed-round"] || "N/A" }}
                   </div>
                   <div class="text-gray-400 text-xs">
-                    {{ $t('addressDetails.fee') }} {{ algorandService.formatAlgoAmount(tx.fee) }} ALGO
+                    {{ $t("addressDetails.fee") }}
+                    {{ algorandService.formatAlgoAmount(tx.fee) }} ALGO
                   </div>
                 </div>
               </div>
@@ -171,7 +192,6 @@ import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
 import { getAVMTradeReporterAPI } from "../api";
 import FormattedTime from "../components/FormattedTime.vue";
-import algosdk from "algosdk";
 
 const { t } = useI18n();
 const api = getAVMTradeReporterAPI();
@@ -190,13 +210,22 @@ interface AccountInfo {
   assets?: AccountAsset[];
 }
 
+interface IndexerTransaction {
+  id: string;
+  fee: number;
+  "round-time"?: number;
+  "tx-type"?: string;
+  "confirmed-round"?: number;
+  [key: string]: any;
+}
+
 const route = useRoute();
 const address = computed(() => route.params.address as string);
 
 const loading = ref(false);
 const error = ref("");
 const accountInfo = ref<AccountInfo | null>(null);
-const transactions = ref<algosdk.indexerModels.Transaction[]>([]);
+const transactions = ref<IndexerTransaction[]>([]);
 const loadingTransactions = ref(false);
 const hasMoreTransactions = ref(true);
 const nextToken = ref("");
@@ -215,7 +244,7 @@ const loadAddressInfo = async () => {
     );
 
     if (!accountResponse.ok) {
-      throw new Error(t('addressDetails.notFound'));
+      throw new Error(t("addressDetails.notFound"));
     }
 
     const accountData = await accountResponse.json();
@@ -228,7 +257,7 @@ const loadAddressInfo = async () => {
     await loadTransactions(true);
   } catch (err: unknown) {
     error.value =
-      err instanceof Error ? err.message : t('addressDetails.loadError');
+      err instanceof Error ? err.message : t("addressDetails.loadError");
     console.error("Error loading address info:", err);
   } finally {
     loading.value = false;
@@ -316,7 +345,7 @@ const enrichedAssets = computed(() => {
       assets.push({
         ...asset,
         name: assetInfo?.name || `Asset ${assetId}`,
-        unitName: assetInfo?.unitName || t('assets.unit'),
+        unitName: assetInfo?.unitName || t("assets.unit"),
         decimals,
         priceUSD: price,
         valueUSD,
@@ -338,7 +367,7 @@ const loadTransactions = async (reset = false) => {
     const response = await fetch(url);
 
     if (!response.ok) {
-      throw new Error(t('addressDetails.loadTxError'));
+      throw new Error(t("addressDetails.loadTxError"));
     }
 
     const data = await response.json();
@@ -390,20 +419,20 @@ const formatUSD = (amount: number): string => {
 
 const formatTransactionType = (txType: string): string => {
   const typeMap: { [key: string]: string } = {
-    pay: t('transaction.type.pay'),
-    axfer: t('transaction.type.axfer'),
-    acfg: t('transaction.type.acfg'),
-    afrz: t('transaction.type.afrz'),
-    appl: t('transaction.type.appl'),
-    keyreg: t('transaction.type.keyreg'),
+    pay: t("transaction.type.pay"),
+    axfer: t("transaction.type.axfer"),
+    acfg: t("transaction.type.acfg"),
+    afrz: t("transaction.type.afrz"),
+    appl: t("transaction.type.appl"),
+    keyreg: t("transaction.type.keyreg"),
   };
   return typeMap[txType] || txType;
 };
 
 const formatStatus = (status?: string) => {
   if (!status) return "N/A";
-  if (status === 'Online') return t('status.online');
-  if (status === 'Offline') return t('status.offline');
+  if (status === "Online") return t("status.online");
+  if (status === "Offline") return t("status.offline");
   return status;
 };
 
