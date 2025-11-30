@@ -4,7 +4,9 @@
       <span class="text-purple-400 font-semibold">
         {{ $t(`transaction.type.${transaction.txType}`) || transaction.txType }}
       </span>
-      <span class="text-xs text-gray-500">Inner Transaction</span>
+      <span class="text-xs text-gray-500">{{
+        $t("transaction.innerTransaction")
+      }}</span>
     </div>
 
     <!-- Global State Delta -->

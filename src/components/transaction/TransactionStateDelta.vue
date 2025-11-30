@@ -59,7 +59,10 @@
 
 <script setup lang="ts">
 import { PropType } from "vue";
+import { useI18n } from "vue-i18n";
 import BufferDisplay from "../BufferDisplay.vue";
+
+const { t } = useI18n();
 
 defineProps({
   title: {
@@ -76,13 +79,13 @@ const getActionLabel = (action: number) => {
   // 1: SetBytes, 2: SetUint, 3: Delete
   switch (action) {
     case 1:
-      return "Set Bytes";
+      return t("transaction.setBytes");
     case 2:
-      return "Set Uint";
+      return t("transaction.setUint");
     case 3:
-      return "Delete";
+      return t("transaction.delete");
     default:
-      return "Unknown";
+      return t("common.unknown");
   }
 };
 </script>

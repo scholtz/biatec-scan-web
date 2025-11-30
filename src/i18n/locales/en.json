@@ -339,6 +339,11 @@
     "globalStateDelta": "Global State Delta",
     "localStateDelta": "Local State Delta",
     "notFound": "Transaction Not Found",
-    "notFoundDesc": "The requested transaction could not be found."
+    "notFoundDesc": "The requested transaction could not be found.",
+    "innerTransactions": "Inner Transactions",
+    "innerTransaction": "Inner Transaction",
+    "setBytes": "Set Bytes",
+    "setUint": "Set Uint",
+    "delete": "Delete"
   }
 }

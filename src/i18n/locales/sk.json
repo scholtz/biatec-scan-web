@@ -339,6 +339,11 @@
     "globalStateDelta": "Delta globálneho stavu",
     "localStateDelta": "Delta lokálneho stavu",
     "notFound": "Transakcia nenájdená",
-    "notFoundDesc": "Požadovaná transakcia nebola nájdená."
+    "notFoundDesc": "Požadovaná transakcia nebola nájdená.",
+    "innerTransactions": "Vnútorné transakcie",
+    "innerTransaction": "Vnútorná transakcia",
+    "setBytes": "Nastaviť bajty",
+    "setUint": "Nastaviť Uint",
+    "delete": "Vymazať"
   }
 }

@@ -267,7 +267,7 @@
       <!-- Inner Transactions -->
       <div v-if="transaction.innerTxns && transaction.innerTxns.length > 0">
         <h3 class="text-lg font-semibold text-white mb-4 mt-6">
-          Inner Transactions
+          {{ $t("transaction.innerTransactions") }}
         </h3>
         <InnerTransaction
           v-for="(innerTx, index) in transaction.innerTxns"

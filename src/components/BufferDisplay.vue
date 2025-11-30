@@ -4,6 +4,18 @@
       <h3 v-if="title" class="text-lg font-semibold text-white">{{ title }}</h3>
       <div class="flex space-x-2">
         <button
+          v-if="isNumericAvailable"
+          @click="encoding = 'numeric'"
+          :class="
+            encoding === 'numeric'
+              ? 'bg-primary-600 text-white'
+              : 'bg-dark-900 text-gray-400'
+          "
+          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
+        >
+          Numeric
+        </button>
+        <button
           v-if="props.allowUTF8"
           @click="encoding = 'utf8'"
           :class="
@@ -55,7 +67,7 @@ interface Props {
   value: string | Uint8Array | undefined;
   title?: string;
   allowUTF8?: boolean;
-  defaultEncoding?: "utf8" | "base64" | "hex";
+  defaultEncoding?: "utf8" | "base64" | "hex" | "numeric";
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -63,7 +75,18 @@ const props = withDefaults(defineProps<Props>(), {
   allowUTF8: true,
 });
 
-const encoding = ref<"utf8" | "base64" | "hex">(props.defaultEncoding);
+const encoding = ref<"utf8" | "base64" | "hex" | "numeric">(
+  props.defaultEncoding
+);
+
+// Convert value to Buffer
+const bufferValue = computed(() => {
+  if (!props.value) return Buffer.alloc(0);
+  if (typeof props.value === "string") {
+    return Buffer.from(props.value, "base64");
+  }
+  return Buffer.from(props.value);
+});
 
 // Convert value to base64 string if it's Uint8Array
 const base64Value = computed(() => {
@@ -77,12 +100,34 @@ const base64Value = computed(() => {
   return Buffer.from(props.value).toString("base64");
 });
 
+const numericValue = computed(() => {
+  const buf = bufferValue.value;
+  // Limit to 8 bytes (64-bit integer)
+  if (buf.length === 0 || buf.length > 8) return null;
+  try {
+    // Big Endian conversion
+    let val = BigInt(0);
+    for (const byte of buf) {
+      val = (val << BigInt(8)) + BigInt(byte);
+    }
+    return val;
+  } catch {
+    return null;
+  }
+});
+
+const isNumericAvailable = computed(() => {
+  return numericValue.value !== null;
+});
+
 const decodedValue = computed(() => {
   const val = base64Value.value;
   if (!val) return "";
 
   try {
-    if (encoding.value === "base64") {
+    if (encoding.value === "numeric") {
+      return numericValue.value?.toString() || "";
+    } else if (encoding.value === "base64") {
       return val;
     } else if (encoding.value === "hex") {
       // Convert base64 to hex
@@ -136,6 +181,15 @@ watch(
   () => props.value,
   (newValue) => {
     if (!newValue) return;
+
+    // Check if we should default to numeric
+    if (
+      numericValue.value !== null &&
+      numericValue.value <= BigInt(Number.MAX_SAFE_INTEGER)
+    ) {
+      encoding.value = "numeric";
+      return;
+    }
 
     // Reset to default encoding when value changes
     encoding.value = props.defaultEncoding;
