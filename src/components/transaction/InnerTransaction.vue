@@ -25,9 +25,7 @@
             {{ formatAddress(transaction.paymentTransaction.receiver) }}
           </span>
           <span v-if="transaction.assetTransferTransaction">
-            {{
-              formatAssetAmount(transaction.assetTransferTransaction.amount)
-            }}
+            {{ formatAssetAmount(transaction.assetTransferTransaction.amount) }}
             (Asset:
             {{ transaction.assetTransferTransaction.assetId }})
           </span>
