@@ -61,7 +61,10 @@
         <p class="text-sm text-gray-400 mb-2">{{ $t("common.amount") }}</p>
         <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
           <p class="text-2xl font-bold text-blue-400">
-            {{ transaction.assetTransferTransaction.amount.toLocaleString() }}
+            {{ formatAssetAmount(transaction.assetTransferTransaction.amount) }}
+            <span v-if="assetUnitName" class="text-lg ml-1">{{
+              assetUnitName
+            }}</span>
           </p>
         </div>
       </div>
@@ -93,13 +96,54 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType, ref, watch } from "vue";
 import algosdk from "algosdk";
+import { useI18n } from "vue-i18n";
+import { assetService } from "../../services/assetService";
+import { getTokenFromLocalStorage } from "../../scripts/algo/getTokenFromLocalStorage";
 
-defineProps({
+const { locale } = useI18n();
+
+const props = defineProps({
   transaction: {
     type: Object as PropType<algosdk.indexerModels.Transaction>,
     required: true,
   },
 });
+
+const assetDecimals = ref<number>(0);
+const assetUnitName = ref<string>("");
+
+const loadAssetInfo = (assetId: number) => {
+  const asset = getTokenFromLocalStorage(assetId);
+  if (asset) {
+    assetDecimals.value = asset.decimals;
+    assetUnitName.value = asset.unitName;
+  } else {
+    assetService.requestAsset(assetId, () => {
+      const loadedAsset = getTokenFromLocalStorage(assetId);
+      if (loadedAsset) {
+        assetDecimals.value = loadedAsset.decimals;
+        assetUnitName.value = loadedAsset.unitName;
+      }
+    });
+  }
+};
+
+watch(
+  () => props.transaction,
+  (newTx) => {
+    if (newTx.assetTransferTransaction) {
+      loadAssetInfo(Number(newTx.assetTransferTransaction.assetId));
+    }
+  },
+  { immediate: true }
+);
+
+const formatAssetAmount = (amount: number | bigint) => {
+  const val = Number(amount) / Math.pow(10, assetDecimals.value);
+  return val.toLocaleString(locale.value, {
+    maximumFractionDigits: assetDecimals.value,
+  });
+};
 </script>
