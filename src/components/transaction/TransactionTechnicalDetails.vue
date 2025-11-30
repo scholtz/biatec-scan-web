@@ -10,7 +10,7 @@
         </p>
         <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
           <p class="text-white font-mono text-sm">
-            {{ transaction.genesisId }}
+            {{ transaction.genesisId || "-" }}
           </p>
         </div>
       </div>
@@ -76,10 +76,19 @@
       </div>
       <div class="md:col-span-2">
         <BufferDisplay
+          v-if="transaction.genesisHash"
           :value="transaction.genesisHash"
           :title="$t('transaction.genesisHash')"
           default-encoding="hex"
         />
+        <div v-else>
+          <p class="text-sm text-gray-400 mb-2">
+            {{ $t("transaction.genesisHash") }}
+          </p>
+          <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
+            <p class="text-white font-mono text-sm">-</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

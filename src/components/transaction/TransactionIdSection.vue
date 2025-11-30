@@ -5,7 +5,7 @@
     </h2>
     <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
       <p class="text-white font-mono text-sm break-all">
-        {{ transaction.id }}
+        {{ transaction.id || "-" }}
       </p>
     </div>
     <div v-if="transaction.note" class="mt-4">
