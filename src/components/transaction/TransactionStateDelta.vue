@@ -31,7 +31,7 @@
               <td
                 class="px-4 py-3 whitespace-nowrap text-sm text-white font-mono"
               >
-                <BufferDisplay :value="item.key" :show-title="false" />
+                <BufferDisplay :value="item.key" :show-title="false" :auto-detect-numeric="false" />
               </td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
                 {{ getActionLabel(item.value.action) }}

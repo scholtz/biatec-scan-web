@@ -68,11 +68,13 @@ interface Props {
   title?: string;
   allowUTF8?: boolean;
   defaultEncoding?: "utf8" | "base64" | "hex" | "numeric";
+  autoDetectNumeric?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   defaultEncoding: "utf8",
   allowUTF8: true,
+  autoDetectNumeric: true,
 });
 
 const encoding = ref<"utf8" | "base64" | "hex" | "numeric">(
@@ -184,6 +186,7 @@ watch(
 
     // Check if we should default to numeric
     if (
+      props.autoDetectNumeric &&
       numericValue.value !== null &&
       numericValue.value <= BigInt(Number.MAX_SAFE_INTEGER)
     ) {
