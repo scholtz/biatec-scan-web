@@ -287,6 +287,7 @@
   "addressDetails": {
     "title": "Detaily adresy",
     "copyAddress": "Zkopírovat adresu do schránky",
+    "addressCopied": "Adresa zkopírována do schránky",
     "retry": "Zkusit znovu",
     "addressLabel": "Adresa:",
     "loading": "Načítání informací o adrese...",

@@ -212,6 +212,7 @@
   "addressDetails": {
     "title": "Address Details",
     "copyAddress": "Copy address to clipboard",
+    "addressCopied": "Address copied to clipboard",
     "retry": "Retry",
     "addressLabel": "Address:",
     "loading": "Loading address information...",

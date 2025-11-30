@@ -292,6 +292,7 @@
   "addressDetails": {
     "title": "Detalles de dirección",
     "copyAddress": "Copiar dirección al portapapeles",
+    "addressCopied": "Dirección copiada al portapapeles",
     "retry": "Reintentar",
     "addressLabel": "Dirección:",
     "loading": "Cargando información de la dirección...",

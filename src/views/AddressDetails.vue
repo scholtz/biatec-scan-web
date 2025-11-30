@@ -97,7 +97,19 @@
                   <span
                     class="text-gray-400 text-sm"
                     v-if="asset['asset-id'] !== 0"
-                    >(ID: {{ asset["asset-id"] }})</span
+                    >(ID: {{ asset["asset-id"] }})
+                    <button
+                      @click="copyAssetId(asset['asset-id'], asset.name)"
+                      class="ml-1 text-gray-500 hover:text-white transition-colors"
+                      :title="
+                        $t('common.copyAssetId', {
+                          name: asset.name,
+                          id: asset['asset-id'],
+                        })
+                      "
+                    >
+                      📋
+                    </button></span
                   >
                 </div>
                 <div class="text-xs text-gray-500" v-if="asset.priceUSD > 0">
@@ -190,9 +202,11 @@ import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
 import { getAVMTradeReporterAPI } from "../api";
 import FormattedTime from "../components/FormattedTime.vue";
+import { useToast } from "../composables/useToast";
 
 const { t } = useI18n();
 const api = getAVMTradeReporterAPI();
+const { showToast } = useToast();
 
 interface AccountAsset {
   "asset-id": number;
@@ -392,9 +406,20 @@ const loadMoreTransactions = () => {
 const copyToClipboard = async () => {
   try {
     await navigator.clipboard.writeText(address.value);
-    // You could add a toast notification here
+    showToast(t("addressDetails.addressCopied"));
   } catch (err) {
     console.error("Failed to copy address:", err);
+    showToast(t("common.failedToCopy"), "error");
+  }
+};
+
+const copyAssetId = async (assetId: number, assetName: string) => {
+  try {
+    await navigator.clipboard.writeText(assetId.toString());
+    showToast(t("common.copiedAssetId", { name: assetName, id: assetId }));
+  } catch (err) {
+    console.error("Failed to copy asset ID:", err);
+    showToast(t("common.failedToCopy"), "error");
   }
 };
 

@@ -217,6 +217,7 @@
   "addressDetails": {
     "title": "Cím részletek",
     "copyAddress": "Cím vágólapra másolása",
+    "addressCopied": "Cím vágólapra másolva",
     "retry": "Újrapróbálás",
     "addressLabel": "Cím:",
     "loading": "Cím információk betöltése...",

@@ -287,6 +287,7 @@
   "addressDetails": {
     "title": "地址详情",
     "copyAddress": "复制地址到剪贴板",
+    "addressCopied": "地址已复制到剪贴板",
     "retry": "重试",
     "addressLabel": "地址:",
     "loading": "正在加载地址信息...",

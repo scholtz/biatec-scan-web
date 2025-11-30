@@ -212,6 +212,7 @@
   "addressDetails": {
     "title": "Detaily adresy",
     "copyAddress": "Skopírovať adresu do schránky",
+    "addressCopied": "Adresa skopírovaná do schránky",
     "retry": "Skúsiť znovu",
     "addressLabel": "Adresa:",
     "loading": "Načítavam informácie o adrese...",

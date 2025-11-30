@@ -292,6 +292,7 @@
   "addressDetails": {
     "title": "Adressdetails",
     "copyAddress": "Adresse in die Zwischenablage kopieren",
+    "addressCopied": "Adresse in die Zwischenablage kopiert",
     "retry": "Wiederholen",
     "addressLabel": "Adresse:",
     "loading": "Lade Adressinformationen...",
