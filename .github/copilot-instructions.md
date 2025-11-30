@@ -7,20 +7,23 @@ Biatec Algorand Scan is a Vue 3 + TypeScript + Vite frontend application that pr
 ## Working Effectively
 
 ### Bootstrap, Build, and Test
+
 - **Install dependencies**: `npm install` -- takes 2-3 minutes, expect deprecation warnings but installation succeeds
 - **Build the application**: `npm run build` -- takes 23 seconds. NEVER CANCEL. Set timeout to 60+ minutes for safety. Produces warnings about large chunks and SignalR comments but build succeeds
 - **Type checking**: Included in build process via `vue-tsc -b`
 - **Linting**: `npx eslint src/` -- currently shows 28 errors and 5 warnings (existing issues not related to new changes)
 
 ### Development and Testing
+
 - **Start development server**: `npm run dev` -- starts instantly on http://localhost:5173/
 - **Preview production build**: `npm run preview` -- serves dist/ on http://localhost:4173/
 - **Generate API client**: `npm run generate:api` -- fails due to network restrictions (external OpenAPI spec), but generated files already exist in src/api/
 
 ### Manual Validation Requirements
+
 - ALWAYS manually test the application after making changes by visiting http://localhost:5173/
 - **CRITICAL**: The application should load and display the Algorand explorer dashboard with navigation working
-- **Expected behavior**: 
+- **Expected behavior**:
   - Dashboard shows loading states for blockchain data
   - Connection status shows "OFFLINE" (expected due to external API restrictions)
   - Navigation between pages (Explore, Search, Assets, About) works
@@ -28,9 +31,18 @@ Biatec Algorand Scan is a Vue 3 + TypeScript + Vite frontend application that pr
 - **Validation scenarios**: Navigate to different views like /assets, /search, /about and verify they load properly
 - Take screenshots when making UI changes to verify visual impact
 
+### Formatting Requirements
+
+- **Currency Formatting**: ALWAYS format balances as decimal numbers localized to the user's language.
+  - Example: `45700609 µAlgo` must be displayed as `45,700609 Algo` (depending on locale).
+  - Make sure to convert payment amount or asset amount from base units to standard units according to asset decimals.
+  - Use `Intl.NumberFormat` or similar localization APIs.
+  - Apply this rule to all asset and payment transaction details, including inner transactions.
+
 ## Project Structure and Key Locations
 
 ### Source Code Organization
+
 ```
 src/
 ├── api/                 # Generated API client (Orval from OpenAPI)
@@ -63,6 +75,7 @@ src/
 ```
 
 ### Configuration Files
+
 - `package.json` - Dependencies and npm scripts
 - `vite.config.ts` - Vite build configuration
 - `eslint.config.ts` - ESLint linting rules
@@ -71,6 +84,7 @@ src/
 - `tsconfig.json` - TypeScript configuration
 
 ### Deployment and Infrastructure
+
 - `docker/Dockerfile` - Production Docker image with nginx
 - `docker/compose.sh` - Docker build and push script
 - `k8s/` - Kubernetes deployment manifests
@@ -79,17 +93,20 @@ src/
 ## Build and Deployment
 
 ### Local Development
+
 - **NEVER CANCEL builds or long-running commands**
 - Use timeouts of 60+ minutes for build commands and 30+ minutes for any network operations
 - The build process includes TypeScript compilation and Vite bundling
 - Development server includes hot module replacement (HMR)
 
 ### Production Build
+
 - Build outputs to `dist/` directory
 - Uses nginx in Docker container for serving static files
 - Kubernetes deployment available for production environments
 
 ### API Integration
+
 - Generated TypeScript client connects to `https://algorand-trades.de-4.biatec.io`
 - Uses Orval for type-safe API client generation from OpenAPI spec
 - SignalR for real-time blockchain updates via `/biatecScanHub`
@@ -98,17 +115,20 @@ src/
 ## Known Issues and Limitations
 
 ### ESLint Issues (Existing - Not Related to New Changes)
+
 - 28 errors and 5 warnings exist in the codebase
 - Common issues: `@typescript-eslint/no-explicit-any`, `vue/multi-word-component-names`
 - These are existing issues - only fix if directly related to your changes
 - Run `npx eslint src/` to see current issues
 
 ### Network Dependencies
+
 - `npm run generate:api` requires external network access to OpenAPI spec
 - In restricted environments, this command fails but generated files already exist
 - The application gracefully handles offline/restricted network scenarios
 
 ### Build Warnings (Expected)
+
 - Large chunk size warnings (>500KB) are expected due to dependencies
 - SignalR comment parsing warnings during build are harmless
 - These warnings do not affect application functionality
@@ -116,6 +136,7 @@ src/
 ## Common Development Tasks
 
 ### Making Changes to UI Components
+
 1. Edit Vue components in `src/components/` or `src/views/`
 2. Run `npm run dev` to start development server
 3. Test changes at http://localhost:5173/
@@ -123,18 +144,21 @@ src/
 5. Run `npx eslint src/` only if making substantial changes to check for new linting issues
 
 ### Working with API Integration
+
 - API models are in `src/api/models/`
 - Services that consume APIs are in `src/services/`
 - If API spec changes, run `npm run generate:api` (if network allows) or manually update types
 - **Always check that API integration still works after changes**
 
 ### Styling and UI Changes
+
 - Uses Tailwind CSS for styling
 - Global styles in `src/style.css`
 - Component-specific styles in individual Vue files
 - Always test responsive design on different screen sizes
 
 ### Adding New Features
+
 - Follow Vue 3 Composition API patterns used throughout the codebase
 - Add new routes in `src/router/index.ts`
 - Create services for business logic, keep components focused on presentation
@@ -146,6 +170,7 @@ src/
 The application supports **8 languages** using Vue I18n with comprehensive multilingual support:
 
 ### Supported Languages
+
 - **English (en)** 🇺🇸 - Default fallback language
 - **Slovak (sk)** 🇸🇰 - Slovenčina
 - **Chinese (zh)** 🇨🇳 - 中文 (Simplified Chinese)
@@ -156,6 +181,7 @@ The application supports **8 languages** using Vue I18n with comprehensive multi
 - **Polish (pl)** 🇵🇱 - Polski
 
 ### Language Files Location
+
 - `src/i18n/locales/en.json` - English translations
 - `src/i18n/locales/sk.json` - Slovak translations
 - `src/i18n/locales/zh.json` - Chinese translations
@@ -168,35 +194,39 @@ The application supports **8 languages** using Vue I18n with comprehensive multi
 - `public/flags/` - SVG flag icons for all supported countries
 
 ### Using Translations in Components
+
 ```vue
 <template>
   <!-- Use $t() in templates -->
-  <h1>{{ $t('common.loading') }}</h1>
-  <button :title="$t('common.refresh')">{{ $t('common.refresh') }}</button>
-  
+  <h1>{{ $t("common.loading") }}</h1>
+  <button :title="$t('common.refresh')">{{ $t("common.refresh") }}</button>
+
   <!-- With interpolation for dynamic content -->
-  <span>{{ $t('common.copiedAssetId', { name: assetName, id: assetId }) }}</span>
-  
+  <span>{{
+    $t("common.copiedAssetId", { name: assetName, id: assetId })
+  }}</span>
+
   <!-- For computed/reactive translations -->
   <p>{{ computedTitle }}</p>
 </template>
 
 <script setup>
 // Use t() in script (requires import)
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
+import { useI18n } from "vue-i18n";
+import { computed } from "vue";
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 // Simple translation
-const message = t('common.loading')
+const message = t("common.loading");
 
 // Computed translation for reactive updates
-const computedTitle = computed(() => t('dashboard.title'))
+const computedTitle = computed(() => t("dashboard.title"));
 </script>
 ```
 
 ### Language Switcher with Flags
+
 - Available in Settings page at `/settings`
 - Shows flag icons for visual language identification
 - Persists selection to localStorage
@@ -206,6 +236,7 @@ const computedTitle = computed(() => t('dashboard.title'))
 - **Z-index properly configured** for dropdown display
 
 ### Translation Key Structure
+
 - `common.*` - Shared UI elements (buttons, labels, loading states, etc.)
 - `nav.*` - Navigation menu items
 - `dashboard.*` - Dashboard page content
@@ -217,6 +248,7 @@ const computedTitle = computed(() => t('dashboard.title'))
 - `status.*` - Status messages (online/offline)
 
 ### Professional Translation Guidelines
+
 1. **Add keys to ALL language files**: English, Slovak, Chinese, German, Spanish, Czech, Russian, Polish
 2. **Use descriptive nested keys**: `section.element` or `page.section.element`
 3. **Support interpolation**: Use named parameters `{variableName}` for dynamic content
@@ -226,6 +258,7 @@ const computedTitle = computed(() => t('dashboard.title'))
 7. **Character encoding**: Ensure proper display of Chinese characters, Cyrillic, umlauts, accents
 
 ### Adding New Translations
+
 1. Add key to **all 8 language files**: `en.json`, `sk.json`, `zh.json`, `de.json`, `es.json`, `cs.json`, `ru.json`, `pl.json`
 2. Provide professional translations appropriate for technical/blockchain context
 3. Test with language switcher to ensure proper display
@@ -233,11 +266,12 @@ const computedTitle = computed(() => t('dashboard.title'))
 5. Verify text length doesn't break responsive design in any language
 
 ### Translation Examples
+
 ```json
 {
   "common": {
     "loading": "Loading...",
-    "refresh": "Refresh", 
+    "refresh": "Refresh",
     "copyAssetId": "Copy {name} asset ID: {id}",
     "copiedAssetId": "Copied {name} asset ID: {id}",
     "sold": "Sold",
@@ -253,6 +287,7 @@ const computedTitle = computed(() => t('dashboard.title'))
 ```
 
 ### Z-Index and UI Considerations
+
 - **Language switcher dropdown**: Uses `z-[9999]` for proper layering
 - **Parent containers**: Include `relative z-10` when needed for stacking context
 - **Responsive design**: All languages tested for proper text wrapping and layout
@@ -261,7 +296,9 @@ const computedTitle = computed(() => t('dashboard.title'))
 **CRITICAL**: Never hardcode user-facing text in components. Always use translation keys with $t() function calls. All new user-facing text must be translated into all 8 supported languages.
 
 ## Validation Checklist
+
 Before considering any changes complete:
+
 - [ ] `npm install` completes successfully
 - [ ] `npm run build` completes successfully (23 seconds expected)
 - [ ] `npm run dev` starts successfully and application loads
@@ -271,6 +308,7 @@ Before considering any changes complete:
 - [ ] Test responsive design if layout changes made
 
 ## Troubleshooting
+
 - **Build fails**: Check TypeScript errors, ensure all imports are valid
 - **Dev server won't start**: Check for port conflicts, ensure dependencies installed
 - **API generation fails**: Expected in restricted environments, use existing generated files

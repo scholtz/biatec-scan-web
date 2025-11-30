@@ -16,11 +16,19 @@
         <!-- Details based on type -->
         <div class="text-sm text-gray-300">
           <span v-if="transaction.paymentTransaction">
-            {{ transaction.paymentTransaction.amount }} µAlgo ->
+            {{
+              algorandService.formatAlgoAmount(
+                transaction.paymentTransaction.amount
+              )
+            }}
+            Algo ->
             {{ formatAddress(transaction.paymentTransaction.receiver) }}
           </span>
           <span v-if="transaction.assetTransferTransaction">
-            {{ transaction.assetTransferTransaction.amount }} (Asset:
+            {{
+              formatAssetAmount(transaction.assetTransferTransaction.amount)
+            }}
+            (Asset:
             {{ transaction.assetTransferTransaction.assetId }})
           </span>
           <span v-if="transaction.applicationTransaction">
@@ -88,7 +96,11 @@
 
 <script setup lang="ts">
 import { PropType } from "vue";
+import { useI18n } from "vue-i18n";
 import TransactionStateDelta from "./TransactionStateDelta.vue";
+import { algorandService } from "../../services/algorandService";
+
+const { locale } = useI18n();
 
 defineProps({
   transaction: {
@@ -108,5 +120,9 @@ defineProps({
 const formatAddress = (address: string) => {
   if (!address) return "";
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
+};
+
+const formatAssetAmount = (amount: number | bigint) => {
+  return Number(amount).toLocaleString(locale.value);
 };
 </script>

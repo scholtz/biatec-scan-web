@@ -1,4 +1,5 @@
 import algosdk from "algosdk";
+import i18n from "../i18n";
 
 class AlgorandService {
   private algodUrl = "https://algorand-algod-public.de-4.biatec.io";
@@ -157,8 +158,15 @@ class AlgorandService {
   }
 
   formatAlgoAmount(microAlgos: number | bigint): string {
-    return (Number(microAlgos) / 1000000).toLocaleString("en-US", {
-      minimumFractionDigits: 2,
+    const globalLocale = i18n.global.locale;
+    const locale =
+      typeof globalLocale === "object" &&
+      globalLocale !== null &&
+      "value" in globalLocale
+        ? (globalLocale as any).value
+        : (globalLocale as string);
+    return (Number(microAlgos) / 1000000).toLocaleString(locale, {
+      minimumFractionDigits: 0,
       maximumFractionDigits: 6,
     });
   }
