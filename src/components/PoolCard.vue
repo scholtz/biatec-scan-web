@@ -21,14 +21,15 @@
             },
           }"
           class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
-          :title="pool.poolAddress"
         >
           {{ formatAddress(pool.poolAddress ?? "") }}
         </router-link>
       </div>
 
       <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400"> {{ $t('common.reserveA') }}: </span>
+        <span class="text-sm text-gray-400">
+          {{ $t("common.reserveA") }}:
+        </span>
         <span class="text-sm text-white">
           <router-link
             :to="{
@@ -38,7 +39,6 @@
               },
             }"
             class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
-            :title="pool.assetIdA"
           >
             {{ formattedReserveA }}
           </router-link>
@@ -46,7 +46,9 @@
       </div>
 
       <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400"> {{ $t('common.reserveB') }}: </span>
+        <span class="text-sm text-gray-400">
+          {{ $t("common.reserveB") }}:
+        </span>
         <span class="text-sm text-white">
           <router-link
             :to="{
@@ -56,7 +58,6 @@
               },
             }"
             class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
-            :title="pool.assetIdB"
           >
             {{ formattedReserveB }}
           </router-link>
@@ -97,7 +98,7 @@ const formattedReserveA = computed(() => {
     assetService.requestAsset(props.pool.assetIdA, () => {
       state.forceUpdate++;
     });
-    return t('common.loading');
+    return t("common.loading");
   }
   return assetService.formatAssetBalance(props.pool.a, props.pool.assetIdA);
 });
@@ -113,7 +114,7 @@ const formattedReserveB = computed(() => {
     assetService.requestAsset(props.pool.assetIdB, () => {
       state.forceUpdate++;
     });
-    return t('common.loading');
+    return t("common.loading");
   }
   return assetService.formatAssetBalance(props.pool.b, props.pool.assetIdB);
 });

@@ -5,7 +5,6 @@
         <RouterLink
           :to="`/asset/${state.asset.index}`"
           class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
-          :title="state.asset.params.name"
         >
           <img
             :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${asset.index}`"
@@ -89,7 +88,7 @@ const formattedPrice = computed(() => {
     assetService.requestAsset(state.asset.index, () => {
       state.forceUpdate++;
     });
-    return t('common.loading');
+    return t("common.loading");
   }
   return `${Number(state.asset.priceUSD).toLocaleString(undefined, {
     minimumFractionDigits: 6,

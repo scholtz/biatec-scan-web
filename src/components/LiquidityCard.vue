@@ -43,7 +43,6 @@
           },
         }"
         class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
-        :title="liquidity.poolAddress"
       >
         {{ formatAddress(liquidity.poolAddress) }}
       </router-link>
@@ -60,7 +59,6 @@
               },
             }"
             class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
-            :title="liquidity.assetIdA"
           >
             {{ formattedAssetA }}
           </router-link>
@@ -78,7 +76,6 @@
               },
             }"
             class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
-            :title="liquidity.assetIdB"
           >
             {{ formattedAssetB }}
           </router-link>
@@ -86,25 +83,25 @@
       </div>
 
       <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400">{{ $t('common.liquidityProvider') }}:</span>
+        <span class="text-sm text-gray-400"
+          >{{ $t("common.liquidityProvider") }}:</span
+        >
         <router-link
           :to="{
             name: 'AddressDetails',
             params: { address: liquidity.liquidityProvider },
           }"
           class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
-          :title="liquidity.liquidityProvider"
         >
           {{ formatAddress(liquidity.liquidityProvider) }}
         </router-link>
       </div>
 
       <div class="flex justify-between items-center">
-        <span class="text-sm text-gray-400">{{ $t('common.txId') }}:</span>
+        <span class="text-sm text-gray-400">{{ $t("common.txId") }}:</span>
         <router-link
           :to="{ name: 'TransactionDetails', params: { txId: liquidity.txId } }"
           class="font-mono truncate ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
-          :title="liquidity.txId"
         >
           {{ formatAddress(liquidity.txId) }}
         </router-link>
@@ -140,7 +137,7 @@ const formattedAssetA = computed(() => {
     assetService.requestAsset(BigInt(props.liquidity.assetIdA), () => {
       state.forceUpdate++;
     });
-    return t('common.loading');
+    return t("common.loading");
   }
   return assetService.formatAssetBalance(
     props.liquidity.assetAmountA,
@@ -155,7 +152,7 @@ const formattedAssetB = computed(() => {
     assetService.requestAsset(BigInt(props.liquidity.assetIdB), () => {
       state.forceUpdate++;
     });
-    return t('common.loading');
+    return t("common.loading");
   }
   return assetService.formatAssetBalance(
     props.liquidity.assetAmountB,
