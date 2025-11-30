@@ -68,27 +68,35 @@
 
         <!-- Assets -->
         <div
-          v-if="accountInfo?.assets && accountInfo.assets.length > 0"
+          v-if="enrichedAssets.length > 0"
           class="card"
         >
           <h2 class="text-xl font-semibold mb-4">Assets</h2>
           <div class="space-y-3">
             <div
-              v-for="asset in accountInfo.assets"
+              v-for="asset in enrichedAssets"
               :key="asset['asset-id']"
               class="flex justify-between items-center p-3 bg-gray-800 rounded"
             >
               <div>
-                <span class="text-white font-medium">{{
-                  getAssetName(asset["asset-id"])
-                }}</span>
-                <span class="text-gray-400 text-sm ml-2"
-                  >(ID: {{ asset["asset-id"] }})</span
-                >
+                <div class="flex items-center gap-2">
+                  <span class="text-white font-medium">{{ asset.name }}</span>
+                  <span class="text-gray-400 text-sm" v-if="asset['asset-id'] !== 0"
+                    >(ID: {{ asset["asset-id"] }})</span
+                  >
+                </div>
+                <div class="text-xs text-gray-500" v-if="asset.priceUSD > 0">
+                  {{ formatUSD(asset.priceUSD) }} / unit
+                </div>
               </div>
-              <span class="text-white font-mono">
-                {{ formatAssetAmount(asset.amount, asset["asset-id"]) }}
-              </span>
+              <div class="text-right">
+                <div class="text-white font-mono">
+                  {{ formatAssetAmount(asset.amount, asset["asset-id"]) }}
+                </div>
+                <div class="text-sm text-green-400" v-if="asset.valueUSD > 0">
+                  {{ formatUSD(asset.valueUSD) }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -162,10 +170,12 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
+import { getAVMTradeReporterAPI } from "../api";
 import FormattedTime from "../components/FormattedTime.vue";
 import algosdk from "algosdk";
 
 const { t } = useI18n();
+const api = getAVMTradeReporterAPI();
 
 interface AccountAsset {
   "asset-id": number;
@@ -191,6 +201,7 @@ const transactions = ref<algosdk.indexerModels.Transaction[]>([]);
 const loadingTransactions = ref(false);
 const hasMoreTransactions = ref(true);
 const nextToken = ref("");
+const assetPrices = ref<Record<number, number>>({});
 
 const loadAddressInfo = async () => {
   if (!address.value) return;
@@ -211,6 +222,9 @@ const loadAddressInfo = async () => {
     const accountData = await accountResponse.json();
     accountInfo.value = accountData.account;
 
+    // Load asset prices
+    fetchAssetPrices();
+
     // Load initial transactions
     await loadTransactions(true);
   } catch (err: unknown) {
@@ -221,6 +235,95 @@ const loadAddressInfo = async () => {
     loading.value = false;
   }
 };
+
+const fetchAssetPrices = async () => {
+  if (!accountInfo.value) return;
+
+  const assetsToFetch = new Set<number>();
+  // Add Algo
+  assetsToFetch.add(0);
+  
+  // Add other assets
+  if (accountInfo.value.assets) {
+    accountInfo.value.assets.forEach(a => assetsToFetch.add(a["asset-id"]));
+  }
+
+  // Fetch prices one by one (limitation of API)
+  // We use a simple concurrency limit to avoid overwhelming the browser/network
+  const queue = Array.from(assetsToFetch);
+  const batchSize = 5;
+  
+  for (let i = 0; i < queue.length; i += batchSize) {
+    const batch = queue.slice(i, i + batchSize);
+    await Promise.all(batch.map(async (assetId) => {
+      try {
+        // For Algo (0), we might need a special handling if search "0" doesn't work
+        // But let's try searching for the ID first
+        const response = await api.getApiSearch({ q: assetId.toString() });
+        
+        if (response.data.assets && response.data.assets.length > 0) {
+          // Find the exact match
+          const asset = response.data.assets.find(a => a.index === assetId);
+          if (asset && asset.priceUSD) {
+            assetPrices.value[assetId] = asset.priceUSD;
+          }
+        }
+      } catch (e) {
+        console.error(`Failed to fetch price for asset ${assetId}`, e);
+      }
+    }));
+  }
+};
+
+const enrichedAssets = computed(() => {
+  if (!accountInfo.value) return [];
+
+  const assets = [];
+
+  // Add Algo
+  assets.push({
+    "asset-id": 0,
+    amount: accountInfo.value.amount,
+    "is-frozen": false,
+    name: "Algorand",
+    unitName: "ALGO",
+    decimals: 6,
+    priceUSD: assetPrices.value[0] || 0,
+    valueUSD: (accountInfo.value.amount / Math.pow(10, 6)) * (assetPrices.value[0] || 0)
+  });
+
+  // Add other assets
+  if (accountInfo.value.assets) {
+    accountInfo.value.assets.forEach(asset => {
+      const assetId = asset["asset-id"];
+      const assetInfo = assetService.getAssetInfo(BigInt(assetId));
+      
+      // Ensure asset info is requested if missing
+      if (!assetInfo) {
+        assetService.requestAsset(BigInt(assetId), () => {
+          // Trigger re-render when asset info is loaded
+        });
+      }
+
+      const decimals = assetInfo?.decimals ?? 0;
+      const price = assetPrices.value[assetId] || 0;
+      const amount = asset.amount;
+      const valueUSD = (amount / Math.pow(10, decimals)) * price;
+
+      assets.push({
+        ...asset,
+        name: assetInfo?.name || `Asset ${assetId}`,
+        unitName: assetInfo?.unitName || "Unit",
+        decimals,
+        priceUSD: price,
+        valueUSD
+      });
+    });
+  }
+
+  // Sort by USD value descending
+  return assets.sort((a, b) => b.valueUSD - a.valueUSD);
+});
 
 const loadTransactions = async (reset = false) => {
   if (!address.value) return;
@@ -273,16 +376,13 @@ const formatAssetAmount = (amount: number, assetId: number): string => {
   return assetService.formatAssetBalance(BigInt(amount), BigInt(assetId));
 };
 
-const getAssetName = (assetId: number): string => {
-  const assetInfo = assetService.getAssetInfo(BigInt(assetId));
-  if (!assetInfo) {
-    // Request asset loading
-    assetService.requestAsset(BigInt(assetId), () => {
-      // Trigger re-render when asset info is loaded
-    });
-    return `Asset ${assetId}`;
-  }
-  return assetInfo.name || assetInfo.unitName || `Asset ${assetId}`;
+const formatUSD = (amount: number): string => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount);
 };
 
 const formatTransactionType = (txType: string): string => {
