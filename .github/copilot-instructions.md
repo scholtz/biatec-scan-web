@@ -36,7 +36,7 @@ Biatec Algorand Scan is a Vue 3 + TypeScript + Vite frontend application that pr
 - **Currency Formatting**: ALWAYS format balances as decimal numbers localized to the user's language.
   - Example: `45700609 µAlgo` must be displayed as `45,700609 Algo` (depending on locale).
   - Make sure to convert payment amount or asset amount from base units to standard units according to asset decimals.
-  - Use `Intl.NumberFormat` or similar localization APIs.
+  - Use `Intl.NumberFormat` with the current i18n locale (e.g., `locale.value` from `useI18n()`) instead of hardcoded locales like "en-US".
   - Apply this rule to all asset and payment transaction details, including inner transactions.
 
 ## Project Structure and Key Locations

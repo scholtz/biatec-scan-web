@@ -52,7 +52,7 @@
                 $t("addressDetails.balance")
               }}</span>
               <span class="text-white font-mono">
-                {{ formatAlgoAmount(accountInfo?.amount || 0) }} ALGO
+                {{ formatUSD(totalValueUSD) }}
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -261,7 +261,7 @@ import { getAVMTradeReporterAPI } from "../api";
 import FormattedTime from "../components/FormattedTime.vue";
 import { useToast } from "../composables/useToast";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const api = getAVMTradeReporterAPI();
 const { showToast } = useToast();
 
@@ -426,6 +426,10 @@ const enrichedAssets = computed(() => {
   return assets.sort((a, b) => b.valueUSD - a.valueUSD);
 });
 
+const totalValueUSD = computed(() => {
+  return enrichedAssets.value.reduce((sum, asset) => sum + asset.valueUSD, 0);
+});
+
 const loadTransactions = async (reset = false) => {
   if (!address.value) return;
 
@@ -489,7 +493,7 @@ const formatAssetAmount = (amount: number, assetId: number): string => {
 };
 
 const formatUSD = (amount: number): string => {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(locale.value, {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
