@@ -22,6 +22,7 @@
     "sold": "已售出",
     "bought": "已购买",
     "viewTx": "查看交易",
+    "viewDetails": "View Details",
     "reserveA": "储备 A",
     "reserveB": "储备 B",
     "liquidityProvider": "流动性提供者",
@@ -353,6 +354,7 @@
     "notFoundDesc": "The requested transaction could not be found.",
     "innerTransactions": "Inner Transactions",
     "innerTransaction": "Inner Transaction",
+    "backToParent": "Back to Parent Transaction",
     "setBytes": "Set Bytes",
     "setUint": "Set Uint",
     "delete": "Delete"

@@ -22,6 +22,7 @@
     "sold": "Sprzedano",
     "bought": "Kupiono",
     "viewTx": "Pokaż TX",
+    "viewDetails": "View Details",
     "reserveA": "Rezerwa A",
     "reserveB": "Rezerwa B",
     "liquidityProvider": "Dostawca płynności",
@@ -347,6 +348,7 @@
     "notFoundDesc": "The requested transaction could not be found.",
     "innerTransactions": "Inner Transactions",
     "innerTransaction": "Inner Transaction",
+    "backToParent": "Back to Parent Transaction",
     "setBytes": "Set Bytes",
     "setUint": "Set Uint",
     "delete": "Delete"

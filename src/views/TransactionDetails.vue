@@ -5,6 +5,16 @@
     </div>
 
     <div v-else-if="transaction">
+      <!-- Back to Parent Link -->
+      <div v-if="isInnerTransaction" class="mb-4">
+        <router-link
+          :to="{ name: 'TransactionDetails', params: { txId: rootTxId } }"
+          class="flex items-center text-blue-400 hover:text-blue-300"
+        >
+          <span class="mr-2">←</span> {{ $t("transaction.backToParent") }}
+        </router-link>
+      </div>
+
       <!-- Transaction Header -->
       <TransactionHeader :transaction="transaction" />
 
@@ -54,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import { algorandService } from "../services/algorandService";
 import algosdk from "algosdk";
@@ -72,13 +82,43 @@ import TransactionApplication from "../components/transaction/TransactionApplica
 
 const route = useRoute();
 const transaction = ref<algosdk.indexerModels.Transaction | null>(null);
+const rootTransaction = ref<algosdk.indexerModels.Transaction | null>(null);
 const isLoading = ref(true);
 
-const loadTransaction = async (txId: string) => {
+const rootTxId = computed(() => {
+  return (route.params.txId as string) || "";
+});
+
+const isInnerTransaction = computed(() => {
+  return !!route.params.innerPath;
+});
+
+const loadTransaction = async (txId: string, innerPath?: string) => {
   isLoading.value = true;
   try {
+    // Always fetch the root transaction first
     const txData = await algorandService.getTransaction(txId);
-    transaction.value = txData;
+    rootTransaction.value = txData;
+
+    if (innerPath) {
+      // Navigate to the inner transaction
+      const indices = innerPath.split("/").map(Number);
+      let currentTx: any = txData;
+
+      for (const index of indices) {
+        if (currentTx && currentTx.innerTxns && currentTx.innerTxns[index]) {
+          currentTx = currentTx.innerTxns[index];
+        } else {
+          console.error("Inner transaction not found at path:", innerPath);
+          transaction.value = null;
+          isLoading.value = false;
+          return;
+        }
+      }
+      transaction.value = currentTx;
+    } else {
+      transaction.value = txData;
+    }
   } catch (error) {
     console.error("Error loading transaction:", error);
     transaction.value = null;
@@ -87,18 +127,19 @@ const loadTransaction = async (txId: string) => {
 };
 
 watch(
-  () => route.params.txId,
-  (newTxId) => {
+  () => [route.params.txId, route.params.innerPath],
+  ([newTxId, newInnerPath]) => {
     if (newTxId) {
-      loadTransaction(newTxId as string);
+      loadTransaction(newTxId as string, newInnerPath as string | undefined);
     }
   }
 );
 
 onMounted(() => {
   const txId = route.params.txId as string;
+  const innerPath = route.params.innerPath as string | undefined;
   if (txId) {
-    loadTransaction(txId);
+    loadTransaction(txId, innerPath);
   }
 });
 </script>

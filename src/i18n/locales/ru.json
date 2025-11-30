@@ -22,6 +22,7 @@
     "sold": "Продано",
     "bought": "Куплено",
     "viewTx": "Показать TX",
+    "viewDetails": "View Details",
     "reserveA": "Резерв A",
     "reserveB": "Резерв B",
     "liquidityProvider": "Поставщик ликвидности",
@@ -358,6 +359,7 @@
     "notFoundDesc": "The requested transaction could not be found.",
     "innerTransactions": "Inner Transactions",
     "innerTransaction": "Inner Transaction",
+    "backToParent": "Back to Parent Transaction",
     "setBytes": "Set Bytes",
     "setUint": "Set Uint",
     "delete": "Delete"

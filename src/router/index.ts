@@ -68,6 +68,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: "/transaction/:txId/inner/:innerPath",
+      name: "InnerTransactionDetails",
+      component: TransactionDetails,
+      props: true,
+    },
+    {
       path: "/address/:address",
       name: "AddressDetails",
       component: AddressDetails,

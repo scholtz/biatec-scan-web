@@ -22,6 +22,7 @@
     "sold": "Eladva",
     "bought": "Vásárolva",
     "viewTx": "Tranzakció megtekintése",
+    "viewDetails": "View Details",
     "reserveA": "Tartalék A",
     "reserveB": "Tartalék B",
     "liquidityProvider": "Likviditás szolgáltató",
@@ -347,6 +348,7 @@
     "notFoundDesc": "The requested transaction could not be found.",
     "innerTransactions": "Inner Transactions",
     "innerTransaction": "Inner Transaction",
+    "backToParent": "Back to Parent Transaction",
     "setBytes": "Set Bytes",
     "setUint": "Set Uint",
     "delete": "Delete"

@@ -22,6 +22,7 @@
     "sold": "Prodáno",
     "bought": "Koupeno",
     "viewTx": "Zobrazit TX",
+    "viewDetails": "View Details",
     "reserveA": "Rezerva A",
     "reserveB": "Rezerva B",
     "liquidityProvider": "Poskytovatel likvidity",
@@ -353,6 +354,7 @@
     "notFoundDesc": "Požadovaná transakce nebyla nalezena.",
     "innerTransactions": "Vnitřní transakce",
     "innerTransaction": "Vnitřní transakce",
+    "backToParent": "Back to Parent Transaction",
     "setBytes": "Nastavit bajty",
     "setUint": "Nastavit Uint",
     "delete": "Smazat"

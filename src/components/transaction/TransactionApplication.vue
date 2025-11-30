@@ -273,6 +273,8 @@
           v-for="(innerTx, index) in transaction.innerTxns"
           :key="index"
           :transaction="innerTx"
+          :parent-tx-id="transaction.id"
+          :path="index.toString()"
         />
       </div>
     </div>
