@@ -26,6 +26,7 @@
           </span>
           <span v-if="transaction.assetTransferTransaction">
             {{ formatAssetAmount(transaction.assetTransferTransaction.amount) }}
+            <span v-if="assetUnitName"> {{ assetUnitName }}</span>
             (Asset:
             {{ transaction.assetTransferTransaction.assetId }})
           </span>
@@ -93,14 +94,16 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import TransactionStateDelta from "./TransactionStateDelta.vue";
 import { algorandService } from "../../services/algorandService";
+import { assetService } from "../../services/assetService";
+import { getTokenFromLocalStorage } from "../../scripts/algo/getTokenFromLocalStorage";
 
 const { locale } = useI18n();
 
-defineProps({
+const props = defineProps({
   transaction: {
     type: Object as PropType<any>,
     required: true,
@@ -115,12 +118,44 @@ defineProps({
   },
 });
 
+const assetDecimals = ref<number>(0);
+const assetUnitName = ref<string>("");
+
+const loadAssetInfo = (assetId: number) => {
+  const asset = getTokenFromLocalStorage(assetId);
+  if (asset) {
+    assetDecimals.value = asset.decimals;
+    assetUnitName.value = asset.unitName;
+  } else {
+    assetService.requestAsset(assetId, () => {
+      const loadedAsset = getTokenFromLocalStorage(assetId);
+      if (loadedAsset) {
+        assetDecimals.value = loadedAsset.decimals;
+        assetUnitName.value = loadedAsset.unitName;
+      }
+    });
+  }
+};
+
+watch(
+  () => props.transaction,
+  (newTx) => {
+    if (newTx.assetTransferTransaction) {
+      loadAssetInfo(newTx.assetTransferTransaction.assetId);
+    }
+  },
+  { immediate: true }
+);
+
 const formatAddress = (address: string) => {
   if (!address) return "";
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
 };
 
 const formatAssetAmount = (amount: number | bigint) => {
-  return Number(amount).toLocaleString(locale.value);
+  const val = Number(amount) / Math.pow(10, assetDecimals.value);
+  return val.toLocaleString(locale.value, {
+    maximumFractionDigits: assetDecimals.value,
+  });
 };
 </script>
