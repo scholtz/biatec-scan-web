@@ -287,7 +287,22 @@
   "addressDetails": {
     "title": "地址详情",
     "copyAddress": "复制地址到剪贴板",
-    "retry": "重试"
+    "retry": "重试",
+    "addressLabel": "地址:",
+    "loading": "正在加载地址信息...",
+    "notFound": "地址未找到或无效",
+    "loadError": "加载地址信息失败",
+    "accountInfo": "账户信息",
+    "balance": "余额:",
+    "minBalance": "最低余额:",
+    "round": "轮次:",
+    "status": "状态:",
+    "assets": "资产",
+    "recentTransactions": "最近交易",
+    "noTransactions": "未找到交易",
+    "loadTxError": "加载交易失败",
+    "perUnit": "/ 单位",
+    "fee": "费用:"
   },
   "transaction": {
     "details": "Transaction Details",

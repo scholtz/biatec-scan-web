@@ -281,7 +281,22 @@
   "addressDetails": {
     "title": "Szczegóły adresu",
     "copyAddress": "Skopiuj adres do schowka",
-    "retry": "Ponów"
+    "retry": "Ponów",
+    "addressLabel": "Adres:",
+    "loading": "Ładowanie informacji o adresie...",
+    "notFound": "Adres nie znaleziony lub nieprawidłowy",
+    "loadError": "Nie udało się załadować informacji o adresie",
+    "accountInfo": "Informacje o koncie",
+    "balance": "Saldo:",
+    "minBalance": "Min. saldo:",
+    "round": "Runda:",
+    "status": "Status:",
+    "assets": "Aktywa",
+    "recentTransactions": "Ostatnie transakcje",
+    "noTransactions": "Nie znaleziono transakcji",
+    "loadTxError": "Nie udało się załadować transakcji",
+    "perUnit": "/ jednostka",
+    "fee": "Opłata:"
   },
   "transaction": {
     "details": "Transaction Details",

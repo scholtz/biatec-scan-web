@@ -292,7 +292,22 @@
   "addressDetails": {
     "title": "Detalles de dirección",
     "copyAddress": "Copiar dirección al portapapeles",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "addressLabel": "Dirección:",
+    "loading": "Cargando información de la dirección...",
+    "notFound": "Dirección no encontrada o inválida",
+    "loadError": "Error al cargar la información de la dirección",
+    "accountInfo": "Información de la cuenta",
+    "balance": "Saldo:",
+    "minBalance": "Saldo mínimo:",
+    "round": "Ronda:",
+    "status": "Estado:",
+    "assets": "Activos",
+    "recentTransactions": "Transacciones recientes",
+    "noTransactions": "No se encontraron transacciones",
+    "loadTxError": "Error al cargar las transacciones",
+    "perUnit": "/ unidad",
+    "fee": "Tarifa:"
   },
   "transaction": {
     "details": "Transaction Details",

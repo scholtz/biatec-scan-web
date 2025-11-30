@@ -292,7 +292,22 @@
   "addressDetails": {
     "title": "Детали адреса",
     "copyAddress": "Скопировать адрес в буфер обмена",
-    "retry": "Повторить"
+    "retry": "Повторить",
+    "addressLabel": "Адрес:",
+    "loading": "Загрузка информации об адресе...",
+    "notFound": "Адрес не найден или недействителен",
+    "loadError": "Не удалось загрузить информацию об адресе",
+    "accountInfo": "Информация об аккаунте",
+    "balance": "Баланс:",
+    "minBalance": "Мин. баланс:",
+    "round": "Раунд:",
+    "status": "Статус:",
+    "assets": "Активы",
+    "recentTransactions": "Недавние транзакции",
+    "noTransactions": "Транзакции не найдены",
+    "loadTxError": "Не удалось загрузить транзакции",
+    "perUnit": "/ ед.",
+    "fee": "Комиссия:"
   },
   "transaction": {
     "details": "Transaction Details",

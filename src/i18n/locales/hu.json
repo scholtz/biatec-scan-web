@@ -217,7 +217,22 @@
   "addressDetails": {
     "title": "Cím részletek",
     "copyAddress": "Cím vágólapra másolása",
-    "retry": "Újrapróbálás"
+    "retry": "Újrapróbálás",
+    "addressLabel": "Cím:",
+    "loading": "Cím információk betöltése...",
+    "notFound": "A cím nem található vagy érvénytelen",
+    "loadError": "Nem sikerült betölteni a cím információkat",
+    "accountInfo": "Fiók információk",
+    "balance": "Egyenleg:",
+    "minBalance": "Min. egyenleg:",
+    "round": "Kör:",
+    "status": "Állapot:",
+    "assets": "Eszközök",
+    "recentTransactions": "Legutóbbi tranzakciók",
+    "noTransactions": "Nincsenek tranzakciók",
+    "loadTxError": "Nem sikerült betölteni a tranzakciókat",
+    "perUnit": "/ egység",
+    "fee": "Díj:"
   },
   "status": {
     "online": "ONLINE",

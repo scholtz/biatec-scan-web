@@ -292,7 +292,22 @@
   "addressDetails": {
     "title": "Adressdetails",
     "copyAddress": "Adresse in die Zwischenablage kopieren",
-    "retry": "Wiederholen"
+    "retry": "Wiederholen",
+    "addressLabel": "Adresse:",
+    "loading": "Lade Adressinformationen...",
+    "notFound": "Adresse nicht gefunden oder ungültig",
+    "loadError": "Fehler beim Laden der Adressinformationen",
+    "accountInfo": "Kontoinformationen",
+    "balance": "Guthaben:",
+    "minBalance": "Mindestguthaben:",
+    "round": "Runde:",
+    "status": "Status:",
+    "assets": "Assets",
+    "recentTransactions": "Letzte Transaktionen",
+    "noTransactions": "Keine Transaktionen gefunden",
+    "loadTxError": "Fehler beim Laden der Transaktionen",
+    "perUnit": "/ Einheit",
+    "fee": "Gebühr:"
   },
   "transaction": {
     "details": "Transaction Details",

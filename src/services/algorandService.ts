@@ -158,7 +158,7 @@ class AlgorandService {
   }
 
   formatAlgoAmount(microAlgos: number | bigint): string {
-    const globalLocale = i18n.global.locale;
+    const globalLocale = (i18n.global as any).locale;
     const locale =
       typeof globalLocale === "object" &&
       globalLocale !== null &&

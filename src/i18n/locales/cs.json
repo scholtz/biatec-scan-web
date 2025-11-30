@@ -287,7 +287,22 @@
   "addressDetails": {
     "title": "Detaily adresy",
     "copyAddress": "Zkopírovat adresu do schránky",
-    "retry": "Zkusit znovu"
+    "retry": "Zkusit znovu",
+    "addressLabel": "Adresa:",
+    "loading": "Načítání informací o adrese...",
+    "notFound": "Adresa nenalezena nebo neplatná",
+    "loadError": "Nepodařilo se načíst informace o adrese",
+    "accountInfo": "Informace o účtu",
+    "balance": "Zůstatek:",
+    "minBalance": "Min. zůstatek:",
+    "round": "Kolo:",
+    "status": "Stav:",
+    "assets": "Aktiva",
+    "recentTransactions": "Nedávné transakce",
+    "noTransactions": "Nebyly nalezeny žádné transakce",
+    "loadTxError": "Nepodařilo se načíst transakce",
+    "perUnit": "/ jednotka",
+    "fee": "Poplatek:"
   },
   "transaction": {
     "details": "Detaily transakce",

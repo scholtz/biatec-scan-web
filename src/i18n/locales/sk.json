@@ -212,7 +212,22 @@
   "addressDetails": {
     "title": "Detaily adresy",
     "copyAddress": "Skopírovať adresu do schránky",
-    "retry": "Skúsiť znovu"
+    "retry": "Skúsiť znovu",
+    "addressLabel": "Adresa:",
+    "loading": "Načítavam informácie o adrese...",
+    "notFound": "Adresa nenájdená alebo neplatná",
+    "loadError": "Nepodarilo sa načítať informácie o adrese",
+    "accountInfo": "Informácie o účte",
+    "balance": "Zostatok:",
+    "minBalance": "Min. zostatok:",
+    "round": "Kolo:",
+    "status": "Stav:",
+    "assets": "Aktíva",
+    "recentTransactions": "Nedávne transakcie",
+    "noTransactions": "Žiadne transakcie sa nenašli",
+    "loadTxError": "Nepodarilo sa načítať transakcie",
+    "perUnit": "/ jednotka",
+    "fee": "Poplatok:"
   },
   "status": {
     "online": "PRIPOJENÉ",

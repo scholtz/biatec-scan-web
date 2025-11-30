@@ -2,9 +2,9 @@
   <div class="min-h-screen bg-background text-white">
     <div class="container mx-auto px-4 py-8">
       <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-4">Address Details</h1>
+        <h1 class="text-3xl font-bold mb-4">{{ $t('addressDetails.title') }}</h1>
         <div class="flex items-center gap-4">
-          <span class="text-gray-400">Address:</span>
+          <span class="text-gray-400">{{ $t('addressDetails.addressLabel') }}</span>
           <span class="font-mono text-blue-400 break-all">{{ address }}</span>
           <button
             @click="copyToClipboard"
@@ -21,7 +21,7 @@
         <div
           class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
         ></div>
-        <p class="text-gray-400">Loading address information...</p>
+        <p class="text-gray-400">{{ $t('addressDetails.loading') }}</p>
       </div>
 
       <!-- Error State -->
@@ -39,28 +39,28 @@
       <div v-else class="space-y-6">
         <!-- Account Balance -->
         <div class="card">
-          <h2 class="text-xl font-semibold mb-4">Account Information</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('addressDetails.accountInfo') }}</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Balance:</span>
+              <span class="text-gray-400">{{ $t('addressDetails.balance') }}</span>
               <span class="text-white font-mono">
                 {{ formatAlgoAmount(accountInfo?.amount || 0) }} ALGO
               </span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Min Balance:</span>
+              <span class="text-gray-400">{{ $t('addressDetails.minBalance') }}</span>
               <span class="text-white font-mono">
                 {{ formatAlgoAmount(accountInfo?.["min-balance"] || 0) }} ALGO
               </span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Round:</span>
+              <span class="text-gray-400">{{ $t('addressDetails.round') }}</span>
               <span class="text-white">{{ accountInfo?.round || "N/A" }}</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Status:</span>
+              <span class="text-gray-400">{{ $t('addressDetails.status') }}</span>
               <span class="text-white">{{
-                accountInfo?.status || "Online"
+                formatStatus(accountInfo?.status)
               }}</span>
             </div>
           </div>
@@ -68,7 +68,7 @@
 
         <!-- Assets -->
         <div v-if="enrichedAssets.length > 0" class="card">
-          <h2 class="text-xl font-semibold mb-4">Assets</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('addressDetails.assets') }}</h2>
           <div class="space-y-3">
             <div
               v-for="asset in enrichedAssets"
@@ -85,7 +85,7 @@
                   >
                 </div>
                 <div class="text-xs text-gray-500" v-if="asset.priceUSD > 0">
-                  {{ formatUSD(asset.priceUSD) }} / unit
+                  {{ formatUSD(asset.priceUSD) }} {{ $t('addressDetails.perUnit') }}
                 </div>
               </div>
               <div class="text-right">
@@ -102,12 +102,12 @@
 
         <!-- Recent Transactions -->
         <div class="card">
-          <h2 class="text-xl font-semibold mb-4">Recent Transactions</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('addressDetails.recentTransactions') }}</h2>
           <div
             v-if="transactions.length === 0"
             class="text-center py-8 text-gray-400"
           >
-            No transactions found
+            {{ $t('addressDetails.noTransactions') }}
           </div>
           <div v-else class="space-y-3">
             <div
@@ -135,10 +135,10 @@
                 }}</span>
                 <div class="text-right">
                   <div class="text-white text-sm">
-                    Round: {{ tx.confirmedRound || "N/A" }}
+                    {{ $t('addressDetails.round') }} {{ tx.confirmedRound || "N/A" }}
                   </div>
                   <div class="text-gray-400 text-xs">
-                    Fee: {{ algorandService.formatAlgoAmount(tx.fee) }} ALGO
+                    {{ $t('addressDetails.fee') }} {{ algorandService.formatAlgoAmount(tx.fee) }} ALGO
                   </div>
                 </div>
               </div>
@@ -215,7 +215,7 @@ const loadAddressInfo = async () => {
     );
 
     if (!accountResponse.ok) {
-      throw new Error("Address not found or invalid");
+      throw new Error(t('addressDetails.notFound'));
     }
 
     const accountData = await accountResponse.json();
@@ -228,7 +228,7 @@ const loadAddressInfo = async () => {
     await loadTransactions(true);
   } catch (err: unknown) {
     error.value =
-      err instanceof Error ? err.message : "Failed to load address information";
+      err instanceof Error ? err.message : t('addressDetails.loadError');
     console.error("Error loading address info:", err);
   } finally {
     loading.value = false;
@@ -316,7 +316,7 @@ const enrichedAssets = computed(() => {
       assets.push({
         ...asset,
         name: assetInfo?.name || `Asset ${assetId}`,
-        unitName: assetInfo?.unitName || "Unit",
+        unitName: assetInfo?.unitName || t('assets.unit'),
         decimals,
         priceUSD: price,
         valueUSD,
@@ -338,7 +338,7 @@ const loadTransactions = async (reset = false) => {
     const response = await fetch(url);
 
     if (!response.ok) {
-      throw new Error("Failed to load transactions");
+      throw new Error(t('addressDetails.loadTxError'));
     }
 
     const data = await response.json();
@@ -390,14 +390,21 @@ const formatUSD = (amount: number): string => {
 
 const formatTransactionType = (txType: string): string => {
   const typeMap: { [key: string]: string } = {
-    pay: "Payment",
-    axfer: "Asset Transfer",
-    acfg: "Asset Config",
-    afrz: "Asset Freeze",
-    appl: "Application Call",
-    keyreg: "Key Registration",
+    pay: t('transaction.type.pay'),
+    axfer: t('transaction.type.axfer'),
+    acfg: t('transaction.type.acfg'),
+    afrz: t('transaction.type.afrz'),
+    appl: t('transaction.type.appl'),
+    keyreg: t('transaction.type.keyreg'),
   };
   return typeMap[txType] || txType;
+};
+
+const formatStatus = (status?: string) => {
+  if (!status) return "N/A";
+  if (status === 'Online') return t('status.online');
+  if (status === 'Offline') return t('status.offline');
+  return status;
 };
 
 onMounted(() => {

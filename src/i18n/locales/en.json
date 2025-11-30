@@ -212,7 +212,22 @@
   "addressDetails": {
     "title": "Address Details",
     "copyAddress": "Copy address to clipboard",
-    "retry": "Retry"
+    "retry": "Retry",
+    "addressLabel": "Address:",
+    "loading": "Loading address information...",
+    "notFound": "Address not found or invalid",
+    "loadError": "Failed to load address information",
+    "accountInfo": "Account Information",
+    "balance": "Balance:",
+    "minBalance": "Min Balance:",
+    "round": "Round:",
+    "status": "Status:",
+    "assets": "Assets",
+    "recentTransactions": "Recent Transactions",
+    "noTransactions": "No transactions found",
+    "loadTxError": "Failed to load transactions",
+    "perUnit": "/ unit",
+    "fee": "Fee:"
   },
   "status": {
     "online": "ONLINE",
