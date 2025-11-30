@@ -104,15 +104,17 @@ describe("AlgorandService - Mainnet Integration Tests", () => {
       "should successfully fetch block header from mainnet",
       async () => {
         const round = 55238557;
-        const blockHeader = await service.getBlock(BigInt(round));
-
-        expect(blockHeader).toBeDefined();
+        const block = await service.getBlock(BigInt(round));
+        const blockHeader = block?.header;
         expect(blockHeader).not.toBeNull();
+        expect(blockHeader).toBeDefined();
         if (blockHeader) {
           expect(blockHeader.genesisID).toBeDefined();
           expect(blockHeader.genesisHash).toBeDefined();
           expect(blockHeader.genesisHash?.length).toBe(32);
         }
+        expect(block?.payset).not.toBeNull();
+        expect(block?.payset.length).toBe(26);
       },
       TEST_TIMEOUT
     );

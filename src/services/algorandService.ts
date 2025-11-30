@@ -35,7 +35,7 @@ class AlgorandService {
       // Filter out null results and add to blocks array
       blockResults.forEach((block) => {
         if (block) {
-          blocks.push(block);
+          blocks.push(block.header);
         }
       });
 
@@ -46,21 +46,19 @@ class AlgorandService {
     }
   }
 
-  private async fetchSingleBlock(
-    round: bigint
-  ): Promise<algosdk.BlockHeader | null> {
+  private async fetchSingleBlock(round: bigint): Promise<algosdk.Block | null> {
     try {
       const blockInfo = await this.algodClient.block(round).do();
       const block = blockInfo.block; // Cast to any to access raw properties
 
-      return block.header;
+      return block;
     } catch (error) {
       console.warn(`Failed to fetch block ${round}:`, error);
       return null;
     }
   }
 
-  async getBlock(round: bigint): Promise<algosdk.BlockHeader | null> {
+  async getBlock(round: bigint): Promise<algosdk.Block | null> {
     try {
       return await this.fetchSingleBlock(round);
     } catch (error) {
@@ -88,53 +86,36 @@ class AlgorandService {
    * from the parent transaction and block header.
    */
   private findTransactionRecursive(
-    tx: algosdk.indexerModels.Transaction,
+    txs: algosdk.SignedTxnWithAD[],
     targetTxId: string,
-    blockHeader?: algosdk.BlockHeader
-  ): algosdk.indexerModels.Transaction | null {
-    // Check if this is the transaction we're looking for
-    if (tx.id === targetTxId) {
-      console.log(`Found transaction by direct ID match: ${targetTxId}`);
-      return tx;
+    block?: algosdk.Block
+  ): algosdk.SignedTransaction | null {
+    for(const tx of txs){
+
+    // Fill in genesisHash and genesisID from block header if available
+    if (block) {
+      if (block.header.genesisHash && !tx.signedTxn.txn.genesisHash) {
+        tx.signedTxn.txn.genesisHash = block.header.genesisHash;
+      }
+      if (block.header.genesisID && !tx.signedTxn.txn.genesisID) {
+        tx.signedTxn.txn.genesisID = block.header.genesisID;
+      }
     }
 
-    // Search through inner transactions recursively
-    if (tx.innerTxns && tx.innerTxns.length > 0) {
-      console.log(
-        `Searching through ${tx.innerTxns.length} inner transactions of parent ${tx.id}`
-      );
-      for (const innerTx of tx.innerTxns) {
-        // For inner transactions, we need to fill in parameters from parent and block
-        // and recalculate the transaction ID
-        const reconstructedInnerTx = this.reconstructInnerTransaction(
-          innerTx,
-          tx, // parent transaction
-          blockHeader
-        );
+    // Fill in group from parent transaction
+    if (parentTx.group && !reconstructed.group) {
+      reconstructed.group = parentTx.group;
+    }
 
-        // Calculate the proper transaction ID for the inner transaction
-        const calculatedTxId = this.calculateTransactionId(
-          reconstructedInnerTx,
-          blockHeader
-        );
-
-        console.log(
-          `Inner tx original ID: ${innerTx.id}, calculated ID: ${calculatedTxId}, target: ${targetTxId}, type: ${innerTx.txType}`
-        );
-
-        // Check if this inner transaction matches our target
-        if (calculatedTxId === targetTxId) {
-          console.log(
-            `Found transaction by calculated ID match: ${targetTxId}`
-          );
-          // Update the transaction ID to the calculated one
-          innerTx.id = calculatedTxId;
-          return innerTx;
-        }
-
+      // Check if this is the transaction we're looking for
+      if (tx.signedTxn.txn.txID() === targetTxId) {
+        console.log(`Found transaction by direct ID match: ${targetTxId}`);
+        return tx.signedTxn;
+      }
+      if(tx.applyData.evalDelta?.innerTxns?.length){
         // Continue recursive search with the reconstructed inner transaction
         const found = this.findTransactionRecursive(
-          reconstructedInnerTx,
+          tx.applyData.evalDelta?.innerTxns,
           targetTxId,
           blockHeader
         );
@@ -473,15 +454,13 @@ class AlgorandService {
   private async findTransactionInBlock(
     txId: string,
     round: bigint
-  ): Promise<algosdk.indexerModels.Transaction | null> {
+  ): Promise<algosdk.SignedTransaction | null> {
     try {
       console.log(`Starting search for transaction ${txId} in block ${round}`);
       // Get both block header and transactions
-      const [blockHeader, transactions] = await Promise.all([
-        this.getBlock(round),
-        this.getBlockTransactions(round),
-      ]);
-
+      const block = await this.getBlock(round);
+      const blockHeader = block?.header;
+      const transactions = block?.payset || [];
       console.log(
         `Block header: ${blockHeader ? "found" : "not found"}, Transactions count: ${transactions.length}`
       );
@@ -493,18 +472,25 @@ class AlgorandService {
 
       for (const tx of transactions) {
         console.log(
-          `Checking transaction ${tx.id}, type: ${tx.txType}, innerTxns: ${tx.innerTxns?.length || 0}`
+          `Checking transaction ${tx.signedTxn.signedTxn.txn.txID()}, type: ${tx.signedTxn.signedTxn.txn.type}, innerTxns: ${tx.signedTxn.applyData.evalDelta?.innerTxns?.length || 0}`
         );
+        
+      if(tx.signedTxn.signedTxn.txn.txID() === txId) {
+        console.log(`Found transaction ${txId} as top-level transaction in block ${round}`);
+        return tx.signedTxn.signedTxn;
+      }
+      if(tx?.signedTxn?.applyData?.evalDelta?.innerTxns?.length){
         // Use recursive search with block header to properly calculate inner transaction IDs
         const found = this.findTransactionRecursive(
-          tx,
+          tx.signedTxn.applyData.evalDelta.innerTxns,
           txId,
-          blockHeader || undefined
+          block || undefined
         );
         if (found) {
           console.log(`Found transaction ${txId} in block ${round}`);
           return found;
         }
+      }
       }
 
       console.log(
