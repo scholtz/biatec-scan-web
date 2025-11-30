@@ -263,6 +263,18 @@
           <TransactionStateDelta :title="''" :delta="localDelta.delta" />
         </div>
       </div>
+
+      <!-- Inner Transactions -->
+      <div v-if="transaction.innerTxns && transaction.innerTxns.length > 0">
+        <h3 class="text-lg font-semibold text-white mb-4 mt-6">
+          Inner Transactions
+        </h3>
+        <InnerTransaction
+          v-for="(innerTx, index) in transaction.innerTxns"
+          :key="index"
+          :transaction="innerTx"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -272,6 +284,7 @@ import { PropType } from "vue";
 import algosdk from "algosdk";
 import BufferDisplay from "../BufferDisplay.vue";
 import TransactionStateDelta from "./TransactionStateDelta.vue";
+import InnerTransaction from "./InnerTransaction.vue";
 
 defineProps({
   transaction: {
