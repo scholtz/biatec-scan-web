@@ -67,10 +67,7 @@
         </div>
 
         <!-- Assets -->
-        <div
-          v-if="enrichedAssets.length > 0"
-          class="card"
-        >
+        <div v-if="enrichedAssets.length > 0" class="card">
           <h2 class="text-xl font-semibold mb-4">Assets</h2>
           <div class="space-y-3">
             <div
@@ -81,7 +78,9 @@
               <div>
                 <div class="flex items-center gap-2">
                   <span class="text-white font-medium">{{ asset.name }}</span>
-                  <span class="text-gray-400 text-sm" v-if="asset['asset-id'] !== 0"
+                  <span
+                    class="text-gray-400 text-sm"
+                    v-if="asset['asset-id'] !== 0"
                     >(ID: {{ asset["asset-id"] }})</span
                   >
                 </div>
@@ -242,36 +241,38 @@ const fetchAssetPrices = async () => {
   const assetsToFetch = new Set<number>();
   // Add Algo
   assetsToFetch.add(0);
-  
+
   // Add other assets
   if (accountInfo.value.assets) {
-    accountInfo.value.assets.forEach(a => assetsToFetch.add(a["asset-id"]));
+    accountInfo.value.assets.forEach((a) => assetsToFetch.add(a["asset-id"]));
   }
 
   // Fetch prices one by one (limitation of API)
   // We use a simple concurrency limit to avoid overwhelming the browser/network
   const queue = Array.from(assetsToFetch);
   const batchSize = 5;
-  
+
   for (let i = 0; i < queue.length; i += batchSize) {
     const batch = queue.slice(i, i + batchSize);
-    await Promise.all(batch.map(async (assetId) => {
-      try {
-        // For Algo (0), we might need a special handling if search "0" doesn't work
-        // But let's try searching for the ID first
-        const response = await api.getApiSearch({ q: assetId.toString() });
-        
-        if (response.data.assets && response.data.assets.length > 0) {
-          // Find the exact match
-          const asset = response.data.assets.find(a => a.index === assetId);
-          if (asset && asset.priceUSD) {
-            assetPrices.value[assetId] = asset.priceUSD;
+    await Promise.all(
+      batch.map(async (assetId) => {
+        try {
+          // For Algo (0), we might need a special handling if search "0" doesn't work
+          // But let's try searching for the ID first
+          const response = await api.getApiSearch({ q: assetId.toString() });
+
+          if (response.data.assets && response.data.assets.length > 0) {
+            // Find the exact match
+            const asset = response.data.assets.find((a) => a.index === assetId);
+            if (asset && asset.priceUSD) {
+              assetPrices.value[assetId] = asset.priceUSD;
+            }
           }
+        } catch (e) {
+          console.error(`Failed to fetch price for asset ${assetId}`, e);
         }
-      } catch (e) {
-        console.error(`Failed to fetch price for asset ${assetId}`, e);
-      }
-    }));
+      })
+    );
   }
 };
 
@@ -289,15 +290,17 @@ const enrichedAssets = computed(() => {
     unitName: "ALGO",
     decimals: 6,
     priceUSD: assetPrices.value[0] || 0,
-    valueUSD: (accountInfo.value.amount / Math.pow(10, 6)) * (assetPrices.value[0] || 0)
+    valueUSD:
+      (accountInfo.value.amount / Math.pow(10, 6)) *
+      (assetPrices.value[0] || 0),
   });
 
   // Add other assets
   if (accountInfo.value.assets) {
-    accountInfo.value.assets.forEach(asset => {
+    accountInfo.value.assets.forEach((asset) => {
       const assetId = asset["asset-id"];
       const assetInfo = assetService.getAssetInfo(BigInt(assetId));
-      
+
       // Ensure asset info is requested if missing
       if (!assetInfo) {
         assetService.requestAsset(BigInt(assetId), () => {
@@ -316,7 +319,7 @@ const enrichedAssets = computed(() => {
         unitName: assetInfo?.unitName || "Unit",
         decimals,
         priceUSD: price,
-        valueUSD
+        valueUSD,
       });
     });
   }
@@ -381,7 +384,7 @@ const formatUSD = (amount: number): string => {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   }).format(amount);
 };
 
