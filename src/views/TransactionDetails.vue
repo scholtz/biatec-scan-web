@@ -50,7 +50,7 @@
 
       <!-- External Links -->
       <div class="card mt-6">
-        <h2 class="text-xl font-semibold mb-4">
+        <h2 class="text-xl font-semibold mb-4 text-white">
           {{ $t("common.externalLinks") }}
         </h2>
         <div class="flex flex-wrap gap-4">
