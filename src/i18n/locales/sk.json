@@ -106,6 +106,8 @@
     "foundResults": "Nájdené {count} výsledky",
     "noResults": "Nenašli sa žiadne výsledky",
     "noResultsDescription": "Žiadne assety, pooly, bloky, transakcie alebo adresy nezodpovedajú \"{query}\"",
+    "looksLikeTx": "Vyzerá to ako ID transakcie. Aj keď sa nenašla v našom indexe, môžete skúsiť zobraziť jej detaily priamo.",
+    "viewTxDetails": "Zobraziť detaily transakcie",
     "searchTips": "Čo môžete vyhľadávať?",
     "exampleAsset": "Ukážkový asset",
     "exampleBlock": "Ukážkový blok",

@@ -451,6 +451,35 @@
       <p class="text-gray-400 mb-4 text-sm md:text-base">
         {{ $t("search.noResultsDescription", { query: lastSearchQuery }) }}
       </p>
+
+      <div
+        v-if="isLastQueryTx"
+        class="mb-6 p-4 bg-dark-800/50 rounded-lg border border-blue-500/30 max-w-md mx-auto"
+      >
+        <p class="text-gray-300 mb-3">
+          {{ $t("search.looksLikeTx") }}
+        </p>
+        <router-link
+          :to="{ name: 'TransactionDetails', params: { txId: lastSearchQuery } }"
+          class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors inline-flex items-center gap-2"
+        >
+          {{ $t("search.viewTxDetails") }}
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M14 5l7 7m0 0l-7 7m7-7H3"
+            ></path>
+          </svg>
+        </router-link>
+      </div>
+
       <button
         @click="resetSearch"
         class="px-4 py-2 rounded bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium transition-colors"
@@ -588,6 +617,9 @@ const isBlockQuery = computed(() => {
 const isTxQuery = computed(() =>
   /^[A-Z0-9]{40,}$/.test(searchQuery.value.trim())
 );
+const isLastQueryTx = computed(() =>
+  /^[A-Z0-9]{40,}$/.test(lastSearchQuery.value.trim())
+);
 const isAddressQuery = computed(() =>
   /^[A-Z0-9]{58}$/.test(searchQuery.value.trim())
 );
@@ -646,7 +678,7 @@ const performSearch = async () => {
 function copyToClipboard(text: string) {
   try {
     navigator.clipboard.writeText(text);
-  } catch (e) {
+  } catch {
     // ignore
   }
 }

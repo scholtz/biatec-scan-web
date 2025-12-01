@@ -111,6 +111,8 @@
     "foundResults": "{count} Ergebnisse gefunden",
     "noResults": "Keine Ergebnisse gefunden",
     "noResultsDescription": "Keine Assets, Pools, Blöcke, Transaktionen oder Adressen entsprechen \"{query}\"",
+    "looksLikeTx": "Dies sieht aus wie eine Transaktions-ID. Auch wenn sie in unserem Index nicht gefunden wurde, können Sie versuchen, sie direkt anzuzeigen.",
+    "viewTxDetails": "Transaktionsdetails anzeigen",
     "searchTips": "Wonach können Sie suchen?",
     "exampleAsset": "Beispiel-Asset",
     "exampleBlock": "Beispiel-Block",

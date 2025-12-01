@@ -111,6 +111,8 @@
     "foundResults": "{count} találat",
     "noResults": "Nincs találat",
     "noResultsDescription": "Nincs találat az eszközök, poolok, blokkok, tranzakciók vagy címek között: \"{query}\"",
+    "looksLikeTx": "Ez egy tranzakció azonosítónak tűnik. Még ha nem is található az indexünkben, megpróbálhatja közvetlenül megtekinteni.",
+    "viewTxDetails": "Tranzakció részleteinek megtekintése",
     "searchTips": "Mit kereshet?",
     "exampleAsset": "Példa eszköz",
     "exampleBlock": "Példa blokk",

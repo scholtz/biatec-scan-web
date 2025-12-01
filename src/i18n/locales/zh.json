@@ -106,6 +106,8 @@
     "foundResults": "找到 {count} 个结果",
     "noResults": "未找到结果",
     "noResultsDescription": "没有资产、资金池、区块、交易或地址匹配 \"{query}\"",
+    "looksLikeTx": "看起来像交易ID。即使在我们的索引中未找到，您也可以尝试直接查看。",
+    "viewTxDetails": "查看交易详情",
     "searchTips": "您可以搜索什么？",
     "exampleAsset": "示例资产",
     "exampleBlock": "示例区块",

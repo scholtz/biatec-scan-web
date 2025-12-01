@@ -106,6 +106,8 @@
     "foundResults": "Found {count} results",
     "noResults": "No Results Found",
     "noResultsDescription": "No assets, pools, blocks, transactions, or addresses match \"{query}\"",
+    "looksLikeTx": "This looks like a transaction ID. Even if it wasn't found in our index, you can try viewing it directly.",
+    "viewTxDetails": "View Transaction Details",
     "searchTips": "What can you search for?",
     "exampleAsset": "Example Asset",
     "exampleBlock": "Example Block",

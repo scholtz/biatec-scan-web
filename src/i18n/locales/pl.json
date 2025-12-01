@@ -111,6 +111,8 @@
     "foundResults": "Znaleziono {count} wyników",
     "noResults": "Nie znaleziono wyników",
     "noResultsDescription": "Żadne zasoby, pule, bloki, transakcje ani adresy nie pasują do „{query}”.",
+    "looksLikeTx": "Wygląda to na identyfikator transakcji. Nawet jeśli nie znaleziono go w naszym indeksie, możesz spróbować wyświetlić go bezpośrednio.",
+    "viewTxDetails": "Wyświetl szczegóły transakcji",
     "searchTips": "Co możesz wyszukiwać?",
     "exampleAsset": "Przykładowy zasób",
     "exampleBlock": "Przykładowy blok",
