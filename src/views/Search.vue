@@ -460,7 +460,10 @@
           {{ $t("search.looksLikeTx") }}
         </p>
         <router-link
-          :to="{ name: 'TransactionDetails', params: { txId: lastSearchQuery } }"
+          :to="{
+            name: 'TransactionDetails',
+            params: { txId: lastSearchQuery },
+          }"
           class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors inline-flex items-center gap-2"
         >
           {{ $t("search.viewTxDetails") }}
