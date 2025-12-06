@@ -230,7 +230,10 @@ function ensureLoaded() {
 async function updateReserveBalance() {
   const info = assetService.getAssetInfo(BigInt(assetId.value));
   if (info && info.reserve) {
-    reserveBalance.value = await algorandService.getAccountAssetBalance(info.reserve, BigInt(assetId.value));
+    reserveBalance.value = await algorandService.getAccountAssetBalance(
+      info.reserve,
+      BigInt(assetId.value)
+    );
   } else {
     reserveBalance.value = 0n;
   }
