@@ -5,7 +5,9 @@
       <div class="flex flex-col md:flex-row gap-6 items-start">
         <!-- Left: Asset Image -->
         <div class="flex-shrink-0 mx-auto md:mx-0">
-          <div class="w-32 h-32 rounded-full bg-white/5 p-2 shadow-lg flex items-center justify-center overflow-hidden">
+          <div
+            class="w-32 h-32 rounded-full bg-white/5 p-2 shadow-lg flex items-center justify-center overflow-hidden"
+          >
             <img
               :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${assetId}`"
               :alt="$t('assetDetails.assetImage')"
@@ -19,21 +21,50 @@
           <!-- Header Row -->
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 class="text-3xl font-bold text-white flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h1
+                class="text-3xl font-bold text-white flex flex-wrap items-baseline gap-x-3 gap-y-1"
+              >
                 {{ name }}
-                <span class="text-xl text-gray-400 font-normal">{{ unitName }}</span>
+                <span class="text-xl text-gray-400 font-normal">{{
+                  unitName
+                }}</span>
               </h1>
               <div class="flex items-center gap-3 mt-2">
-                <span class="px-2 py-1 rounded bg-white/10 text-xs text-gray-300 font-mono">ID: {{ assetId }}</span>
+                <span
+                  class="px-2 py-1 rounded bg-white/10 text-xs text-gray-300 font-mono"
+                  >ID: {{ assetId }}</span
+                >
                 <button
                   @click="toggleFavorite"
                   class="transition-all duration-300 hover:scale-110 active:scale-95 p-1"
-                  :class="isFavorite ? 'text-yellow-400' : 'text-gray-500 hover:text-yellow-300'"
-                  :title="isFavorite ? $t('common.removeFromFavorites') : $t('common.addToFavorites')"
+                  :class="
+                    isFavorite
+                      ? 'text-yellow-400'
+                      : 'text-gray-500 hover:text-yellow-300'
+                  "
+                  :title="
+                    isFavorite
+                      ? $t('common.removeFromFavorites')
+                      : $t('common.addToFavorites')
+                  "
                 >
-                  <svg class="w-5 h-5" :class="{ 'drop-shadow-lg': isFavorite }" fill="currentColor" viewBox="0 0 24 24">
-                    <path v-if="isFavorite" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    <path v-else d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="none" stroke="currentColor" stroke-width="2" />
+                  <svg
+                    class="w-5 h-5"
+                    :class="{ 'drop-shadow-lg': isFavorite }"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      v-if="isFavorite"
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    />
+                    <path
+                      v-else
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    />
                   </svg>
                 </button>
               </div>
@@ -41,33 +72,50 @@
           </div>
 
           <!-- Stats Grid -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-white/10 pt-4">
+          <div
+            class="grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-white/10 pt-4"
+          >
             <div>
-              <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">{{ $t("assetDetails.decimals") }}</div>
+              <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
+                {{ $t("assetDetails.decimals") }}
+              </div>
               <div class="text-lg text-white font-mono">{{ decimals }}</div>
             </div>
             <div>
-              <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">{{ $t("assetDetails.totalSupply") }}</div>
-              <div class="text-lg text-white font-mono">{{ formattedTotal }}</div>
+              <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
+                {{ $t("assetDetails.totalSupply") }}
+              </div>
+              <div class="text-lg text-white font-mono">
+                {{ formattedTotal }}
+              </div>
             </div>
           </div>
 
           <!-- Action Buttons -->
           <div class="flex flex-wrap gap-3 pt-2">
             <router-link
-              :to="{ name: 'AggregatedPoolsByAsset', params: { asset1: assetId } }"
+              :to="{
+                name: 'AggregatedPoolsByAsset',
+                params: { asset1: assetId },
+              }"
               class="btn-secondary text-sm py-2 px-4"
             >
               {{ $t("assetDetails.viewAllPools", { name }) }}
             </router-link>
             <router-link
-              :to="{ name: 'PoolsByAssets', params: { asset1: assetId, asset2: 0 } }"
+              :to="{
+                name: 'PoolsByAssets',
+                params: { asset1: assetId, asset2: 0 },
+              }"
               class="btn-secondary text-sm py-2 px-4"
             >
               {{ $t("assetDetails.viewPoolsWithAlgo") }}
             </router-link>
             <router-link
-              :to="{ name: 'PoolsByAssets', params: { asset1: assetId, asset2: 31566704 } }"
+              :to="{
+                name: 'PoolsByAssets',
+                params: { asset1: assetId, asset2: 31566704 },
+              }"
               class="btn-secondary text-sm py-2 px-4"
             >
               {{ $t("assetDetails.viewPoolsWithUsdc") }}
