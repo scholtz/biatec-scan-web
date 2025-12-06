@@ -20,6 +20,7 @@ export const getTokenFromAlgod = async (
     unitName: token.params.unitName ?? "",
     total: Number(token.params.total),
     decimals: token.params.decimals,
+    reserve: token.params.reserve,
   };
   localStorage.setItem(`asset_${assetId.toString()}`, JSON.stringify(params));
   return params;

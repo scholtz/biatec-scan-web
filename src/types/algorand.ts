@@ -89,6 +89,7 @@ export interface AssetParams {
   unitName: string;
   total: number;
   decimals: number;
+  reserve?: string;
 }
 export interface AMMPool {
   poolAddress: string;

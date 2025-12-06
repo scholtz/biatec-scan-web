@@ -180,6 +180,24 @@ class AlgorandService {
     if (!txId) return "";
     return `${txId.slice(0, 12)}...${txId.slice(-12)}`;
   }
+
+  async getAccountAssetBalance(address: string, assetId: bigint): Promise<bigint> {
+    try {
+      const accountInfo = await this.algodClient.accountInformation(address).do();
+      if (assetId === 0n) {
+        return BigInt(accountInfo.amount);
+      }
+      const assets = accountInfo.assets || [];
+      const asset = assets.find((a: any) => {
+        const id = a['asset-id'] !== undefined ? a['asset-id'] : a.assetId;
+        return id !== undefined && BigInt(id) === assetId;
+      });
+      return asset ? BigInt(asset.amount) : 0n;
+    } catch (error) {
+      console.error(`Error fetching account balance for ${address}:`, error);
+      return 0n;
+    }
+  }
 }
 
 export const algorandService = new AlgorandService();

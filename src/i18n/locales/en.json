@@ -275,7 +275,7 @@
     "name": "Name",
     "unit": "Unit",
     "decimals": "Decimals",
-    "totalSupply": "Total Supply",
+    "totalSupply": "Distributed Supply",
     "assetImage": "Asset Image",
     "viewAllPools": "View all {name} pools",
     "viewPoolsWithAlgo": "View Pools with ALGO",

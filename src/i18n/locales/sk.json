@@ -275,7 +275,7 @@
     "name": "Názov",
     "unit": "Jednotka",
     "decimals": "Desatinné miesta",
-    "totalSupply": "Celková ponuka",
+    "totalSupply": "Distribuovaná zásoba",
     "assetImage": "Obrázok assetu",
     "viewAllPools": "Zobraziť všetky {name} pooly",
     "viewPoolsWithAlgo": "Zobraziť pooly s ALGO",

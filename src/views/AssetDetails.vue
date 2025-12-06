@@ -157,6 +157,7 @@ import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import { favoriteService } from "../services/favoriteService";
 import { signalrService } from "../services/signalrService";
+import { algorandService } from "../services/algorandService";
 import type { SubscriptionFilter } from "../types/SubscriptionFilter";
 import type { BiatecAsset } from "../api/models";
 import TradesList from "../components/TradesList.vue";
@@ -170,6 +171,7 @@ const route = useRoute();
 const assetId = ref<string>(route.params.assetId as string);
 
 const forceUpdate = ref<number>(0);
+const reserveBalance = ref<bigint>(0n);
 let assetSubscriptionFilter: SubscriptionFilter | null = null;
 
 const name = computed(() => {
@@ -198,8 +200,10 @@ const formattedTotal = computed(() => {
   const info = assetService.getAssetInfo(BigInt(assetId.value));
   if (!info) return t("common.loading");
   const d = info.decimals || 0;
-  const total = Number(info.total) / Math.pow(10, d);
-  return total.toLocaleString();
+  const total = BigInt(Math.round(info.total));
+  const circulating = total - reserveBalance.value;
+  const circulatingNum = Number(circulating) / Math.pow(10, d);
+  return circulatingNum.toLocaleString();
 });
 
 const isFavorite = computed(() => {
@@ -219,7 +223,17 @@ function ensureLoaded() {
   const id = BigInt(Number(assetId.value) || 0);
   assetService.requestAsset(id, () => {
     forceUpdate.value++;
+    updateReserveBalance();
   });
+}
+
+async function updateReserveBalance() {
+  const info = assetService.getAssetInfo(BigInt(assetId.value));
+  if (info && info.reserve) {
+    reserveBalance.value = await algorandService.getAccountAssetBalance(info.reserve, BigInt(assetId.value));
+  } else {
+    reserveBalance.value = 0n;
+  }
 }
 
 function createAssetSubscriptionFilter(id: string): SubscriptionFilter {
