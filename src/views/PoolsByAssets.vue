@@ -39,7 +39,7 @@
             <router-link
               :to="{
                 name: 'AggregatedPoolsByAsset',
-                params: { asset1: state.aggregated.assetIdA },
+                params: { assetId: state.aggregated.assetIdA ?? 0 },
               }"
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
             >
@@ -63,7 +63,7 @@
             <router-link
               :to="{
                 name: 'AssetDetails',
-                params: { assetId: state.aggregated.assetIdA },
+                params: { assetId: state.aggregated.assetIdA ?? 0 },
               }"
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
             >
@@ -80,7 +80,7 @@
             <router-link
               :to="{
                 name: 'AggregatedPoolsByAsset',
-                params: { asset1: state.aggregated.assetIdB },
+                params: { assetId: state.aggregated.assetIdB ?? 0 },
               }"
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
             >
@@ -105,7 +105,7 @@
             <router-link
               :to="{
                 name: 'AssetDetails',
-                params: { assetId: state.aggregated.assetIdB },
+                params: { assetId: state.aggregated.assetIdB ?? 0 },
               }"
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
             >
