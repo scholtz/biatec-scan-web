@@ -203,7 +203,7 @@
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { algorandService } from "../services/algorandService";
-import algosdk from "algosdk";
+import algosdk, { ProgramSourceMap } from "algosdk";
 import { Buffer } from "buffer";
 
 const route = useRoute();
@@ -247,12 +247,53 @@ const decompileProgram = async (type: "approval" | "clear") => {
     if (!program) return;
 
     // Decompile using algod endpoint
-    const response = await algodClient.disassemble(program).do();
+    const disassembled = await algodClient.disassemble(program).do();
+
+    // Compile with sourcemap to get PC mappings
+    const compile = await algodClient
+      .compile(disassembled.result)
+      .sourcemap(true)
+      .do();
+
+    let result = disassembled.result;
+
+    if (compile.sourcemap) {
+      const raw = compile.sourcemap.data as Map<string, unknown>;
+      const map = {
+        version: Number(raw.get("version")),
+        sources: raw.get("sources"),
+        names: raw.get("names"),
+        mappings: raw.get("mappings"),
+      } as {
+        version: number;
+        sources: string[];
+        names: string[];
+        mappings: string;
+      };
+
+      const sm = new ProgramSourceMap(map);
+      const pcs = sm.getPcs();
+      let sourceLines = disassembled.result.split("\n");
+      pcs.forEach((pc) => {
+        const location = sm.getLocationForPc(pc);
+        if (location?.line !== undefined) {
+          const line = location.line;
+          if (sourceLines.length > line) {
+            // Pad line to at least 50 characters
+            while (sourceLines[line].length < 50) {
+              sourceLines[line] = sourceLines[line] + " ";
+            }
+            sourceLines[line] = sourceLines[line] + ` // PC: ${pc}`;
+          }
+        }
+      });
+      result = sourceLines.join("\n");
+    }
 
     if (type === "approval") {
-      decompiledApproval.value = response.result;
+      decompiledApproval.value = result;
     } else {
-      decompiledClear.value = response.result;
+      decompiledClear.value = result;
     }
   } catch (error) {
     console.error(`Error decompiling ${type} program:`, error);
