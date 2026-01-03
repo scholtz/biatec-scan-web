@@ -2,9 +2,11 @@
   <div class="min-h-screen bg-background text-white">
     <div class="container mx-auto px-4 py-8">
       <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-4">{{ $t('poolDetails.title') }}</h1>
+        <h1 class="text-3xl font-bold mb-4">{{ $t("poolDetails.title") }}</h1>
         <div class="flex items-center gap-4">
-          <span class="text-gray-400">{{ $t('poolDetails.poolAddress') }}:</span>
+          <span class="text-gray-400"
+            >{{ $t("poolDetails.poolAddress") }}:</span
+          >
           <span class="font-mono text-blue-400">{{ poolAddress }}</span>
           <CopyToClipboard
             :text="poolAddress"
@@ -20,7 +22,7 @@
         <div
           class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
         ></div>
-        <p class="text-gray-400">{{ $t('poolDetails.loadingPoolInfo') }}</p>
+        <p class="text-gray-400">{{ $t("poolDetails.loadingPoolInfo") }}</p>
       </div>
 
       <!-- Error State -->
@@ -30,7 +32,7 @@
           @click="loadPoolInfo"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
         >
-          {{ $t('poolDetails.retry') }}
+          {{ $t("poolDetails.retry") }}
         </button>
       </div>
 
@@ -38,10 +40,14 @@
       <div v-else-if="poolInfo" class="space-y-6">
         <!-- Basic Pool Information -->
         <div class="card">
-          <h2 class="text-xl font-semibold mb-4">{{ $t('poolDetails.poolInformation') }}</h2>
+          <h2 class="text-xl font-semibold mb-4">
+            {{ $t("poolDetails.poolInformation") }}
+          </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">{{ $t('poolDetails.poolAddress') }}:</span>
+              <span class="text-gray-400"
+                >{{ $t("poolDetails.poolAddress") }}:</span
+              >
               <router-link
                 :to="{
                   name: 'AddressDetails',
@@ -68,10 +74,16 @@
               <span class="text-gray-400">LP Token ID:</span>
               <span class="text-white">{{ poolInfo.assetIdLP }}</span>
             </div>
-            <div class="flex justify-between items-center" v-if="poolInfo.poolAppId">
+            <div
+              class="flex justify-between items-center"
+              v-if="poolInfo.poolAppId"
+            >
               <span class="text-gray-400">Pool App ID:</span>
               <router-link
-                :to="{ name: 'ApplicationDetails', params: { appId: poolInfo.poolAppId.toString() } }"
+                :to="{
+                  name: 'ApplicationDetails',
+                  params: { appId: poolInfo.poolAppId.toString() },
+                }"
                 class="text-purple-400 hover:text-purple-300 font-mono text-sm transition-colors"
               >
                 {{ poolInfo.poolAppId.toString() }}
@@ -96,11 +108,15 @@
           <div class="card mb-6">
             <div class="flex items-center justify-between mb-6">
               <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center shadow-lg">
+                <div
+                  class="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center shadow-lg"
+                >
                   <span class="font-bold text-xl">⚙️</span>
                 </div>
                 <div>
-                  <h2 class="text-xl font-bold text-white">Application Details</h2>
+                  <h2 class="text-xl font-bold text-white">
+                    Application Details
+                  </h2>
                   <p class="text-gray-400">App ID: {{ poolInfo.poolAppId }}</p>
                 </div>
               </div>
@@ -109,20 +125,35 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
                 <p class="text-sm text-gray-400 mb-1">Application ID</p>
-                <p class="text-white font-medium text-lg">{{ poolInfo.poolAppId }}</p>
+                <p class="text-white font-medium text-lg">
+                  {{ poolInfo.poolAppId }}
+                </p>
               </div>
-              <div v-if="applicationInfo.params?.creator" class="bg-dark-900 p-4 rounded-lg border border-gray-700">
+              <div
+                v-if="applicationInfo.params?.creator"
+                class="bg-dark-900 p-4 rounded-lg border border-gray-700"
+              >
                 <p class="text-sm text-gray-400 mb-1">Creator</p>
                 <router-link
-                  :to="{ name: 'AddressDetails', params: { address: applicationInfo.params.creator.toString() } }"
+                  :to="{
+                    name: 'AddressDetails',
+                    params: {
+                      address: applicationInfo.params.creator.toString(),
+                    },
+                  }"
                   class="text-purple-400 hover:text-purple-300 font-mono text-sm break-all"
                 >
                   {{ formatAddress(applicationInfo.params.creator.toString()) }}
                 </router-link>
               </div>
-              <div v-if="applicationInfo['created-at-round']" class="bg-dark-900 p-4 rounded-lg border border-gray-700">
+              <div
+                v-if="applicationInfo['created-at-round']"
+                class="bg-dark-900 p-4 rounded-lg border border-gray-700"
+              >
                 <p class="text-sm text-gray-400 mb-1">Created at Round</p>
-                <p class="text-white font-medium">{{ applicationInfo['created-at-round']?.toLocaleString() }}</p>
+                <p class="text-white font-medium">
+                  {{ applicationInfo["created-at-round"]?.toLocaleString() }}
+                </p>
               </div>
             </div>
           </div>
@@ -392,29 +423,30 @@ const loadApplicationInfo = async (appId: bigint) => {
   }
 };
 
-const decompileProgram = async (type: 'approval' | 'clear') => {
+const decompileProgram = async (type: "approval" | "clear") => {
   if (!applicationInfo.value || !applicationInfo.value.params) return;
-  
+
   isDecompiling.value = true;
   try {
     const algodClient = algorandService.getAlgodClient();
-    const program = type === 'approval' 
-      ? applicationInfo.value.params.approvalProgram
-      : applicationInfo.value.params.clearStateProgram;
-    
+    const program =
+      type === "approval"
+        ? applicationInfo.value.params.approvalProgram
+        : applicationInfo.value.params.clearStateProgram;
+
     if (!program) return;
 
     // Decompile using algod endpoint
     const response = await algodClient.disassemble(program).do();
-    
-    if (type === 'approval') {
+
+    if (type === "approval") {
       decompiledApproval.value = response.result;
     } else {
       decompiledClear.value = response.result;
     }
   } catch (error) {
     console.error(`Error decompiling ${type} program:`, error);
-    if (type === 'approval') {
+    if (type === "approval") {
       decompiledApproval.value = `Error decompiling program: ${error}`;
     } else {
       decompiledClear.value = `Error decompiling program: ${error}`;

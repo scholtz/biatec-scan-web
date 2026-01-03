@@ -156,8 +156,18 @@
                     >(ID: {{ asset["asset-id"] }})
                     <CopyToClipboard
                       :text="asset['asset-id'].toString()"
-                      :toast-message="t('common.copiedAssetId', { name: asset.name, id: asset['asset-id'] })"
-                      :title="t('common.copyAssetId', { name: asset.name, id: asset['asset-id'] })"
+                      :toast-message="
+                        t('common.copiedAssetId', {
+                          name: asset.name,
+                          id: asset['asset-id'],
+                        })
+                      "
+                      :title="
+                        t('common.copyAssetId', {
+                          name: asset.name,
+                          id: asset['asset-id'],
+                        })
+                      "
                       class="ml-1 text-gray-500 hover:text-white transition-colors"
                     />
                   </span>

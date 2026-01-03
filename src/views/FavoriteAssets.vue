@@ -1,70 +1,75 @@
 <template>
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-white">{{ $t('favorites.title') }}</h1>
+      <h1 class="text-xl font-semibold text-white">
+        {{ $t("favorites.title") }}
+      </h1>
       <div class="flex items-center gap-2 text-sm">
         <button
           class="px-2 py-1 rounded bg-gray-700 text-gray-200 hover:bg-gray-600 text-xs"
           @click="refresh"
         >
-          {{ $t('common.refresh') }}
+          {{ $t("common.refresh") }}
         </button>
         <button
           class="px-2 py-1 rounded bg-green-700 text-gray-200 hover:bg-green-600 text-xs"
           @click="addDemoAssets"
           :disabled="favoriteAssets.length > 0"
         >
-          {{ $t('favorites.addDemoAssets') }}
+          {{ $t("favorites.addDemoAssets") }}
         </button>
         <button
           class="px-2 py-1 rounded bg-red-700 text-gray-200 hover:bg-red-600 text-xs"
           @click="clearAllFavorites"
           :disabled="favoriteAssets.length === 0"
         >
-          {{ $t('favorites.clearAll') }}
+          {{ $t("favorites.clearAll") }}
         </button>
       </div>
     </div>
 
     <div class="flex items-center gap-4 text-xs text-gray-400">
       <div>
-        {{ $t('favorites.view') }}:
+        {{ $t("favorites.view") }}:
         <button
           @click="currentView = 'table'"
           :class="[
             'px-2 py-1 rounded ml-1',
-            currentView === 'table' 
-              ? 'bg-blue-600 text-white' 
-              : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+            currentView === 'table'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-700 text-gray-200 hover:bg-gray-600',
           ]"
         >
-          {{ $t('favorites.table') }}
+          {{ $t("favorites.table") }}
         </button>
         <button
           @click="currentView = 'blocks'"
           :class="[
             'px-2 py-1 rounded ml-1',
-            currentView === 'blocks' 
-              ? 'bg-blue-600 text-white' 
-              : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+            currentView === 'blocks'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-700 text-gray-200 hover:bg-gray-600',
           ]"
         >
-          {{ $t('favorites.blocks') }}
+          {{ $t("favorites.blocks") }}
         </button>
       </div>
       <div>
-        {{ $t('favorites.totalFavorites') }}: <span class="text-white">{{ favoriteAssets.length }}</span>
+        {{ $t("favorites.totalFavorites") }}:
+        <span class="text-white">{{ favoriteAssets.length }}</span>
       </div>
     </div>
 
-    <div v-if="loading" class="text-gray-400">{{ $t('favorites.loadingFavoriteAssets') }}</div>
+    <div v-if="loading" class="text-gray-400">
+      {{ $t("favorites.loadingFavoriteAssets") }}
+    </div>
     <div v-else-if="favoriteAssets.length === 0" class="text-center py-12">
-      <div class="text-gray-400 mb-4">{{ $t('favorites.noFavoritesYet') }}</div>
-      <router-link 
-        to="/assets" 
+      <div class="text-gray-400 mb-4">{{ $t("favorites.noFavoritesYet") }}</div>
+      <router-link
+        to="/assets"
         class="text-blue-400 hover:text-blue-300 underline"
       >
-        {{ $t('favorites.browseAssetsToAdd') }}
+        {{ $t("favorites.browseAssetsToAdd") }}
       </router-link>
     </div>
 
@@ -102,7 +107,9 @@
                 <div class="min-w-0">
                   <div class="text-white text-sm font-medium truncate">
                     {{
-                      a.params?.name || a.params?.unitName || t('favorites.assetPrefix') + a.index
+                      a.params?.name ||
+                      a.params?.unitName ||
+                      t("favorites.assetPrefix") + a.index
                     }}
                   </div>
                   <div class="text-[10px] text-gray-400 truncate font-mono">
@@ -152,7 +159,9 @@
 
             <!-- Desktop row layout -->
             <div class="hidden md:grid md:grid-cols-10 gap-3 items-center">
-              <div class="font-mono text-xs text-blue-400 truncate flex items-center gap-1">
+              <div
+                class="font-mono text-xs text-blue-400 truncate flex items-center gap-1"
+              >
                 <RouterLink
                   :to="`/asset/${a.index}`"
                   class="hover:text-blue-300"
@@ -210,7 +219,7 @@
                   :to="`/aggregated-pools/${a.index}`"
                   class="text-xs text-blue-400 hover:text-blue-300"
                 >
-                  {{ $t('favorites.viewPools') }}
+                  {{ $t("favorites.viewPools") }}
                 </RouterLink>
               </div>
             </div>
@@ -220,7 +229,9 @@
 
       <!-- Block View -->
       <div v-else-if="currentView === 'blocks'">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-4"
+        >
           <AssetBlock
             v-for="a in favoriteAssets"
             :key="a.index"
@@ -261,13 +272,13 @@ const state = reactive<State>({
   subscribedIds: new Set<number>(),
 });
 
-const currentView = ref<'table' | 'blocks'>('table');
+const currentView = ref<"table" | "blocks">("table");
 const api = getAVMTradeReporterAPI();
 
 async function fetchFavoriteAssets() {
   state.loading = true;
   state.error = "";
-  
+
   const favoriteIds = favoriteService.getFavoriteAssetIds();
   if (favoriteIds.length === 0) {
     state.favoriteAssets = [];
@@ -277,10 +288,12 @@ async function fetchFavoriteAssets() {
 
   try {
     // Fetch favorite assets using the API with comma-separated IDs
-    const idsParam = favoriteIds.join(',');
+    const idsParam = favoriteIds.join(",");
     const res = await api.getApiAsset({ ids: idsParam });
     const data = res as unknown as BiatecAsset[] | { data: BiatecAsset[] };
-    const list = Array.isArray(data) ? data : (data as { data: BiatecAsset[] }).data;
+    const list = Array.isArray(data)
+      ? data
+      : (data as { data: BiatecAsset[] }).data;
     state.favoriteAssets = list || [];
     resubscribeToVisibleAssets();
   } catch (e: unknown) {
@@ -301,25 +314,25 @@ function loadDemoFavoriteAssets(favoriteIds: number[]) {
         name: "USD Coin",
         unitName: "USDC",
         decimals: 6,
-        total: 10000000000
+        total: 10000000000,
       },
       priceUSD: 1.0,
       tvL_USD: 50000000,
       totalTVLAssetInUSD: 75000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 312769,
       params: {
         name: "Tether USDt",
-        unitName: "USDt", 
+        unitName: "USDt",
         decimals: 6,
-        total: 5000000000
+        total: 5000000000,
       },
       priceUSD: 0.9999,
       tvL_USD: 25000000,
       totalTVLAssetInUSD: 30000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 386192725,
@@ -327,12 +340,12 @@ function loadDemoFavoriteAssets(favoriteIds: number[]) {
         name: "goBTC",
         unitName: "goBTC",
         decimals: 8,
-        total: 21000000
+        total: 21000000,
       },
       priceUSD: 67250.45,
       tvL_USD: 15000000,
       totalTVLAssetInUSD: 20000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 386195940,
@@ -340,12 +353,12 @@ function loadDemoFavoriteAssets(favoriteIds: number[]) {
         name: "goETH",
         unitName: "goETH",
         decimals: 8,
-        total: 120000000
+        total: 120000000,
       },
       priceUSD: 2580.75,
       tvL_USD: 8000000,
       totalTVLAssetInUSD: 12000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 27165954,
@@ -353,17 +366,19 @@ function loadDemoFavoriteAssets(favoriteIds: number[]) {
         name: "PLANET",
         unitName: "PLANET",
         decimals: 6,
-        total: 10000000000
+        total: 10000000000,
       },
       priceUSD: 0.00123,
       tvL_USD: 1200000,
       totalTVLAssetInUSD: 1500000,
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   ];
 
   // Filter demo assets to only show those that are favorited
-  state.favoriteAssets = allDemoAssets.filter(asset => favoriteIds.includes(asset.index));
+  state.favoriteAssets = allDemoAssets.filter((asset) =>
+    favoriteIds.includes(asset.index)
+  );
   resubscribeToVisibleAssets();
 }
 
@@ -400,7 +415,9 @@ function toggleFavorite(assetIndex: number): void {
   favoriteService.toggleFavorite(assetIndex);
   // Remove the asset from the list if it's no longer a favorite
   if (!favoriteService.isFavorite(assetIndex)) {
-    state.favoriteAssets = state.favoriteAssets.filter(a => a.index !== assetIndex);
+    state.favoriteAssets = state.favoriteAssets.filter(
+      (a) => a.index !== assetIndex
+    );
     resubscribeToVisibleAssets();
   }
 }
@@ -408,13 +425,15 @@ function toggleFavorite(assetIndex: number): void {
 function onFavoriteChanged(assetIndex: number, isFavorite: boolean) {
   if (!isFavorite) {
     // Remove the asset from the list
-    state.favoriteAssets = state.favoriteAssets.filter(a => a.index !== assetIndex);
+    state.favoriteAssets = state.favoriteAssets.filter(
+      (a) => a.index !== assetIndex
+    );
     resubscribeToVisibleAssets();
   }
 }
 
 function clearAllFavorites() {
-  if (confirm(t('favorites.confirmClearAll'))) {
+  if (confirm(t("favorites.confirmClearAll"))) {
     favoriteService.clearFavorites();
     state.favoriteAssets = [];
     state.subscribedIds.clear();
@@ -430,25 +449,25 @@ function addDemoAssets() {
         name: "USD Coin",
         unitName: "USDC",
         decimals: 6,
-        total: 10000000000
+        total: 10000000000,
       },
       priceUSD: 1.0,
       tvL_USD: 50000000,
       totalTVLAssetInUSD: 75000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 312769,
       params: {
         name: "Tether USDt",
-        unitName: "USDt", 
+        unitName: "USDt",
         decimals: 6,
-        total: 5000000000
+        total: 5000000000,
       },
       priceUSD: 0.9999,
       tvL_USD: 25000000,
       totalTVLAssetInUSD: 30000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 386192725,
@@ -456,12 +475,12 @@ function addDemoAssets() {
         name: "goBTC",
         unitName: "goBTC",
         decimals: 8,
-        total: 21000000
+        total: 21000000,
       },
       priceUSD: 67250.45,
       tvL_USD: 15000000,
       totalTVLAssetInUSD: 20000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 386195940,
@@ -469,17 +488,17 @@ function addDemoAssets() {
         name: "goETH",
         unitName: "goETH",
         decimals: 8,
-        total: 120000000
+        total: 120000000,
       },
       priceUSD: 2580.75,
       tvL_USD: 8000000,
       totalTVLAssetInUSD: 12000000,
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   ];
 
   // Add these assets to favorites
-  demoAssets.forEach(asset => {
+  demoAssets.forEach((asset) => {
     favoriteService.addFavorite(asset.index);
   });
 
@@ -541,9 +560,15 @@ const error = computed(() => state.error);
 }
 
 @keyframes starPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Add a subtle glow effect when favorited */

@@ -1,56 +1,61 @@
 <template>
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-white">{{ $t('assets.title') }}</h1>
+      <h1 class="text-xl font-semibold text-white">{{ $t("assets.title") }}</h1>
       <div class="flex items-center gap-2 text-sm">
         <button
           class="px-2 py-1 rounded bg-gray-700 text-gray-200 hover:bg-gray-600 text-xs"
           @click="refresh"
         >
-          {{ $t('common.refresh') }}
+          {{ $t("common.refresh") }}
         </button>
       </div>
     </div>
 
     <div class="flex items-center gap-4 text-xs text-gray-400">
       <div>
-        {{ $t('common.page') }}: <span class="text-white">{{ page }}</span>
+        {{ $t("common.page") }}: <span class="text-white">{{ page }}</span>
       </div>
       <div>
-        {{ $t('common.pageSize') }}:
+        {{ $t("common.pageSize") }}:
         <select
           v-model.number="pageSize"
           class="bg-gray-800 border border-gray-600 rounded px-1 py-0.5 text-white text-xs"
           @change="changePageSize"
         >
           <option v-for="s in state.availablePageSizes" :key="s" :value="s">
-            {{ s }}{{ s === state.calculatedPageSize ? $t('assets.auto') : '' }}
+            {{ s }}{{ s === state.calculatedPageSize ? $t("assets.auto") : "" }}
           </option>
         </select>
       </div>
       <div>
-        {{ $t('common.totalLoaded') }}: <span class="text-white">{{ assets.length }}</span>
+        {{ $t("common.totalLoaded") }}:
+        <span class="text-white">{{ assets.length }}</span>
       </div>
     </div>
 
-    <div v-if="loading" class="text-gray-400">{{ $t('assets.loadingAssets') }}</div>
-    <div v-else-if="error && assets.length === 0" class="text-red-400">{{ error }}</div>
+    <div v-if="loading" class="text-gray-400">
+      {{ $t("assets.loadingAssets") }}
+    </div>
+    <div v-else-if="error && assets.length === 0" class="text-red-400">
+      {{ error }}
+    </div>
 
     <div v-if="!loading && assets.length > 0">
       <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
       <div
         class="hidden md:grid md:grid-cols-10 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
-        <div>{{ $t('assets.id') }}</div>
-        <div>{{ $t('assets.name') }}</div>
-        <div>{{ $t('assets.unit') }}</div>
-        <div class="text-right">{{ $t('assets.decimals') }}</div>
-        <div class="text-right">{{ $t('assets.price') }}</div>
-        <div class="text-right">{{ $t('assets.realTvl') }}</div>
-        <div class="text-right">{{ $t('assets.totalTvl') }}</div>
-        <div class="text-right">{{ $t('assets.updated') }}</div>
-        <div class="text-center">{{ $t('common.favorite') }}</div>
-        <div class="text-right">{{ $t('common.pools') }}</div>
+        <div>{{ $t("assets.id") }}</div>
+        <div>{{ $t("assets.name") }}</div>
+        <div>{{ $t("assets.unit") }}</div>
+        <div class="text-right">{{ $t("assets.decimals") }}</div>
+        <div class="text-right">{{ $t("assets.price") }}</div>
+        <div class="text-right">{{ $t("assets.realTvl") }}</div>
+        <div class="text-right">{{ $t("assets.totalTvl") }}</div>
+        <div class="text-right">{{ $t("assets.updated") }}</div>
+        <div class="text-center">{{ $t("common.favorite") }}</div>
+        <div class="text-right">{{ $t("common.pools") }}</div>
       </div>
       <div class="space-y-1">
         <div
@@ -77,13 +82,17 @@
               </div>
             </RouterLink>
             <div class="text-right">
-              <div class="text-[10px] text-gray-400">{{ $t('assets.price') }}</div>
+              <div class="text-[10px] text-gray-400">
+                {{ $t("assets.price") }}
+              </div>
               <div class="text-xs text-white font-mono">
                 {{ formatPrice(a) }}
               </div>
             </div>
             <div class="text-right">
-              <div class="text-[10px] text-gray-400">{{ $t('assets.realTvl') }}</div>
+              <div class="text-[10px] text-gray-400">
+                {{ $t("assets.realTvl") }}
+              </div>
               <div class="text-xs text-white font-mono">
                 {{ formatRealTVL(a) }}
               </div>
@@ -91,13 +100,21 @@
             <RouterLink
               :to="`/aggregated-pools/${a.index}`"
               class="text-[10px] text-blue-400 hover:text-blue-300 underline ml-2"
-              >{{ $t('common.pools') }}</RouterLink
+              >{{ $t("common.pools") }}</RouterLink
             >
             <button
               @click="toggleFavorite(a.index)"
               class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95 ml-2"
-              :class="isFavorite(a.index) ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
-              :title="isFavorite(a.index) ? $t('common.removeFromFavorites') : $t('common.addToFavorites')"
+              :class="
+                isFavorite(a.index)
+                  ? 'text-yellow-400 animate-pulse'
+                  : 'text-gray-400 hover:text-yellow-300'
+              "
+              :title="
+                isFavorite(a.index)
+                  ? $t('common.removeFromFavorites')
+                  : $t('common.addToFavorites')
+              "
             >
               <svg
                 class="w-4 h-4 transition-all duration-300"
@@ -120,15 +137,27 @@
             </button>
             <CopyToClipboard
               :text="a.index.toString()"
-              :toast-message="t('common.copiedAssetId', { name: a.params?.name || a.params?.unitName || 'Asset', id: a.index })"
-              :title="t('common.copyAssetId', { name: a.params?.name || a.params?.unitName || 'Asset', id: a.index })"
+              :toast-message="
+                t('common.copiedAssetId', {
+                  name: a.params?.name || a.params?.unitName || 'Asset',
+                  id: a.index,
+                })
+              "
+              :title="
+                t('common.copyAssetId', {
+                  name: a.params?.name || a.params?.unitName || 'Asset',
+                  id: a.index,
+                })
+              "
               class="ml-2"
             />
           </div>
 
           <!-- Desktop row layout -->
           <div class="hidden md:grid md:grid-cols-10 gap-3 items-center">
-            <div class="font-mono text-xs text-blue-400 truncate flex items-center gap-1">
+            <div
+              class="font-mono text-xs text-blue-400 truncate flex items-center gap-1"
+            >
               <RouterLink
                 :to="`/asset/${a.index}`"
                 class="hover:text-blue-300"
@@ -136,8 +165,18 @@
               >
               <CopyToClipboard
                 :text="a.index.toString()"
-                :toast-message="t('common.copiedAssetId', { name: a.params?.name || a.params?.unitName || 'Asset', id: a.index })"
-                :title="t('common.copyAssetId', { name: a.params?.name || a.params?.unitName || 'Asset', id: a.index })"
+                :toast-message="
+                  t('common.copiedAssetId', {
+                    name: a.params?.name || a.params?.unitName || 'Asset',
+                    id: a.index,
+                  })
+                "
+                :title="
+                  t('common.copyAssetId', {
+                    name: a.params?.name || a.params?.unitName || 'Asset',
+                    id: a.index,
+                  })
+                "
               />
             </div>
             <div class="text-sm text-white truncate flex items-center gap-2">
@@ -168,8 +207,16 @@
               <button
                 @click="toggleFavorite(a.index)"
                 class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
-                :class="isFavorite(a.index) ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
-                :title="isFavorite(a.index) ? $t('common.removeFromFavorites') : $t('common.addToFavorites')"
+                :class="
+                  isFavorite(a.index)
+                    ? 'text-yellow-400 animate-pulse'
+                    : 'text-gray-400 hover:text-yellow-300'
+                "
+                :title="
+                  isFavorite(a.index)
+                    ? $t('common.removeFromFavorites')
+                    : $t('common.addToFavorites')
+                "
               >
                 <svg
                   class="w-5 h-5 transition-all duration-300"
@@ -196,7 +243,7 @@
                 :to="`/aggregated-pools/${a.index}`"
                 class="text-xs text-blue-400 hover:text-blue-300"
               >
-                {{ $t('common.viewPools') }}
+                {{ $t("common.viewPools") }}
               </RouterLink>
             </div>
           </div>
@@ -209,15 +256,15 @@
           class="px-2 py-1 rounded bg-gray-700 disabled:opacity-40 text-gray-200 hover:bg-gray-600"
           @click="prevPage"
         >
-          {{ $t('common.prev') }}
+          {{ $t("common.prev") }}
         </button>
-        <div class="text-gray-400">{{ $t('common.page') }} {{ page }}</div>
+        <div class="text-gray-400">{{ $t("common.page") }} {{ page }}</div>
         <button
           :disabled="loading || assets.length < pageSize"
           class="px-2 py-1 rounded bg-gray-700 disabled:opacity-40 text-gray-200 hover:bg-gray-600"
           @click="nextPage"
         >
-          {{ $t('common.next') }}
+          {{ $t("common.next") }}
         </button>
       </div>
     </div>
@@ -264,34 +311,36 @@ const api = getAVMTradeReporterAPI();
 function calculateOptimalPageSize(): number {
   try {
     const viewportHeight = window.innerHeight;
-    
+
     // Use DOM-based calculation to get precise measurements
-    const navbar = document.querySelector('nav');
+    const navbar = document.querySelector("nav");
     const navbarHeight = navbar ? navbar.getBoundingClientRect().height : 65;
-    
+
     // Find pagination controls to calculate unused space at bottom
-    const buttons = Array.from(document.querySelectorAll('button'));
-    const prevButton = buttons.find(b => b.textContent?.includes('Prev'));
+    const buttons = Array.from(document.querySelectorAll("button"));
+    const prevButton = buttons.find((b) => b.textContent?.includes("Prev"));
     const paginationContainer = prevButton?.parentElement;
     let unusedSpaceAtBottom = 200; // Fallback
-    
+
     if (paginationContainer) {
       const paginationRect = paginationContainer.getBoundingClientRect();
       unusedSpaceAtBottom = viewportHeight - paginationRect.bottom;
     }
-    
+
     // Get actual row height by measuring existing rows
     let rowHeight = 47; // Fallback based on measurements
-    const rows = document.querySelectorAll('.space-y-1 > div');
+    const rows = document.querySelectorAll(".space-y-1 > div");
     if (rows.length >= 2) {
-      rowHeight = rows[1].getBoundingClientRect().top - rows[0].getBoundingClientRect().top;
+      rowHeight =
+        rows[1].getBoundingClientRect().top -
+        rows[0].getBoundingClientRect().top;
     }
-    
+
     // More aggressive calculation - minimal buffer for maximum space utilization
     const buffer = Math.max(15, Math.min(25, unusedSpaceAtBottom * 0.1)); // Dynamic buffer: 10% of unused space, capped at 15-25px
     const usableUnusedSpace = Math.max(0, unusedSpaceAtBottom - buffer);
     const additionalRows = Math.floor(usableUnusedSpace / rowHeight);
-    
+
     // Current rows count calculation
     let baseRows;
     if (unusedSpaceAtBottom > 40) {
@@ -303,17 +352,19 @@ function calculateOptimalPageSize(): number {
       // Space is very tight, use current count
       baseRows = rows.length;
     }
-    
+
     const optimalPageSize = baseRows + additionalRows;
-    
+
     // Ensure reasonable bounds
     const finalPageSize = Math.max(5, Math.min(150, optimalPageSize));
-    
-    console.log(`Calculated optimal page size: ${finalPageSize} (viewport: ${viewportHeight}px, unused bottom: ${unusedSpaceAtBottom}px, usable unused: ${usableUnusedSpace}px, row height: ${rowHeight}px, buffer: ${buffer}px, additional rows: ${additionalRows})`);
-    
+
+    console.log(
+      `Calculated optimal page size: ${finalPageSize} (viewport: ${viewportHeight}px, unused bottom: ${unusedSpaceAtBottom}px, usable unused: ${usableUnusedSpace}px, row height: ${rowHeight}px, buffer: ${buffer}px, additional rows: ${additionalRows})`
+    );
+
     return finalPageSize;
   } catch (error) {
-    console.error('Error calculating optimal page size:', error);
+    console.error("Error calculating optimal page size:", error);
     return 15; // Fallback to default
   }
 }
@@ -322,19 +373,19 @@ function calculateOptimalPageSize(): number {
 function updatePageSizeOptions() {
   const calculated = calculateOptimalPageSize();
   state.calculatedPageSize = calculated;
-  
+
   // Create a new array with the calculated value included
   const baseOptions = [15, 25, 50, 100];
   const allOptions = [...baseOptions];
-  
+
   // Add the calculated value if it's not already in the list
   if (!baseOptions.includes(calculated)) {
     allOptions.push(calculated);
     allOptions.sort((a, b) => a - b);
   }
-  
+
   state.availablePageSizes = allOptions;
-  
+
   // Set the calculated value as default if pageSize hasn't been set yet
   if (state.pageSize === 0) {
     state.pageSize = calculated;
@@ -374,25 +425,25 @@ function loadDemoAssets() {
         name: "USD Coin",
         unitName: "USDC",
         decimals: 6,
-        total: 10000000000
+        total: 10000000000,
       },
       priceUSD: 1.0,
       tvL_USD: 50000000,
       totalTVLAssetInUSD: 75000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 312769,
       params: {
         name: "Tether USDt",
-        unitName: "USDt", 
+        unitName: "USDt",
         decimals: 6,
-        total: 5000000000
+        total: 5000000000,
       },
       priceUSD: 0.9999,
       tvL_USD: 25000000,
       totalTVLAssetInUSD: 30000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 386192725,
@@ -400,12 +451,12 @@ function loadDemoAssets() {
         name: "goBTC",
         unitName: "goBTC",
         decimals: 8,
-        total: 21000000
+        total: 21000000,
       },
       priceUSD: 67250.45,
       tvL_USD: 15000000,
       totalTVLAssetInUSD: 20000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 386195940,
@@ -413,12 +464,12 @@ function loadDemoAssets() {
         name: "goETH",
         unitName: "goETH",
         decimals: 8,
-        total: 120000000
+        total: 120000000,
       },
       priceUSD: 2580.75,
       tvL_USD: 8000000,
       totalTVLAssetInUSD: 12000000,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     {
       index: 27165954,
@@ -426,17 +477,17 @@ function loadDemoAssets() {
         name: "PLANET",
         unitName: "PLANET",
         decimals: 6,
-        total: 10000000000
+        total: 10000000000,
       },
       priceUSD: 0.00123,
       tvL_USD: 1200000,
       totalTVLAssetInUSD: 1500000,
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   ];
-  
+
   state.assets = demoAssets;
-  state.error = t('assets.demoModeError');
+  state.error = t("assets.demoModeError");
 }
 
 function resubscribeToVisibleAssets() {
@@ -516,7 +567,7 @@ function isFavorite(assetIndex: number): boolean {
 
 function toggleFavorite(assetIndex: number): void {
   const success = favoriteService.toggleFavorite(assetIndex);
-  
+
   // Add visual feedback with a small delay to ensure localStorage is updated
   if (success !== undefined) {
     // Force reactivity update
@@ -531,18 +582,18 @@ watch(() => state.pageSize, fetchAssets);
 onMounted(async () => {
   // Calculate optimal page size first
   updatePageSizeOptions();
-  
+
   // Add resize event listener
-  window.addEventListener('resize', handleResize);
-  
+  window.addEventListener("resize", handleResize);
+
   signalrService.onAssetReceived(assetUpdateEvent);
   await fetchAssets();
 });
 
 onUnmounted(() => {
   // Remove resize event listener
-  window.removeEventListener('resize', handleResize);
-  
+  window.removeEventListener("resize", handleResize);
+
   signalrService.unsubscribeFromAssetUpdates(assetUpdateEvent);
 });
 
@@ -566,9 +617,15 @@ const error = computed(() => state.error);
 }
 
 @keyframes starPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Add a subtle glow effect when favorited */
