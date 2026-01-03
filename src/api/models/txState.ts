@@ -156,10 +156,9 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export type TxState = typeof TxState[keyof typeof TxState];
-
+export type TxState = (typeof TxState)[keyof typeof TxState];
 
 export const TxState = {
-  TxPool: 'TxPool',
-  Confirmed: 'Confirmed',
+  TxPool: "TxPool",
+  Confirmed: "Confirmed",
 } as const;

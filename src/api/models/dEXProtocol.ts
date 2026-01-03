@@ -156,11 +156,10 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export type DEXProtocol = typeof DEXProtocol[keyof typeof DEXProtocol];
-
+export type DEXProtocol = (typeof DEXProtocol)[keyof typeof DEXProtocol];
 
 export const DEXProtocol = {
-  Pact: 'Pact',
-  Tiny: 'Tiny',
-  Biatec: 'Biatec',
+  Pact: "Pact",
+  Tiny: "Tiny",
+  Biatec: "Biatec",
 } as const;

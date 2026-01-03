@@ -156,11 +156,10 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export type AMMType = typeof AMMType[keyof typeof AMMType];
-
+export type AMMType = (typeof AMMType)[keyof typeof AMMType];
 
 export const AMMType = {
-  OldAMM: 'OldAMM',
-  StableSwap: 'StableSwap',
-  ConcentratedLiquidityAMM: 'ConcentratedLiquidityAMM',
+  OldAMM: "OldAMM",
+  StableSwap: "StableSwap",
+  ConcentratedLiquidityAMM: "ConcentratedLiquidityAMM",
 } as const;

@@ -156,10 +156,10 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export type LiqudityDirection = typeof LiqudityDirection[keyof typeof LiqudityDirection];
-
+export type LiqudityDirection =
+  (typeof LiqudityDirection)[keyof typeof LiqudityDirection];
 
 export const LiqudityDirection = {
-  DepositLiquidity: 'DepositLiquidity',
-  WithdrawLiquidity: 'WithdrawLiquidity',
+  DepositLiquidity: "DepositLiquidity",
+  WithdrawLiquidity: "WithdrawLiquidity",
 } as const;

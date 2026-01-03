@@ -156,10 +156,9 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export type AssetType = typeof AssetType[keyof typeof AssetType];
-
+export type AssetType = (typeof AssetType)[keyof typeof AssetType];
 
 export const AssetType = {
-  ASA: 'ASA',
-  ARC200: 'ARC200',
+  ASA: "ASA",
+  ARC200: "ARC200",
 } as const;
