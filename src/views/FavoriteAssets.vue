@@ -142,13 +142,12 @@
                   />
                 </svg>
               </button>
-              <button
-                @click="copyToClipboard(a.index, a.params?.name || a.params?.unitName)"
-                class="p-1 text-gray-400 hover:text-white hover:bg-gray-700/50 active:bg-gray-600/50 active:scale-95 transition-all duration-150 rounded ml-2"
+              <CopyToClipboard
+                :text="a.index.toString()"
+                :toast-message="`Copied ${a.params?.name || a.params?.unitName || 'Asset'} asset ID: ${a.index}`"
                 :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
-              >
-                📋
-              </button>
+                class="ml-2"
+              />
             </div>
 
             <!-- Desktop row layout -->
@@ -159,13 +158,11 @@
                   class="hover:text-blue-300"
                   >{{ a.index }}</RouterLink
                 >
-                <button
-                  @click="copyToClipboard(a.index, a.params?.name || a.params?.unitName)"
-                  class="p-1 text-gray-400 hover:text-white hover:bg-gray-700/50 active:bg-gray-600/50 active:scale-95 transition-all duration-150 rounded"
+                <CopyToClipboard
+                  :text="a.index.toString()"
+                  :toast-message="`Copied ${a.params?.name || a.params?.unitName || 'Asset'} asset ID: ${a.index}`"
                   :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
-                >
-                  📋
-                </button>
+                />
               </div>
               <div class="text-sm text-white truncate flex items-center gap-2">
                 <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
@@ -246,9 +243,8 @@ import { signalrService } from "../services/signalrService";
 import { favoriteService } from "../services/favoriteService";
 import FormattedTime from "../components/FormattedTime.vue";
 import AssetBlock from "../components/AssetBlock.vue";
-import { useToast } from "../composables/useToast";
+import CopyToClipboard from "../components/CopyToClipboard.vue";
 
-const { showToast } = useToast();
 const { t } = useI18n();
 
 interface State {
@@ -520,18 +516,6 @@ function formatTotalTVL(a: BiatecAsset) {
 function assetImageUrl(id: number) {
   return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
 }
-
-const copyToClipboard = async (assetId: number, assetName?: string | null) => {
-  try {
-    await navigator.clipboard.writeText(assetId.toString());
-    // Show success toast
-    const name = assetName || 'Asset';
-    showToast(`Copied ${name} asset ID: ${assetId}`, 'success');
-  } catch (err) {
-    console.error("Failed to copy asset id:", err);
-    showToast("Failed to copy asset ID", 'error');
-  }
-};
 
 onMounted(async () => {
   signalrService.onAssetReceived(assetUpdateEvent);

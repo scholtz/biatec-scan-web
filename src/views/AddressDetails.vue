@@ -10,13 +10,12 @@
             $t("addressDetails.addressLabel")
           }}</span>
           <span class="font-mono text-blue-400 break-all">{{ address }}</span>
-          <button
-            @click="copyToClipboard"
+          <CopyToClipboard
+            :text="address"
+            :toast-message="t('addressDetails.addressCopied')"
+            :title="t('addressDetails.copyAddress')"
             class="p-2 text-gray-400 hover:text-white transition-colors"
-            :title="$t('addressDetails.copyAddress')"
-          >
-            📋
-          </button>
+          />
         </div>
       </div>
 
@@ -155,19 +154,13 @@
                     class="text-gray-400 text-sm"
                     v-if="asset['asset-id'] !== 0"
                     >(ID: {{ asset["asset-id"] }})
-                    <button
-                      @click="copyAssetId(asset['asset-id'], asset.name)"
+                    <CopyToClipboard
+                      :text="asset['asset-id'].toString()"
+                      :toast-message="t('common.copiedAssetId', { name: asset.name, id: asset['asset-id'] })"
+                      :title="t('common.copyAssetId', { name: asset.name, id: asset['asset-id'] })"
                       class="ml-1 text-gray-500 hover:text-white transition-colors"
-                      :title="
-                        $t('common.copyAssetId', {
-                          name: asset.name,
-                          id: asset['asset-id'],
-                        })
-                      "
-                    >
-                      📋
-                    </button></span
-                  >
+                    />
+                  </span>
                 </div>
                 <div class="text-xs text-gray-500" v-if="asset.priceUSD > 0">
                   {{ formatUSD(asset.priceUSD) }}
@@ -259,11 +252,10 @@ import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
 import { getAVMTradeReporterAPI } from "../api";
 import FormattedTime from "../components/FormattedTime.vue";
-import { useToast } from "../composables/useToast";
+import CopyToClipboard from "../components/CopyToClipboard.vue";
 
 const { t, locale } = useI18n();
 const api = getAVMTradeReporterAPI();
-const { showToast } = useToast();
 
 interface AccountAsset {
   "asset-id": number;
@@ -462,26 +454,6 @@ const loadTransactions = async (reset = false) => {
 
 const loadMoreTransactions = () => {
   loadTransactions(false);
-};
-
-const copyToClipboard = async () => {
-  try {
-    await navigator.clipboard.writeText(address.value);
-    showToast(t("addressDetails.addressCopied"));
-  } catch (err) {
-    console.error("Failed to copy address:", err);
-    showToast(t("common.failedToCopy"), "error");
-  }
-};
-
-const copyAssetId = async (assetId: number, assetName: string) => {
-  try {
-    await navigator.clipboard.writeText(assetId.toString());
-    showToast(t("common.copiedAssetId", { name: assetName, id: assetId }));
-  } catch (err) {
-    console.error("Failed to copy asset ID:", err);
-    showToast(t("common.failedToCopy"), "error");
-  }
 };
 
 const formatAlgoAmount = (microAlgos: number): string => {

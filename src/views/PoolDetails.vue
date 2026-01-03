@@ -6,13 +6,12 @@
         <div class="flex items-center gap-4">
           <span class="text-gray-400">{{ $t('poolDetails.poolAddress') }}:</span>
           <span class="font-mono text-blue-400">{{ poolAddress }}</span>
-          <button
-            @click="copyToClipboard"
-            class="p-2 text-gray-400 hover:text-white transition-colors"
+          <CopyToClipboard
+            :text="poolAddress"
+            :toast-message="$t('poolDetails.poolAddressCopied')"
             :title="$t('poolDetails.copyPoolAddress')"
-          >
-            📋
-          </button>
+            class="p-2 text-gray-400 hover:text-white transition-colors"
+          />
         </div>
       </div>
 
@@ -243,6 +242,7 @@ import { algorandService } from "../services/algorandService";
 import FormattedTime from "../components/FormattedTime.vue";
 import ApplicationStateSchemas from "../components/ApplicationStateSchemas.vue";
 import ApplicationProgram from "../components/ApplicationProgram.vue";
+import CopyToClipboard from "../components/CopyToClipboard.vue";
 
 const route = useRoute();
 const poolAddress = computed(() => route.params.poolAddress as string);
@@ -300,14 +300,6 @@ const loadPoolInfo = async () => {
     console.error("Error loading pool info:", err);
   } finally {
     loading.value = false;
-  }
-};
-
-const copyToClipboard = async () => {
-  try {
-    await navigator.clipboard.writeText(poolAddress.value);
-  } catch (err) {
-    console.error("Failed to copy pool address:", err);
   }
 };
 

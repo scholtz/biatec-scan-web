@@ -333,12 +333,14 @@
               <div class="text-white font-mono text-sm">
                 {{ formatAddress(address) }}
               </div>
-              <button
-                @click.stop="copyToClipboard(address)"
+              <CopyToClipboard
+                :text="address"
+                :toast-message="`Copied address: ${formatAddress(address)}`"
+                title="Copy address"
                 class="px-2 py-1 rounded bg-dark-700/70 hover:bg-dark-600 text-xs text-gray-300 transition-colors"
               >
                 Copy
-              </button>
+              </CopyToClipboard>
             </div>
           </div>
         </div>
@@ -581,6 +583,7 @@ import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
+import CopyToClipboard from "../components/CopyToClipboard.vue";
 import type { SearchResponse, BiatecAsset, Pool } from "../api/models";
 import algosdk from "algosdk";
 
@@ -677,14 +680,6 @@ const performSearch = async () => {
 
   isSearching.value = false;
 };
-
-function copyToClipboard(text: string) {
-  try {
-    navigator.clipboard.writeText(text);
-  } catch {
-    // ignore
-  }
-}
 
 function prefillExample(val: string) {
   searchQuery.value = val;

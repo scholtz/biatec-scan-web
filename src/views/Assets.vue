@@ -118,13 +118,12 @@
                 />
               </svg>
             </button>
-            <button
-              @click="copyToClipboard(a.index, a.params?.name || a.params?.unitName)"
-              class="p-1 text-gray-400 hover:text-white hover:bg-gray-700/50 active:bg-gray-600/50 active:scale-95 transition-all duration-150 rounded ml-2"
+            <CopyToClipboard
+              :text="a.index.toString()"
+              :toast-message="t('common.copiedAssetId', { name: a.params?.name || a.params?.unitName || 'Asset', id: a.index })"
               :title="t('common.copyAssetId', { name: a.params?.name || a.params?.unitName || 'Asset', id: a.index })"
-            >
-              📋
-            </button>
+              class="ml-2"
+            />
           </div>
 
           <!-- Desktop row layout -->
@@ -135,13 +134,11 @@
                 class="hover:text-blue-300"
                 >{{ a.index }}</RouterLink
               >
-              <button
-                @click="copyToClipboard(a.index, a.params?.name || a.params?.unitName)"
-                class="p-1 text-gray-400 hover:text-white hover:bg-gray-700/50 active:bg-gray-600/50 active:scale-95 transition-all duration-150 rounded"
+              <CopyToClipboard
+                :text="a.index.toString()"
+                :toast-message="t('common.copiedAssetId', { name: a.params?.name || a.params?.unitName || 'Asset', id: a.index })"
                 :title="t('common.copyAssetId', { name: a.params?.name || a.params?.unitName || 'Asset', id: a.index })"
-              >
-                📋
-              </button>
+              />
             </div>
             <div class="text-sm text-white truncate flex items-center gap-2">
               <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
@@ -234,10 +231,9 @@ import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
 import { signalrService } from "../services/signalrService";
 import FormattedTime from "../components/FormattedTime.vue";
+import CopyToClipboard from "../components/CopyToClipboard.vue";
 import { favoriteService } from "../services/favoriteService";
-import { useToast } from "../composables/useToast";
 
-const { showToast } = useToast();
 const { t } = useI18n();
 
 interface State {
@@ -528,18 +524,6 @@ function toggleFavorite(assetIndex: number): void {
     favoritesRef.value = new Set(favoritesRef.value);
   }
 }
-
-const copyToClipboard = async (assetId: number, assetName?: string | null) => {
-  try {
-    await navigator.clipboard.writeText(assetId.toString());
-    // Show success toast
-    const name = assetName || 'Asset';
-    showToast(t('common.copiedAssetId', { name, id: assetId }), 'success');
-  } catch (err) {
-    console.error("Failed to copy asset id:", err);
-    showToast(t('common.failedToCopy'), 'error');
-  }
-};
 
 watch(() => state.page, fetchAssets);
 watch(() => state.pageSize, fetchAssets);
