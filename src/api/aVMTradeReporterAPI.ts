@@ -166,7 +166,6 @@ import type { Liquidity } from './models/liquidity';
 export type AMMType = typeof AMMType[keyof typeof AMMType];
 
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AMMType = {
   NUMBER_0: 0,
   NUMBER_1: 1,
@@ -175,7 +174,6 @@ export const AMMType = {
 export type DEXProtocol = typeof DEXProtocol[keyof typeof DEXProtocol];
 
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const DEXProtocol = {
   NUMBER_0: 0,
   NUMBER_1: 1,

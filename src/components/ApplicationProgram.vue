@@ -42,6 +42,8 @@ const handleDecompile = () => {
 
 const getPreview = () => {
   if (!props.program) return '';
-  return Buffer.from(props.program).toString('base64').substring(0, 100);
+  // Convert Uint8Array to string, then to base64
+  const binaryString = Array.from(props.program).map(byte => String.fromCharCode(byte)).join('');
+  return btoa(binaryString).substring(0, 100);
 };
 </script>

@@ -108,7 +108,7 @@ class SignalRService {
       });
       // Handle subscription errors
       this.connection.on("AggregatedPool", (pool: any) => {
-        var poolObj = pool as AMMAggregatedPool;
+        const poolObj = pool as AMMAggregatedPool;
         // console.log(
         //   "AggregatedPoolUpdated received:",
         //   poolObj.id,

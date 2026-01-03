@@ -268,7 +268,7 @@ async function fetchAggregated() {
     } else {
       state.aggregated = raw;
     }
-  } catch (e) {
+  } catch {
     // silent fail for aggregated; page still shows pools
     state.aggregated = null;
   }

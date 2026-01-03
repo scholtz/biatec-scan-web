@@ -158,22 +158,22 @@ const decodedValue = computed(() => {
         if (printableRatio > 0.8) {
           return utf8String;
         } else {
-          // Not valid UTF-8, switch to hex
+          // Not valid UTF-8, return hex instead
           encoding.value = "hex";
+          const decoded = atob(val);
           return Array.from(decoded)
             .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
             .join("");
         }
-      } catch (e) {
-        // If UTF-8 decoding fails, switch to hex
-        encoding.value = "hex";
+      } catch {
+        // If UTF-8 decoding fails, return hex
         const decoded = atob(val);
         return Array.from(decoded)
           .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
           .join("");
       }
     }
-  } catch (e) {
+  } catch {
     return val;
   }
 });

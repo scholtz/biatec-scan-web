@@ -159,7 +159,6 @@ Troubleshooting
 export type LiqudityDirection = typeof LiqudityDirection[keyof typeof LiqudityDirection];
 
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const LiqudityDirection = {
   DepositLiquidity: 'DepositLiquidity',
   WithdrawLiquidity: 'WithdrawLiquidity',
