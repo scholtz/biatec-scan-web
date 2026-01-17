@@ -26,7 +26,7 @@
           >
             {{ algorandService.formatAddress(trade.trader) }}
           </router-link>
-          {{ $t('common.sold') }}
+          {{ $t("common.sold") }}
         </p>
         <p class="text-white text-sm">
           <router-link
@@ -82,12 +82,12 @@
       </div>
       <div class="w-full flex-grow">
         <p class="text-xs text-gray-400 mb-1 flex">
-          <span>{{ $t('common.bought') }}</span>
+          <span>{{ $t("common.bought") }}</span>
           <router-link
             :to="{ name: 'TransactionDetails', params: { txId: trade.txId } }"
             class="text-xs ml-2 text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
-            {{ $t('common.viewTx') }}
+            {{ $t("common.viewTx") }}
           </router-link>
         </p>
         <p class="text-white text-sm">
@@ -110,15 +110,15 @@
       class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400 justify-center"
     >
       <div v-if="trade.valueUSD !== undefined && trade.valueUSD !== null">
-        <span class="font-medium">{{ $t('trades.valueUSD') }}:</span>
+        <span class="font-medium">{{ $t("trades.valueUSD") }}:</span>
         <span class="ml-1 text-white">{{ formatUSD(trade.valueUSD, 2) }}</span>
       </div>
       <div v-if="trade.priceUSD !== undefined && trade.priceUSD !== null">
-        <span class="font-medium">{{ $t('trades.priceUSD') }}:</span>
+        <span class="font-medium">{{ $t("trades.priceUSD") }}:</span>
         <span class="ml-1 text-white">{{ formatUSD(trade.priceUSD, 6) }}</span>
       </div>
       <div v-if="trade.feesUSD !== undefined && trade.feesUSD !== null">
-        <span class="font-medium">{{ $t('trades.feesUSD') }}:</span>
+        <span class="font-medium">{{ $t("trades.feesUSD") }}:</span>
         <span class="ml-1 text-white">{{ formatUSD(trade.feesUSD, 2) }}</span>
       </div>
     </div>
@@ -146,12 +146,9 @@ const props = defineProps<{
 
 const hasUsdEnrichment = computed(() => {
   return (
-    props.trade.valueUSD !== undefined &&
-      props.trade.valueUSD !== null ||
-    props.trade.priceUSD !== undefined &&
-      props.trade.priceUSD !== null ||
-    props.trade.feesUSD !== undefined &&
-      props.trade.feesUSD !== null
+    (props.trade.valueUSD !== undefined && props.trade.valueUSD !== null) ||
+    (props.trade.priceUSD !== undefined && props.trade.priceUSD !== null) ||
+    (props.trade.feesUSD !== undefined && props.trade.feesUSD !== null)
   );
 });
 
@@ -236,14 +233,14 @@ const formatSwapPrice = (
     assetService.requestAsset(assetIdIn, () => {
       state.forceUpdate++;
     });
-    return t('common.loading');
+    return t("common.loading");
   }
   if (!assetInfoOut) {
     // Request asset loading and trigger re-render when loaded
     assetService.requestAsset(assetIdOut, () => {
       state.forceUpdate++;
     });
-    return t('common.loading');
+    return t("common.loading");
   }
   const priceAssetIn = Number(balanceIn) / 10 ** assetInfoIn.decimals;
   const priceAssetOut = Number(balanceOut) / 10 ** assetInfoOut.decimals;
@@ -281,7 +278,7 @@ const formatAssetBalance = (
     assetService.requestAsset(assetId, () => {
       state.forceUpdate++;
     });
-    return t('common.loading');
+    return t("common.loading");
   }
 
   return assetService.formatAssetBalance(balance, assetId);
