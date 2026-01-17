@@ -158,7 +158,8 @@
       <div
         v-if="
           props.showFees &&
-          trade.feesUSDProvider !== undefined && trade.feesUSDProvider !== null
+          trade.feesUSDProvider !== undefined &&
+          trade.feesUSDProvider !== null
         "
       >
         <span class="font-medium">{{ $t("trades.feesUSDProvider") }}:</span>
@@ -176,7 +177,8 @@
       <div
         v-if="
           props.showFees &&
-          trade.feesUSDProtocol !== undefined && trade.feesUSDProtocol !== null
+          trade.feesUSDProtocol !== undefined &&
+          trade.feesUSDProtocol !== null
         "
       >
         <span class="font-medium">{{ $t("trades.feesUSDProtocol") }}:</span>
