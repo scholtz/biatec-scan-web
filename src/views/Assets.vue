@@ -86,7 +86,9 @@
                 {{ $t("assets.price") }}
               </div>
               <div class="text-xs text-white font-mono">
-                <template v-if="a.priceUSD === undefined || a.priceUSD === null">-</template>
+                <template v-if="a.priceUSD === undefined || a.priceUSD === null"
+                  >-</template
+                >
                 <template v-else>
                   <FormattedNumber
                     :value="a.priceUSD"
@@ -104,7 +106,9 @@
                 {{ $t("assets.realTvl") }}
               </div>
               <div class="text-xs text-white font-mono">
-                <template v-if="a.tvL_USD === undefined || a.tvL_USD === null">-</template>
+                <template v-if="a.tvL_USD === undefined || a.tvL_USD === null"
+                  >-</template
+                >
                 <template v-else>
                   <FormattedNumber
                     :value="a.tvL_USD"
@@ -209,7 +213,9 @@
               {{ a.params?.decimals ?? 0 }}
             </div>
             <div class="text-sm text-white text-right">
-              <template v-if="a.priceUSD === undefined || a.priceUSD === null">-</template>
+              <template v-if="a.priceUSD === undefined || a.priceUSD === null"
+                >-</template
+              >
               <template v-else>
                 <FormattedNumber
                   :value="a.priceUSD"
@@ -222,7 +228,9 @@
               </template>
             </div>
             <div class="text-sm text-white text-right">
-              <template v-if="a.tvL_USD === undefined || a.tvL_USD === null">-</template>
+              <template v-if="a.tvL_USD === undefined || a.tvL_USD === null"
+                >-</template
+              >
               <template v-else>
                 <FormattedNumber
                   :value="a.tvL_USD"
@@ -234,7 +242,13 @@
               </template>
             </div>
             <div class="text-sm text-white text-right">
-              <template v-if="a.totalTVLAssetInUSD === undefined || a.totalTVLAssetInUSD === null">-</template>
+              <template
+                v-if="
+                  a.totalTVLAssetInUSD === undefined ||
+                  a.totalTVLAssetInUSD === null
+                "
+                >-</template
+              >
               <template v-else>
                 <FormattedNumber
                   :value="a.totalTVLAssetInUSD"

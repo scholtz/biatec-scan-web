@@ -2,7 +2,10 @@
   <span v-if="value === null || value === undefined">{{ placeholder }}</span>
   <span v-else>
     <template v-if="smallMode">
-      {{ prefix }}{{ sign }}0{{ decimalSeparator }}0<sub>{{ zerosCountText }}</sub>{{ significantDigitsText }}{{ suffix }}
+      {{ prefix }}{{ sign }}0{{ decimalSeparator }}0<sub>{{
+        zerosCountText
+      }}</sub
+      >{{ significantDigitsText }}{{ suffix }}
     </template>
     <template v-else>
       {{ formattedText }}
@@ -41,7 +44,9 @@ const props = withDefaults(
 
 const { locale } = useI18n();
 
-const numericValue = computed(() => (props.value === null || props.value === undefined ? null : props.value));
+const numericValue = computed(() =>
+  props.value === null || props.value === undefined ? null : props.value
+);
 
 const baseFormatterOptions = computed(() => {
   if (props.type === "currency") {
@@ -70,7 +75,10 @@ const baseFormatterOptions = computed(() => {
 const affixes = computed(() => {
   // Use formatToParts to get locale-specific currency prefix/suffix + decimal separator.
   // For non-currency, prefix/suffix are empty.
-  const decimalSeparator = new Intl.NumberFormat(locale.value, { style: "decimal" }).formatToParts(1.1).find((p) => p.type === "decimal")?.value ?? ".";
+  const decimalSeparator =
+    new Intl.NumberFormat(locale.value, { style: "decimal" })
+      .formatToParts(1.1)
+      .find((p) => p.type === "decimal")?.value ?? ".";
 
   if (props.type !== "currency") {
     return { prefix: "", suffix: "", decimalSeparator };
@@ -92,12 +100,21 @@ const affixes = computed(() => {
     [...parts]
       .reverse()
       .findIndex(
-        (p) => p.type === "integer" || p.type === "decimal" || p.type === "fraction"
+        (p) =>
+          p.type === "integer" || p.type === "decimal" || p.type === "fraction"
       );
 
-  const prefix = parts.slice(0, Math.max(0, firstNumberIndex)).map((p) => p.value).join("");
+  const prefix = parts
+    .slice(0, Math.max(0, firstNumberIndex))
+    .map((p) => p.value)
+    .join("");
   const suffix =
-    lastNumberIndex >= 0 ? parts.slice(lastNumberIndex + 1).map((p) => p.value).join("") : "";
+    lastNumberIndex >= 0
+      ? parts
+          .slice(lastNumberIndex + 1)
+          .map((p) => p.value)
+          .join("")
+      : "";
 
   return { prefix, suffix, decimalSeparator };
 });
@@ -145,14 +162,18 @@ const significantDigitsText = computed(() => {
 
   const exp = abs.toExponential(props.significantDigits - 1);
   const [mantissa] = exp.split("e");
-  return (mantissa ?? "0").replace(".", "").padEnd(props.significantDigits, "0");
+  return (mantissa ?? "0")
+    .replace(".", "")
+    .padEnd(props.significantDigits, "0");
 });
 
 const formattedText = computed(() => {
   const val = numericValue.value;
   if (val === null) return props.placeholder;
 
-  return new Intl.NumberFormat(locale.value, baseFormatterOptions.value).format(val);
+  return new Intl.NumberFormat(locale.value, baseFormatterOptions.value).format(
+    val
+  );
 });
 
 const prefix = computed(() => affixes.value.prefix);

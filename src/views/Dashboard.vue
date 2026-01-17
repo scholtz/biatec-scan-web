@@ -14,7 +14,9 @@
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
             >
               <FormattedNumber
-                :value="state.algoPrice.virtualSumB / state.algoPrice.virtualSumA"
+                :value="
+                  state.algoPrice.virtualSumB / state.algoPrice.virtualSumA
+                "
                 type="number"
                 :minimum-fraction-digits="2"
                 :maximum-fraction-digits="6"

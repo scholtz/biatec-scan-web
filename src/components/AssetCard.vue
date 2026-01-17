@@ -24,9 +24,17 @@
             :to="`/asset/${state.asset.index}`"
             class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
-            <template v-if="assetInfoA === null">{{ t("common.loading") }}</template>
+            <template v-if="assetInfoA === null">{{
+              t("common.loading")
+            }}</template>
             <template v-else>
-              <template v-if="state.asset.priceUSD === undefined || state.asset.priceUSD === null">-</template>
+              <template
+                v-if="
+                  state.asset.priceUSD === undefined ||
+                  state.asset.priceUSD === null
+                "
+                >-</template
+              >
               <template v-else>
                 <FormattedNumber
                   :value="Number(state.asset.priceUSD)"
@@ -46,7 +54,13 @@
             :to="`/pools/${state.asset.index}`"
             class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
-            <template v-if="state.asset.tvL_USD === undefined || state.asset.tvL_USD === null">-</template>
+            <template
+              v-if="
+                state.asset.tvL_USD === undefined ||
+                state.asset.tvL_USD === null
+              "
+              >-</template
+            >
             <template v-else>
               <FormattedNumber
                 :value="Number(state.asset.tvL_USD)"

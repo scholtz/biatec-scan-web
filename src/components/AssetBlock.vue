@@ -1,10 +1,12 @@
 <template>
-  <div class="bg-gray-800/40 hover:bg-gray-800/60 transition-all duration-300 rounded-lg p-4 border border-gray-700/50">
+  <div
+    class="bg-gray-800/40 hover:bg-gray-800/60 transition-all duration-300 rounded-lg p-4 border border-gray-700/50"
+  >
     <div class="flex flex-col h-full">
       <!-- Asset header -->
       <div class="flex items-center gap-3 mb-3">
-        <img 
-          :src="assetImageUrl" 
+        <img
+          :src="assetImageUrl"
           :alt="assetName"
           class="w-12 h-12 rounded-lg border border-gray-600"
           @error="onImageError"
@@ -17,9 +19,7 @@
           >
             {{ assetName }}
           </router-link>
-          <div class="text-xs text-gray-400 font-mono">
-            #{{ asset.index }}
-          </div>
+          <div class="text-xs text-gray-400 font-mono">#{{ asset.index }}</div>
         </div>
       </div>
 
@@ -28,7 +28,10 @@
         <div class="flex justify-between items-center">
           <span class="text-xs text-gray-400">Price (USD)</span>
           <span class="text-sm text-white font-mono">
-            <template v-if="asset.priceUSD === undefined || asset.priceUSD === null">-</template>
+            <template
+              v-if="asset.priceUSD === undefined || asset.priceUSD === null"
+              >-</template
+            >
             <template v-else>
               <FormattedNumber
                 :value="asset.priceUSD"
@@ -44,7 +47,10 @@
         <div class="flex justify-between items-center">
           <span class="text-xs text-gray-400">Real TVL</span>
           <span class="text-sm text-white font-mono">
-            <template v-if="asset.tvL_USD === undefined || asset.tvL_USD === null">-</template>
+            <template
+              v-if="asset.tvL_USD === undefined || asset.tvL_USD === null"
+              >-</template
+            >
             <template v-else>
               <FormattedNumber
                 :value="asset.tvL_USD"
@@ -65,7 +71,9 @@
       </div>
 
       <!-- Actions -->
-      <div class="mt-3 pt-3 border-t border-gray-700/50 flex justify-between items-center">
+      <div
+        class="mt-3 pt-3 border-t border-gray-700/50 flex justify-between items-center"
+      >
         <router-link
           :to="`/aggregated-pools/${asset.index}`"
           class="text-xs text-blue-400 hover:text-blue-300 underline"
@@ -76,7 +84,11 @@
           v-if="showFavorite"
           @click="toggleFavorite"
           class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
-          :class="isFavorite ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'"
+          :class="
+            isFavorite
+              ? 'text-yellow-400 animate-pulse'
+              : 'text-gray-400 hover:text-yellow-300'
+          "
           :title="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
         >
           <svg
@@ -104,10 +116,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import type { BiatecAsset } from '../api/models';
-import { favoriteService } from '../services/favoriteService';
-import FormattedNumber from './FormattedNumber.vue';
+import { computed, ref } from "vue";
+import type { BiatecAsset } from "../api/models";
+import { favoriteService } from "../services/favoriteService";
+import FormattedNumber from "./FormattedNumber.vue";
 
 interface Props {
   asset: BiatecAsset;
@@ -115,7 +127,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  showFavorite: false
+  showFavorite: false,
 });
 
 const emit = defineEmits<{
@@ -126,13 +138,17 @@ const imageError = ref(false);
 
 const assetImageUrl = computed(() => {
   if (imageError.value) {
-    return '/default-asset.png'; // fallback image
+    return "/default-asset.png"; // fallback image
   }
   return `https://algorand-trades.de-4.biatec.io/api/asset/image/${props.asset.index}`;
 });
 
 const assetName = computed(() => {
-  return props.asset.params?.name || props.asset.params?.unitName || `Asset ${props.asset.index}`;
+  return (
+    props.asset.params?.name ||
+    props.asset.params?.unitName ||
+    `Asset ${props.asset.index}`
+  );
 });
 
 const isFavorite = computed(() => {
@@ -145,13 +161,12 @@ const onImageError = () => {
 
 const toggleFavorite = () => {
   const newState = favoriteService.toggleFavorite(props.asset.index);
-  emit('favoriteChanged', props.asset.index, newState);
-  
+  emit("favoriteChanged", props.asset.index, newState);
+
   // Force reactivity update
   const favoritesRef = favoriteService.getReactiveFavorites();
   favoritesRef.value = new Set(favoritesRef.value);
 };
-
 </script>
 
 <style scoped>
@@ -164,9 +179,15 @@ const toggleFavorite = () => {
 }
 
 @keyframes starPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Add a subtle glow effect when favorited */
