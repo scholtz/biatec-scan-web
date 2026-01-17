@@ -114,29 +114,48 @@
     >
       <div v-if="trade.valueUSD !== undefined && trade.valueUSD !== null">
         <span class="font-medium">{{ $t("trades.valueUSD") }}:</span>
-        <span class="ml-1 text-white">{{ formatUSD(trade.valueUSD, 2) }}</span>
+        <span
+          class="ml-1 text-white"
+          v-html="formatUSD(trade.valueUSD, 2)"
+        ></span>
       </div>
       <div v-if="trade.priceUSD !== undefined && trade.priceUSD !== null">
         <span class="font-medium">{{ $t("trades.priceUSD") }}:</span>
-        <span class="ml-1 text-white">{{ formatUSD(trade.priceUSD, 6) }}</span>
+        <span
+          class="ml-1 text-white"
+          v-html="formatUSD(trade.priceUSD, 6)"
+        ></span>
       </div>
       <div v-if="trade.feesUSD !== undefined && trade.feesUSD !== null">
         <span class="font-medium">{{ $t("trades.feesUSD") }}:</span>
-        <span class="ml-1 text-white">{{ formatUSD(trade.feesUSD, 2) }}</span>
+        <span
+          class="ml-1 text-white"
+          v-html="formatUSD(trade.feesUSD, 2)"
+        ></span>
       </div>
 
       <div
-        v-if="trade.feesUSDProvider !== undefined && trade.feesUSDProvider !== null"
+        v-if="
+          trade.feesUSDProvider !== undefined && trade.feesUSDProvider !== null
+        "
       >
         <span class="font-medium">{{ $t("trades.feesUSDProvider") }}:</span>
-        <span class="ml-1 text-white">{{ formatUSD(trade.feesUSDProvider, 2) }}</span>
+        <span
+          class="ml-1 text-white"
+          v-html="formatUSD(trade.feesUSDProvider, 2)"
+        ></span>
       </div>
 
       <div
-        v-if="trade.feesUSDProtocol !== undefined && trade.feesUSDProtocol !== null"
+        v-if="
+          trade.feesUSDProtocol !== undefined && trade.feesUSDProtocol !== null
+        "
       >
         <span class="font-medium">{{ $t("trades.feesUSDProtocol") }}:</span>
-        <span class="ml-1 text-white">{{ formatUSD(trade.feesUSDProtocol, 2) }}</span>
+        <span
+          class="ml-1 text-white"
+          v-html="formatUSD(trade.feesUSDProtocol, 2)"
+        ></span>
       </div>
     </div>
   </StyledBox>
@@ -173,7 +192,66 @@ const hasUsdEnrichment = computed(() => {
   );
 });
 
+const getUsdAffixes = () => {
+  const parts = new Intl.NumberFormat(locale.value, {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).formatToParts(1.1);
+
+  const firstNumberIndex = parts.findIndex(
+    (p) => p.type === "integer" || p.type === "decimal" || p.type === "fraction"
+  );
+  const lastNumberIndex =
+    parts.length -
+    1 -
+    [...parts]
+      .reverse()
+      .findIndex(
+        (p) =>
+          p.type === "integer" || p.type === "decimal" || p.type === "fraction"
+      );
+
+  const prefix = parts
+    .slice(0, Math.max(0, firstNumberIndex))
+    .map((p) => p.value)
+    .join("");
+  const suffix =
+    lastNumberIndex >= 0
+      ? parts
+          .slice(lastNumberIndex + 1)
+          .map((p) => p.value)
+          .join("")
+      : "";
+  const decimalSeparator =
+    parts.find((p) => p.type === "decimal")?.value ?? ".";
+
+  return { prefix, suffix, decimalSeparator };
+};
+
 const formatUSD = (amount: number, maximumFractionDigits: number): string => {
+  if (!Number.isFinite(amount)) return "-";
+
+  const abs = Math.abs(amount);
+  const sign = amount < 0 ? "-" : "";
+
+  // For very small values, avoid rounding to 0,00 and show at least 4 significant digits.
+  // Example: 0,0001234 -> 0,0<sub>3</sub>1234
+  if (abs !== 0 && abs < 0.01) {
+    const significantDigits = 4;
+    const exp = abs.toExponential(significantDigits - 1);
+    const [mantissa, expStr] = exp.split("e");
+    const exponent = Number.parseInt(expStr ?? "0", 10);
+    const zerosCount = Math.max(0, -exponent - 1);
+    const digits = (mantissa ?? "0")
+      .replace(".", "")
+      .padEnd(significantDigits, "0");
+
+    const { prefix, suffix, decimalSeparator } = getUsdAffixes();
+    return `${prefix}${sign}0${decimalSeparator}0<sub>${zerosCount}</sub>${digits}${suffix}`;
+  }
+
   return new Intl.NumberFormat(locale.value, {
     style: "currency",
     currency: "USD",
