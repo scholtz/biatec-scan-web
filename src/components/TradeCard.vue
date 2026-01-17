@@ -132,54 +132,72 @@
           selectedAssetPriceUSD !== null
         "
       >
-        <span class="font-medium">{{ $t("trades.priceUSD") }}:</span>
+        <span class="font-medium">
+          {{ $t("trades.priceUSD") }}
+          :
+        </span>
         <FormattedNumber
           class="ml-1 text-white"
           :value="selectedAssetPriceUSD"
-          type="currency"
-          currency="USD"
+          type="number"
           :maximum-fraction-digits="6"
           :small-threshold="0.01"
           :significant-digits="4"
         />
+        <span v-if="selectedAssetPairLabel" class="ml-1 text-white">
+          {{ selectedAssetPairLabel }}
+        </span>
       </div>
 
       <div
         v-if="
+          props.showFees &&
           props.priceMode === 'both' &&
           trade.priceAssetInUSD !== undefined &&
           trade.priceAssetInUSD !== null
         "
       >
-        <span class="font-medium">{{ $t("trades.priceAssetInUSD") }}:</span>
+        <span class="font-medium">
+          {{ $t("trades.priceAssetInUSD") }}
+          :
+        </span>
         <FormattedNumber
           class="ml-1 text-white"
           :value="trade.priceAssetInUSD"
-          type="currency"
-          currency="USD"
+          type="number"
           :maximum-fraction-digits="6"
           :small-threshold="0.01"
           :significant-digits="4"
         />
+        <span v-if="assetInPairLabel" class="ml-1 text-white">
+          {{ assetInPairLabel }}
+        </span>
       </div>
 
       <div
         v-if="
+          props.showFees &&
           props.priceMode === 'both' &&
           trade.priceAssetOutUSD !== undefined &&
-          trade.priceAssetOutUSD !== null
+          trade.priceAssetOutUSD !== null &&
+          !hideOutAssetUsdPriceRow
         "
       >
-        <span class="font-medium">{{ $t("trades.priceAssetOutUSD") }}:</span>
+        <span class="font-medium">
+          {{ $t("trades.priceAssetOutUSD") }}
+          :
+        </span>
         <FormattedNumber
           class="ml-1 text-white"
           :value="trade.priceAssetOutUSD"
-          type="currency"
-          currency="USD"
+          type="number"
           :maximum-fraction-digits="6"
           :small-threshold="0.01"
           :significant-digits="4"
         />
+        <span v-if="assetOutPairLabel" class="ml-1 text-white">
+          {{ assetOutPairLabel }}
+        </span>
       </div>
       <div
         v-if="
@@ -292,6 +310,48 @@ const selectedAssetPriceUSD = computed(() => {
   if (selected === props.trade.assetIdOut) return props.trade.priceAssetOutUSD;
 
   return null;
+});
+
+const getAssetUnitForLabel = (assetId: bigint | null): string => {
+  void state.forceUpdate;
+  if (assetId === null) return "";
+
+  const assetInfo = assetService.getAssetInfo(assetId);
+  if (!assetInfo) {
+    assetService.requestAsset(assetId, () => {
+      state.forceUpdate++;
+    });
+    return assetId.toString();
+  }
+  return (assetInfo.unitName ?? assetInfo.name ?? assetId.toString()).trim();
+};
+
+const selectedAssetPairLabel = computed(() => {
+  if (props.priceMode !== "selected") return "";
+  const selected = selectedAssetIdBigInt.value;
+  if (selected === null) return "";
+  const unit = getAssetUnitForLabel(selected);
+  return unit ? `${unit}/USD` : "";
+});
+
+const assetInPairLabel = computed(() => {
+  if (props.priceMode !== "both") return "";
+  const unit = getAssetUnitForLabel(props.trade.assetIdIn);
+  return unit ? `${unit}/USD` : "";
+});
+
+const assetOutPairLabel = computed(() => {
+  if (props.priceMode !== "both") return "";
+  const unit = getAssetUnitForLabel(props.trade.assetIdOut);
+  return unit ? `${unit}/USD` : "";
+});
+
+const hideOutAssetUsdPriceRow = computed(() => {
+  if (props.priceMode !== "both") return false;
+  void state.forceUpdate;
+  const assetInfoOut = assetService.getAssetInfo(props.trade.assetIdOut);
+  const unit = (assetInfoOut?.unitName ?? assetInfoOut?.name ?? "").trim();
+  return unit.toUpperCase() === "USDC";
 });
 
 const hasUsdEnrichment = computed(() => {

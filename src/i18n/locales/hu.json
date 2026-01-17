@@ -129,9 +129,9 @@
   },
   "trades": {
     "valueUSD": "Érték (USD)",
-    "priceUSD": "Ár (USD)",
-    "priceAssetInUSD": "Bemeneti eszköz ára (USD)",
-    "priceAssetOutUSD": "Kimeneti eszköz ára (USD)",
+    "priceUSD": "Ár",
+    "priceAssetInUSD": "Bemeneti eszköz ára",
+    "priceAssetOutUSD": "Kimeneti eszköz ára",
     "feesUSD": "Összes díj (USD)",
     "feesUSDProvider": "Likviditásszolgáltatói díjak (USD)",
     "feesUSDProtocol": "Protokoll díjak (USD)"

@@ -129,9 +129,9 @@
   },
   "trades": {
     "valueUSD": "Wert (USD)",
-    "priceUSD": "Preis (USD)",
-    "priceAssetInUSD": "Preis Eingangs-Asset (USD)",
-    "priceAssetOutUSD": "Preis Ausgangs-Asset (USD)",
+    "priceUSD": "Preis",
+    "priceAssetInUSD": "Preis Eingangs-Asset",
+    "priceAssetOutUSD": "Preis Ausgangs-Asset",
     "feesUSD": "Gebühren gesamt (USD)",
     "feesUSDProvider": "Gebühren LP-Anbieter (USD)",
     "feesUSDProtocol": "Gebühren Protokoll (USD)"
