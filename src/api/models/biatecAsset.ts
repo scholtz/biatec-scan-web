@@ -163,6 +163,7 @@ export interface BiatecAsset {
   params: AssetParams;
   type?: AssetType;
   priceUSD?: number;
+  stabilityIndex?: number;
   tvL_USD?: number;
   /** @nullable */
   timestamp?: string | null;

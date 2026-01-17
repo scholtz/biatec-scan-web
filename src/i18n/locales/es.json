@@ -130,6 +130,8 @@
   "trades": {
     "valueUSD": "Valor (USD)",
     "priceUSD": "Precio (USD)",
+    "priceAssetInUSD": "Precio del activo de entrada (USD)",
+    "priceAssetOutUSD": "Precio del activo de salida (USD)",
     "feesUSD": "Comisiones totales (USD)",
     "feesUSDProvider": "Comisiones proveedores de liquidez (USD)",
     "feesUSDProtocol": "Comisiones del protocolo (USD)"

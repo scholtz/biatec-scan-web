@@ -130,6 +130,8 @@
   "trades": {
     "valueUSD": "Стоимость (USD)",
     "priceUSD": "Цена (USD)",
+    "priceAssetInUSD": "Цена входного актива (USD)",
+    "priceAssetOutUSD": "Цена выходного актива (USD)",
     "feesUSD": "Комиссии всего (USD)",
     "feesUSDProvider": "Комиссии поставщиков ликвидности (USD)",
     "feesUSDProtocol": "Комиссии протокола (USD)"

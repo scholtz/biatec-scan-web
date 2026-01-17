@@ -125,6 +125,8 @@
   "trades": {
     "valueUSD": "Value (USD)",
     "priceUSD": "Price (USD)",
+    "priceAssetInUSD": "In asset price (USD)",
+    "priceAssetOutUSD": "Out asset price (USD)",
     "feesUSD": "Fees total (USD)",
     "feesUSDProvider": "Fees LP providers (USD)",
     "feesUSDProtocol": "Fees protocol (USD)"

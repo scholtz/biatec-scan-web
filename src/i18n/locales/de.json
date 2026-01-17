@@ -130,6 +130,8 @@
   "trades": {
     "valueUSD": "Wert (USD)",
     "priceUSD": "Preis (USD)",
+    "priceAssetInUSD": "Preis Eingangs-Asset (USD)",
+    "priceAssetOutUSD": "Preis Ausgangs-Asset (USD)",
     "feesUSD": "Gebühren gesamt (USD)",
     "feesUSDProvider": "Gebühren LP-Anbieter (USD)",
     "feesUSDProtocol": "Gebühren Protokoll (USD)"

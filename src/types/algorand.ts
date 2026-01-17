@@ -111,7 +111,8 @@ export interface AMMTrade {
   assetAmountOut: number;
   /** Optional enrichment fields from Trade Reporter API */
   valueUSD?: number | null;
-  priceUSD?: number | null;
+  priceAssetInUSD?: number | null;
+  priceAssetOutUSD?: number | null;
   feesUSD?: number | null;
   feesUSDProvider?: number | null;
   feesUSDProtocol?: number | null;

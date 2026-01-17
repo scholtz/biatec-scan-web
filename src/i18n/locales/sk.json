@@ -125,6 +125,8 @@
   "trades": {
     "valueUSD": "Hodnota (USD)",
     "priceUSD": "Cena (USD)",
+    "priceAssetInUSD": "Cena vstupného aktíva (USD)",
+    "priceAssetOutUSD": "Cena výstupného aktíva (USD)",
     "feesUSD": "Poplatky spolu (USD)",
     "feesUSDProvider": "Poplatky poskytovateľov likvidity (USD)",
     "feesUSDProtocol": "Poplatky protokolu (USD)"

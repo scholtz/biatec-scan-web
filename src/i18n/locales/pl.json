@@ -130,6 +130,8 @@
   "trades": {
     "valueUSD": "Wartość (USD)",
     "priceUSD": "Cena (USD)",
+    "priceAssetInUSD": "Cena aktywa wejściowego (USD)",
+    "priceAssetOutUSD": "Cena aktywa wyjściowego (USD)",
     "feesUSD": "Opłaty łącznie (USD)",
     "feesUSDProvider": "Opłaty dostawców płynności (USD)",
     "feesUSDProtocol": "Opłaty protokołu (USD)"

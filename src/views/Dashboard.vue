@@ -137,6 +137,7 @@
             :key="`trade-${trade.txId || index}-${index}`"
             :trade="trade"
             :show-fees="false"
+            price-mode="both"
           />
         </div>
       </div>

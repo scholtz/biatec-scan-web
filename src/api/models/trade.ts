@@ -189,7 +189,9 @@ export interface Trade {
   /** @nullable */
   valueUSD?: number | null;
   /** @nullable */
-  priceUSD?: number | null;
+  priceAssetInUSD?: number | null;
+  /** @nullable */
+  priceAssetOutUSD?: number | null;
   /** @nullable */
   feesUSD?: number | null;
   /** @nullable */

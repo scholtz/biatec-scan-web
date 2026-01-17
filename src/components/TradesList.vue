@@ -26,7 +26,12 @@
         :key="`${trade.txId}-${trade.timestamp}`"
         class="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800/70 transition-colors"
       >
-        <TradeCard :trade="convertToAMMTrade(trade)" :show-fees="true" />
+        <TradeCard
+          :trade="convertToAMMTrade(trade)"
+          :show-fees="true"
+          price-mode="selected"
+          :selected-asset-id="props.assetId"
+        />
       </div>
     </div>
   </div>
@@ -61,7 +66,8 @@ function convertToAMMTrade(trade: Trade): AMMTrade {
     assetAmountIn: trade.assetAmountIn ?? 0,
     assetAmountOut: trade.assetAmountOut ?? 0,
     valueUSD: trade.valueUSD ?? null,
-    priceUSD: trade.priceUSD ?? null,
+    priceAssetInUSD: trade.priceAssetInUSD ?? null,
+    priceAssetOutUSD: trade.priceAssetOutUSD ?? null,
     feesUSD: trade.feesUSD ?? null,
     feesUSDProvider: trade.feesUSDProvider ?? null,
     feesUSDProtocol: trade.feesUSDProtocol ?? null,
@@ -131,7 +137,8 @@ function handleTradeUpdate(trade: AMMTrade) {
       assetAmountIn: trade.assetAmountIn,
       assetAmountOut: trade.assetAmountOut,
       valueUSD: trade.valueUSD ?? null,
-      priceUSD: trade.priceUSD ?? null,
+      priceAssetInUSD: trade.priceAssetInUSD ?? null,
+      priceAssetOutUSD: trade.priceAssetOutUSD ?? null,
       feesUSD: trade.feesUSD ?? null,
       feesUSDProvider: trade.feesUSDProvider ?? null,
       feesUSDProtocol: trade.feesUSDProtocol ?? null,

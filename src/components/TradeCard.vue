@@ -124,11 +124,56 @@
           :significant-digits="4"
         />
       </div>
-      <div v-if="trade.priceUSD !== undefined && trade.priceUSD !== null">
+
+      <div
+        v-if="
+          props.priceMode === 'selected' &&
+          selectedAssetPriceUSD !== undefined &&
+          selectedAssetPriceUSD !== null
+        "
+      >
         <span class="font-medium">{{ $t("trades.priceUSD") }}:</span>
         <FormattedNumber
           class="ml-1 text-white"
-          :value="trade.priceUSD"
+          :value="selectedAssetPriceUSD"
+          type="currency"
+          currency="USD"
+          :maximum-fraction-digits="6"
+          :small-threshold="0.01"
+          :significant-digits="4"
+        />
+      </div>
+
+      <div
+        v-if="
+          props.priceMode === 'both' &&
+          trade.priceAssetInUSD !== undefined &&
+          trade.priceAssetInUSD !== null
+        "
+      >
+        <span class="font-medium">{{ $t("trades.priceAssetInUSD") }}:</span>
+        <FormattedNumber
+          class="ml-1 text-white"
+          :value="trade.priceAssetInUSD"
+          type="currency"
+          currency="USD"
+          :maximum-fraction-digits="6"
+          :small-threshold="0.01"
+          :significant-digits="4"
+        />
+      </div>
+
+      <div
+        v-if="
+          props.priceMode === 'both' &&
+          trade.priceAssetOutUSD !== undefined &&
+          trade.priceAssetOutUSD !== null
+        "
+      >
+        <span class="font-medium">{{ $t("trades.priceAssetOutUSD") }}:</span>
+        <FormattedNumber
+          class="ml-1 text-white"
+          :value="trade.priceAssetOutUSD"
           type="currency"
           currency="USD"
           :maximum-fraction-digits="6"
@@ -216,16 +261,49 @@ const props = withDefaults(
   defineProps<{
     trade: AMMTrade;
     showFees?: boolean;
+    priceMode?: "both" | "selected";
+    selectedAssetId?: string | bigint;
   }>(),
   {
     showFees: false,
+    priceMode: "both",
   }
 );
+
+const selectedAssetIdBigInt = computed(() => {
+  if (props.selectedAssetId === undefined || props.selectedAssetId === null) {
+    return null;
+  }
+  try {
+    return typeof props.selectedAssetId === "bigint"
+      ? props.selectedAssetId
+      : BigInt(props.selectedAssetId);
+  } catch {
+    return null;
+  }
+});
+
+const selectedAssetPriceUSD = computed(() => {
+  if (props.priceMode !== "selected") return null;
+  const selected = selectedAssetIdBigInt.value;
+  if (selected === null) return null;
+
+  if (selected === props.trade.assetIdIn) return props.trade.priceAssetInUSD;
+  if (selected === props.trade.assetIdOut) return props.trade.priceAssetOutUSD;
+
+  return null;
+});
 
 const hasUsdEnrichment = computed(() => {
   return (
     (props.trade.valueUSD !== undefined && props.trade.valueUSD !== null) ||
-    (props.trade.priceUSD !== undefined && props.trade.priceUSD !== null) ||
+    (props.priceMode === "selected"
+      ? selectedAssetPriceUSD.value !== undefined &&
+        selectedAssetPriceUSD.value !== null
+      : (props.trade.priceAssetInUSD !== undefined &&
+          props.trade.priceAssetInUSD !== null) ||
+        (props.trade.priceAssetOutUSD !== undefined &&
+          props.trade.priceAssetOutUSD !== null)) ||
     (props.showFees &&
       ((props.trade.feesUSD !== undefined && props.trade.feesUSD !== null) ||
         (props.trade.feesUSDProvider !== undefined &&
