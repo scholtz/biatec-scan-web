@@ -123,14 +123,14 @@
     "defaultPlaceholder": "Search assets, pools, blocks, transactions, addresses..."
   },
   "trades": {
-    "valueUSD": "Value (USD)",
+    "valueUSD": "Value",
     "priceUSD": "Price",
     "priceAssetInUSD": "In asset price",
     "priceAssetOutUSD": "Out asset price",
     "protocol": "Protocol",
-    "feesUSD": "Fees total (USD)",
-    "feesUSDProvider": "Fees LP providers (USD)",
-    "feesUSDProtocol": "Fees protocol (USD)"
+    "feesUSD": "Fees total",
+    "feesUSDProvider": "Fees LP providers",
+    "feesUSDProtocol": "Fees protocol"
   },
   "about": {
     "title": "About Biatec Algorand Scan",

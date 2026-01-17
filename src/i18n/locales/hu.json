@@ -128,14 +128,14 @@
     "defaultPlaceholder": "Eszközök, poolok, blokkok, tranzakciók, címek keresése..."
   },
   "trades": {
-    "valueUSD": "Érték (USD)",
+    "valueUSD": "Érték",
     "priceUSD": "Ár",
     "priceAssetInUSD": "Bemeneti eszköz ára",
     "priceAssetOutUSD": "Kimeneti eszköz ára",
     "protocol": "Protokoll",
-    "feesUSD": "Összes díj (USD)",
-    "feesUSDProvider": "Likviditásszolgáltatói díjak (USD)",
-    "feesUSDProtocol": "Protokoll díjak (USD)"
+    "feesUSD": "Összes díj",
+    "feesUSDProvider": "Likviditásszolgáltatói díjak",
+    "feesUSDProtocol": "Protokoll díjak"
   },
   "about": {
     "title": "A Biatec Algorand Scan-ről",

@@ -128,14 +128,14 @@
     "defaultPlaceholder": "Assets, Pools, Blöcke, Transaktionen, Adressen suchen..."
   },
   "trades": {
-    "valueUSD": "Wert (USD)",
+    "valueUSD": "Wert",
     "priceUSD": "Preis",
     "priceAssetInUSD": "Preis Eingangs-Asset",
     "priceAssetOutUSD": "Preis Ausgangs-Asset",
     "protocol": "Protokoll",
-    "feesUSD": "Gebühren gesamt (USD)",
-    "feesUSDProvider": "Gebühren LP-Anbieter (USD)",
-    "feesUSDProtocol": "Gebühren Protokoll (USD)"
+    "feesUSD": "Gebühren gesamt",
+    "feesUSDProvider": "Gebühren LP-Anbieter",
+    "feesUSDProtocol": "Gebühren Protokoll"
   },
   "about": {
     "title": "Über Biatec Algorand Scan",

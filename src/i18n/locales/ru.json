@@ -128,14 +128,14 @@
     "defaultPlaceholder": "Поиск активов, пулов, блоков, транзакций, адресов..."
   },
   "trades": {
-    "valueUSD": "Стоимость (USD)",
+    "valueUSD": "Стоимость",
     "priceUSD": "Цена",
     "priceAssetInUSD": "Цена входного актива",
     "priceAssetOutUSD": "Цена выходного актива",
-    "feesUSD": "Комиссии всего (USD)",
-    "feesUSDProvider": "Комиссии поставщиков ликвидности (USD)",
+    "feesUSD": "Комиссии всего",
+    "feesUSDProvider": "Комиссии поставщиков ликвидности",
     "protocol": "Протокол",
-    "feesUSDProtocol": "Комиссии протокола (USD)"
+    "feesUSDProtocol": "Комиссии протокола"
   },
   "about": {
     "title": "О Biatec Algorand Scan",

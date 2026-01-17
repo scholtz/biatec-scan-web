@@ -128,14 +128,14 @@
     "defaultPlaceholder": "Wyszukaj zasoby, pule, bloki, transakcje, adresy…"
   },
   "trades": {
-    "valueUSD": "Wartość (USD)",
+    "valueUSD": "Wartość",
     "priceUSD": "Cena",
     "priceAssetInUSD": "Cena aktywa wejściowego",
     "priceAssetOutUSD": "Cena aktywa wyjściowego",
     "protocol": "Protokół",
-    "feesUSD": "Opłaty łącznie (USD)",
-    "feesUSDProvider": "Opłaty dostawców płynności (USD)",
-    "feesUSDProtocol": "Opłaty protokołu (USD)"
+    "feesUSD": "Opłaty łącznie",
+    "feesUSDProvider": "Opłaty dostawców płynności",
+    "feesUSDProtocol": "Opłaty protokołu"
   },
   "about": {
     "title": "O aplikacji Biatec Algorand Scan",

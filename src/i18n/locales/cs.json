@@ -123,14 +123,14 @@
     "defaultPlaceholder": "Vyhledat assety, pooly, bloky, transakce, adresy..."
   },
   "trades": {
-    "valueUSD": "Hodnota (USD)",
+    "valueUSD": "Hodnota",
     "priceUSD": "Cena",
     "priceAssetInUSD": "Cena vstupního aktiva",
     "priceAssetOutUSD": "Cena výstupního aktiva",
     "protocol": "Protokol",
-    "feesUSD": "Poplatky celkem (USD)",
-    "feesUSDProvider": "Poplatky poskytovatelů likvidity (USD)",
-    "feesUSDProtocol": "Poplatky protokolu (USD)"
+    "feesUSD": "Poplatky celkem",
+    "feesUSDProvider": "Poplatky poskytovatelů likvidity",
+    "feesUSDProtocol": "Poplatky protokolu"
   },
   "about": {
     "title": "O aplikaci Biatec Algorand Scan",
