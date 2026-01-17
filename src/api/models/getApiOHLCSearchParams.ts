@@ -156,9 +156,8 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export type GetApiAssetParams = {
-ids?: string;
-search?: string;
-offset?: number;
-size?: number;
+export type GetApiOHLCSearchParams = {
+query?: string;
+type?: string;
+limit?: number;
 };

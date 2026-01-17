@@ -156,9 +156,11 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export type GetApiAssetParams = {
-ids?: string;
-search?: string;
-offset?: number;
-size?: number;
-};
+export type LiquidityDirection = typeof LiquidityDirection[keyof typeof LiquidityDirection];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const LiquidityDirection = {
+  DepositLiquidity: 'DepositLiquidity',
+  WithdrawLiquidity: 'WithdrawLiquidity',
+} as const;
