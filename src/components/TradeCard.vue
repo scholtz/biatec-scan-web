@@ -109,6 +109,14 @@
     </div>
 
     <div
+      v-if="props.extendedDisplay && trade.protocol"
+      class="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-xs text-gray-400 justify-center"
+    >
+      <span class="font-medium">{{ $t("trades.protocol") }}:</span>
+      <span class="text-white">{{ trade.protocol }}</span>
+    </div>
+
+    <div
       v-if="hasUsdEnrichment"
       class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400 justify-center"
     >

@@ -132,6 +132,7 @@
     "priceUSD": "Precio",
     "priceAssetInUSD": "Precio del activo de entrada",
     "priceAssetOutUSD": "Precio del activo de salida",
+    "protocol": "Protocolo",
     "feesUSD": "Comisiones totales (USD)",
     "feesUSDProvider": "Comisiones proveedores de liquidez (USD)",
     "feesUSDProtocol": "Comisiones del protocolo (USD)"

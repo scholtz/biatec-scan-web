@@ -127,6 +127,7 @@
     "priceUSD": "Price",
     "priceAssetInUSD": "In asset price",
     "priceAssetOutUSD": "Out asset price",
+    "protocol": "Protocol",
     "feesUSD": "Fees total (USD)",
     "feesUSDProvider": "Fees LP providers (USD)",
     "feesUSDProtocol": "Fees protocol (USD)"

@@ -132,6 +132,7 @@
     "priceUSD": "Preis",
     "priceAssetInUSD": "Preis Eingangs-Asset",
     "priceAssetOutUSD": "Preis Ausgangs-Asset",
+    "protocol": "Protokoll",
     "feesUSD": "Gebühren gesamt (USD)",
     "feesUSDProvider": "Gebühren LP-Anbieter (USD)",
     "feesUSDProtocol": "Gebühren Protokoll (USD)"

@@ -132,6 +132,7 @@
     "priceUSD": "Cena",
     "priceAssetInUSD": "Cena aktywa wejściowego",
     "priceAssetOutUSD": "Cena aktywa wyjściowego",
+    "protocol": "Protokół",
     "feesUSD": "Opłaty łącznie (USD)",
     "feesUSDProvider": "Opłaty dostawców płynności (USD)",
     "feesUSDProtocol": "Opłaty protokołu (USD)"

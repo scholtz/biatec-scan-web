@@ -132,6 +132,7 @@
     "priceUSD": "Ár",
     "priceAssetInUSD": "Bemeneti eszköz ára",
     "priceAssetOutUSD": "Kimeneti eszköz ára",
+    "protocol": "Protokoll",
     "feesUSD": "Összes díj (USD)",
     "feesUSDProvider": "Likviditásszolgáltatói díjak (USD)",
     "feesUSDProtocol": "Protokoll díjak (USD)"

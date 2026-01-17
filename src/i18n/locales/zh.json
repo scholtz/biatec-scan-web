@@ -127,6 +127,7 @@
     "priceUSD": "价格",
     "priceAssetInUSD": "输入资产价格",
     "priceAssetOutUSD": "输出资产价格",
+    "protocol": "协议",
     "feesUSD": "手续费合计（USD）",
     "feesUSDProvider": "流动性提供者手续费（USD）",
     "feesUSDProtocol": "协议手续费（USD）"

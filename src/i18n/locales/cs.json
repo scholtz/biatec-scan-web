@@ -127,6 +127,7 @@
     "priceUSD": "Cena",
     "priceAssetInUSD": "Cena vstupního aktiva",
     "priceAssetOutUSD": "Cena výstupního aktiva",
+    "protocol": "Protokol",
     "feesUSD": "Poplatky celkem (USD)",
     "feesUSDProvider": "Poplatky poskytovatelů likvidity (USD)",
     "feesUSDProtocol": "Poplatky protokolu (USD)"

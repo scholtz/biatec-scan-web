@@ -134,6 +134,7 @@
     "priceAssetOutUSD": "Цена выходного актива",
     "feesUSD": "Комиссии всего (USD)",
     "feesUSDProvider": "Комиссии поставщиков ликвидности (USD)",
+    "protocol": "Протокол",
     "feesUSDProtocol": "Комиссии протокола (USD)"
   },
   "about": {
