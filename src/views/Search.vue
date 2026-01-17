@@ -180,10 +180,25 @@
               </div>
               <div class="text-right">
                 <div v-if="asset.priceUSD" class="text-sm text-green-400">
-                  {{ formatUSD(asset.priceUSD) }}
+                  <FormattedNumber
+                    :value="asset.priceUSD"
+                    type="currency"
+                    currency="USD"
+                    :maximum-fraction-digits="6"
+                    :small-threshold="0.01"
+                    :significant-digits="4"
+                  />
                 </div>
                 <div v-if="asset.tvL_USD" class="text-xs text-gray-400">
-                  TVL: {{ formatUSD(asset.tvL_USD) }}
+                  TVL:
+                  <FormattedNumber
+                    :value="asset.tvL_USD"
+                    type="currency"
+                    currency="USD"
+                    :maximum-fraction-digits="2"
+                    :small-threshold="0.01"
+                    :significant-digits="4"
+                  />
                 </div>
               </div>
             </div>
@@ -233,12 +248,17 @@
                   class="text-sm text-green-400"
                 >
                   TVL:
-                  {{
-                    formatUSD(
+                  <FormattedNumber
+                    :value="
                       (pool.totalTVLAssetAInUSD || 0) +
-                        (pool.totalTVLAssetBInUSD || 0)
-                    )
-                  }}
+                      (pool.totalTVLAssetBInUSD || 0)
+                    "
+                    type="currency"
+                    currency="USD"
+                    :maximum-fraction-digits="2"
+                    :small-threshold="0.01"
+                    :significant-digits="4"
+                  />
                 </div>
               </div>
             </div>
@@ -290,12 +310,17 @@
                   class="text-sm text-green-400"
                 >
                   TVL:
-                  {{
-                    formatUSD(
+                  <FormattedNumber
+                    :value="
                       (aggPool.totalTVLAssetAInUSD || 0) +
-                        (aggPool.totalTVLAssetBInUSD || 0)
-                    )
-                  }}
+                      (aggPool.totalTVLAssetBInUSD || 0)
+                    "
+                    type="currency"
+                    currency="USD"
+                    :maximum-fraction-digits="2"
+                    :small-threshold="0.01"
+                    :significant-digits="4"
+                  />
                 </div>
               </div>
             </div>
@@ -584,12 +609,13 @@ import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
+import FormattedNumber from "../components/FormattedNumber.vue";
 import type { SearchResponse, BiatecAsset, Pool } from "../api/models";
 import algosdk from "algosdk";
 
 const route = useRoute();
 const router = useRouter();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const api = getAVMTradeReporterAPI();
 const searchQuery = ref("");
 const searchResult = ref<SearchResponse | null>(null);
@@ -704,17 +730,10 @@ function formatPoolName(pool: Pool): string {
 }
 
 function formatTradeAmount(amount: number, decimals: number = 6): string {
-  return (amount / Math.pow(10, decimals)).toLocaleString("en-US", {
+  return (amount / Math.pow(10, decimals)).toLocaleString(locale.value, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 6,
   });
-}
-
-function formatUSD(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
 }
 
 function formatAddress(address: string): string {

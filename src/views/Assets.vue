@@ -86,7 +86,17 @@
                 {{ $t("assets.price") }}
               </div>
               <div class="text-xs text-white font-mono">
-                {{ formatPrice(a) }}
+                <template v-if="a.priceUSD === undefined || a.priceUSD === null">-</template>
+                <template v-else>
+                  <FormattedNumber
+                    :value="a.priceUSD"
+                    type="number"
+                    :minimum-fraction-digits="2"
+                    :maximum-fraction-digits="6"
+                    :small-threshold="0.01"
+                    :significant-digits="4"
+                  />
+                </template>
               </div>
             </div>
             <div class="text-right">
@@ -94,7 +104,16 @@
                 {{ $t("assets.realTvl") }}
               </div>
               <div class="text-xs text-white font-mono">
-                {{ formatRealTVL(a) }}
+                <template v-if="a.tvL_USD === undefined || a.tvL_USD === null">-</template>
+                <template v-else>
+                  <FormattedNumber
+                    :value="a.tvL_USD"
+                    type="number"
+                    :maximum-fraction-digits="2"
+                    :small-threshold="0.01"
+                    :significant-digits="4"
+                  />
+                </template>
               </div>
             </div>
             <RouterLink
@@ -190,13 +209,41 @@
               {{ a.params?.decimals ?? 0 }}
             </div>
             <div class="text-sm text-white text-right">
-              {{ formatPrice(a) }}
+              <template v-if="a.priceUSD === undefined || a.priceUSD === null">-</template>
+              <template v-else>
+                <FormattedNumber
+                  :value="a.priceUSD"
+                  type="number"
+                  :minimum-fraction-digits="2"
+                  :maximum-fraction-digits="6"
+                  :small-threshold="0.01"
+                  :significant-digits="4"
+                />
+              </template>
             </div>
             <div class="text-sm text-white text-right">
-              {{ formatRealTVL(a) }}
+              <template v-if="a.tvL_USD === undefined || a.tvL_USD === null">-</template>
+              <template v-else>
+                <FormattedNumber
+                  :value="a.tvL_USD"
+                  type="number"
+                  :maximum-fraction-digits="2"
+                  :small-threshold="0.01"
+                  :significant-digits="4"
+                />
+              </template>
             </div>
             <div class="text-sm text-white text-right">
-              {{ formatTotalTVL(a) }}
+              <template v-if="a.totalTVLAssetInUSD === undefined || a.totalTVLAssetInUSD === null">-</template>
+              <template v-else>
+                <FormattedNumber
+                  :value="a.totalTVLAssetInUSD"
+                  type="number"
+                  :maximum-fraction-digits="2"
+                  :small-threshold="0.01"
+                  :significant-digits="4"
+                />
+              </template>
             </div>
             <div class="text-xs text-gray-400 text-right">
               <FormattedTime
@@ -279,6 +326,7 @@ import { BiatecAsset } from "../api/models";
 import { signalrService } from "../services/signalrService";
 import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
+import FormattedNumber from "../components/FormattedNumber.vue";
 import { favoriteService } from "../services/favoriteService";
 
 const { t } = useI18n();
@@ -533,29 +581,6 @@ function prevPage() {
 function changePageSize() {
   state.page = 1;
   fetchAssets();
-}
-
-function formatPrice(a: BiatecAsset) {
-  if (a.priceUSD === undefined || a.priceUSD === null) return "-";
-  return a.priceUSD.toLocaleString(undefined, {
-    minimumFractionDigits: 6,
-    maximumFractionDigits: 6,
-  });
-}
-function formatRealTVL(a: BiatecAsset) {
-  if (a.tvL_USD === undefined || a.tvL_USD === null) return "-";
-  return a.tvL_USD.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-function formatTotalTVL(a: BiatecAsset) {
-  if (a.totalTVLAssetInUSD === undefined || a.totalTVLAssetInUSD === null)
-    return "-";
-  return a.totalTVLAssetInUSD.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
 }
 function assetImageUrl(id: number) {
   return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;

@@ -24,7 +24,21 @@
             :to="`/asset/${state.asset.index}`"
             class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
-            {{ formattedPrice }}
+            <template v-if="assetInfoA === null">{{ t("common.loading") }}</template>
+            <template v-else>
+              <template v-if="state.asset.priceUSD === undefined || state.asset.priceUSD === null">-</template>
+              <template v-else>
+                <FormattedNumber
+                  :value="Number(state.asset.priceUSD)"
+                  type="number"
+                  :minimum-fraction-digits="2"
+                  :maximum-fraction-digits="6"
+                  :small-threshold="0.01"
+                  :significant-digits="4"
+                />
+                {{ " " }}{{ assetInfoA.unitName }}/USD
+              </template>
+            </template>
           </RouterLink>
         </div>
         <div class="text-sm text-white text-right">
@@ -32,7 +46,17 @@
             :to="`/pools/${state.asset.index}`"
             class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
-            {{ formattedTVL }}
+            <template v-if="state.asset.tvL_USD === undefined || state.asset.tvL_USD === null">-</template>
+            <template v-else>
+              <FormattedNumber
+                :value="Number(state.asset.tvL_USD)"
+                type="currency"
+                currency="USD"
+                :maximum-fraction-digits="2"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
+            </template>
           </RouterLink>
         </div>
       </div>
@@ -48,6 +72,7 @@ import FormattedTime from "./FormattedTime.vue";
 import { signalrService } from "../services/signalrService";
 import { BiatecAsset } from "../api/models";
 import StyledBox from "./StyledBox.vue";
+import FormattedNumber from "./FormattedNumber.vue";
 
 const { t } = useI18n();
 
@@ -74,25 +99,16 @@ const assetUpdateEvent = (asset: BiatecAsset) => {
   }
 };
 
-const formattedTVL = computed(() => {
-  return `${Number(state.asset.tvL_USD).toLocaleString()} USD`;
-});
-
-const formattedPrice = computed(() => {
+const assetInfoA = computed(() => {
   void state.forceUpdate;
-  if (state.asset.priceUSD === undefined || state.asset.priceUSD === null)
-    return "-";
-  const assetInfoA = assetService.getAssetInfo(state.asset.index);
-  if (!assetInfoA) {
+  const assetInfo = assetService.getAssetInfo(state.asset.index);
+  if (!assetInfo) {
     // Request asset loading and trigger re-render when loaded
     assetService.requestAsset(state.asset.index, () => {
       state.forceUpdate++;
     });
-    return t("common.loading");
+    return null;
   }
-  return `${Number(state.asset.priceUSD).toLocaleString(undefined, {
-    minimumFractionDigits: 6,
-    maximumFractionDigits: 6,
-  })} ${assetInfoA.unitName}/USD`;
+  return assetInfo;
 });
 </script>

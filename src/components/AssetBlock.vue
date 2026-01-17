@@ -28,13 +28,32 @@
         <div class="flex justify-between items-center">
           <span class="text-xs text-gray-400">Price (USD)</span>
           <span class="text-sm text-white font-mono">
-            {{ formatPrice(asset) }}
+            <template v-if="asset.priceUSD === undefined || asset.priceUSD === null">-</template>
+            <template v-else>
+              <FormattedNumber
+                :value="asset.priceUSD"
+                type="number"
+                :minimum-fraction-digits="2"
+                :maximum-fraction-digits="6"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
+            </template>
           </span>
         </div>
         <div class="flex justify-between items-center">
           <span class="text-xs text-gray-400">Real TVL</span>
           <span class="text-sm text-white font-mono">
-            {{ formatRealTVL(asset) }}
+            <template v-if="asset.tvL_USD === undefined || asset.tvL_USD === null">-</template>
+            <template v-else>
+              <FormattedNumber
+                :value="asset.tvL_USD"
+                type="number"
+                :maximum-fraction-digits="2"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
+            </template>
           </span>
         </div>
         <div class="flex justify-between items-center">
@@ -88,6 +107,7 @@
 import { computed, ref } from 'vue';
 import type { BiatecAsset } from '../api/models';
 import { favoriteService } from '../services/favoriteService';
+import FormattedNumber from './FormattedNumber.vue';
 
 interface Props {
   asset: BiatecAsset;
@@ -132,21 +152,6 @@ const toggleFavorite = () => {
   favoritesRef.value = new Set(favoritesRef.value);
 };
 
-const formatPrice = (asset: BiatecAsset) => {
-  if (asset.priceUSD === undefined || asset.priceUSD === null) return "-";
-  return asset.priceUSD.toLocaleString(undefined, {
-    minimumFractionDigits: 6,
-    maximumFractionDigits: 6,
-  });
-};
-
-const formatRealTVL = (asset: BiatecAsset) => {
-  if (asset.tvL_USD === undefined || asset.tvL_USD === null) return "-";
-  return asset.tvL_USD.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
 </script>
 
 <style scoped>

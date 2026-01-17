@@ -51,7 +51,14 @@
                 $t("addressDetails.balance")
               }}</span>
               <span class="text-white font-mono">
-                {{ formatUSD(totalValueUSD) }}
+                <FormattedNumber
+                  :value="totalValueUSD"
+                  type="currency"
+                  currency="USD"
+                  :maximum-fraction-digits="2"
+                  :small-threshold="0.01"
+                  :significant-digits="4"
+                />
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -173,7 +180,14 @@
                   </span>
                 </div>
                 <div class="text-xs text-gray-500" v-if="asset.priceUSD > 0">
-                  {{ formatUSD(asset.priceUSD) }}
+                  <FormattedNumber
+                    :value="asset.priceUSD"
+                    type="currency"
+                    currency="USD"
+                    :maximum-fraction-digits="6"
+                    :small-threshold="0.01"
+                    :significant-digits="4"
+                  />
                   {{ $t("addressDetails.perUnit") }}
                 </div>
               </div>
@@ -182,7 +196,14 @@
                   {{ formatAssetAmount(asset.amount, asset["asset-id"]) }}
                 </div>
                 <div class="text-sm text-green-400" v-if="asset.valueUSD > 0">
-                  {{ formatUSD(asset.valueUSD) }}
+                  <FormattedNumber
+                    :value="asset.valueUSD"
+                    type="currency"
+                    currency="USD"
+                    :maximum-fraction-digits="2"
+                    :small-threshold="0.01"
+                    :significant-digits="4"
+                  />
                 </div>
               </div>
             </div>
@@ -263,8 +284,9 @@ import { assetService } from "../services/assetService";
 import { getAVMTradeReporterAPI } from "../api";
 import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
+import FormattedNumber from "../components/FormattedNumber.vue";
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const api = getAVMTradeReporterAPI();
 
 interface AccountAsset {
@@ -472,15 +494,6 @@ const formatAlgoAmount = (microAlgos: number): string => {
 
 const formatAssetAmount = (amount: number, assetId: number): string => {
   return assetService.formatAssetBalance(BigInt(amount), BigInt(assetId));
-};
-
-const formatUSD = (amount: number): string => {
-  return new Intl.NumberFormat(locale.value, {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
 };
 
 const formatTransactionType = (txType: string): string => {

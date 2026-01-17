@@ -13,14 +13,14 @@
               :to="`/pools/${state.algoPrice.assetIdA}/${state.algoPrice.assetIdB}`"
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
             >
-              {{
-                new Number(
-                  state.algoPrice.virtualSumB / state.algoPrice.virtualSumA
-                ).toLocaleString(undefined, {
-                  minimumFractionDigits: 6,
-                  maximumFractionDigits: 6,
-                })
-              }}
+              <FormattedNumber
+                :value="state.algoPrice.virtualSumB / state.algoPrice.virtualSumA"
+                type="number"
+                :minimum-fraction-digits="2"
+                :maximum-fraction-digits="6"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
             </RouterLink>
           </div>
         </h3>
@@ -243,6 +243,7 @@ import AssetCard from "../components/AssetCard.vue";
 import { BiatecBlock } from "../types/BiatecBlock";
 import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
 import StyledBox from "../components/StyledBox.vue";
+import FormattedNumber from "../components/FormattedNumber.vue";
 import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
 
 const { t } = useI18n();
