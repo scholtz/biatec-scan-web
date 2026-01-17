@@ -104,6 +104,24 @@
         <!-- <p class="text-xs text-gray-500">ID: {{ trade.assetIdOut }}</p> -->
       </div>
     </div>
+
+    <div
+      v-if="hasUsdEnrichment"
+      class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400 justify-center"
+    >
+      <div v-if="trade.valueUSD !== undefined && trade.valueUSD !== null">
+        <span class="font-medium">{{ $t('trades.valueUSD') }}:</span>
+        <span class="ml-1 text-white">{{ formatUSD(trade.valueUSD, 2) }}</span>
+      </div>
+      <div v-if="trade.priceUSD !== undefined && trade.priceUSD !== null">
+        <span class="font-medium">{{ $t('trades.priceUSD') }}:</span>
+        <span class="ml-1 text-white">{{ formatUSD(trade.priceUSD, 6) }}</span>
+      </div>
+      <div v-if="trade.feesUSD !== undefined && trade.feesUSD !== null">
+        <span class="font-medium">{{ $t('trades.feesUSD') }}:</span>
+        <span class="ml-1 text-white">{{ formatUSD(trade.feesUSD, 2) }}</span>
+      </div>
+    </div>
   </StyledBox>
 </template>
 
@@ -116,7 +134,7 @@ import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
 import StyledBox from "./StyledBox.vue";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const state = reactive({
   forceUpdate: 0, // Used to trigger reactivity when assets are loaded
@@ -125,6 +143,26 @@ const state = reactive({
 const props = defineProps<{
   trade: AMMTrade;
 }>();
+
+const hasUsdEnrichment = computed(() => {
+  return (
+    props.trade.valueUSD !== undefined &&
+      props.trade.valueUSD !== null ||
+    props.trade.priceUSD !== undefined &&
+      props.trade.priceUSD !== null ||
+    props.trade.feesUSD !== undefined &&
+      props.trade.feesUSD !== null
+  );
+});
+
+const formatUSD = (amount: number, maximumFractionDigits: number): string => {
+  return new Intl.NumberFormat(locale.value, {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits,
+  }).format(amount);
+};
 
 const formattedAssetIn = computed(() => {
   // Add dependency on forceUpdate to trigger re-computation when assets load

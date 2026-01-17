@@ -122,6 +122,11 @@
     "addressPlaceholder": "Adresa rozpoznaná - stlač Enter na vyhľadanie",
     "defaultPlaceholder": "Vyhľadať assety, pooly, bloky, transakcie, adresy..."
   },
+  "trades": {
+    "valueUSD": "Hodnota (USD)",
+    "priceUSD": "Cena (USD)",
+    "feesUSD": "Poplatky (USD)"
+  },
   "about": {
     "title": "O Biatec Algorand Scan",
     "description": "Biatec Algorand Scan je prieskumník v reálnom čase zameraný na aktivitu decentralizovaných búrz (DEX) na Algorand blockchaine. Streamuje bloky v reálnom čase, obchody, likviditné udalosti, pooly, agregované štatistiky poolov a metadata assetov prostredníctvom vysoko výkonného SignalR hubu, podporovaného Elasticsearch indexovaním a protocol-aware obohatením (Pact, Tiny, Biatec AMMs).",

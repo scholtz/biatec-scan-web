@@ -109,6 +109,10 @@ export interface AMMTrade {
   assetIdOut: bigint;
   assetAmountIn: number;
   assetAmountOut: number;
+  /** Optional enrichment fields from Trade Reporter API */
+  valueUSD?: number | null;
+  priceUSD?: number | null;
+  feesUSD?: number | null;
   txId: string;
   blockId: bigint;
   txGroup: string;

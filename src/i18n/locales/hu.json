@@ -127,6 +127,11 @@
     "addressPlaceholder": "Cím felismerve - nyomja meg az Enter-t a kereséshez",
     "defaultPlaceholder": "Eszközök, poolok, blokkok, tranzakciók, címek keresése..."
   },
+  "trades": {
+    "valueUSD": "Érték (USD)",
+    "priceUSD": "Ár (USD)",
+    "feesUSD": "Díjak (USD)"
+  },
   "about": {
     "title": "A Biatec Algorand Scan-ről",
     "description": "A Biatec Algorand Scan egy valós idejű felderítő, amely az Algorand blokkláncon zajló decentralizált tőzsdei (DEX) tevékenységre összpontosít. Élő blokkokat, kereskedéseket, likviditási eseményeket, poolokat, összesített pool statisztikákat és eszköz metaadatokat közvetít egy nagy teljesítményű SignalR hub-on keresztül, amelyet Elasticsearch indexelés és protokoll-tudatos bővítés támogat (Pact, Tiny, Biatec AMM-ek).",

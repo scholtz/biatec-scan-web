@@ -122,6 +122,11 @@
     "addressPlaceholder": "检测到地址 - 按 Enter 搜索",
     "defaultPlaceholder": "搜索资产、资金池、区块、交易、地址..."
   },
+  "trades": {
+    "valueUSD": "价值（USD）",
+    "priceUSD": "价格（USD）",
+    "feesUSD": "手续费（USD）"
+  },
   "about": {
     "title": "关于 Biatec Algorand 扫描",
     "description": "Biatec Algorand 扫描是专注于 Algorand 区块链上去中心化交易所（DEX）活动的实时浏览器。它通过高性能 SignalR 中心流式传输实时区块、交易、流动性事件、资金池、聚合资金池统计和资产元数据，由 Elasticsearch 索引和协议感知增强（Pact、Tiny、Biatec AMM）支持。",

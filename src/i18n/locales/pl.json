@@ -127,6 +127,11 @@
     "addressPlaceholder": "Rozpoznany adres — naciśnij Enter, aby wyszukać",
     "defaultPlaceholder": "Wyszukaj zasoby, pule, bloki, transakcje, adresy…"
   },
+  "trades": {
+    "valueUSD": "Wartość (USD)",
+    "priceUSD": "Cena (USD)",
+    "feesUSD": "Opłaty (USD)"
+  },
   "about": {
     "title": "O aplikacji Biatec Algorand Scan",
     "description": "Biatec Algorand Scan to eksplorator w czasie rzeczywistym, skupiony na aktywności zdecentralizowanych giełd (DEX) na blockchainie Algorand. Na żywo przesyła bloki, transakcje, zdarzenia płynności, pule, zagregowane statystyki pul i metadane zasobów przez wysokowydajny hub SignalR, z backendem opartym na indeksowaniu Elasticsearch i wzbogacaniu z uwzględnieniem specyfiki protokołów (Pact, Tiny, Biatec AMM).",

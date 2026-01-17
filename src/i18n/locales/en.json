@@ -122,6 +122,11 @@
     "addressPlaceholder": "Address detected - press Enter to search",
     "defaultPlaceholder": "Search assets, pools, blocks, transactions, addresses..."
   },
+  "trades": {
+    "valueUSD": "Value (USD)",
+    "priceUSD": "Price (USD)",
+    "feesUSD": "Fees (USD)"
+  },
   "about": {
     "title": "About Biatec Algorand Scan",
     "description": "Biatec Algorand Scan is a real-time explorer focused on decentralized exchange (DEX) activity on the Algorand blockchain. It streams live blocks, trades, liquidity events, pools, aggregated pool statistics and asset metadata via a high-performance SignalR hub, backed by Elasticsearch indexing and protocol-aware enrichment (Pact, Tiny, Biatec AMMs).",
