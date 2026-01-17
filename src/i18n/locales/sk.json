@@ -125,7 +125,9 @@
   "trades": {
     "valueUSD": "Hodnota (USD)",
     "priceUSD": "Cena (USD)",
-    "feesUSD": "Poplatky (USD)"
+    "feesUSD": "Poplatky spolu (USD)",
+    "feesUSDProvider": "Poplatky poskytovateľov likvidity (USD)",
+    "feesUSDProtocol": "Poplatky protokolu (USD)"
   },
   "about": {
     "title": "O Biatec Algorand Scan",

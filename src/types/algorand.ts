@@ -113,6 +113,8 @@ export interface AMMTrade {
   valueUSD?: number | null;
   priceUSD?: number | null;
   feesUSD?: number | null;
+  feesUSDProvider?: number | null;
+  feesUSDProtocol?: number | null;
   txId: string;
   blockId: bigint;
   txGroup: string;

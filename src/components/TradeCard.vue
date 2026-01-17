@@ -124,6 +124,20 @@
         <span class="font-medium">{{ $t("trades.feesUSD") }}:</span>
         <span class="ml-1 text-white">{{ formatUSD(trade.feesUSD, 2) }}</span>
       </div>
+
+      <div
+        v-if="trade.feesUSDProvider !== undefined && trade.feesUSDProvider !== null"
+      >
+        <span class="font-medium">{{ $t("trades.feesUSDProvider") }}:</span>
+        <span class="ml-1 text-white">{{ formatUSD(trade.feesUSDProvider, 2) }}</span>
+      </div>
+
+      <div
+        v-if="trade.feesUSDProtocol !== undefined && trade.feesUSDProtocol !== null"
+      >
+        <span class="font-medium">{{ $t("trades.feesUSDProtocol") }}:</span>
+        <span class="ml-1 text-white">{{ formatUSD(trade.feesUSDProtocol, 2) }}</span>
+      </div>
     </div>
   </StyledBox>
 </template>
@@ -151,7 +165,11 @@ const hasUsdEnrichment = computed(() => {
   return (
     (props.trade.valueUSD !== undefined && props.trade.valueUSD !== null) ||
     (props.trade.priceUSD !== undefined && props.trade.priceUSD !== null) ||
-    (props.trade.feesUSD !== undefined && props.trade.feesUSD !== null)
+    (props.trade.feesUSD !== undefined && props.trade.feesUSD !== null) ||
+    (props.trade.feesUSDProvider !== undefined &&
+      props.trade.feesUSDProvider !== null) ||
+    (props.trade.feesUSDProtocol !== undefined &&
+      props.trade.feesUSDProtocol !== null)
   );
 });
 

@@ -130,7 +130,9 @@
   "trades": {
     "valueUSD": "Érték (USD)",
     "priceUSD": "Ár (USD)",
-    "feesUSD": "Díjak (USD)"
+    "feesUSD": "Összes díj (USD)",
+    "feesUSDProvider": "Likviditásszolgáltatói díjak (USD)",
+    "feesUSDProtocol": "Protokoll díjak (USD)"
   },
   "about": {
     "title": "A Biatec Algorand Scan-ről",

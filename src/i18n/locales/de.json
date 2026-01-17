@@ -130,7 +130,9 @@
   "trades": {
     "valueUSD": "Wert (USD)",
     "priceUSD": "Preis (USD)",
-    "feesUSD": "Gebühren (USD)"
+    "feesUSD": "Gebühren gesamt (USD)",
+    "feesUSDProvider": "Gebühren LP-Anbieter (USD)",
+    "feesUSDProtocol": "Gebühren Protokoll (USD)"
   },
   "about": {
     "title": "Über Biatec Algorand Scan",

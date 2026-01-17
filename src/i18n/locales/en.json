@@ -125,7 +125,9 @@
   "trades": {
     "valueUSD": "Value (USD)",
     "priceUSD": "Price (USD)",
-    "feesUSD": "Fees (USD)"
+    "feesUSD": "Fees total (USD)",
+    "feesUSDProvider": "Fees LP providers (USD)",
+    "feesUSDProtocol": "Fees protocol (USD)"
   },
   "about": {
     "title": "About Biatec Algorand Scan",

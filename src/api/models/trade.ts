@@ -192,4 +192,8 @@ export interface Trade {
   priceUSD?: number | null;
   /** @nullable */
   feesUSD?: number | null;
+  /** @nullable */
+  feesUSDProvider?: number | null;
+  /** @nullable */
+  feesUSDProtocol?: number | null;
 }

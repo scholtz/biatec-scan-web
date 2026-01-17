@@ -130,7 +130,9 @@
   "trades": {
     "valueUSD": "Стоимость (USD)",
     "priceUSD": "Цена (USD)",
-    "feesUSD": "Комиссии (USD)"
+    "feesUSD": "Комиссии всего (USD)",
+    "feesUSDProvider": "Комиссии поставщиков ликвидности (USD)",
+    "feesUSDProtocol": "Комиссии протокола (USD)"
   },
   "about": {
     "title": "О Biatec Algorand Scan",

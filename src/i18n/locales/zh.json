@@ -125,7 +125,9 @@
   "trades": {
     "valueUSD": "价值（USD）",
     "priceUSD": "价格（USD）",
-    "feesUSD": "手续费（USD）"
+    "feesUSD": "手续费合计（USD）",
+    "feesUSDProvider": "流动性提供者手续费（USD）",
+    "feesUSDProtocol": "协议手续费（USD）"
   },
   "about": {
     "title": "关于 Biatec Algorand 扫描",
