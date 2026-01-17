@@ -136,7 +136,13 @@
           :significant-digits="4"
         />
       </div>
-      <div v-if="trade.feesUSD !== undefined && trade.feesUSD !== null">
+      <div
+        v-if="
+          props.showFees &&
+          trade.feesUSD !== undefined &&
+          trade.feesUSD !== null
+        "
+      >
         <span class="font-medium">{{ $t("trades.feesUSD") }}:</span>
         <FormattedNumber
           class="ml-1 text-white"
@@ -151,6 +157,7 @@
 
       <div
         v-if="
+          props.showFees &&
           trade.feesUSDProvider !== undefined && trade.feesUSDProvider !== null
         "
       >
@@ -168,6 +175,7 @@
 
       <div
         v-if="
+          props.showFees &&
           trade.feesUSDProtocol !== undefined && trade.feesUSDProtocol !== null
         "
       >
@@ -202,19 +210,26 @@ const state = reactive({
   forceUpdate: 0, // Used to trigger reactivity when assets are loaded
 });
 
-const props = defineProps<{
-  trade: AMMTrade;
-}>();
+const props = withDefaults(
+  defineProps<{
+    trade: AMMTrade;
+    showFees?: boolean;
+  }>(),
+  {
+    showFees: false,
+  }
+);
 
 const hasUsdEnrichment = computed(() => {
   return (
     (props.trade.valueUSD !== undefined && props.trade.valueUSD !== null) ||
     (props.trade.priceUSD !== undefined && props.trade.priceUSD !== null) ||
-    (props.trade.feesUSD !== undefined && props.trade.feesUSD !== null) ||
-    (props.trade.feesUSDProvider !== undefined &&
-      props.trade.feesUSDProvider !== null) ||
-    (props.trade.feesUSDProtocol !== undefined &&
-      props.trade.feesUSDProtocol !== null)
+    (props.showFees &&
+      ((props.trade.feesUSD !== undefined && props.trade.feesUSD !== null) ||
+        (props.trade.feesUSDProvider !== undefined &&
+          props.trade.feesUSDProvider !== null) ||
+        (props.trade.feesUSDProtocol !== undefined &&
+          props.trade.feesUSDProtocol !== null)))
   );
 });
 

@@ -26,7 +26,7 @@
         :key="`${trade.txId}-${trade.timestamp}`"
         class="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800/70 transition-colors"
       >
-        <TradeCard :trade="convertToAMMTrade(trade)" />
+        <TradeCard :trade="convertToAMMTrade(trade)" :show-fees="true" />
       </div>
     </div>
   </div>
