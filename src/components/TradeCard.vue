@@ -151,7 +151,7 @@
 
       <div
         v-if="
-          props.showFees &&
+          props.extendedDisplay &&
           props.priceMode === 'both' &&
           trade.priceAssetInUSD !== undefined &&
           trade.priceAssetInUSD !== null
@@ -176,7 +176,7 @@
 
       <div
         v-if="
-          props.showFees &&
+          props.extendedDisplay &&
           props.priceMode === 'both' &&
           trade.priceAssetOutUSD !== undefined &&
           trade.priceAssetOutUSD !== null &&
@@ -201,7 +201,7 @@
       </div>
       <div
         v-if="
-          props.showFees &&
+          props.extendedDisplay &&
           trade.feesUSD !== undefined &&
           trade.feesUSD !== null
         "
@@ -220,7 +220,7 @@
 
       <div
         v-if="
-          props.showFees &&
+          props.extendedDisplay &&
           trade.feesUSDProvider !== undefined &&
           trade.feesUSDProvider !== null
         "
@@ -239,7 +239,7 @@
 
       <div
         v-if="
-          props.showFees &&
+          props.extendedDisplay &&
           trade.feesUSDProtocol !== undefined &&
           trade.feesUSDProtocol !== null
         "
@@ -278,12 +278,12 @@ const state = reactive({
 const props = withDefaults(
   defineProps<{
     trade: AMMTrade;
-    showFees?: boolean;
+    extendedDisplay?: boolean;
     priceMode?: "both" | "selected";
     selectedAssetId?: string | bigint;
   }>(),
   {
-    showFees: false,
+    extendedDisplay: false,
     priceMode: "both",
   }
 );
@@ -364,7 +364,7 @@ const hasUsdEnrichment = computed(() => {
           props.trade.priceAssetInUSD !== null) ||
         (props.trade.priceAssetOutUSD !== undefined &&
           props.trade.priceAssetOutUSD !== null)) ||
-    (props.showFees &&
+    (props.extendedDisplay &&
       ((props.trade.feesUSD !== undefined && props.trade.feesUSD !== null) ||
         (props.trade.feesUSDProvider !== undefined &&
           props.trade.feesUSDProvider !== null) ||

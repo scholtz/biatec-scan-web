@@ -136,7 +136,7 @@
             v-for="(trade, index) in state.recentTrades.slice(0, 10)"
             :key="`trade-${trade.txId || index}-${index}`"
             :trade="trade"
-            :show-fees="false"
+            :extendedDisplay="false"
             price-mode="both"
           />
         </div>

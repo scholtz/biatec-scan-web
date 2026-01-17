@@ -28,7 +28,7 @@
       >
         <TradeCard
           :trade="convertToAMMTrade(trade)"
-          :show-fees="true"
+          :extendedDisplay="true"
           price-mode="selected"
           :selected-asset-id="props.assetId"
         />
