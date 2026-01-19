@@ -16,7 +16,7 @@ import AlgorandService from './algorandService'
  * To run these tests in an environment with network restrictions, you may need to:
  * - Allow access to mainnet-idx.voi.nodely.dev
  * - Or run them in a production/staging environment
- * - Or skip them with: npm test -- --exclude="**/*.integration.test.ts"
+ * - Or skip them with: npm test -- --exclude=".integration.test.ts"
  */
 describe('AlgorandService - Mainnet Integration Tests', () => {
   const service = new AlgorandService()

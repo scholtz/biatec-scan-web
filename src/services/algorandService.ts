@@ -1,15 +1,35 @@
 import algosdk from "algosdk";
 
 class AlgorandService {
-  private algodUrl = "https://algorand-algod-public.de-4.biatec.io";
-  private indexerUrl = "https://mainnet-idx.voi.nodely.dev";
+  private algodUrl: string;
+  private indexerUrl: string;
   private algodClient: algosdk.Algodv2;
   private indexerClient: algosdk.Indexer;
+  private verboseLogging: boolean;
 
   constructor() {
+    // Load configuration from environment variables with fallback defaults
+    this.algodUrl = import.meta.env.VITE_ALGORAND_ALGOD_URL || "https://algorand-algod-public.de-4.biatec.io";
+    this.indexerUrl = import.meta.env.VITE_ALGORAND_INDEXER_URL || "https://mainnet-idx.voi.nodely.dev";
+    this.verboseLogging = import.meta.env.VITE_ENABLE_VERBOSE_LOGGING === 'true';
+
     // Initialize Algorand SDK clients
     this.algodClient = new algosdk.Algodv2("", this.algodUrl, "");
     this.indexerClient = new algosdk.Indexer("", this.indexerUrl, "");
+
+    if (this.verboseLogging) {
+      console.log('[AlgorandService] Initialized with:', {
+        algodUrl: this.algodUrl,
+        indexerUrl: this.indexerUrl,
+        verboseLogging: this.verboseLogging
+      });
+    }
+  }
+
+  private log(...args: unknown[]): void {
+    if (this.verboseLogging) {
+      console.log('[AlgorandService]', ...args);
+    }
   }
   getAlgodClient(): algosdk.Algodv2 {
     return this.algodClient;
@@ -93,13 +113,13 @@ class AlgorandService {
   ): algosdk.indexerModels.Transaction | null {
     // Check if this is the transaction we're looking for
     if (tx.id === targetTxId) {
-      console.log(`Found transaction by direct ID match: ${targetTxId}`);
+      this.log(`Found transaction by direct ID match: ${targetTxId}`);
       return tx;
     }
 
     // Search through inner transactions recursively
     if (tx.innerTxns && tx.innerTxns.length > 0) {
-      console.log(`Searching through ${tx.innerTxns.length} inner transactions of parent ${tx.id}`);
+      this.log(`Searching through ${tx.innerTxns.length} inner transactions of parent ${tx.id}`);
       for (const innerTx of tx.innerTxns) {
         // For inner transactions, we need to fill in parameters from parent and block
         // and recalculate the transaction ID
@@ -115,11 +135,11 @@ class AlgorandService {
           blockHeader
         );
 
-        console.log(`Inner tx original ID: ${innerTx.id}, calculated ID: ${calculatedTxId}, target: ${targetTxId}, type: ${innerTx.txType}`);
+        this.log(`Inner tx original ID: ${innerTx.id}, calculated ID: ${calculatedTxId}, target: ${targetTxId}, type: ${innerTx.txType}`);
 
         // Check if this inner transaction matches our target
         if (calculatedTxId === targetTxId) {
-          console.log(`Found transaction by calculated ID match: ${targetTxId}`);
+          this.log(`Found transaction by calculated ID match: ${targetTxId}`);
           // Update the transaction ID to the calculated one
           innerTx.id = calculatedTxId;
           return innerTx;
@@ -360,14 +380,14 @@ class AlgorandService {
 
         // Calculate and return the transaction ID
         const calculatedId = sdkTx.txID();
-        console.log(
+        this.log(
           `Calculated ID for tx type ${tx.txType}: ${calculatedId} (original: ${tx.id})`
         );
         return calculatedId;
       }
 
       // Fall back to original ID if we couldn't create the transaction
-      console.warn(
+      this.log(
         `Could not create SDK transaction for ID calculation (type: ${tx.txType}), using original ID`
       );
       return tx.id || "";
@@ -392,7 +412,7 @@ class AlgorandService {
       if (!txData) {
         // If not found in indexer and we have a round number, search in the block
         if (round !== undefined) {
-          console.log(
+          this.log(
             `Transaction not found in indexer, searching in block ${round}`
           );
           return await this.findTransactionInBlock(txId, BigInt(round));
@@ -401,8 +421,8 @@ class AlgorandService {
       }
 
       // Log the transaction data for debugging
-      console.log("Transaction data from indexer:", txData);
-      console.log("Transaction type:", txData.txType);
+      this.log("Transaction data from indexer:", txData);
+      this.log("Transaction type:", txData.txType);
 
       return txData;
     } catch (error) {
@@ -410,7 +430,7 @@ class AlgorandService {
 
       // If we have a round number, try searching in the block
       if (round !== undefined) {
-        console.log(
+        this.log(
           `Indexer failed, searching for transaction in block ${round}`
         );
         try {
@@ -439,7 +459,7 @@ class AlgorandService {
           const trade = apiData[0];
           // Convert trade data to algosdk.indexerModels.Transaction format
           // This is a simplified conversion - actual trade data from API may not have all tx details
-          console.log("Found transaction in API trade data:", trade);
+          this.log("Found transaction in API trade data:", trade);
 
           // We should still fetch from indexer if we have the txId
           // The API trade endpoint doesn't return full transaction details
@@ -462,20 +482,20 @@ class AlgorandService {
     round: bigint
   ): Promise<algosdk.indexerModels.Transaction | null> {
     try {
-      console.log(`Starting search for transaction ${txId} in block ${round}`);
+      this.log(`Starting search for transaction ${txId} in block ${round}`);
       // Get both block header and transactions
       const [blockHeader, transactions] = await Promise.all([
         this.getBlock(round),
         this.getBlockTransactions(round),
       ]);
 
-      console.log(`Block header: ${blockHeader ? 'found' : 'not found'}, Transactions count: ${transactions.length}`);
+      this.log(`Block header: ${blockHeader ? 'found' : 'not found'}, Transactions count: ${transactions.length}`);
       if (blockHeader) {
-        console.log(`Block genesis: ${blockHeader.genesisID}, genesisHash length: ${blockHeader.genesisHash?.length || 0}`);
+        this.log(`Block genesis: ${blockHeader.genesisID}, genesisHash length: ${blockHeader.genesisHash?.length || 0}`);
       }
 
       for (const tx of transactions) {
-        console.log(`Checking transaction ${tx.id}, type: ${tx.txType}, innerTxns: ${tx.innerTxns?.length || 0}`);
+        this.log(`Checking transaction ${tx.id}, type: ${tx.txType}, innerTxns: ${tx.innerTxns?.length || 0}`);
         // Use recursive search with block header to properly calculate inner transaction IDs
         const found = this.findTransactionRecursive(
           tx,
@@ -483,12 +503,12 @@ class AlgorandService {
           blockHeader || undefined
         );
         if (found) {
-          console.log(`Found transaction ${txId} in block ${round}`);
+          this.log(`Found transaction ${txId} in block ${round}`);
           return found;
         }
       }
 
-      console.log(`Transaction ${txId} not found in block ${round} after checking ${transactions.length} transactions`);
+      this.log(`Transaction ${txId} not found in block ${round} after checking ${transactions.length} transactions`);
       return null;
     } catch (error) {
       console.error(
