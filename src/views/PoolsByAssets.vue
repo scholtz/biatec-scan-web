@@ -260,7 +260,7 @@ async function fetchAggregated() {
     if (
       assetService.needToReverseAssets(
         BigInt(raw.assetIdA ?? 0n),
-        BigInt(raw.assetIdB ?? 0n)
+        BigInt(raw.assetIdB ?? 0n),
       )
     ) {
       // Reverse the aggregated pool if needed
@@ -338,7 +338,7 @@ watch(
     }
     fetchPools();
     fetchAggregated();
-  }
+  },
 );
 
 // Helpers to resolve asset names with lazy loading
@@ -377,7 +377,7 @@ const aggregatedReserveA = computed(() => {
   )
     return "—";
   const aid = BigInt(state.aggregated.assetIdA);
-  const bal = BigInt(Math.trunc(state.aggregated.tvL_A || 0));
+  const bal = state.aggregated.tvL_A || 0;
   return assetService.formatAssetBalance(bal, aid, false);
 });
 // Aggregated display helpers
@@ -389,7 +389,7 @@ const aggregatedVirtualReserveA = computed(() => {
   )
     return "—";
   const aid = BigInt(state.aggregated.assetIdA);
-  const bal = BigInt(Math.trunc(state.aggregated.virtualSumA || 0));
+  const bal = state.aggregated.virtualSumA || 0;
   return assetService.formatAssetBalance(bal, aid, false);
 });
 const aggregatedVirtualReserveAL1 = computed(() => {
@@ -400,7 +400,7 @@ const aggregatedVirtualReserveAL1 = computed(() => {
   )
     return "—";
   const aid = BigInt(state.aggregated.assetIdA);
-  const bal = BigInt(Math.trunc(state.aggregated.virtualSumALevel1 || 0));
+  const bal = state.aggregated.virtualSumALevel1 || 0;
   return assetService.formatAssetBalance(bal, aid, false);
 });
 const aggregatedVirtualReserveAL2 = computed(() => {
@@ -411,7 +411,7 @@ const aggregatedVirtualReserveAL2 = computed(() => {
   )
     return "—";
   const aid = BigInt(state.aggregated.assetIdA);
-  const bal = BigInt(Math.trunc(state.aggregated.virtualSumALevel2 || 0));
+  const bal = state.aggregated.virtualSumALevel2 || 0;
   return assetService.formatAssetBalance(bal, aid, false);
 });
 const aggregatedReserveB = computed(() => {
@@ -422,7 +422,7 @@ const aggregatedReserveB = computed(() => {
   )
     return "—";
   const bid = BigInt(state.aggregated.assetIdB);
-  const bal = BigInt(Math.trunc(state.aggregated.tvL_B || 0));
+  const bal = state.aggregated.tvL_B || 0;
   return assetService.formatAssetBalance(bal, bid, false);
 });
 const aggregatedVirtualReserveB = computed(() => {
@@ -433,7 +433,7 @@ const aggregatedVirtualReserveB = computed(() => {
   )
     return "—";
   const bid = BigInt(state.aggregated.assetIdB);
-  const bal = BigInt(Math.trunc(state.aggregated.virtualSumB || 0));
+  const bal = state.aggregated.virtualSumB || 0;
   return assetService.formatAssetBalance(bal, bid, false);
 });
 const aggregatedVirtualReserveBL1 = computed(() => {
@@ -444,7 +444,7 @@ const aggregatedVirtualReserveBL1 = computed(() => {
   )
     return "—";
   const bid = BigInt(state.aggregated.assetIdB);
-  const bal = BigInt(Math.trunc(state.aggregated.virtualSumBLevel1 || 0));
+  const bal = state.aggregated.virtualSumBLevel1 || 0;
   return assetService.formatAssetBalance(bal, bid, false);
 });
 const aggregatedVirtualReserveBL2 = computed(() => {
@@ -455,7 +455,7 @@ const aggregatedVirtualReserveBL2 = computed(() => {
   )
     return "—";
   const bid = BigInt(state.aggregated.assetIdB);
-  const bal = BigInt(Math.trunc(state.aggregated.virtualSumBLevel2 || 0));
+  const bal = state.aggregated.virtualSumBLevel2 || 0;
   return assetService.formatAssetBalance(bal, bid, false);
 });
 const aggregatedPrice = computed(() => {
@@ -472,8 +472,8 @@ const aggregatedPrice = computed(() => {
     return "—";
   const aid = BigInt(state.aggregated.assetIdA);
   const bid = BigInt(state.aggregated.assetIdB);
-  const a = BigInt(Math.trunc(state.aggregated.virtualSumA || 0));
-  const b = BigInt(Math.trunc(state.aggregated.virtualSumB || 0));
+  const a = state.aggregated.virtualSumA || 0;
+  const b = state.aggregated.virtualSumB || 0;
   return assetService.formatPairBalance(a, aid, b, bid, false);
 });
 </script>
