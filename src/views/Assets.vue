@@ -62,8 +62,9 @@
     <div v-if="!loading && assets.length > 0">
       <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
       <div
-        class="hidden md:grid md:grid-cols-10 gap-3 px-2 text-xs text-gray-400 mb-2"
+        class="hidden md:grid md:grid-cols-11 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
+        <div class="w-12 text-right">{{ $t("assets.rank") }}</div>
         <div>{{ $t("assets.id") }}</div>
         <div>{{ $t("assets.name") }}</div>
         <div>{{ $t("assets.unit") }}</div>
@@ -77,12 +78,15 @@
       </div>
       <div class="space-y-1">
         <div
-          v-for="a in filteredAssets"
+          v-for="(a, index) in filteredAssets"
           :key="a.index"
           class="p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors"
         >
           <!-- Mobile compact layout -->
           <div class="md:hidden flex items-center gap-3">
+            <div class="text-xs text-gray-400 font-mono min-w-[2rem] text-right">
+              #{{ (page - 1) * pageSize + index + 1 }}
+            </div>
             <RouterLink
               :to="`/asset/${a.index}`"
               class="flex items-center gap-2 min-w-0 flex-1"
@@ -195,7 +199,10 @@
           </div>
 
           <!-- Desktop row layout -->
-          <div class="hidden md:grid md:grid-cols-10 gap-3 items-center">
+          <div class="hidden md:grid md:grid-cols-11 gap-3 items-center">
+            <div class="w-12 text-sm text-white text-right font-mono">
+              {{ (page - 1) * pageSize + index + 1 }}
+            </div>
             <div
               class="font-mono text-xs text-blue-400 truncate flex items-center gap-1"
             >

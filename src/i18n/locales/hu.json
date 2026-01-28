@@ -93,6 +93,7 @@
   },
   "assets": {
     "title": "Eszközök",
+    "rank": "Helyezés",
     "id": "ID",
     "name": "Név",
     "unit": "Egység",

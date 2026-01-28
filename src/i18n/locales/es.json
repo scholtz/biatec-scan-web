@@ -93,6 +93,7 @@
   },
   "assets": {
     "title": "Assets",
+    "rank": "Rango",
     "id": "ID",
     "name": "Nombre",
     "unit": "Unidad",

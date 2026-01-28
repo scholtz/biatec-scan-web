@@ -88,6 +88,7 @@
   },
   "assets": {
     "title": "Assety",
+    "rank": "Pořadí",
     "id": "ID",
     "name": "Název",
     "unit": "Jednotka",

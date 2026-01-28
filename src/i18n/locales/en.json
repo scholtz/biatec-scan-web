@@ -88,6 +88,7 @@
   },
   "assets": {
     "title": "Assets",
+    "rank": "Rank",
     "id": "ID",
     "name": "Name",
     "unit": "Unit",

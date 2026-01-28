@@ -88,6 +88,7 @@
   },
   "assets": {
     "title": "资产",
+    "rank": "排名",
     "id": "ID",
     "name": "名称",
     "unit": "单位",

@@ -93,6 +93,7 @@
   },
   "assets": {
     "title": "Zasoby",
+    "rank": "Ranking",
     "id": "ID",
     "name": "Nazwa",
     "unit": "Jednostka",
