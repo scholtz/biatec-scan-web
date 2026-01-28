@@ -98,7 +98,9 @@
     "updated": "Updated",
     "loadingAssets": "Loading assets…",
     "demoModeError": "Demo mode: API unavailable, showing sample assets",
-    "auto": " (Auto)"
+    "auto": " (Auto)",
+    "stableAssets": "Stable Assets",
+    "utilityTokens": "Utility Tokens"
   },
   "search": {
     "title": "Network Search",

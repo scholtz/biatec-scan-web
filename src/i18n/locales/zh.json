@@ -98,7 +98,9 @@
     "updated": "已更新",
     "loadingAssets": "加载资产中…",
     "demoModeError": "演示模式：API 不可用，显示示例资产",
-    "auto": "（自动）"
+    "auto": "（自动）",
+    "stableAssets": "稳定资产",
+    "utilityTokens": "实用代币"
   },
   "search": {
     "title": "网络搜索",

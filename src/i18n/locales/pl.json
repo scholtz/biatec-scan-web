@@ -103,7 +103,9 @@
     "updated": "Zaktualizowano",
     "loadingAssets": "Ładowanie zasobów…",
     "demoModeError": "Tryb demo: API niedostępne, wyświetlane są przykładowe zasoby",
-    "auto": " (Auto)"
+    "auto": " (Auto)",
+    "stableAssets": "Stabilne zasoby",
+    "utilityTokens": "Tokeny użytkowe"
   },
   "search": {
     "title": "Wyszukiwanie",

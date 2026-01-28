@@ -103,7 +103,9 @@
     "updated": "Frissítve",
     "loadingAssets": "Eszközök betöltése…",
     "demoModeError": "Demo mód: API nem elérhető, minta eszközök megjelenítése",
-    "auto": " (Automatikus)"
+    "auto": " (Automatikus)",
+    "stableAssets": "Stabil eszközök",
+    "utilityTokens": "Használati tokenek"
   },
   "search": {
     "title": "Hálózati keresés",

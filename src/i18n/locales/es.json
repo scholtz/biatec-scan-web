@@ -103,7 +103,9 @@
     "updated": "Actualizado",
     "loadingAssets": "Cargando assets…",
     "demoModeError": "Modo demo: API no disponible, mostrando assets de ejemplo",
-    "auto": " (Auto)"
+    "auto": " (Auto)",
+    "stableAssets": "Assets estables",
+    "utilityTokens": "Tokens de utilidad"
   },
   "search": {
     "title": "Búsqueda de red",

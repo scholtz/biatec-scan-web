@@ -98,7 +98,9 @@
     "updated": "Aktualizováno",
     "loadingAssets": "Načítají se assety…",
     "demoModeError": "Demo režim: API nedostupné, zobrazují se vzorové assety",
-    "auto": " (Auto)"
+    "auto": " (Auto)",
+    "stableAssets": "Stabilní assety",
+    "utilityTokens": "Utility tokeny"
   },
   "search": {
     "title": "Síťové vyhledávání",

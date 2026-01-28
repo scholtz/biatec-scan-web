@@ -11,8 +11,26 @@
         </button>
       </div>
     </div>
-
     <div class="flex items-center gap-4 text-xs text-gray-400">
+      <label class="flex items-center gap-2">
+        <input
+          type="checkbox"
+          v-model="showStable"
+          class="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
+          @change="handleFilterChange('stable')"
+        />
+        <span>{{ $t("assets.stableAssets") }}</span>
+      </label>
+      <label class="flex items-center gap-2">
+        <input
+          type="checkbox"
+          v-model="showUtility"
+          class="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
+          @change="handleFilterChange('utility')"
+        />
+        <span>{{ $t("assets.utilityTokens") }}</span>
+      </label>
+
       <div>
         {{ $t("common.page") }}: <span class="text-white">{{ page }}</span>
       </div>
@@ -59,7 +77,7 @@
       </div>
       <div class="space-y-1">
         <div
-          v-for="a in assets"
+          v-for="a in filteredAssets"
           :key="a.index"
           class="p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors"
         >
@@ -333,7 +351,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, onMounted, onUnmounted, computed } from "vue";
+import { reactive, watch, onMounted, onUnmounted, computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
@@ -366,6 +384,9 @@ const state = reactive<State>({
   calculatedPageSize: 15, // Default fallback
   availablePageSizes: [15, 25, 50, 100],
 });
+
+const showStable = ref(false);
+const showUtility = ref(true);
 
 const api = getAVMTradeReporterAPI();
 
@@ -421,7 +442,7 @@ function calculateOptimalPageSize(): number {
     const finalPageSize = Math.max(5, Math.min(150, optimalPageSize));
 
     console.log(
-      `Calculated optimal page size: ${finalPageSize} (viewport: ${viewportHeight}px, unused bottom: ${unusedSpaceAtBottom}px, usable unused: ${usableUnusedSpace}px, row height: ${rowHeight}px, buffer: ${buffer}px, additional rows: ${additionalRows})`
+      `Calculated optimal page size: ${finalPageSize} (viewport: ${viewportHeight}px, unused bottom: ${unusedSpaceAtBottom}px, usable unused: ${usableUnusedSpace}px, row height: ${rowHeight}px, buffer: ${buffer}px, additional rows: ${additionalRows})`,
     );
 
     return finalPageSize;
@@ -465,7 +486,18 @@ async function fetchAssets() {
   try {
     // Assuming backend supports offset & size like aggregated pools
     const offset = (state.page - 1) * state.pageSize;
-    const res = await api.getApiAsset({ offset, size: state.pageSize });
+    const search = showStable.value
+      ? showUtility.value
+        ? "" // both
+        : "stable" // stable only
+      : showUtility.value
+        ? "utility" // utility only
+        : ""; // both, (this should not occur due to checkbox logic)
+    const res = await api.getApiAsset({
+      search: search,
+      offset,
+      size: state.pageSize,
+    });
     const data = res as unknown as BiatecAsset[] | { data: BiatecAsset[] };
     const list = Array.isArray(data) ? data : (data as any).data;
     state.assets = list || [];
@@ -493,6 +525,7 @@ function loadDemoAssets() {
       tvL_USD: 50000000,
       totalTVLAssetInUSD: 75000000,
       timestamp: new Date().toISOString(),
+      stabilityIndex: 1, // Stable asset
     },
     {
       index: 312769,
@@ -506,6 +539,7 @@ function loadDemoAssets() {
       tvL_USD: 25000000,
       totalTVLAssetInUSD: 30000000,
       timestamp: new Date().toISOString(),
+      stabilityIndex: 1, // Stable asset
     },
     {
       index: 386192725,
@@ -519,6 +553,7 @@ function loadDemoAssets() {
       tvL_USD: 15000000,
       totalTVLAssetInUSD: 20000000,
       timestamp: new Date().toISOString(),
+      stabilityIndex: 1, // Utility token
     },
     {
       index: 386195940,
@@ -532,6 +567,7 @@ function loadDemoAssets() {
       tvL_USD: 8000000,
       totalTVLAssetInUSD: 12000000,
       timestamp: new Date().toISOString(),
+      stabilityIndex: 1, // Utility token
     },
     {
       index: 27165954,
@@ -545,6 +581,7 @@ function loadDemoAssets() {
       tvL_USD: 1200000,
       totalTVLAssetInUSD: 1500000,
       timestamp: new Date().toISOString(),
+      stabilityIndex: 0, // Utility token
     },
   ];
 
@@ -596,9 +633,24 @@ function changePageSize() {
   state.page = 1;
   fetchAssets();
 }
-function assetImageUrl(id: number) {
-  return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
+function handleFilterChange(type: "stable" | "utility") {
+  if (type === "stable" && !showStable.value && !showUtility.value) {
+    showUtility.value = true;
+  } else if (type === "utility" && !showUtility.value && !showStable.value) {
+    showStable.value = true;
+  }
+  // Reset to page 1 when filters change
+  state.page = 1;
+  fetchAssets();
 }
+
+const filteredAssets = computed(() => {
+  return state.assets.filter((asset) => {
+    const isStable = (asset.stabilityIndex ?? 0) > 0;
+    const isUtility = (asset.stabilityIndex ?? 0) === 0;
+    return (showStable.value && isStable) || (showUtility.value && isUtility);
+  });
+});
 
 function isFavorite(assetIndex: number): boolean {
   return favoriteService.isReactiveFavorite(assetIndex);
@@ -613,6 +665,10 @@ function toggleFavorite(assetIndex: number): void {
     const favoritesRef = favoriteService.getReactiveFavorites();
     favoritesRef.value = new Set(favoritesRef.value);
   }
+}
+
+function assetImageUrl(id: number) {
+  return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
 }
 
 watch(() => state.page, fetchAssets);

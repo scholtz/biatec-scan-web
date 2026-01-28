@@ -103,7 +103,9 @@
     "updated": "Aktualisiert",
     "loadingAssets": "Assets werden geladen…",
     "demoModeError": "Demo-Modus: API nicht verfügbar, Beispiel-Assets werden angezeigt",
-    "auto": " (Auto)"
+    "auto": " (Auto)",
+    "stableAssets": "Stabile Assets",
+    "utilityTokens": "Utility-Tokens"
   },
   "search": {
     "title": "Netzwerk-Suche",
