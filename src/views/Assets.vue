@@ -84,7 +84,9 @@
         >
           <!-- Mobile compact layout -->
           <div class="md:hidden flex items-center gap-3">
-            <div class="text-xs text-gray-400 font-mono min-w-[2rem] text-right">
+            <div
+              class="text-xs text-gray-400 font-mono min-w-[2rem] text-right"
+            >
               #{{ (page - 1) * pageSize + index + 1 }}
             </div>
             <RouterLink
