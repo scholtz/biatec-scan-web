@@ -17,7 +17,7 @@
         </div>
 
         <!-- Right: Content -->
-        <div class="flex-grow w-full space-y-6">
+        <div class="flex-grow space-y-6">
           <!-- Header Row -->
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -121,6 +121,12 @@
               {{ $t("assetDetails.viewPoolsWithUsdc") }}
             </router-link>
           </div>
+        </div>
+        <div class="flex flex-grow w-full">
+          <iframe
+            :src="`https://algorand.scan.biatec.io/charts/?assetA=${assetId}`"
+            class="w-full h-100 rounded-lg border-0 shadow-lg"
+          ></iframe>
         </div>
       </div>
     </div>
@@ -232,7 +238,7 @@ async function updateReserveBalance() {
   if (info && info.reserve) {
     reserveBalance.value = await algorandService.getAccountAssetBalance(
       info.reserve,
-      BigInt(assetId.value)
+      BigInt(assetId.value),
     );
   } else {
     reserveBalance.value = 0n;
@@ -305,7 +311,7 @@ watch(
     assetId.value = newAssetId;
     ensureLoaded();
     await subscribeToAssetUpdates(newAssetId);
-  }
+  },
 );
 </script>
 
