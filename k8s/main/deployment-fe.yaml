@@ -91,3 +91,11 @@ spec:
                 name: biatec-scan-fe-service
                 port:
                   number: 8080
+
+          - path: /charts
+            pathType: Prefix
+            backend:
+              service:
+                name: biatec-charts-service
+                port:
+                  number: 80
