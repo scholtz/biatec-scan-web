@@ -216,6 +216,7 @@
     "viewAllPools": "Pokaż wszystkie pule {name}",
     "viewPoolsWithAlgo": "Pokaż pule z ALGO",
     "viewPoolsWithUsdc": "Pokaż pule z USDC",
+    "fullScreenChart": "Wykres na pełnym ekranie",
     "aggregatedPools": "Zagregowane pule",
     "pools": "pul",
     "noAggregatedPools": "Nie znaleziono zagregowanych pul dla tego zasobu",

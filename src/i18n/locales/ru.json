@@ -227,6 +227,7 @@
     "viewAllPools": "Посмотреть все {name} пулы",
     "viewPoolsWithAlgo": "Посмотреть пулы с ALGO",
     "viewPoolsWithUsdc": "Посмотреть пулы с USDC",
+    "fullScreenChart": "Полноэкранный график",
     "aggregatedPools": "Агрегированные пулы",
     "pools": "пулов",
     "noAggregatedPools": "Не найдены агрегированные пулы для этого актива",

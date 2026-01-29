@@ -227,6 +227,7 @@
     "viewAllPools": "Ver todos los pools de {name}",
     "viewPoolsWithAlgo": "Ver pools con ALGO",
     "viewPoolsWithUsdc": "Ver pools con USDC",
+    "fullScreenChart": "Gráfico a pantalla completa",
     "aggregatedPools": "Pools agregados",
     "pools": "pools",
     "noAggregatedPools": "No se encontraron pools agregados para este asset",

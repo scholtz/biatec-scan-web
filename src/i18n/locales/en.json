@@ -293,6 +293,7 @@
     "viewAllPools": "View all {name} pools",
     "viewPoolsWithAlgo": "View Pools with ALGO",
     "viewPoolsWithUsdc": "View Pools with USDC",
+    "fullScreenChart": "Full screen chart",
     "aggregatedPools": "Aggregated Pools",
     "pools": "pools",
     "noAggregatedPools": "No aggregated pools found for this asset",

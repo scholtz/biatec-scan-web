@@ -222,6 +222,7 @@
     "viewAllPools": "Zobrazit všechny {name} pooly",
     "viewPoolsWithAlgo": "Zobrazit pooly s ALGO",
     "viewPoolsWithUsdc": "Zobrazit pooly s USDC",
+    "fullScreenChart": "Graf na celou obrazovku",
     "aggregatedPools": "Agregované pooly",
     "pools": "poolů",
     "noAggregatedPools": "Nebyly nalezeny žádné agregované pooly pro tento asset",

@@ -293,6 +293,7 @@
     "viewAllPools": "Zobraziť všetky {name} pooly",
     "viewPoolsWithAlgo": "Zobraziť pooly s ALGO",
     "viewPoolsWithUsdc": "Zobraziť pooly s USDC",
+    "fullScreenChart": "Graf na celú obrazovku",
     "aggregatedPools": "Agregované pooly",
     "pools": "poolov",
     "noAggregatedPools": "Neboli nájdené žiadne agregované pooly pre tento asset",

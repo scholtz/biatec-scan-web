@@ -120,11 +120,19 @@
             >
               {{ $t("assetDetails.viewPoolsWithUsdc") }}
             </router-link>
+
+            <a
+              target="_blank"
+              :href="`https://algorand.scan.biatec.io/charts/?interval=4H&amp;assetA=${assetId}`"
+              class="btn-secondary text-sm py-2 px-4"
+            >
+              {{ $t("assetDetails.fullScreenChart") }}
+            </a>
           </div>
         </div>
         <div class="flex flex-grow w-full">
           <iframe
-            :src="`https://algorand.scan.biatec.io/charts/?assetA=${assetId}`"
+            :src="`https://algorand.scan.biatec.io/charts/?interval=4H&amp;assetA=${assetId}`"
             class="w-full h-100 rounded-lg border-0 shadow-lg"
           ></iframe>
         </div>

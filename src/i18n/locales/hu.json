@@ -298,6 +298,7 @@
     "viewAllPools": "Összes {name} pool megtekintése",
     "viewPoolsWithAlgo": "ALGO poolok megtekintése",
     "viewPoolsWithUsdc": "USDC poolok megtekintése",
+    "fullScreenChart": "Teljes képernyős diagram",
     "aggregatedPools": "Összesített poolok",
     "pools": "pool",
     "noAggregatedPools": "Nem találhatók összesített poolok ehhez az eszközhöz",
