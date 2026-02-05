@@ -62,12 +62,11 @@
     <div v-if="!loading && assets.length > 0">
       <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
       <div
-        class="hidden md:grid md:grid-cols-13 gap-3 px-2 text-xs text-gray-400 mb-2"
+        class="hidden md:grid md:grid-cols-12 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
         <div class="w-12 text-right">{{ $t("assets.rank") }}</div>
         <div>{{ $t("assets.name") }}</div>
         <div>{{ $t("assets.unit") }}</div>
-        <div class="text-right">{{ $t("assets.decimals") }}</div>
         <div class="text-right">{{ $t("assets.price") }}</div>
         <div class="text-right">{{ $t("assets.realTvl") }}</div>
         <div class="text-right">{{ $t("assets.totalTvl") }}</div>
@@ -202,7 +201,7 @@
           </div>
 
           <!-- Desktop row layout -->
-          <div class="hidden md:grid md:grid-cols-13 gap-3 items-center">
+          <div class="hidden md:grid md:grid-cols-12 gap-3 items-center">
             <div class="w-12 text-sm text-white text-right font-mono">
               {{ (page - 1) * pageSize + index + 1 }}
             </div>
@@ -231,9 +230,6 @@
             </div>
             <div class="text-sm text-white truncate">
               {{ a.params?.unitName || "-" }}
-            </div>
-            <div class="text-sm text-white text-right">
-              {{ a.params?.decimals ?? 0 }}
             </div>
             <div class="text-sm text-white text-right">
               <template v-if="a.priceUSD === undefined || a.priceUSD === null"
