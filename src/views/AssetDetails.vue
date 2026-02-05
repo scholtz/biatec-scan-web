@@ -77,6 +77,45 @@
           >
             <div>
               <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
+                {{ $t("assetDetails.price") }}
+              </div>
+              <div class="text-lg text-white font-mono">
+                <template v-if="priceUSD === undefined || priceUSD === null"
+                  >-</template
+                >
+                <template v-else>
+                  <FormattedNumber
+                    :value="priceUSD"
+                    type="currency"
+                    :minimum-fraction-digits="2"
+                    :maximum-fraction-digits="6"
+                    :small-threshold="0.01"
+                    :significant-digits="4"
+                  />
+                </template>
+              </div>
+            </div>
+            <div>
+              <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
+                {{ $t("assetDetails.volume24H") }}
+              </div>
+              <div class="text-lg text-white font-mono">
+                <template v-if="volume24H === undefined || volume24H === null"
+                  >-</template
+                >
+                <template v-else>
+                  <FormattedNumber
+                    :value="volume24H"
+                    type="currency"
+                    :maximum-fraction-digits="2"
+                    :small-threshold="0.01"
+                    :significant-digits="4"
+                  />
+                </template>
+              </div>
+            </div>
+            <div>
+              <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
                 {{ $t("assetDetails.decimals") }}
               </div>
               <div class="text-lg text-white font-mono">{{ decimals }}</div>
@@ -178,6 +217,7 @@ import TradesList from "../components/TradesList.vue";
 import LiquidityList from "../components/LiquidityList.vue";
 import PoolList from "../components/PoolList.vue";
 import AggregatedPoolsList from "../components/AggregatedPoolsList.vue";
+import FormattedNumber from "../components/FormattedNumber.vue";
 
 const { t } = useI18n();
 
@@ -186,6 +226,7 @@ const assetId = ref<string>(route.params.assetId as string);
 
 const forceUpdate = ref<number>(0);
 const reserveBalance = ref<bigint>(0n);
+const currentAsset = ref<BiatecAsset | null>(null);
 let assetSubscriptionFilter: SubscriptionFilter | null = null;
 
 const name = computed(() => {
@@ -223,6 +264,9 @@ const formattedTotal = computed(() => {
 const isFavorite = computed(() => {
   return favoriteService.isReactiveFavorite(Number(assetId.value));
 });
+
+const priceUSD = computed(() => currentAsset.value?.priceUSD);
+const volume24H = computed(() => currentAsset.value?.volume24H);
 
 const toggleFavorite = () => {
   const assetIndex = Number(assetId.value);
@@ -289,6 +333,7 @@ function handleAssetUpdate(asset: BiatecAsset) {
   try {
     if (asset.index?.toString() === assetId.value) {
       console.log("Asset update received for current asset:", asset);
+      currentAsset.value = asset;
       forceUpdate.value++;
     }
   } catch (error) {

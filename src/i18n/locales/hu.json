@@ -297,6 +297,8 @@
     "unit": "Egység",
     "decimals": "Tizedesjegyek",
     "totalSupply": "Összes kínálat",
+    "price": "Ár",
+    "volume24H": "24Ó Volumen",
     "assetImage": "Eszköz kép",
     "viewAllPools": "Összes {name} pool megtekintése",
     "viewPoolsWithAlgo": "ALGO poolok megtekintése",
