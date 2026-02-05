@@ -156,11 +156,9 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export type AssetType = typeof AssetType[keyof typeof AssetType];
+export type AssetType = (typeof AssetType)[keyof typeof AssetType];
 
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AssetType = {
-  ASA: 'ASA',
-  ARC200: 'ARC200',
+  ASA: "ASA",
+  ARC200: "ARC200",
 } as const;

@@ -7,9 +7,7 @@
       }}</sub
       >{{ significantDigitsText }}{{ suffix }}
     </template>
-    <template v-else>
-      {{ formattedText }}
-    </template>
+    <template v-else> {{ prefix }}{{ formattedText }}{{ suffix }} </template>
   </span>
 </template>
 
@@ -39,17 +37,25 @@ const props = withDefaults(
     placeholder: "-",
     smallThreshold: 0.01,
     significantDigits: 4,
-  }
+  },
 );
 
 const { locale } = useI18n();
 
 const numericValue = computed(() =>
-  props.value === null || props.value === undefined ? null : props.value
+  props.value === null || props.value === undefined ? null : props.value,
 );
 
 const baseFormatterOptions = computed(() => {
   if (props.type === "currency") {
+    // For USD, use decimal formatting since we handle the $ symbol manually
+    if (props.currency === "USD") {
+      return {
+        style: "decimal" as const,
+        minimumFractionDigits: props.minimumFractionDigits,
+        maximumFractionDigits: props.maximumFractionDigits,
+      };
+    }
     return {
       style: "currency" as const,
       currency: props.currency,
@@ -84,6 +90,31 @@ const affixes = computed(() => {
     return { prefix: "", suffix: "", decimalSeparator };
   }
 
+  // Special handling for USD to show just "$" instead of "US$"
+  if (props.currency === "USD") {
+    // Check if the locale puts currency symbol before or after the number
+    const testFormat = new Intl.NumberFormat(locale.value, {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).formatToParts(1);
+
+    const currencyIndex = testFormat.findIndex((p) => p.type === "currency");
+    const numberIndex = testFormat.findIndex(
+      (p) =>
+        p.type === "integer" || p.type === "decimal" || p.type === "fraction",
+    );
+
+    if (currencyIndex < numberIndex) {
+      // Currency symbol comes before number (e.g., US style: $1)
+      return { prefix: "$", suffix: "", decimalSeparator };
+    } else {
+      // Currency symbol comes after number (e.g., Slovak style: 1 $)
+      return { prefix: "", suffix: " $", decimalSeparator };
+    }
+  }
+
   const parts = new Intl.NumberFormat(locale.value, {
     style: "currency",
     currency: props.currency,
@@ -92,7 +123,8 @@ const affixes = computed(() => {
   }).formatToParts(1.1);
 
   const firstNumberIndex = parts.findIndex(
-    (p) => p.type === "integer" || p.type === "decimal" || p.type === "fraction"
+    (p) =>
+      p.type === "integer" || p.type === "decimal" || p.type === "fraction",
   );
   const lastNumberIndex =
     parts.length -
@@ -101,7 +133,7 @@ const affixes = computed(() => {
       .reverse()
       .findIndex(
         (p) =>
-          p.type === "integer" || p.type === "decimal" || p.type === "fraction"
+          p.type === "integer" || p.type === "decimal" || p.type === "fraction",
       );
 
   const prefix = parts
@@ -172,7 +204,7 @@ const formattedText = computed(() => {
   if (val === null) return props.placeholder;
 
   return new Intl.NumberFormat(locale.value, baseFormatterOptions.value).format(
-    val
+    val,
   );
 });
 

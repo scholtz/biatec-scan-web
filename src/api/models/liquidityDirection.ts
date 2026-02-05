@@ -156,11 +156,10 @@ Troubleshooting
  * OpenAPI spec version: v1
  */
 
-export type LiquidityDirection = typeof LiquidityDirection[keyof typeof LiquidityDirection];
+export type LiquidityDirection =
+  (typeof LiquidityDirection)[keyof typeof LiquidityDirection];
 
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const LiquidityDirection = {
-  DepositLiquidity: 'DepositLiquidity',
-  WithdrawLiquidity: 'WithdrawLiquidity',
+  DepositLiquidity: "DepositLiquidity",
+  WithdrawLiquidity: "WithdrawLiquidity",
 } as const;

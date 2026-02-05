@@ -78,7 +78,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const encoding = ref<"utf8" | "base64" | "hex" | "numeric">(
-  props.defaultEncoding
+  props.defaultEncoding,
 );
 
 // Convert value to Buffer
@@ -159,7 +159,6 @@ const decodedValue = computed(() => {
           return utf8String;
         } else {
           // Not valid UTF-8, return hex instead
-          encoding.value = "hex";
           const decoded = atob(val);
           return Array.from(decoded)
             .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
@@ -197,6 +196,6 @@ watch(
     // Reset to default encoding when value changes
     encoding.value = props.defaultEncoding;
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>

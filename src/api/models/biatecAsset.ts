@@ -155,8 +155,8 @@ Troubleshooting
 
  * OpenAPI spec version: v1
  */
-import type { AssetParams } from './assetParams';
-import type { AssetType } from './assetType';
+import type { AssetParams } from "./assetParams";
+import type { AssetType } from "./assetType";
 
 export interface BiatecAsset {
   index: number;
@@ -169,4 +169,7 @@ export interface BiatecAsset {
   timestamp?: string | null;
   /** @nullable */
   totalTVLAssetInUSD?: number | null;
+  volume1H?: number;
+  volume24H?: number;
+  volume7D?: number;
 }

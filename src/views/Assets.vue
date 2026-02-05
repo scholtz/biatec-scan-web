@@ -62,16 +62,18 @@
     <div v-if="!loading && assets.length > 0">
       <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
       <div
-        class="hidden md:grid md:grid-cols-11 gap-3 px-2 text-xs text-gray-400 mb-2"
+        class="hidden md:grid md:grid-cols-13 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
         <div class="w-12 text-right">{{ $t("assets.rank") }}</div>
-        <div>{{ $t("assets.id") }}</div>
         <div>{{ $t("assets.name") }}</div>
         <div>{{ $t("assets.unit") }}</div>
         <div class="text-right">{{ $t("assets.decimals") }}</div>
         <div class="text-right">{{ $t("assets.price") }}</div>
         <div class="text-right">{{ $t("assets.realTvl") }}</div>
         <div class="text-right">{{ $t("assets.totalTvl") }}</div>
+        <div class="text-right">{{ $t("assets.volume1H") }}</div>
+        <div class="text-right">{{ $t("assets.volume24H") }}</div>
+        <div class="text-right">{{ $t("assets.volume7D") }}</div>
         <div class="text-right">{{ $t("assets.updated") }}</div>
         <div class="text-center">{{ $t("common.favorite") }}</div>
         <div class="text-right">{{ $t("common.pools") }}</div>
@@ -104,6 +106,21 @@
                   #{{ a.index }} • {{ a.params?.unitName || "-" }}
                 </div>
               </div>
+              <CopyToClipboard
+                :text="a.index.toString()"
+                :toast-message="
+                  t('common.copiedAssetId', {
+                    name: a.params?.name || a.params?.unitName || 'Asset',
+                    id: a.index,
+                  })
+                "
+                :title="
+                  t('common.copyAssetId', {
+                    name: a.params?.name || a.params?.unitName || 'Asset',
+                    id: a.index,
+                  })
+                "
+              />
             </RouterLink>
             <div class="text-right">
               <div class="text-[10px] text-gray-400">
@@ -116,7 +133,7 @@
                 <template v-else>
                   <FormattedNumber
                     :value="a.priceUSD"
-                    type="number"
+                    type="currency"
                     :minimum-fraction-digits="2"
                     :maximum-fraction-digits="6"
                     :small-threshold="0.01"
@@ -136,7 +153,7 @@
                 <template v-else>
                   <FormattedNumber
                     :value="a.tvL_USD"
-                    type="number"
+                    type="currency"
                     :maximum-fraction-digits="2"
                     :small-threshold="0.01"
                     :significant-digits="4"
@@ -182,36 +199,19 @@
                 />
               </svg>
             </button>
-            <CopyToClipboard
-              :text="a.index.toString()"
-              :toast-message="
-                t('common.copiedAssetId', {
-                  name: a.params?.name || a.params?.unitName || 'Asset',
-                  id: a.index,
-                })
-              "
-              :title="
-                t('common.copyAssetId', {
-                  name: a.params?.name || a.params?.unitName || 'Asset',
-                  id: a.index,
-                })
-              "
-              class="ml-2"
-            />
           </div>
 
           <!-- Desktop row layout -->
-          <div class="hidden md:grid md:grid-cols-11 gap-3 items-center">
+          <div class="hidden md:grid md:grid-cols-13 gap-3 items-center">
             <div class="w-12 text-sm text-white text-right font-mono">
               {{ (page - 1) * pageSize + index + 1 }}
             </div>
-            <div
-              class="font-mono text-xs text-blue-400 truncate flex items-center gap-1"
-            >
+            <div class="text-sm text-white truncate flex items-center gap-2">
+              <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
               <RouterLink
                 :to="`/asset/${a.index}`"
                 class="hover:text-blue-300"
-                >{{ a.index }}</RouterLink
+                >{{ a.params?.name || "-" }}</RouterLink
               >
               <CopyToClipboard
                 :text="a.index.toString()"
@@ -229,10 +229,6 @@
                 "
               />
             </div>
-            <div class="text-sm text-white truncate flex items-center gap-2">
-              <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
-              {{ a.params?.name || "-" }}
-            </div>
             <div class="text-sm text-white truncate">
               {{ a.params?.unitName || "-" }}
             </div>
@@ -246,7 +242,7 @@
               <template v-else>
                 <FormattedNumber
                   :value="a.priceUSD"
-                  type="number"
+                  type="currency"
                   :minimum-fraction-digits="2"
                   :maximum-fraction-digits="6"
                   :small-threshold="0.01"
@@ -261,7 +257,7 @@
               <template v-else>
                 <FormattedNumber
                   :value="a.tvL_USD"
-                  type="number"
+                  type="currency"
                   :maximum-fraction-digits="2"
                   :small-threshold="0.01"
                   :significant-digits="4"
@@ -279,7 +275,49 @@
               <template v-else>
                 <FormattedNumber
                   :value="a.totalTVLAssetInUSD"
-                  type="number"
+                  type="currency"
+                  :maximum-fraction-digits="2"
+                  :small-threshold="0.01"
+                  :significant-digits="4"
+                />
+              </template>
+            </div>
+            <div class="text-sm text-white text-right">
+              <template v-if="a.volume1H === undefined || a.volume1H === null"
+                >-</template
+              >
+              <template v-else>
+                <FormattedNumber
+                  :value="a.volume1H"
+                  type="currency"
+                  :maximum-fraction-digits="2"
+                  :small-threshold="0.01"
+                  :significant-digits="4"
+                />
+              </template>
+            </div>
+            <div class="text-sm text-white text-right">
+              <template v-if="a.volume24H === undefined || a.volume24H === null"
+                >-</template
+              >
+              <template v-else>
+                <FormattedNumber
+                  :value="a.volume24H"
+                  type="currency"
+                  :maximum-fraction-digits="2"
+                  :small-threshold="0.01"
+                  :significant-digits="4"
+                />
+              </template>
+            </div>
+            <div class="text-sm text-white text-right">
+              <template v-if="a.volume7D === undefined || a.volume7D === null"
+                >-</template
+              >
+              <template v-else>
+                <FormattedNumber
+                  :value="a.volume7D"
+                  type="currency"
                   :maximum-fraction-digits="2"
                   :small-threshold="0.01"
                   :significant-digits="4"
