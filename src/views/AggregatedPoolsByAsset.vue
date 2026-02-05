@@ -2,23 +2,26 @@
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
       <h1 class="text-xl font-semibold text-white">
-        {{ $t('aggregatedPools.title', { assetName }) }}
+        {{ $t("aggregatedPools.title", { assetName }) }}
       </h1>
       <div class="flex items-center gap-2 text-sm">
         <button
           class="px-2 py-1 rounded bg-gray-700 text-gray-200 hover:bg-gray-600 text-xs"
           @click="refresh"
         >
-          {{ $t('aggregatedPools.refresh') }}
+          {{ $t("aggregatedPools.refresh") }}
         </button>
       </div>
     </div>
 
     <div class="text-xs text-gray-400">
-      {{ $t('aggregatedPools.loaded') }}: <span class="text-white">{{ pools.length }}</span>
+      {{ $t("aggregatedPools.loaded") }}:
+      <span class="text-white">{{ pools.length }}</span>
     </div>
 
-    <div v-if="loading" class="text-gray-400">{{ $t('aggregatedPools.loadingPools') }}</div>
+    <div v-if="loading" class="text-gray-400">
+      {{ $t("aggregatedPools.loadingPools") }}
+    </div>
     <div v-else-if="error" class="text-red-400">{{ error }}</div>
 
     <div v-else>
@@ -26,17 +29,29 @@
       <div
         class="hidden md:grid md:grid-cols-11 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
-        <div>{{ $t('aggregatedPools.pair') }}</div>
-        <div class="text-right">{{ $t('aggregatedPools.pools') }}</div>
-        <div class="text-right">{{ $t('aggregatedPools.price') }}</div>
-        <div class="text-right">{{ $t('aggregatedPools.reserve', { unitName: assetUnitName }) }}</div>
-        <div class="text-right">{{ $t('aggregatedPools.otherReserve') }}</div>
-        <div class="text-right">{{ $t('aggregatedPools.virtualReserve', { unitName: assetUnitName }) }}</div>
-        <div class="text-right">{{ $t('aggregatedPools.otherVirtualReserve') }}</div>
-        <div class="text-right">{{ $t('aggregatedPools.totalTvlUsd', { unitName: assetUnitName }) }}</div>
-        <div class="text-right">{{ $t('aggregatedPools.totalTvlOtherUsd') }}</div>
-        <div class="text-right">{{ $t('aggregatedPools.volume24H') }}</div>
-        <div class="text-right">{{ $t('aggregatedPools.updated') }}</div>
+        <div>{{ $t("aggregatedPools.pair") }}</div>
+        <div class="text-right">{{ $t("aggregatedPools.pools") }}</div>
+        <div class="text-right">{{ $t("aggregatedPools.price") }}</div>
+        <div class="text-right">
+          {{ $t("aggregatedPools.reserve", { unitName: assetUnitName }) }}
+        </div>
+        <div class="text-right">{{ $t("aggregatedPools.otherReserve") }}</div>
+        <div class="text-right">
+          {{
+            $t("aggregatedPools.virtualReserve", { unitName: assetUnitName })
+          }}
+        </div>
+        <div class="text-right">
+          {{ $t("aggregatedPools.otherVirtualReserve") }}
+        </div>
+        <div class="text-right">
+          {{ $t("aggregatedPools.totalTvlUsd", { unitName: assetUnitName }) }}
+        </div>
+        <div class="text-right">
+          {{ $t("aggregatedPools.totalTvlOtherUsd") }}
+        </div>
+        <div class="text-right">{{ $t("aggregatedPools.volume24H") }}</div>
+        <div class="text-right">{{ $t("aggregatedPools.updated") }}</div>
       </div>
       <div class="space-y-1">
         <div
@@ -111,7 +126,9 @@
             {{ totalTVLBUSD(p) }}
           </div>
           <div class="text-xs text-right text-white">
-            <template v-if="p.volume24H === undefined || p.volume24H === null">-</template>
+            <template v-if="p.volume24H === undefined || p.volume24H === null"
+              >-</template
+            >
             <template v-else>
               <FormattedNumber
                 :value="p.volume24H"
@@ -232,7 +249,7 @@ function aggregatedPoolUpdateEvent(p: AggregatedPool) {
   const idx = state.pools.findIndex(
     (x) =>
       (x.assetIdA === pool.assetIdA && x.assetIdB === pool.assetIdB) ||
-      (x.assetIdA === pool.assetIdB && x.assetIdB === pool.assetIdA)
+      (x.assetIdA === pool.assetIdB && x.assetIdB === pool.assetIdA),
   );
   if (idx >= 0) {
     state.pools[idx] = pool;
@@ -262,10 +279,10 @@ const assetName = computed(
   () =>
     assetInfo.value?.unitName ||
     assetInfo.value?.name ||
-    `Asset ${state.assetId}`
+    `Asset ${state.assetId}`,
 );
 const assetUnitName = computed(
-  () => assetInfo.value?.unitName || assetInfo.value?.name || "-"
+  () => assetInfo.value?.unitName || assetInfo.value?.name || "-",
 );
 
 function otherAssetInfo(p: AggregatedPool) {
@@ -292,7 +309,7 @@ function virtualReserveSelected(p: AggregatedPool) {
   return assetService.formatAssetBalance(
     p.virtualSumA,
     BigInt(p.assetIdA),
-    false
+    false,
   );
 }
 function virtualReserveOther(p: AggregatedPool) {
@@ -300,7 +317,7 @@ function virtualReserveOther(p: AggregatedPool) {
   return assetService.formatAssetBalance(
     p.virtualSumB,
     BigInt(p.assetIdB),
-    false
+    false,
   );
 }
 function price(p: AggregatedPool) {
@@ -311,7 +328,7 @@ function price(p: AggregatedPool) {
     BigInt(p.assetIdA),
     p.virtualSumB || 0,
     BigInt(p.assetIdB),
-    false
+    false,
   );
 }
 function totalTVLAUSD(p: AggregatedPool) {
@@ -399,7 +416,7 @@ const vObserveVisibility = {
             handleVisibility(rowId, entry.isIntersecting);
           });
         },
-        { root: null, threshold: 0.01 }
+        { root: null, threshold: 0.01 },
       );
     }
     el.dataset.aggId = id;
@@ -419,7 +436,7 @@ watch(
   (val) => {
     state.assetId = BigInt((val as string) || 0);
     fetchAggregatedPools();
-  }
+  },
 );
 
 onMounted(async () => {
@@ -428,7 +445,7 @@ onMounted(async () => {
 });
 onUnmounted(() => {
   signalrService.unsubscribeFromAggregatedPoolUpdates(
-    aggregatedPoolUpdateEvent
+    aggregatedPoolUpdateEvent,
   );
   signalrService.unsubscribe();
 });
