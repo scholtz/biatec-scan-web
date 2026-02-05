@@ -70,7 +70,7 @@ class LocalizationChecker {
 
   findDuplicateKeysInText(content, fileName) {
     const duplicates = [];
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const seenKeys = new Set();
     const keyRegex = /^  "([^"]+)":/;
 
@@ -85,7 +85,7 @@ class LocalizationChecker {
             duplicates.push({
               key: key,
               line: i + 1,
-              file: fileName
+              file: fileName,
             });
           }
           seenKeys.add(key);
@@ -100,7 +100,10 @@ class LocalizationChecker {
     this.log("Checking for duplicate keys...");
 
     for (const [fileName, fileData] of Object.entries(this.files)) {
-      const duplicates = this.findDuplicateKeysInText(fileData.content, fileName);
+      const duplicates = this.findDuplicateKeysInText(
+        fileData.content,
+        fileName,
+      );
 
       if (duplicates.length > 0) {
         for (const duplicate of duplicates) {
@@ -224,7 +227,8 @@ class LocalizationChecker {
         const key = match[1];
         // Only track top-level keys (not nested keys)
         const indent = referenceLines[i].match(/^ */)[0].length;
-        if (indent === 2) { // Top-level keys have 2 spaces indentation
+        if (indent === 2) {
+          // Top-level keys have 2 spaces indentation
           keyLineNumbers[key] = i + 1; // +1 because arrays are 0-indexed but lines are 1-indexed
         }
       }
@@ -288,7 +292,10 @@ class LocalizationChecker {
       this.log(`Fixing ${fileName}...`);
 
       // Remove duplicates and reorder
-      const fixedContent = this.removeDuplicatesAndReorder(fileData.content, this.files[referenceFile].content);
+      const fixedContent = this.removeDuplicatesAndReorder(
+        fileData.content,
+        this.files[referenceFile].content,
+      );
 
       // Write back the fixed content
       try {
@@ -324,21 +331,21 @@ class LocalizationChecker {
 
     // Reorder the data to match reference order
     const reordered = {};
-    keyOrder.forEach(key => {
+    keyOrder.forEach((key) => {
       if (data.hasOwnProperty(key)) {
         reordered[key] = data[key];
       }
     });
 
     // Add any keys that exist in data but not in reference (shouldn't happen in normal cases)
-    Object.keys(data).forEach(key => {
+    Object.keys(data).forEach((key) => {
       if (!reordered.hasOwnProperty(key)) {
         reordered[key] = data[key];
       }
     });
 
     // Return formatted JSON
-    return JSON.stringify(reordered, null, 2) + '\n';
+    return JSON.stringify(reordered, null, 2) + "\n";
   }
 
   run() {
@@ -383,11 +390,13 @@ class LocalizationChecker {
 const checker = new LocalizationChecker();
 const args = process.argv.slice(2);
 
-if (args.includes('--fix')) {
+if (args.includes("--fix")) {
   checker.loadFiles();
   checker.validateJSON();
   checker.fixLocalizationFiles();
-  console.log("\n🔧 Localization files have been fixed. Run the checker again to verify.");
+  console.log(
+    "\n🔧 Localization files have been fixed. Run the checker again to verify.",
+  );
 } else {
   checker.run();
 }
