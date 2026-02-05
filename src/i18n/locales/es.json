@@ -172,82 +172,6 @@
     "architectureTitle": "Descripción de la arquitectura",
     "architectureDescription": "El backend es una API web ASP.NET Core (.NET 8) con SignalR para distribución WebSocket. Los servicios en segundo plano procesan bloques, detectan eventos DEX, enriquecen y normalizan pools, luego los indexan. Redis (opcional) acelera el almacenamiento en caché de metadatos de assets y pools. El frontend (este sitio) está construido con Vite, Vue 3, TypeScript y Tailwind."
   },
-  "transactionDetails": {
-    "paymentTransaction": "Transacción de pago",
-    "assetTransfer": "Transferencia de asset",
-    "applicationCall": "Llamada de aplicación",
-    "assetConfiguration": "Configuración de asset",
-    "assetFreeze": "Congelación de asset",
-    "keyRegistration": "Registro de clave",
-    "unknown": "DESCONOCIDO",
-    "assetId": "ID de asset:",
-    "noAmountInfo": "No hay información de cantidad disponible para este tipo de transacción."
-  },
-  "status": {
-    "online": "CONECTADO",
-    "offline": "DESCONECTADO"
-  },
-  "settings": {
-    "title": "Configuración",
-    "language": {
-      "title": "Idioma",
-      "description": "Elija su idioma preferido para la interfaz de la aplicación.",
-      "selectLabel": "Idioma"
-    },
-    "preferences": {
-      "title": "Preferencias",
-      "description": "Configuraciones y preferencias adicionales estarán disponibles en futuras actualizaciones."
-    },
-    "about": {
-      "title": "Información de la aplicación",
-      "version": "Versión",
-      "buildWith": "Construido con",
-      "repository": "Repositorio"
-    }
-  },
-  "favorites": {
-    "title": "Assets favoritos",
-    "addDemoAssets": "Agregar assets de demostración",
-    "clearAll": "Limpiar todo",
-    "view": "Vista",
-    "table": "Tabla",
-    "blocks": "Bloques",
-    "totalFavorites": "Total de favoritos",
-    "noFavoritesYet": "Aún no hay assets favoritos",
-    "browseAssetsToAdd": "Navegar assets para agregar algunos favoritos",
-    "loadingFavoriteAssets": "Cargando assets favoritos…",
-    "confirmClearAll": "¿Está seguro de que desea eliminar todos los assets favoritos?",
-    "viewPools": "Ver pools",
-    "assetPrefix": "Asset "
-  },
-  "assetDetails": {
-    "title": "Asset {name}",
-    "name": "Nombre",
-    "unit": "Unidad",
-    "decimals": "Decimales",
-    "totalSupply": "Suministro total",
-    "assetImage": "Imagen del asset",
-    "viewAllPools": "Ver todos los pools de {name}",
-    "viewPoolsWithAlgo": "Ver pools con ALGO",
-    "viewPoolsWithUsdc": "Ver pools con USDC",
-    "fullScreenChart": "Gráfico a pantalla completa",
-    "aggregatedPools": "Pools agregados",
-    "pools": "pools",
-    "noAggregatedPools": "No se encontraron pools agregados para este asset",
-    "price": "Precio",
-    "reserve": "Reserva de {unitName}",
-    "tvlUsd": "TVL de {unitName} (USD)",
-    "updated": "Actualizado",
-    "recentTrades": "Intercambios recientes",
-    "noTrades": "No se encontraron intercambios recientes para este asset",
-    "tradesFetchError": "No se pueden cargar los intercambios. Por favor intenta más tarde.",
-    "recentLiquidity": "Actualizaciones de liquidez recientes",
-    "noLiquidity": "No se encontraron actualizaciones de liquidez recientes para este asset",
-    "liquidityFetchError": "No se pueden cargar las actualizaciones de liquidez. Por favor intenta más tarde.",
-    "recentPools": "Actualizaciones de pools recientes",
-    "noPools": "No se encontraron actualizaciones de pools recientes para este asset",
-    "poolsFetchError": "No se pueden cargar las actualizaciones de pools. Por favor intenta más tarde."
-  },
   "poolDetails": {
     "title": "Detalles del pool",
     "poolAddress": "Dirección del pool",
@@ -329,6 +253,43 @@
     "loadTxError": "Error al cargar las transacciones",
     "perUnit": "/ unidad",
     "fee": "Tarifa:"
+  },
+  "status": {
+    "online": "CONECTADO",
+    "offline": "DESCONECTADO"
+  },
+  "settings": {
+    "title": "Configuración",
+    "language": {
+      "title": "Idioma",
+      "description": "Elija su idioma preferido para la interfaz de la aplicación.",
+      "selectLabel": "Idioma"
+    },
+    "preferences": {
+      "title": "Preferencias",
+      "description": "Configuraciones y preferencias adicionales estarán disponibles en futuras actualizaciones."
+    },
+    "about": {
+      "title": "Información de la aplicación",
+      "version": "Versión",
+      "buildWith": "Construido con",
+      "repository": "Repositorio"
+    }
+  },
+  "favorites": {
+    "title": "Assets favoritos",
+    "addDemoAssets": "Agregar assets de demostración",
+    "clearAll": "Limpiar todo",
+    "view": "Vista",
+    "table": "Tabla",
+    "blocks": "Bloques",
+    "totalFavorites": "Total de favoritos",
+    "noFavoritesYet": "Aún no hay assets favoritos",
+    "browseAssetsToAdd": "Navegar assets para agregar algunos favoritos",
+    "loadingFavoriteAssets": "Cargando assets favoritos…",
+    "confirmClearAll": "¿Está seguro de que desea eliminar todos los assets favoritos?",
+    "viewPools": "Ver pools",
+    "assetPrefix": "Asset "
   },
   "assetDetails": {
     "title": "Activo {name}",

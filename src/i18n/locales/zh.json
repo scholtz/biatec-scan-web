@@ -172,82 +172,6 @@
     "architectureTitle": "架构概述",
     "architectureDescription": "后端是带有 SignalR 的 ASP.NET Core (.NET 8) Web API，用于 WebSocket 分发。后台服务处理区块，检测 DEX 事件，丰富和规范化资金池，然后索引它们。Redis（可选）加速资产和资金池元数据缓存。前端（本网站）使用 Vite、Vue 3、TypeScript 和 Tailwind 构建。"
   },
-  "transactionDetails": {
-    "paymentTransaction": "支付交易",
-    "assetTransfer": "资产转移",
-    "applicationCall": "应用调用",
-    "assetConfiguration": "资产配置",
-    "assetFreeze": "资产冻结",
-    "keyRegistration": "密钥注册",
-    "unknown": "未知",
-    "assetId": "资产 ID：",
-    "noAmountInfo": "此交易类型没有可用的金额信息。"
-  },
-  "status": {
-    "online": "在线",
-    "offline": "离线"
-  },
-  "settings": {
-    "title": "设置",
-    "language": {
-      "title": "语言",
-      "description": "选择应用程序界面的首选语言。",
-      "selectLabel": "语言"
-    },
-    "preferences": {
-      "title": "偏好设置",
-      "description": "未来更新中将提供其他设置和偏好设置。"
-    },
-    "about": {
-      "title": "应用信息",
-      "version": "版本",
-      "buildWith": "构建工具",
-      "repository": "代码库"
-    }
-  },
-  "favorites": {
-    "title": "收藏资产",
-    "addDemoAssets": "添加演示资产",
-    "clearAll": "清除全部",
-    "view": "查看",
-    "table": "表格",
-    "blocks": "区块",
-    "totalFavorites": "收藏总数",
-    "noFavoritesYet": "暂无收藏资产",
-    "browseAssetsToAdd": "浏览资产以添加收藏",
-    "loadingFavoriteAssets": "加载收藏资产中…",
-    "confirmClearAll": "您确定要删除所有收藏资产吗？",
-    "viewPools": "查看池",
-    "assetPrefix": "资产 "
-  },
-  "assetDetails": {
-    "title": "资产 {name}",
-    "name": "名称",
-    "unit": "单位",
-    "decimals": "小数位",
-    "totalSupply": "总供应量",
-    "assetImage": "资产图像",
-    "viewAllPools": "查看所有 {name} 池",
-    "viewPoolsWithAlgo": "查看与ALGO的池",
-    "viewPoolsWithUsdc": "查看与USDC的池",
-    "fullScreenChart": "全屏图表",
-    "aggregatedPools": "聚合池",
-    "pools": "池",
-    "noAggregatedPools": "未找到此资产的聚合池",
-    "price": "价格",
-    "reserve": "{unitName} 储备",
-    "tvlUsd": "{unitName} TVL (美元)",
-    "updated": "更新时间",
-    "recentTrades": "最近交易",
-    "noTrades": "未找到此资产的近期交易",
-    "tradesFetchError": "无法加载交易。请稍后重试。",
-    "recentLiquidity": "最近流动性更新",
-    "noLiquidity": "未找到此资产的近期流动性更新",
-    "liquidityFetchError": "无法加载流动性更新。请稍后重试。",
-    "recentPools": "最近池更新",
-    "noPools": "未找到此资产的近期池更新",
-    "poolsFetchError": "无法加载池更新。请稍后重试。"
-  },
   "poolDetails": {
     "title": "池详情",
     "poolAddress": "池地址",
@@ -329,6 +253,43 @@
     "loadTxError": "加载交易失败",
     "perUnit": "/ 单位",
     "fee": "费用:"
+  },
+  "status": {
+    "online": "在线",
+    "offline": "离线"
+  },
+  "settings": {
+    "title": "设置",
+    "language": {
+      "title": "语言",
+      "description": "选择应用程序界面的首选语言。",
+      "selectLabel": "语言"
+    },
+    "preferences": {
+      "title": "偏好设置",
+      "description": "未来更新中将提供其他设置和偏好设置。"
+    },
+    "about": {
+      "title": "应用信息",
+      "version": "版本",
+      "buildWith": "构建工具",
+      "repository": "代码库"
+    }
+  },
+  "favorites": {
+    "title": "收藏资产",
+    "addDemoAssets": "添加演示资产",
+    "clearAll": "清除全部",
+    "view": "查看",
+    "table": "表格",
+    "blocks": "区块",
+    "totalFavorites": "收藏总数",
+    "noFavoritesYet": "暂无收藏资产",
+    "browseAssetsToAdd": "浏览资产以添加收藏",
+    "loadingFavoriteAssets": "加载收藏资产中…",
+    "confirmClearAll": "您确定要删除所有收藏资产吗？",
+    "viewPools": "查看池",
+    "assetPrefix": "资产 "
   },
   "assetDetails": {
     "title": "资产 {name}",

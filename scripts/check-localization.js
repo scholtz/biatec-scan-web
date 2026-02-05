@@ -68,32 +68,31 @@ class LocalizationChecker {
     }
   }
 
-  findDuplicateKeys(obj, path = "", visited = new Set()) {
+  findDuplicateKeysInText(content, fileName) {
     const duplicates = [];
+    const lines = content.split('\n');
+    const seenKeys = new Set();
+    const keyRegex = /^  "([^"]+)":/;
 
-    function traverse(current, currentPath) {
-      if (typeof current !== "object" || current === null) return;
-
-      const keys = Object.keys(current);
-      const seenKeys = new Set();
-
-      for (const key of keys) {
-        if (seenKeys.has(key)) {
-          duplicates.push({
-            key: key,
-            path: currentPath,
-            fullPath: currentPath ? `${currentPath}.${key}` : key,
-          });
-        }
-        seenKeys.add(key);
-
-        if (typeof current[key] === "object" && current[key] !== null) {
-          traverse(current[key], currentPath ? `${currentPath}.${key}` : key);
+    for (let i = 0; i < lines.length; i++) {
+      const match = lines[i].match(keyRegex);
+      if (match) {
+        const key = match[1];
+        // Only check top-level keys (2 spaces indentation)
+        const indent = lines[i].match(/^ */)[0].length;
+        if (indent === 2) {
+          if (seenKeys.has(key)) {
+            duplicates.push({
+              key: key,
+              line: i + 1,
+              file: fileName
+            });
+          }
+          seenKeys.add(key);
         }
       }
     }
 
-    traverse(obj, path);
     return duplicates;
   }
 
@@ -101,13 +100,14 @@ class LocalizationChecker {
     this.log("Checking for duplicate keys...");
 
     for (const [fileName, fileData] of Object.entries(this.files)) {
-      const duplicates = this.findDuplicateKeys(fileData.data);
+      const duplicates = this.findDuplicateKeysInText(fileData.content, fileName);
 
       if (duplicates.length > 0) {
         for (const duplicate of duplicates) {
           this.error(
-            `Duplicate key "${duplicate.key}" found at path "${duplicate.fullPath}"`,
+            `Duplicate key "${duplicate.key}" found at line ${duplicate.line}`,
             fileName,
+            duplicate.line,
           );
         }
       }
@@ -214,14 +214,19 @@ class LocalizationChecker {
 
     const referenceLines = this.files[referenceFile].lines;
 
-    // Find section starts in reference file
-    const sectionStarts = {};
-    const sectionRegex = /^  "([^"]+)": \{$/;
+    // Find all key line numbers in reference file
+    const keyLineNumbers = {};
+    const keyRegex = /^  "([^"]+)":/;
 
     for (let i = 0; i < referenceLines.length; i++) {
-      const match = referenceLines[i].match(sectionRegex);
+      const match = referenceLines[i].match(keyRegex);
       if (match) {
-        sectionStarts[match[1]] = i + 1; // +1 because arrays are 0-indexed but lines are 1-indexed
+        const key = match[1];
+        // Only track top-level keys (not nested keys)
+        const indent = referenceLines[i].match(/^ */)[0].length;
+        if (indent === 2) { // Top-level keys have 2 spaces indentation
+          keyLineNumbers[key] = i + 1; // +1 because arrays are 0-indexed but lines are 1-indexed
+        }
       }
     }
 
@@ -229,15 +234,15 @@ class LocalizationChecker {
     for (const [fileName, fileData] of Object.entries(this.files)) {
       if (fileName === referenceFile) continue;
 
-      for (const [section, expectedLine] of Object.entries(sectionStarts)) {
-        const sectionRegex = new RegExp(`^  "${section}": \\{$`);
+      for (const [key, expectedLine] of Object.entries(keyLineNumbers)) {
+        const keyRegex = new RegExp(`^  "${key}":`);
         let found = false;
 
         for (let i = 0; i < fileData.lines.length; i++) {
-          if (sectionRegex.test(fileData.lines[i])) {
+          if (keyRegex.test(fileData.lines[i])) {
             if (i + 1 !== expectedLine) {
-              this.warning(
-                `Section "${section}" starts at line ${i + 1} in ${fileName}, expected line ${expectedLine}`,
+              this.error(
+                `Key "${key}" at line ${i + 1} in ${fileName}, expected line ${expectedLine}`,
                 fileName,
                 i + 1,
               );
@@ -248,7 +253,7 @@ class LocalizationChecker {
         }
 
         if (!found) {
-          this.error(`Section "${section}" not found in ${fileName}`, fileName);
+          this.error(`Key "${key}" not found in ${fileName}`, fileName);
         }
       }
     }
@@ -265,6 +270,75 @@ class LocalizationChecker {
         this.error(`Invalid JSON syntax: ${error.message}`, fileName);
       }
     }
+  }
+
+  fixLocalizationFiles() {
+    this.log("Fixing localization files...");
+
+    const referenceFile = "en.json";
+    if (!this.files[referenceFile]) {
+      this.error(`Reference file ${referenceFile} not found`);
+      return;
+    }
+
+    // Fix each language file
+    for (const [fileName, fileData] of Object.entries(this.files)) {
+      if (fileName === referenceFile) continue;
+
+      this.log(`Fixing ${fileName}...`);
+
+      // Remove duplicates and reorder
+      const fixedContent = this.removeDuplicatesAndReorder(fileData.content, this.files[referenceFile].content);
+
+      // Write back the fixed content
+      try {
+        fs.writeFileSync(fileData.path, fixedContent, "utf8");
+        this.log(`Fixed ${fileName}`);
+      } catch (error) {
+        this.error(`Failed to write ${fileName}: ${error.message}`, fileName);
+      }
+    }
+  }
+
+  removeDuplicatesAndReorder(content, referenceContent) {
+    // Parse the JSON - this automatically removes duplicates by keeping the last occurrence
+    let data;
+    try {
+      data = JSON.parse(content);
+    } catch (error) {
+      this.error(`Failed to parse JSON: ${error.message}`);
+      return content;
+    }
+
+    // Parse reference to get key order
+    let referenceData;
+    try {
+      referenceData = JSON.parse(referenceContent);
+    } catch (error) {
+      this.error(`Failed to parse reference JSON: ${error.message}`);
+      return content;
+    }
+
+    // Get the key order from reference
+    const keyOrder = Object.keys(referenceData);
+
+    // Reorder the data to match reference order
+    const reordered = {};
+    keyOrder.forEach(key => {
+      if (data.hasOwnProperty(key)) {
+        reordered[key] = data[key];
+      }
+    });
+
+    // Add any keys that exist in data but not in reference (shouldn't happen in normal cases)
+    Object.keys(data).forEach(key => {
+      if (!reordered.hasOwnProperty(key)) {
+        reordered[key] = data[key];
+      }
+    });
+
+    // Return formatted JSON
+    return JSON.stringify(reordered, null, 2) + '\n';
   }
 
   run() {
@@ -307,4 +381,13 @@ class LocalizationChecker {
 
 // Run the checker
 const checker = new LocalizationChecker();
-checker.run();
+const args = process.argv.slice(2);
+
+if (args.includes('--fix')) {
+  checker.loadFiles();
+  checker.validateJSON();
+  checker.fixLocalizationFiles();
+  console.log("\n🔧 Localization files have been fixed. Run the checker again to verify.");
+} else {
+  checker.run();
+}

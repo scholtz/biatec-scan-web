@@ -172,82 +172,6 @@
     "architectureTitle": "Обзор архитектуры",
     "architectureDescription": "Бэкенд - это ASP.NET Core (.NET 8) Web API с SignalR для распространения websocket. Фоновые службы обрабатывают блоки, обнаруживают события DEX, обогащают и нормализуют пулы, затем индексируют их. Redis (опционально) ускоряет кэширование метаданных активов и пулов. Фронтенд (эта страница) построен с Vite, Vue 3, TypeScript и Tailwind."
   },
-  "transactionDetails": {
-    "paymentTransaction": "Платежная транзакция",
-    "assetTransfer": "Перевод актива",
-    "applicationCall": "Вызов приложения",
-    "assetConfiguration": "Конфигурация актива",
-    "assetFreeze": "Заморозка актива",
-    "keyRegistration": "Регистрация ключа",
-    "unknown": "НЕИЗВЕСТНО",
-    "assetId": "ID актива:",
-    "noAmountInfo": "Для этого типа транзакции информация о сумме недоступна."
-  },
-  "status": {
-    "online": "ОНЛАЙН",
-    "offline": "ОФФЛАЙН"
-  },
-  "settings": {
-    "title": "Настройки",
-    "language": {
-      "title": "Язык",
-      "description": "Выберите предпочтительный язык для интерфейса приложения.",
-      "selectLabel": "Язык"
-    },
-    "preferences": {
-      "title": "Предпочтения",
-      "description": "Дополнительные настройки и предпочтения будут доступны в будущих обновлениях."
-    },
-    "about": {
-      "title": "Информация о приложении",
-      "version": "Версия",
-      "buildWith": "Создано с",
-      "repository": "Репозиторий"
-    }
-  },
-  "favorites": {
-    "title": "Избранные активы",
-    "addDemoAssets": "Добавить демо активы",
-    "clearAll": "Очистить все",
-    "view": "Вид",
-    "table": "Таблица",
-    "blocks": "Блоки",
-    "totalFavorites": "Всего избранных",
-    "noFavoritesYet": "Пока нет избранных активов",
-    "browseAssetsToAdd": "Просмотрите активы, чтобы добавить избранные",
-    "loadingFavoriteAssets": "Загрузка избранных активов…",
-    "confirmClearAll": "Вы уверены, что хотите удалить все избранные активы?",
-    "viewPools": "Показать пулы",
-    "assetPrefix": "Актив "
-  },
-  "assetDetails": {
-    "title": "Актив {name}",
-    "name": "Название",
-    "unit": "Единица",
-    "decimals": "Десятичные знаки",
-    "totalSupply": "Общее предложение",
-    "assetImage": "Изображение актива",
-    "viewAllPools": "Посмотреть все {name} пулы",
-    "viewPoolsWithAlgo": "Посмотреть пулы с ALGO",
-    "viewPoolsWithUsdc": "Посмотреть пулы с USDC",
-    "fullScreenChart": "Полноэкранный график",
-    "aggregatedPools": "Агрегированные пулы",
-    "pools": "пулов",
-    "noAggregatedPools": "Не найдены агрегированные пулы для этого актива",
-    "price": "Цена",
-    "reserve": "Резерв {unitName}",
-    "tvlUsd": "TVL {unitName} (USD)",
-    "updated": "Обновлено",
-    "recentTrades": "Недавние сделки",
-    "noTrades": "Не найдены недавние сделки для этого актива",
-    "tradesFetchError": "Невозможно загрузить сделки. Пожалуйста, попробуйте позже.",
-    "recentLiquidity": "Недавние обновления ликвидности",
-    "noLiquidity": "Не найдены недавние обновления ликвидности для этого актива",
-    "liquidityFetchError": "Невозможно загрузить обновления ликвидности. Пожалуйста, попробуйте позже.",
-    "recentPools": "Недавние обновления пулов",
-    "noPools": "Не найдены недавние обновления пулов для этого актива",
-    "poolsFetchError": "Невозможно загрузить обновления пулов. Пожалуйста, попробуйте позже."
-  },
   "poolDetails": {
     "title": "Детали пула",
     "poolAddress": "Адрес пула",
@@ -329,6 +253,43 @@
     "loadTxError": "Не удалось загрузить транзакции",
     "perUnit": "/ ед.",
     "fee": "Комиссия:"
+  },
+  "status": {
+    "online": "ОНЛАЙН",
+    "offline": "ОФФЛАЙН"
+  },
+  "settings": {
+    "title": "Настройки",
+    "language": {
+      "title": "Язык",
+      "description": "Выберите предпочтительный язык для интерфейса приложения.",
+      "selectLabel": "Язык"
+    },
+    "preferences": {
+      "title": "Предпочтения",
+      "description": "Дополнительные настройки и предпочтения будут доступны в будущих обновлениях."
+    },
+    "about": {
+      "title": "Информация о приложении",
+      "version": "Версия",
+      "buildWith": "Создано с",
+      "repository": "Репозиторий"
+    }
+  },
+  "favorites": {
+    "title": "Избранные активы",
+    "addDemoAssets": "Добавить демо активы",
+    "clearAll": "Очистить все",
+    "view": "Вид",
+    "table": "Таблица",
+    "blocks": "Блоки",
+    "totalFavorites": "Всего избранных",
+    "noFavoritesYet": "Пока нет избранных активов",
+    "browseAssetsToAdd": "Просмотрите активы, чтобы добавить избранные",
+    "loadingFavoriteAssets": "Загрузка избранных активов…",
+    "confirmClearAll": "Вы уверены, что хотите удалить все избранные активы?",
+    "viewPools": "Показать пулы",
+    "assetPrefix": "Актив "
   },
   "assetDetails": {
     "title": "Актив {name}",

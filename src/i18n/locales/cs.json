@@ -172,54 +172,6 @@
     "architectureTitle": "Přehled architektury",
     "architectureDescription": "Backend je ASP.NET Core (.NET 8) Web API se SignalR pro websocket distribuci. Background služby zpracovávají bloky, detekují DEX události, obohacují a normalizují pooly, poté je indexují. Redis (volitelný) urychluje cachování metadata assetů a poolů. Frontend (tato stránka) je postaven s Vite, Vue 3, TypeScript a Tailwind."
   },
-  "transactionDetails": {
-    "paymentTransaction": "Platební transakce",
-    "assetTransfer": "Převod assetu",
-    "applicationCall": "Volání aplikace",
-    "assetConfiguration": "Konfigurace assetu",
-    "assetFreeze": "Zmrazení assetu",
-    "keyRegistration": "Registrace klíče",
-    "unknown": "NEZNÁMÉ",
-    "assetId": "ID assetu:",
-    "noAmountInfo": "Pro tento typ transakce nejsou dostupné informace o částce."
-  },
-  "status": {
-    "online": "ONLINE",
-    "offline": "OFFLINE"
-  },
-  "settings": {
-    "title": "Nastavení",
-    "language": {
-      "title": "Jazyk",
-      "description": "Vyberte si preferovaný jazyk pro rozhraní aplikace.",
-      "selectLabel": "Jazyk"
-    },
-    "preferences": {
-      "title": "Předvolby",
-      "description": "Další nastavení a předvolby budou dostupné v budoucích aktualizacích."
-    },
-    "about": {
-      "title": "Informace o aplikaci",
-      "version": "Verze",
-      "buildWith": "Postaveno s",
-      "repository": "Repozitář"
-    }
-  },
-  "favorites": {
-    "title": "Oblíbené assety",
-    "addDemoAssets": "Přidat ukázkové assety",
-    "clearAll": "Vymazat vše",
-    "view": "Zobrazení",
-    "table": "Tabulka",
-    "blocks": "Bloky",
-    "totalFavorites": "Celkem oblíbených",
-    "noFavoritesYet": "Zatím žádné oblíbené assety",
-    "browseAssetsToAdd": "Procházejte assety a přidejte některé oblíbené",
-    "loadingFavoriteAssets": "Načítají se oblíbené assety…",
-    "confirmClearAll": "Jste si jisti, že chcete odstranit všechny oblíbené assety?",
-    "viewPools": "Zobrazit pooly",
-    "assetPrefix": "Asset "
-  },
   "poolDetails": {
     "title": "Detaily poolu",
     "poolAddress": "Adresa poolu",
@@ -301,6 +253,43 @@
     "loadTxError": "Nepodařilo se načíst transakce",
     "perUnit": "/ jednotka",
     "fee": "Poplatek:"
+  },
+  "status": {
+    "online": "ONLINE",
+    "offline": "OFFLINE"
+  },
+  "settings": {
+    "title": "Nastavení",
+    "language": {
+      "title": "Jazyk",
+      "description": "Vyberte si preferovaný jazyk pro rozhraní aplikace.",
+      "selectLabel": "Jazyk"
+    },
+    "preferences": {
+      "title": "Předvolby",
+      "description": "Další nastavení a předvolby budou dostupné v budoucích aktualizacích."
+    },
+    "about": {
+      "title": "Informace o aplikaci",
+      "version": "Verze",
+      "buildWith": "Postaveno s",
+      "repository": "Repozitář"
+    }
+  },
+  "favorites": {
+    "title": "Oblíbené assety",
+    "addDemoAssets": "Přidat ukázkové assety",
+    "clearAll": "Vymazat vše",
+    "view": "Zobrazení",
+    "table": "Tabulka",
+    "blocks": "Bloky",
+    "totalFavorites": "Celkem oblíbených",
+    "noFavoritesYet": "Zatím žádné oblíbené assety",
+    "browseAssetsToAdd": "Procházejte assety a přidejte některé oblíbené",
+    "loadingFavoriteAssets": "Načítají se oblíbené assety…",
+    "confirmClearAll": "Jste si jisti, že chcete odstranit všechny oblíbené assety?",
+    "viewPools": "Zobrazit pooly",
+    "assetPrefix": "Asset "
   },
   "assetDetails": {
     "title": "Aktivum {name}",

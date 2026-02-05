@@ -172,71 +172,6 @@
     "architectureTitle": "Przegląd architektury",
     "architectureDescription": "Backend to ASP.NET Core (.NET 8) Web API z SignalR do dystrybucji websocketów. Usługi w tle przetwarzają bloki, wykrywają zdarzenia DEX, wzbogacają i normalizują pule, a następnie je indeksują. Redis (opcjonalnie) przyspiesza buforowanie metadanych zasobów i pul. Frontend zbudowano w oparciu o Vite, Vue 3, TypeScript i Tailwind."
   },
-  "status": {
-    "online": "ONLINE",
-    "offline": "OFFLINE"
-  },
-  "settings": {
-    "title": "Ustawienia",
-    "language": {
-      "title": "Język",
-      "description": "Wybierz preferowany język interfejsu.",
-      "selectLabel": "Język"
-    },
-    "preferences": {
-      "title": "Preferencje",
-      "description": "Dodatkowe ustawienia i preferencje będą dostępne w przyszłych aktualizacjach."
-    },
-    "about": {
-      "title": "Informacje o aplikacji",
-      "version": "Wersja",
-      "buildWith": "Zbudowano z",
-      "repository": "Repozytorium"
-    }
-  },
-  "favorites": {
-    "title": "Ulubione zasoby",
-    "addDemoAssets": "Dodaj zasoby demo",
-    "clearAll": "Wyczyść wszystko",
-    "view": "Widok",
-    "table": "Tabela",
-    "blocks": "Bloki",
-    "totalFavorites": "Łącznie ulubionych",
-    "noFavoritesYet": "Nie ma jeszcze ulubionych zasobów",
-    "browseAssetsToAdd": "Przeglądaj zasoby, aby dodać ulubione",
-    "loadingFavoriteAssets": "Ładowanie ulubionych zasobów…",
-    "confirmClearAll": "Czy na pewno chcesz usunąć wszystkie ulubione zasoby?",
-    "viewPools": "Pokaż pule",
-    "assetPrefix": "Zasób "
-  },
-  "assetDetails": {
-    "title": "Zasób {name}",
-    "name": "Nazwa",
-    "unit": "Jednostka",
-    "decimals": "Miejsca dziesiętne",
-    "totalSupply": "Całkowita podaż",
-    "assetImage": "Obraz zasobu",
-    "viewAllPools": "Pokaż wszystkie pule {name}",
-    "viewPoolsWithAlgo": "Pokaż pule z ALGO",
-    "viewPoolsWithUsdc": "Pokaż pule z USDC",
-    "fullScreenChart": "Wykres na pełnym ekranie",
-    "aggregatedPools": "Zagregowane pule",
-    "pools": "pul",
-    "noAggregatedPools": "Nie znaleziono zagregowanych pul dla tego zasobu",
-    "price": "Cena",
-    "reserve": "Rezerwa {unitName}",
-    "tvlUsd": "TVL {unitName} (USD)",
-    "updated": "Zaktualizowano",
-    "recentTrades": "Najnowsze transakcje",
-    "noTrades": "Nie znaleziono najnowszych transakcji dla tego zasobu",
-    "tradesFetchError": "Nie można załadować transakcji. Spróbuj ponownie później.",
-    "recentLiquidity": "Najnowsze aktualizacje płynności",
-    "noLiquidity": "Nie znaleziono najnowszych aktualizacji płynności dla tego zasobu",
-    "liquidityFetchError": "Nie można załadować aktualizacji płynności. Spróbuj ponownie później.",
-    "recentPools": "Najnowsze aktualizacje puli",
-    "noPools": "Nie znaleziono najnowszych aktualizacji puli dla tego zasobu",
-    "poolsFetchError": "Nie można załadować aktualizacji puli. Spróbuj ponownie później."
-  },
   "poolDetails": {
     "title": "Szczegóły puli",
     "poolAddress": "Adres puli",
@@ -318,6 +253,43 @@
     "loadTxError": "Nie udało się załadować transakcji",
     "perUnit": "/ jednostka",
     "fee": "Opłata:"
+  },
+  "status": {
+    "online": "ONLINE",
+    "offline": "OFFLINE"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "language": {
+      "title": "Język",
+      "description": "Wybierz preferowany język interfejsu.",
+      "selectLabel": "Język"
+    },
+    "preferences": {
+      "title": "Preferencje",
+      "description": "Dodatkowe ustawienia i preferencje będą dostępne w przyszłych aktualizacjach."
+    },
+    "about": {
+      "title": "Informacje o aplikacji",
+      "version": "Wersja",
+      "buildWith": "Zbudowano z",
+      "repository": "Repozytorium"
+    }
+  },
+  "favorites": {
+    "title": "Ulubione zasoby",
+    "addDemoAssets": "Dodaj zasoby demo",
+    "clearAll": "Wyczyść wszystko",
+    "view": "Widok",
+    "table": "Tabela",
+    "blocks": "Bloki",
+    "totalFavorites": "Łącznie ulubionych",
+    "noFavoritesYet": "Nie ma jeszcze ulubionych zasobów",
+    "browseAssetsToAdd": "Przeglądaj zasoby, aby dodać ulubione",
+    "loadingFavoriteAssets": "Ładowanie ulubionych zasobów…",
+    "confirmClearAll": "Czy na pewno chcesz usunąć wszystkie ulubione zasoby?",
+    "viewPools": "Pokaż pule",
+    "assetPrefix": "Zasób "
   },
   "assetDetails": {
     "title": "Aktyw {name}",

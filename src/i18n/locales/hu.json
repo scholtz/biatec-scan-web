@@ -307,7 +307,6 @@
     "aggregatedPools": "Összesített poolok",
     "pools": "pool",
     "noAggregatedPools": "Nem találhatók összesített poolok ehhez az eszközhöz",
-    "price": "Ár",
     "reserve": "{unitName} tartalék",
     "tvlUsd": "{unitName} TVL (USD)",
     "updated": "Frissítve",

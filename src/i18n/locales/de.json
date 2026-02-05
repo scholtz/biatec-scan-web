@@ -172,82 +172,6 @@
     "architectureTitle": "Architektur-Übersicht",
     "architectureDescription": "Das Backend ist eine ASP.NET Core (.NET 8) Web-API mit SignalR für WebSocket-Verteilung. Hintergrunddienste verarbeiten Blöcke, erkennen DEX-Ereignisse, reichern Pools an und normalisieren sie, dann indizieren sie sie. Redis (optional) beschleunigt Asset- und Pool-Metadaten-Caching. Das Frontend (diese Seite) ist mit Vite, Vue 3, TypeScript und Tailwind erstellt."
   },
-  "transactionDetails": {
-    "paymentTransaction": "Zahlungstransaktion",
-    "assetTransfer": "Asset-Übertragung",
-    "applicationCall": "Anwendungsaufruf",
-    "assetConfiguration": "Asset-Konfiguration",
-    "assetFreeze": "Asset-Einfrierung",
-    "keyRegistration": "Schlüssel-Registrierung",
-    "unknown": "UNBEKANNT",
-    "assetId": "Asset-ID:",
-    "noAmountInfo": "Keine Betragsinformationen für diesen Transaktionstyp verfügbar."
-  },
-  "status": {
-    "online": "ONLINE",
-    "offline": "OFFLINE"
-  },
-  "settings": {
-    "title": "Einstellungen",
-    "language": {
-      "title": "Sprache",
-      "description": "Wählen Sie Ihre bevorzugte Sprache für die Anwendungsoberfläche.",
-      "selectLabel": "Sprache"
-    },
-    "preferences": {
-      "title": "Einstellungen",
-      "description": "Zusätzliche Einstellungen und Präferenzen werden in zukünftigen Updates verfügbar sein."
-    },
-    "about": {
-      "title": "Anwendungsinfo",
-      "version": "Version",
-      "buildWith": "Erstellt mit",
-      "repository": "Repository"
-    }
-  },
-  "favorites": {
-    "title": "Lieblings-Assets",
-    "addDemoAssets": "Demo-Assets hinzufügen",
-    "clearAll": "Alle löschen",
-    "view": "Ansicht",
-    "table": "Tabelle",
-    "blocks": "Blöcke",
-    "totalFavorites": "Favoriten insgesamt",
-    "noFavoritesYet": "Noch keine Lieblings-Assets",
-    "browseAssetsToAdd": "Assets durchsuchen, um Favoriten hinzuzufügen",
-    "loadingFavoriteAssets": "Lieblings-Assets werden geladen…",
-    "confirmClearAll": "Sind Sie sicher, dass Sie alle Lieblings-Assets entfernen möchten?",
-    "viewPools": "Pools anzeigen",
-    "assetPrefix": "Asset "
-  },
-  "assetDetails": {
-    "title": "Asset {name}",
-    "name": "Name",
-    "unit": "Einheit",
-    "decimals": "Dezimalstellen",
-    "totalSupply": "Gesamtangebot",
-    "assetImage": "Asset-Bild",
-    "viewAllPools": "Alle {name} Pools anzeigen",
-    "viewPoolsWithAlgo": "Pools mit ALGO anzeigen",
-    "viewPoolsWithUsdc": "Pools mit USDC anzeigen",
-    "fullScreenChart": "Vollbild-Chart",
-    "aggregatedPools": "Aggregierte Pools",
-    "pools": "Pools",
-    "noAggregatedPools": "Keine aggregierten Pools für diesen Asset gefunden",
-    "price": "Preis",
-    "reserve": "{unitName} Reserve",
-    "tvlUsd": "{unitName} TVL (USD)",
-    "updated": "Aktualisiert",
-    "recentTrades": "Aktuelle Trades",
-    "noTrades": "Keine aktuellen Trades für diesen Asset gefunden",
-    "tradesFetchError": "Trades können nicht geladen werden. Bitte versuchen Sie es später erneut.",
-    "recentLiquidity": "Aktuelle Liquiditätsupdates",
-    "noLiquidity": "Keine aktuellen Liquiditätsupdates für diesen Asset gefunden",
-    "liquidityFetchError": "Liquiditätsupdates können nicht geladen werden. Bitte versuchen Sie es später erneut.",
-    "recentPools": "Aktuelle Pool-Updates",
-    "noPools": "Keine aktuellen Pool-Updates für diesen Asset gefunden",
-    "poolsFetchError": "Pool-Updates können nicht geladen werden. Bitte versuchen Sie es später erneut."
-  },
   "poolDetails": {
     "title": "Pool-Details",
     "poolAddress": "Pool-Adresse",
@@ -329,6 +253,43 @@
     "loadTxError": "Fehler beim Laden der Transaktionen",
     "perUnit": "/ Einheit",
     "fee": "Gebühr:"
+  },
+  "status": {
+    "online": "ONLINE",
+    "offline": "OFFLINE"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "language": {
+      "title": "Sprache",
+      "description": "Wählen Sie Ihre bevorzugte Sprache für die Anwendungsoberfläche.",
+      "selectLabel": "Sprache"
+    },
+    "preferences": {
+      "title": "Einstellungen",
+      "description": "Zusätzliche Einstellungen und Präferenzen werden in zukünftigen Updates verfügbar sein."
+    },
+    "about": {
+      "title": "Anwendungsinfo",
+      "version": "Version",
+      "buildWith": "Erstellt mit",
+      "repository": "Repository"
+    }
+  },
+  "favorites": {
+    "title": "Lieblings-Assets",
+    "addDemoAssets": "Demo-Assets hinzufügen",
+    "clearAll": "Alle löschen",
+    "view": "Ansicht",
+    "table": "Tabelle",
+    "blocks": "Blöcke",
+    "totalFavorites": "Favoriten insgesamt",
+    "noFavoritesYet": "Noch keine Lieblings-Assets",
+    "browseAssetsToAdd": "Assets durchsuchen, um Favoriten hinzuzufügen",
+    "loadingFavoriteAssets": "Lieblings-Assets werden geladen…",
+    "confirmClearAll": "Sind Sie sicher, dass Sie alle Lieblings-Assets entfernen möchten?",
+    "viewPools": "Pools anzeigen",
+    "assetPrefix": "Asset "
   },
   "assetDetails": {
     "title": "Asset {name}",
