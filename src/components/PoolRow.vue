@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
+    class="grid grid-cols-1 md:grid-cols-13 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
   >
     <!-- Protocol -->
     <div class="order-2 md:order-none">
@@ -150,6 +150,20 @@
       <div title="Virtual reserve">{{ formattedVirtualReserveB }}</div>
     </div>
 
+    <!-- 24H Volume -->
+    <div class="order-6 md:order-none text-sm text-white text-right">
+      <template v-if="state.pool.volume24H === undefined || state.pool.volume24H === null">-</template>
+      <template v-else>
+        <FormattedNumber
+          :value="state.pool.volume24H"
+          type="currency"
+          :maximum-fraction-digits="2"
+          :small-threshold="0.01"
+          :significant-digits="4"
+        />
+      </template>
+    </div>
+
     <!-- Time -->
     <div class="order-8 md:order-none text-right">
       <span class="text-xs text-gray-400">
@@ -165,6 +179,7 @@
 import { reactive, computed, onMounted, onUnmounted } from "vue";
 import { assetService } from "../services/assetService";
 import FormattedTime from "./FormattedTime.vue";
+import FormattedNumber from "./FormattedNumber.vue";
 import CopyToClipboard from "./CopyToClipboard.vue";
 import { signalrService } from "../services/signalrService";
 import { AMMType, Pool } from "../api/models";

@@ -205,6 +205,7 @@
     "aggregated": "Агрегированные",
     "totalReserveA": "Общий резерв A",
     "totalReserveB": "Общий резерв B",
+    "volume24H": "Объем 24Ч",
     "loadingPools": "Загрузка пулов…"
   },
   "blockDetails": {

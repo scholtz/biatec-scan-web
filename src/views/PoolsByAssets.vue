@@ -138,7 +138,7 @@
 
     <div v-else class="space-y-1">
       <div
-        class="hidden md:grid md:grid-cols-12 gap-3 px-2 text-xs text-gray-400"
+        class="hidden md:grid md:grid-cols-13 gap-3 px-2 text-xs text-gray-400"
       >
         <div>Protocol</div>
         <div>Type</div>
@@ -151,6 +151,7 @@
         <div class="text-right">Price Max</div>
         <div class="text-right">Reserve A</div>
         <div class="text-right">Reserve B</div>
+        <div class="text-right">{{ $t("poolsByAssets.volume24H") }}</div>
         <div class="text-right">Time</div>
       </div>
       <PoolRow v-for="p in state.pools" :key="p.poolAddress ?? ''" :pool="p" />

@@ -205,6 +205,7 @@
     "aggregated": "Aggregated",
     "totalReserveA": "Total Reserve A",
     "totalReserveB": "Total Reserve B",
+    "volume24H": "24H Volume",
     "loadingPools": "Loading pools…"
   },
   "blockDetails": {

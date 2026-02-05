@@ -205,6 +205,7 @@
     "aggregated": "聚合",
     "totalReserveA": "总储备 A",
     "totalReserveB": "总储备 B",
+    "volume24H": "24小时交易量",
     "loadingPools": "正在加载池…"
   },
   "blockDetails": {
