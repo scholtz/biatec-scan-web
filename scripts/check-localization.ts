@@ -1,77 +1,92 @@
 #!/usr/bin/env node
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const LOCALES_DIR = path.join(__dirname, "..", "src", "i18n", "locales");
-const LOCALE_FILES = [
-  "en.json",
-  "sk.json",
-  "zh.json",
-  "de.json",
-  "es.json",
-  "cs.json",
-  "ru.json",
-  "pl.json",
-  "hu.json",
-];
+interface FileData {
+  path: string;
+  content: string;
+  data: any;
+  lines: string[];
+}
+
+interface DuplicateKey {
+  key: string;
+  line: number;
+  file: string;
+}
+
+interface LocalizationFiles {
+  [fileName: string]: FileData;
+}
 
 class LocalizationChecker {
-  constructor() {
-    this.errors = [];
-    this.warnings = [];
-    this.files = {};
-  }
+  private errors: string[] = [];
+  private warnings: string[] = [];
+  private files: LocalizationFiles = {};
 
-  log(message, type = "info") {
+  private readonly LOCALES_DIR = path.join(__dirname, '..', 'src', 'i18n', 'locales');
+  private readonly LOCALE_FILES = [
+    'en.json',
+    'sk.json',
+    'zh.json',
+    'de.json',
+    'es.json',
+    'cs.json',
+    'ru.json',
+    'pl.json',
+    'hu.json',
+  ];
+
+  log(message: string, type: 'info' | 'error' | 'warning' = 'info'): void {
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] ${type.toUpperCase()}: ${message}`);
   }
 
-  error(message, file = null, line = null) {
-    const location = file ? `${file}${line ? `:${line}` : ""}` : "";
+  error(message: string, file?: string | null, line?: number | null): void {
+    const location = file ? `${file}${line ? `:${line}` : ''}` : '';
     const fullMessage = location ? `${location} - ${message}` : message;
     this.errors.push(fullMessage);
-    this.log(fullMessage, "error");
+    this.log(fullMessage, 'error');
   }
 
-  warning(message, file = null, line = null) {
-    const location = file ? `${file}${line ? `:${line}` : ""}` : "";
+  warning(message: string, file?: string | null, line?: number | null): void {
+    const location = file ? `${file}${line ? `:${line}` : ''}` : '';
     const fullMessage = location ? `${location} - ${message}` : message;
     this.warnings.push(fullMessage);
-    this.log(fullMessage, "warning");
+    this.log(fullMessage, 'warning');
   }
 
-  loadFiles() {
-    this.log("Loading localization files...");
+  loadFiles(): void {
+    this.log('Loading localization files...');
 
-    for (const fileName of LOCALE_FILES) {
-      const filePath = path.join(LOCALES_DIR, fileName);
+    for (const fileName of this.LOCALE_FILES) {
+      const filePath = path.join(this.LOCALES_DIR, fileName);
 
       try {
-        const content = fs.readFileSync(filePath, "utf8");
+        const content = fs.readFileSync(filePath, 'utf8');
         const data = JSON.parse(content);
         this.files[fileName] = {
           path: filePath,
           content: content,
           data: data,
-          lines: content.split("\n"),
+          lines: content.split('\n'),
         };
         this.log(`Loaded ${fileName}`);
       } catch (error) {
-        this.error(`Failed to load ${fileName}: ${error.message}`, fileName);
+        this.error(`Failed to load ${fileName}: ${(error as Error).message}`, fileName);
       }
     }
   }
 
-  findDuplicateKeysInText(content, fileName) {
-    const duplicates = [];
-    const lines = content.split("\n");
-    const seenKeys = new Set();
+  findDuplicateKeysInText(content: string, fileName: string): DuplicateKey[] {
+    const duplicates: DuplicateKey[] = [];
+    const lines = content.split('\n');
+    const seenKeys = new Set<string>();
     const keyRegex = /^  "([^"]+)":/;
 
     for (let i = 0; i < lines.length; i++) {
@@ -79,7 +94,7 @@ class LocalizationChecker {
       if (match) {
         const key = match[1];
         // Only check top-level keys (2 spaces indentation)
-        const indent = lines[i].match(/^ */)[0].length;
+        const indent = lines[i].match(/^ */)?.[0].length ?? 0;
         if (indent === 2) {
           if (seenKeys.has(key)) {
             duplicates.push({
@@ -96,14 +111,11 @@ class LocalizationChecker {
     return duplicates;
   }
 
-  checkDuplicateKeys() {
-    this.log("Checking for duplicate keys...");
+  checkDuplicateKeys(): void {
+    this.log('Checking for duplicate keys...');
 
     for (const [fileName, fileData] of Object.entries(this.files)) {
-      const duplicates = this.findDuplicateKeysInText(
-        fileData.content,
-        fileName,
-      );
+      const duplicates = this.findDuplicateKeysInText(fileData.content, fileName);
 
       if (duplicates.length > 0) {
         for (const duplicate of duplicates) {
@@ -117,11 +129,11 @@ class LocalizationChecker {
     }
   }
 
-  getObjectStructure(obj, prefix = "") {
-    const structure = [];
+  getObjectStructure(obj: any, prefix: string = ''): string[] {
+    const structure: string[] = [];
 
-    function traverse(current, currentPath) {
-      if (typeof current !== "object" || current === null) return;
+    function traverse(current: any, currentPath: string): void {
+      if (typeof current !== 'object' || current === null) return;
 
       const keys = Object.keys(current).sort();
 
@@ -129,7 +141,7 @@ class LocalizationChecker {
         const fullPath = currentPath ? `${currentPath}.${key}` : key;
         structure.push(fullPath);
 
-        if (typeof current[key] === "object" && current[key] !== null) {
+        if (typeof current[key] === 'object' && current[key] !== null) {
           traverse(current[key], fullPath);
         }
       }
@@ -139,17 +151,15 @@ class LocalizationChecker {
     return structure;
   }
 
-  checkStructureConsistency() {
-    this.log("Checking structure consistency...");
+  checkStructureConsistency(): void {
+    this.log('Checking structure consistency...');
 
-    const structures = {};
-    const referenceFile = "en.json";
+    const structures: { [fileName: string]: string[] } = {};
+    const referenceFile = 'en.json';
 
     // Get reference structure
     if (this.files[referenceFile]) {
-      structures[referenceFile] = this.getObjectStructure(
-        this.files[referenceFile].data,
-      );
+      structures[referenceFile] = this.getObjectStructure(this.files[referenceFile].data);
     } else {
       this.error(`Reference file ${referenceFile} not found`);
       return;
@@ -177,7 +187,7 @@ class LocalizationChecker {
       );
       if (missingKeys.length > 0) {
         this.error(
-          `Missing keys in ${fileName}: ${missingKeys.join(", ")}`,
+          `Missing keys in ${fileName}: ${missingKeys.join(', ')}`,
           fileName,
         );
       }
@@ -188,7 +198,7 @@ class LocalizationChecker {
       );
       if (extraKeys.length > 0) {
         this.error(
-          `Extra keys in ${fileName}: ${extraKeys.join(", ")}`,
+          `Extra keys in ${fileName}: ${extraKeys.join(', ')}`,
           fileName,
         );
       }
@@ -206,10 +216,10 @@ class LocalizationChecker {
     }
   }
 
-  checkLineNumbers() {
-    this.log("Checking line number consistency...");
+  checkLineNumbers(): void {
+    this.log('Checking line number consistency...');
 
-    const referenceFile = "en.json";
+    const referenceFile = 'en.json';
     if (!this.files[referenceFile]) {
       this.error(`Reference file ${referenceFile} not found`);
       return;
@@ -218,7 +228,7 @@ class LocalizationChecker {
     const referenceLines = this.files[referenceFile].lines;
 
     // Find all key line numbers in reference file
-    const keyLineNumbers = {};
+    const keyLineNumbers: { [key: string]: number } = {};
     const keyRegex = /^  "([^"]+)":/;
 
     for (let i = 0; i < referenceLines.length; i++) {
@@ -226,7 +236,7 @@ class LocalizationChecker {
       if (match) {
         const key = match[1];
         // Only track top-level keys (not nested keys)
-        const indent = referenceLines[i].match(/^ */)[0].length;
+        const indent = referenceLines[i].match(/^ */)?.[0].length ?? 0;
         if (indent === 2) {
           // Top-level keys have 2 spaces indentation
           keyLineNumbers[key] = i + 1; // +1 because arrays are 0-indexed but lines are 1-indexed
@@ -263,23 +273,23 @@ class LocalizationChecker {
     }
   }
 
-  validateJSON() {
-    this.log("Validating JSON syntax...");
+  validateJSON(): void {
+    this.log('Validating JSON syntax...');
 
     for (const [fileName, fileData] of Object.entries(this.files)) {
       try {
         JSON.parse(fileData.content);
         this.log(`JSON syntax valid for ${fileName}`);
       } catch (error) {
-        this.error(`Invalid JSON syntax: ${error.message}`, fileName);
+        this.error(`Invalid JSON syntax: ${(error as Error).message}`, fileName);
       }
     }
   }
 
-  fixLocalizationFiles() {
-    this.log("Fixing localization files...");
+  fixLocalizationFiles(): void {
+    this.log('Fixing localization files...');
 
-    const referenceFile = "en.json";
+    const referenceFile = 'en.json';
     if (!this.files[referenceFile]) {
       this.error(`Reference file ${referenceFile} not found`);
       return;
@@ -299,30 +309,30 @@ class LocalizationChecker {
 
       // Write back the fixed content
       try {
-        fs.writeFileSync(fileData.path, fixedContent, "utf8");
+        fs.writeFileSync(fileData.path, fixedContent, 'utf8');
         this.log(`Fixed ${fileName}`);
       } catch (error) {
-        this.error(`Failed to write ${fileName}: ${error.message}`, fileName);
+        this.error(`Failed to write ${fileName}: ${(error as Error).message}`, fileName);
       }
     }
   }
 
-  removeDuplicatesAndReorder(content, referenceContent) {
+  removeDuplicatesAndReorder(content: string, referenceContent: string): string {
     // Parse the JSON - this automatically removes duplicates by keeping the last occurrence
-    let data;
+    let data: any;
     try {
       data = JSON.parse(content);
     } catch (error) {
-      this.error(`Failed to parse JSON: ${error.message}`);
+      this.error(`Failed to parse JSON: ${(error as Error).message}`);
       return content;
     }
 
     // Parse reference to get key order
-    let referenceData;
+    let referenceData: any;
     try {
       referenceData = JSON.parse(referenceContent);
     } catch (error) {
-      this.error(`Failed to parse reference JSON: ${error.message}`);
+      this.error(`Failed to parse reference JSON: ${(error as Error).message}`);
       return content;
     }
 
@@ -330,7 +340,7 @@ class LocalizationChecker {
     const keyOrder = Object.keys(referenceData);
 
     // Reorder the data to match reference order
-    const reordered = {};
+    const reordered: { [key: string]: any } = {};
     keyOrder.forEach((key) => {
       if (data.hasOwnProperty(key)) {
         reordered[key] = data[key];
@@ -345,11 +355,11 @@ class LocalizationChecker {
     });
 
     // Return formatted JSON
-    return JSON.stringify(reordered, null, 2) + "\n";
+    return JSON.stringify(reordered, null, 2) + '\n';
   }
 
-  run() {
-    this.log("Starting localization files check...");
+  run(): void {
+    this.log('Starting localization files check...');
 
     this.loadFiles();
     this.validateJSON();
@@ -361,26 +371,26 @@ class LocalizationChecker {
     const totalErrors = this.errors.length;
     const totalWarnings = this.warnings.length;
 
-    console.log("\n" + "=".repeat(50));
-    console.log("SUMMARY");
-    console.log("=".repeat(50));
+    console.log('\n' + '='.repeat(50));
+    console.log('SUMMARY');
+    console.log('='.repeat(50));
     console.log(`Total errors: ${totalErrors}`);
     console.log(`Total warnings: ${totalWarnings}`);
 
     if (totalErrors > 0) {
-      console.log("\nERRORS:");
+      console.log('\nERRORS:');
       this.errors.forEach((error) => console.log(`❌ ${error}`));
     }
 
     if (totalWarnings > 0) {
-      console.log("\nWARNINGS:");
+      console.log('\nWARNINGS:');
       this.warnings.forEach((warning) => console.log(`⚠️  ${warning}`));
     }
 
     if (totalErrors === 0 && totalWarnings === 0) {
-      console.log("\n✅ All localization files are valid!");
+      console.log('\n✅ All localization files are valid!');
     } else {
-      console.log("\n🔧 Please fix the issues above.");
+      console.log('\n🔧 Please fix the issues above.');
       process.exit(1);
     }
   }
@@ -390,12 +400,12 @@ class LocalizationChecker {
 const checker = new LocalizationChecker();
 const args = process.argv.slice(2);
 
-if (args.includes("--fix")) {
+if (args.includes('--fix')) {
   checker.loadFiles();
   checker.validateJSON();
   checker.fixLocalizationFiles();
   console.log(
-    "\n🔧 Localization files have been fixed. Run the checker again to verify.",
+    '\n🔧 Localization files have been fixed. Run the checker again to verify.',
   );
 } else {
   checker.run();
