@@ -55,6 +55,11 @@
     "key": "Key",
     "value": "Value",
     "action": "Action",
+    "type": "Type",
+    "description": "Description",
+    "status": "Status",
+    "created": "Created",
+    "updated": "Updated",
     "backToDashboard": "Back to Dashboard"
   },
   "nav": {

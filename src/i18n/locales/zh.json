@@ -55,7 +55,12 @@
     "key": "Key",
     "value": "Value",
     "action": "Action",
-    "backToDashboard": "Back to Dashboard"
+    "backToDashboard": "Back to Dashboard",
+    "type": "类型",
+    "description": "描述",
+    "status": "状态",
+    "created": "创建时间",
+    "updated": "更新时间"
   },
   "nav": {
     "explore": "浏览",

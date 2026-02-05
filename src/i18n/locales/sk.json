@@ -55,7 +55,12 @@
     "key": "Kľúč",
     "value": "Hodnota",
     "action": "Akcia",
-    "backToDashboard": "Späť na nástenku"
+    "backToDashboard": "Späť na nástenku",
+    "type": "Typ",
+    "description": "Popis",
+    "status": "Stav",
+    "created": "Vytvorené",
+    "updated": "Aktualizované"
   },
   "nav": {
     "explore": "Preskúmať",

@@ -55,7 +55,12 @@
     "key": "Klíč",
     "value": "Hodnota",
     "action": "Akce",
-    "backToDashboard": "Zpět na nástěnku"
+    "backToDashboard": "Zpět na nástěnku",
+    "type": "Typ",
+    "description": "Popis",
+    "status": "Stav",
+    "created": "Vytvořeno",
+    "updated": "Aktualizováno"
   },
   "nav": {
     "explore": "Prozkoumat",

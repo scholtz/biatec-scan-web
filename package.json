@@ -8,6 +8,7 @@
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "generate:api": "orval --config orval.config.ts",
+    "check-localization-files": "node scripts/check-localization.js",
     "check-typescript-errors-tsc": "npx tsc --noEmit",
     "check-typescript-errors-vue": "npx vue-tsc --noEmit",
     "lint": "eslint src/**/*.{ts,vue} --ext .ts,.vue"
