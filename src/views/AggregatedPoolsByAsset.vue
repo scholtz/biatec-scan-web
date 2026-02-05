@@ -24,7 +24,7 @@
     <div v-else>
       <!-- Desktop header -->
       <div
-        class="hidden md:grid md:grid-cols-10 gap-3 px-2 text-xs text-gray-400 mb-2"
+        class="hidden md:grid md:grid-cols-11 gap-3 px-2 text-xs text-gray-400 mb-2"
       >
         <div>{{ $t('aggregatedPools.pair') }}</div>
         <div class="text-right">{{ $t('aggregatedPools.pools') }}</div>
@@ -35,6 +35,7 @@
         <div class="text-right">{{ $t('aggregatedPools.otherVirtualReserve') }}</div>
         <div class="text-right">{{ $t('aggregatedPools.totalTvlUsd', { unitName: assetUnitName }) }}</div>
         <div class="text-right">{{ $t('aggregatedPools.totalTvlOtherUsd') }}</div>
+        <div class="text-right">{{ $t('aggregatedPools.volume24H') }}</div>
         <div class="text-right">{{ $t('aggregatedPools.updated') }}</div>
       </div>
       <div class="space-y-1">
@@ -42,7 +43,7 @@
           v-for="p in pools"
           :key="p.id || `${p.assetIdA}-${p.assetIdB}`"
           v-observe-visibility="poolKey(p)"
-          class="grid grid-cols-1 md:grid-cols-10 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
+          class="grid grid-cols-1 md:grid-cols-11 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
         >
           <div class="flex items-center gap-2 text-sm text-white truncate">
             <div class="flex -space-x-2">
@@ -109,6 +110,18 @@
           <div class="text-xs text-right text-white">
             {{ totalTVLBUSD(p) }}
           </div>
+          <div class="text-xs text-right text-white">
+            <template v-if="p.volume24H === undefined || p.volume24H === null">-</template>
+            <template v-else>
+              <FormattedNumber
+                :value="p.volume24H"
+                type="currency"
+                :maximum-fraction-digits="2"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
+            </template>
+          </div>
           <div class="text-xs text-right text-gray-400">
             <FormattedTime
               :timestamp="p.lastUpdated || new Date().toISOString()"
@@ -128,6 +141,7 @@ import { AggregatedPool } from "../api/models";
 import { assetService } from "../services/assetService";
 import { signalrService } from "../services/signalrService";
 import FormattedTime from "../components/FormattedTime.vue";
+import FormattedNumber from "../components/FormattedNumber.vue";
 
 interface State {
   assetId: bigint;

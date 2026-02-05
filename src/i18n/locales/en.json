@@ -194,6 +194,7 @@
     "otherVirtualReserve": "Other Virtual Reserve",
     "totalTvlUsd": "Total TVL {unitName} USD",
     "totalTvlOtherUsd": "Total TVL Other USD",
+    "volume24H": "24H Volume",
     "updated": "Updated"
   },
   "poolsByAssets": {

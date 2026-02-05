@@ -194,6 +194,7 @@
     "otherVirtualReserve": "Другой виртуальный резерв",
     "totalTvlUsd": "Общий TVL {unitName} USD",
     "totalTvlOtherUsd": "Общий TVL другой USD",
+    "volume24H": "Объем 24Ч",
     "updated": "Обновлено"
   },
   "poolsByAssets": {

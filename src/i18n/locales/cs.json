@@ -194,6 +194,7 @@
     "otherVirtualReserve": "Jiná virtuální rezerva",
     "totalTvlUsd": "Celkové TVL {unitName} USD",
     "totalTvlOtherUsd": "Celkové TVL jiné USD",
+    "volume24H": "Objem 24H",
     "updated": "Aktualizováno"
   },
   "poolsByAssets": {

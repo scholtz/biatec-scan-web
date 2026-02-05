@@ -194,6 +194,7 @@
     "otherVirtualReserve": "Egyéb virtuális tartalék",
     "totalTvlUsd": "Összes TVL {unitName} USD",
     "totalTvlOtherUsd": "Összes TVL egyéb USD",
+    "volume24H": "Forgalom 24Ó",
     "updated": "Frissítve"
   },
   "poolsByAssets": {

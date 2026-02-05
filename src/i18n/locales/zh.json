@@ -194,6 +194,7 @@
     "otherVirtualReserve": "其他虚拟储备",
     "totalTvlUsd": "总TVL {unitName} USD",
     "totalTvlOtherUsd": "总TVL 其他 USD",
+    "volume24H": "24小时交易量",
     "updated": "已更新"
   },
   "poolsByAssets": {
