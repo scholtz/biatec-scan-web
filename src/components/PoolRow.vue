@@ -152,7 +152,12 @@
 
     <!-- 24H Volume -->
     <div class="order-6 md:order-none text-sm text-white text-right">
-      <template v-if="state.pool.volume24H === undefined || state.pool.volume24H === null">-</template>
+      <template
+        v-if="
+          state.pool.volume24H === undefined || state.pool.volume24H === null
+        "
+        >-</template
+      >
       <template v-else>
         <FormattedNumber
           :value="state.pool.volume24H"
@@ -196,7 +201,7 @@ onMounted(() => {
   if (
     assetService.needToReverseAssets(
       BigInt(props.pool.assetIdA ?? 0n),
-      BigInt(props.pool.assetIdB ?? 0n)
+      BigInt(props.pool.assetIdB ?? 0n),
     )
   ) {
     state.pool = assetService.reversePool(props.pool);
@@ -217,7 +222,7 @@ const poolUpdateEvent = (pool: Pool) => {
     if (
       assetService.needToReverseAssets(
         BigInt(pool.assetIdA ?? 0n),
-        BigInt(pool.assetIdB ?? 0n)
+        BigInt(pool.assetIdB ?? 0n),
       )
     ) {
       state.pool = assetService.reversePool(pool);
@@ -241,7 +246,7 @@ const formattedPrice = computed(() => {
     state.pool.assetIdA ?? 0,
     state.pool.virtualAmountB,
     state.pool.assetIdB ?? 0,
-    false
+    false,
   );
 });
 const formattedPriceMin = computed(() => {
@@ -249,7 +254,7 @@ const formattedPriceMin = computed(() => {
   return assetService.formatPairBalanceWithRealValue(
     state.pool.pMin,
     state.pool.assetIdA ?? 0,
-    state.pool.assetIdB ?? 0
+    state.pool.assetIdB ?? 0,
   );
 });
 const formattedPriceMax = computed(() => {
@@ -257,7 +262,7 @@ const formattedPriceMax = computed(() => {
   return assetService.formatPairBalanceWithRealValue(
     state.pool.pMax,
     state.pool.assetIdA ?? 0,
-    state.pool.assetIdB ?? 0
+    state.pool.assetIdB ?? 0,
   );
 });
 const formattedReserveA = computed(() => {
@@ -271,7 +276,7 @@ const formattedReserveA = computed(() => {
   return assetService.formatAssetBalance(
     state.pool.realAmountA,
     state.pool.assetIdA ?? 0,
-    false
+    false,
   );
 });
 
@@ -291,7 +296,7 @@ const formattedVirtualReserveA = computed(() => {
   return assetService.formatAssetBalance(
     state.pool.virtualAmountA,
     state.pool.assetIdA ?? 0,
-    false
+    false,
   );
 });
 const formattedVirtualReserveB = computed(() => {
@@ -310,7 +315,7 @@ const formattedVirtualReserveB = computed(() => {
   return assetService.formatAssetBalance(
     state.pool.virtualAmountB,
     state.pool.assetIdB ?? 0,
-    false
+    false,
   );
 });
 
@@ -325,7 +330,7 @@ const formattedReserveB = computed(() => {
   return assetService.formatAssetBalance(
     state.pool.realAmountB,
     state.pool.assetIdB ?? 0,
-    false
+    false,
   );
 });
 
