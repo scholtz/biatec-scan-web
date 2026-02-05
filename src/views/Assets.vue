@@ -203,7 +203,7 @@
           <!-- Desktop row layout -->
           <div class="hidden md:grid md:grid-cols-12 gap-3 items-center">
             <div class="w-12 text-sm text-white text-right font-mono">
-              {{ (page - 1) * pageSize + index + 1 }}
+              #{{ (page - 1) * pageSize + index + 1 }}
             </div>
             <div class="text-sm text-white truncate flex items-center gap-2">
               <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
