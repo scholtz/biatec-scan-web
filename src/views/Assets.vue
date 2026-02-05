@@ -70,9 +70,13 @@
         <div class="text-right">{{ $t("assets.price") }}</div>
         <div class="text-right">{{ $t("assets.realTvl") }}</div>
         <div class="text-right">{{ $t("assets.totalTvl") }}</div>
-        <div class="text-right hidden lg:block">{{ $t("assets.volume1H") }}</div>
+        <div class="text-right hidden lg:block">
+          {{ $t("assets.volume1H") }}
+        </div>
         <div class="text-right">{{ $t("assets.volume24H") }}</div>
-        <div class="text-right hidden lg:block">{{ $t("assets.volume7D") }}</div>
+        <div class="text-right hidden lg:block">
+          {{ $t("assets.volume7D") }}
+        </div>
         <div class="text-right">{{ $t("assets.updated") }}</div>
         <div class="text-center">{{ $t("common.favorite") }}</div>
         <div class="text-right">{{ $t("common.pools") }}</div>
