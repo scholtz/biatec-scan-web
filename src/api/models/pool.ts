@@ -214,8 +214,22 @@ export interface Pool {
   volume24H?: number | null;
   /** @nullable */
   volume7D?: number | null;
+  /** @nullable */
+  priceAUSD1H?: number | null;
+  /** @nullable */
+  priceAUSD24H?: number | null;
+  /** @nullable */
+  priceAUSD7D?: number | null;
+  /** @nullable */
+  priceBUSD1H?: number | null;
+  /** @nullable */
+  priceBUSD24H?: number | null;
+  /** @nullable */
+  priceBUSD7D?: number | null;
   readonly virtualAmountA?: number;
+  readonly virtualAmountAForPrice?: number;
   readonly realAmountA?: number;
   readonly virtualAmountB?: number;
+  readonly virtualAmountBForPrice?: number;
   readonly realAmountB?: number;
 }

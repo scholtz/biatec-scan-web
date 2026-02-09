@@ -175,4 +175,10 @@ export interface BiatecAsset {
   volume24H?: number | null;
   /** @nullable */
   volume7D?: number | null;
+  /** @nullable */
+  priceUSD1H?: number | null;
+  /** @nullable */
+  priceUSD24H?: number | null;
+  /** @nullable */
+  priceUSD7D?: number | null;
 }

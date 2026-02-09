@@ -163,6 +163,10 @@ export interface AggregatedPool {
   assetIdB?: number;
   virtualSumALevel1?: number;
   virtualSumBLevel1?: number;
+  /** @nullable */
+  virtualSumALevel1ForPrice?: number | null;
+  /** @nullable */
+  virtualSumBLevel1ForPrice?: number | null;
   virtualSumALevel2?: number;
   virtualSumBLevel2?: number;
   tvL_A?: number;
@@ -186,4 +190,16 @@ export interface AggregatedPool {
   volume24H?: number | null;
   /** @nullable */
   volume7D?: number | null;
+  /** @nullable */
+  priceAUSD1H?: number | null;
+  /** @nullable */
+  priceAUSD24H?: number | null;
+  /** @nullable */
+  priceAUSD7D?: number | null;
+  /** @nullable */
+  priceBUSD1H?: number | null;
+  /** @nullable */
+  priceBUSD24H?: number | null;
+  /** @nullable */
+  priceBUSD7D?: number | null;
 }
