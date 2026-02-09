@@ -88,11 +88,11 @@
     <div v-else-if="error && assets.length === 0" class="text-red-400">
       {{ error }}
     </div>
-    {{ gridCols }}
     <div v-if="!loading && assets.length > 0">
       <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
       <div
-        :class="`hidden md:grid md:grid-cols-${gridCols} gap-3 px-2 text-xs text-gray-400 mb-2`"
+        :class="`hidden md:grid gap-3 px-2 text-xs text-gray-400 mb-2`"
+        :style="`grid-template-columns: repeat(${gridCols}, 1fr)`"
       >
         <div class="w-12 text-right">{{ $t("assets.rank") }}</div>
         <div>{{ $t("assets.name") }}</div>
@@ -108,19 +108,13 @@
         </div>
         <div class="text-right">{{ $t("assets.realTvl") }}</div>
         <div class="text-right">{{ $t("assets.totalTvl") }}</div>
-        <div
-          v-if="selectedTimes.includes('1H')"
-          class="text-right hidden lg:block"
-        >
+        <div v-if="selectedTimes.includes('1H')" class="text-right">
           {{ $t("assets.volume1H") }}
         </div>
         <div v-if="selectedTimes.includes('24H')" class="text-right">
           {{ $t("assets.volume24H") }}
         </div>
-        <div
-          v-if="selectedTimes.includes('7D')"
-          class="text-right hidden lg:block"
-        >
+        <div v-if="selectedTimes.includes('7D')" class="text-right">
           {{ $t("assets.volume7D") }}
         </div>
         <div class="text-right">{{ $t("assets.updated") }}</div>
@@ -250,9 +244,9 @@
             </button>
           </div>
 
-          <!-- Desktop row layout -->
           <div
-            :class="`hidden md:grid md:grid-cols-${gridCols} gap-3 items-center`"
+            :class="`hidden md:grid gap-3 items-center`"
+            :style="`grid-template-columns: repeat(${gridCols}, 1fr)`"
           >
             <div class="w-12 text-sm text-white text-right font-mono">
               #{{ (page - 1) * pageSize + index + 1 }}
@@ -280,7 +274,7 @@
                 "
               />
             </div>
-            <div class="text-sm text-white text-right">
+            <div class="text-sm text-white text-right whitespace-nowrap">
               <template v-if="a.priceUSD === undefined || a.priceUSD === null"
                 >-</template
               >
@@ -297,7 +291,7 @@
             </div>
             <div
               v-if="selectedTimes.includes('1H')"
-              class="text-sm text-white text-right"
+              class="text-sm text-white text-right whitespace-nowrap"
             >
               <template v-if="!a.priceUSD || !a.priceUSD1H">-</template>
               <template v-else>
@@ -318,7 +312,7 @@
             </div>
             <div
               v-if="selectedTimes.includes('24H')"
-              class="text-sm text-white text-right"
+              class="text-sm text-white text-right whitespace-nowrap"
             >
               <template v-if="!a.priceUSD || !a.priceUSD24H">-</template>
               <template v-else>
@@ -339,7 +333,7 @@
             </div>
             <div
               v-if="selectedTimes.includes('7D')"
-              class="text-sm text-white text-right"
+              class="text-sm text-white text-right whitespace-nowrap"
             >
               <template v-if="!a.priceUSD || !a.priceUSD7D">-</template>
               <template v-else>
@@ -358,7 +352,7 @@
                 </span>
               </template>
             </div>
-            <div class="text-sm text-white text-right">
+            <div class="text-sm text-white text-right whitespace-nowrap">
               <template v-if="a.tvL_USD === undefined || a.tvL_USD === null"
                 >-</template
               >
@@ -372,7 +366,7 @@
                 />
               </template>
             </div>
-            <div class="text-sm text-white text-right">
+            <div class="text-sm text-white text-right whitespace-nowrap">
               <template
                 v-if="
                   a.totalTVLAssetInUSD === undefined ||
@@ -392,7 +386,7 @@
             </div>
             <div
               v-if="selectedTimes.includes('1H')"
-              class="text-sm text-white text-right hidden lg:block"
+              class="text-sm text-white text-right whitespace-nowrap"
             >
               <template v-if="a.volume1H === undefined || a.volume1H === null"
                 >-</template
@@ -409,7 +403,7 @@
             </div>
             <div
               v-if="selectedTimes.includes('24H')"
-              class="text-sm text-white text-right"
+              class="text-sm text-white text-right whitespace-nowrap"
             >
               <template v-if="a.volume24H === undefined || a.volume24H === null"
                 >-</template
@@ -426,7 +420,7 @@
             </div>
             <div
               v-if="selectedTimes.includes('7D')"
-              class="text-sm text-white text-right hidden lg:block"
+              class="text-sm text-white text-right whitespace-nowrap"
             >
               <template v-if="a.volume7D === undefined || a.volume7D === null"
                 >-</template
@@ -860,7 +854,7 @@ const filteredAssets = computed(() => {
   });
 });
 
-const gridCols = computed(() => 9 + selectedTimes.value.length);
+const gridCols = computed(() => 8 + 2 * selectedTimes.value.length);
 
 function isFavorite(assetIndex: number): boolean {
   return favoriteService.isReactiveFavorite(assetIndex);
