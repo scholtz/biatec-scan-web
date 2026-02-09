@@ -109,7 +109,10 @@
     "demoModeError": "Modo demo: API no disponible, mostrando assets de ejemplo",
     "auto": " (Auto)",
     "stableAssets": "Assets estables",
-    "utilityTokens": "Tokens de utilidad"
+    "utilityTokens": "Tokens de utilidad",
+    "change1H": "1h %",
+    "change24H": "24h %",
+    "change7D": "7d %"
   },
   "search": {
     "title": "Búsqueda de red",

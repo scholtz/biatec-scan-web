@@ -109,7 +109,10 @@
     "demoModeError": "演示模式：API 不可用，显示示例资产",
     "auto": "（自动）",
     "stableAssets": "稳定资产",
-    "utilityTokens": "实用代币"
+    "utilityTokens": "实用代币",
+    "change1H": "1小时 %",
+    "change24H": "24小时 %",
+    "change7D": "7天 %"
   },
   "search": {
     "title": "网络搜索",

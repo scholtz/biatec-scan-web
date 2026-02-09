@@ -109,7 +109,10 @@
     "demoModeError": "Demo mode: API unavailable, showing sample assets",
     "auto": " (Auto)",
     "stableAssets": "Stable Assets",
-    "utilityTokens": "Utility Tokens"
+    "utilityTokens": "Utility Tokens",
+    "change1H": "1h %",
+    "change24H": "24h %",
+    "change7D": "7d %"
   },
   "search": {
     "title": "Network Search",

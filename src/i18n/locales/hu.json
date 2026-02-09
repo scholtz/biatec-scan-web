@@ -109,7 +109,10 @@
     "demoModeError": "Demo mód: API nem elérhető, minta eszközök megjelenítése",
     "auto": " (Automatikus)",
     "stableAssets": "Stabil eszközök",
-    "utilityTokens": "Használati tokenek"
+    "utilityTokens": "Használati tokenek",
+    "change1H": "1ó %",
+    "change24H": "24ó %",
+    "change7D": "7n %"
   },
   "search": {
     "title": "Hálózati keresés",

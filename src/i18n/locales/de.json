@@ -109,7 +109,10 @@
     "demoModeError": "Demo-Modus: API nicht verfügbar, Beispiel-Assets werden angezeigt",
     "auto": " (Auto)",
     "stableAssets": "Stabile Assets",
-    "utilityTokens": "Utility-Tokens"
+    "utilityTokens": "Utility-Tokens",
+    "change1H": "1h %",
+    "change24H": "24h %",
+    "change7D": "7d %"
   },
   "search": {
     "title": "Netzwerk-Suche",

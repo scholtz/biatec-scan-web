@@ -31,6 +31,36 @@
         <span>{{ $t("assets.utilityTokens") }}</span>
       </label>
 
+      <div class="flex items-center gap-2">
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            :checked="selectedTimes.includes('1H')"
+            @change="toggleTime('1H')"
+            class="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
+          />
+          <span>1H</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            :checked="selectedTimes.includes('24H')"
+            @change="toggleTime('24H')"
+            class="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
+          />
+          <span>24H</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            :checked="selectedTimes.includes('7D')"
+            @change="toggleTime('7D')"
+            class="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
+          />
+          <span>7D</span>
+        </label>
+      </div>
+
       <div>
         {{ $t("common.page") }}: <span class="text-white">{{ page }}</span>
       </div>
@@ -58,23 +88,39 @@
     <div v-else-if="error && assets.length === 0" class="text-red-400">
       {{ error }}
     </div>
-
+    {{ gridCols }}
     <div v-if="!loading && assets.length > 0">
       <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
       <div
-        class="hidden md:grid md:grid-cols-12 gap-3 px-2 text-xs text-gray-400 mb-2"
+        :class="`hidden md:grid md:grid-cols-${gridCols} gap-3 px-2 text-xs text-gray-400 mb-2`"
       >
         <div class="w-12 text-right">{{ $t("assets.rank") }}</div>
         <div>{{ $t("assets.name") }}</div>
-        <div>{{ $t("assets.unit") }}</div>
         <div class="text-right">{{ $t("assets.price") }}</div>
+        <div v-if="selectedTimes.includes('1H')" class="text-right">
+          {{ $t("assets.change1H") }}
+        </div>
+        <div v-if="selectedTimes.includes('24H')" class="text-right">
+          {{ $t("assets.change24H") }}
+        </div>
+        <div v-if="selectedTimes.includes('7D')" class="text-right">
+          {{ $t("assets.change7D") }}
+        </div>
         <div class="text-right">{{ $t("assets.realTvl") }}</div>
         <div class="text-right">{{ $t("assets.totalTvl") }}</div>
-        <div class="text-right hidden lg:block">
+        <div
+          v-if="selectedTimes.includes('1H')"
+          class="text-right hidden lg:block"
+        >
           {{ $t("assets.volume1H") }}
         </div>
-        <div class="text-right">{{ $t("assets.volume24H") }}</div>
-        <div class="text-right hidden lg:block">
+        <div v-if="selectedTimes.includes('24H')" class="text-right">
+          {{ $t("assets.volume24H") }}
+        </div>
+        <div
+          v-if="selectedTimes.includes('7D')"
+          class="text-right hidden lg:block"
+        >
           {{ $t("assets.volume7D") }}
         </div>
         <div class="text-right">{{ $t("assets.updated") }}</div>
@@ -205,7 +251,9 @@
           </div>
 
           <!-- Desktop row layout -->
-          <div class="hidden md:grid md:grid-cols-12 gap-3 items-center">
+          <div
+            :class="`hidden md:grid md:grid-cols-${gridCols} gap-3 items-center`"
+          >
             <div class="w-12 text-sm text-white text-right font-mono">
               #{{ (page - 1) * pageSize + index + 1 }}
             </div>
@@ -232,9 +280,6 @@
                 "
               />
             </div>
-            <div class="text-sm text-white truncate">
-              {{ a.params?.unitName || "-" }}
-            </div>
             <div class="text-sm text-white text-right">
               <template v-if="a.priceUSD === undefined || a.priceUSD === null"
                 >-</template
@@ -248,6 +293,69 @@
                   :small-threshold="0.01"
                   :significant-digits="4"
                 />
+              </template>
+            </div>
+            <div
+              v-if="selectedTimes.includes('1H')"
+              class="text-sm text-white text-right"
+            >
+              <template v-if="!a.priceUSD || !a.priceUSD1H">-</template>
+              <template v-else>
+                <span
+                  :class="
+                    getChangePercent(a.priceUSD!, a.priceUSD1H!)! > 0
+                      ? 'text-green-400'
+                      : getChangePercent(a.priceUSD!, a.priceUSD1H!)! < 0
+                        ? 'text-red-400'
+                        : 'text-gray-400'
+                  "
+                >
+                  {{
+                    formatPercent(getChangePercent(a.priceUSD!, a.priceUSD1H!))
+                  }}
+                </span>
+              </template>
+            </div>
+            <div
+              v-if="selectedTimes.includes('24H')"
+              class="text-sm text-white text-right"
+            >
+              <template v-if="!a.priceUSD || !a.priceUSD24H">-</template>
+              <template v-else>
+                <span
+                  :class="
+                    getChangePercent(a.priceUSD!, a.priceUSD24H!)! > 0
+                      ? 'text-green-400'
+                      : getChangePercent(a.priceUSD!, a.priceUSD24H!)! < 0
+                        ? 'text-red-400'
+                        : 'text-gray-400'
+                  "
+                >
+                  {{
+                    formatPercent(getChangePercent(a.priceUSD!, a.priceUSD24H!))
+                  }}
+                </span>
+              </template>
+            </div>
+            <div
+              v-if="selectedTimes.includes('7D')"
+              class="text-sm text-white text-right"
+            >
+              <template v-if="!a.priceUSD || !a.priceUSD7D">-</template>
+              <template v-else>
+                <span
+                  :class="
+                    getChangePercent(a.priceUSD!, a.priceUSD7D!)! > 0
+                      ? 'text-green-400'
+                      : getChangePercent(a.priceUSD!, a.priceUSD7D!)! < 0
+                        ? 'text-red-400'
+                        : 'text-gray-400'
+                  "
+                >
+                  {{
+                    formatPercent(getChangePercent(a.priceUSD!, a.priceUSD7D!))
+                  }}
+                </span>
               </template>
             </div>
             <div class="text-sm text-white text-right">
@@ -282,7 +390,10 @@
                 />
               </template>
             </div>
-            <div class="text-sm text-white text-right hidden lg:block">
+            <div
+              v-if="selectedTimes.includes('1H')"
+              class="text-sm text-white text-right hidden lg:block"
+            >
               <template v-if="a.volume1H === undefined || a.volume1H === null"
                 >-</template
               >
@@ -296,7 +407,10 @@
                 />
               </template>
             </div>
-            <div class="text-sm text-white text-right">
+            <div
+              v-if="selectedTimes.includes('24H')"
+              class="text-sm text-white text-right"
+            >
               <template v-if="a.volume24H === undefined || a.volume24H === null"
                 >-</template
               >
@@ -310,7 +424,10 @@
                 />
               </template>
             </div>
-            <div class="text-sm text-white text-right hidden lg:block">
+            <div
+              v-if="selectedTimes.includes('7D')"
+              class="text-sm text-white text-right hidden lg:block"
+            >
               <template v-if="a.volume7D === undefined || a.volume7D === null"
                 >-</template
               >
@@ -434,6 +551,9 @@ const state = reactive<State>({
 
 const showStable = ref(false);
 const showUtility = ref(true);
+
+const selectedTimes = ref<string[]>(["24H"]);
+const STORAGE_KEY = "assets-time-selection";
 
 const api = getAVMTradeReporterAPI();
 
@@ -569,6 +689,9 @@ function loadDemoAssets() {
         total: 10000000000,
       },
       priceUSD: 1.0,
+      priceUSD1H: 1.0,
+      priceUSD24H: 1.0,
+      priceUSD7D: 1.0,
       tvL_USD: 50000000,
       totalTVLAssetInUSD: 75000000,
       timestamp: new Date().toISOString(),
@@ -583,6 +706,9 @@ function loadDemoAssets() {
         total: 5000000000,
       },
       priceUSD: 0.9999,
+      priceUSD1H: 0.9999,
+      priceUSD24H: 0.9999,
+      priceUSD7D: 0.9999,
       tvL_USD: 25000000,
       totalTVLAssetInUSD: 30000000,
       timestamp: new Date().toISOString(),
@@ -597,6 +723,9 @@ function loadDemoAssets() {
         total: 21000000,
       },
       priceUSD: 67250.45,
+      priceUSD1H: 67000.0,
+      priceUSD24H: 66500.0,
+      priceUSD7D: 65000.0,
       tvL_USD: 15000000,
       totalTVLAssetInUSD: 20000000,
       timestamp: new Date().toISOString(),
@@ -611,6 +740,9 @@ function loadDemoAssets() {
         total: 120000000,
       },
       priceUSD: 2580.75,
+      priceUSD1H: 2550.0,
+      priceUSD24H: 2520.0,
+      priceUSD7D: 2400.0,
       tvL_USD: 8000000,
       totalTVLAssetInUSD: 12000000,
       timestamp: new Date().toISOString(),
@@ -625,6 +757,9 @@ function loadDemoAssets() {
         total: 10000000000,
       },
       priceUSD: 0.00123,
+      priceUSD1H: 0.0012,
+      priceUSD24H: 0.00125,
+      priceUSD7D: 0.0013,
       tvL_USD: 1200000,
       totalTVLAssetInUSD: 1500000,
       timestamp: new Date().toISOString(),
@@ -680,6 +815,32 @@ function changePageSize() {
   state.page = 1;
   fetchAssets();
 }
+function toggleTime(time: string) {
+  if (selectedTimes.value.includes(time)) {
+    selectedTimes.value = selectedTimes.value.filter((t) => t !== time);
+  } else {
+    selectedTimes.value.push(time);
+  }
+  saveTimeSelection();
+}
+
+function saveTimeSelection() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedTimes.value));
+}
+
+function getChangePercent(
+  current: number | undefined | null,
+  previous: number | undefined | null,
+): number | null {
+  if (current == null || previous == null || previous === 0) return null;
+  return ((current - previous) / previous) * 100;
+}
+
+function formatPercent(value: number | null): string {
+  if (value == null) return "-";
+  return (value > 0 ? "+" : "") + value.toFixed(2) + "%";
+}
+
 function handleFilterChange(type: "stable" | "utility") {
   if (type === "stable" && !showStable.value && !showUtility.value) {
     showUtility.value = true;
@@ -698,6 +859,8 @@ const filteredAssets = computed(() => {
     return (showStable.value && isStable) || (showUtility.value && isUtility);
   });
 });
+
+const gridCols = computed(() => 9 + selectedTimes.value.length);
 
 function isFavorite(assetIndex: number): boolean {
   return favoriteService.isReactiveFavorite(assetIndex);
@@ -724,6 +887,16 @@ watch(() => state.pageSize, fetchAssets);
 onMounted(async () => {
   // Calculate optimal page size first
   updatePageSizeOptions();
+
+  // Load time selection from localStorage
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    try {
+      selectedTimes.value = JSON.parse(stored);
+    } catch (e) {
+      console.error("Failed to parse stored time selection", e);
+    }
+  }
 
   // Add resize event listener
   window.addEventListener("resize", handleResize);
