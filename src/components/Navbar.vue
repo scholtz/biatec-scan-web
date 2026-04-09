@@ -23,37 +23,37 @@
               to="/"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
-              {{ $t('nav.explore') }}
+              {{ $t("nav.assets") }}
+            </router-link>
+            <router-link
+              to="/explore"
+              class="text-gray-300 hover:text-white transition-colors duration-200"
+            >
+              {{ $t("nav.explore") }}
             </router-link>
             <router-link
               to="/search"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
-              {{ $t('nav.search') }}
-            </router-link>
-            <router-link
-              to="/assets"
-              class="text-gray-300 hover:text-white transition-colors duration-200"
-            >
-              {{ $t('nav.assets') }}
+              {{ $t("nav.search") }}
             </router-link>
             <router-link
               to="/favorite"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
-              {{ $t('nav.favorites') }}
+              {{ $t("nav.favorites") }}
             </router-link>
             <router-link
               to="/settings"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
-              {{ $t('nav.settings') }}
+              {{ $t("nav.settings") }}
             </router-link>
             <router-link
               to="/about"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
-              {{ $t('nav.about') }}
+              {{ $t("nav.about") }}
             </router-link>
           </div>
         </div>
@@ -128,7 +128,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>{{ $t('nav.explore') }}</span>
+              <span>{{ $t("nav.explore") }}</span>
               <span
                 v-if="isActive('/')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -139,7 +139,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>{{ $t('nav.search') }}</span>
+              <span>{{ $t("nav.search") }}</span>
               <span
                 v-if="isActive('/search')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -150,7 +150,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>{{ $t('nav.assets') }}</span>
+              <span>{{ $t("nav.assets") }}</span>
               <span
                 v-if="isActive('/assets')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -161,7 +161,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>{{ $t('nav.favorites') }}</span>
+              <span>{{ $t("nav.favorites") }}</span>
               <span
                 v-if="isActive('/favorite')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -172,7 +172,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>{{ $t('nav.settings') }}</span>
+              <span>{{ $t("nav.settings") }}</span>
               <span
                 v-if="isActive('/settings')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -183,7 +183,7 @@
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
             >
-              <span>{{ $t('nav.about') }}</span>
+              <span>{{ $t("nav.about") }}</span>
               <span
                 v-if="isActive('/about')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -255,7 +255,7 @@ watch(
   () => route.fullPath,
   () => {
     mobileOpen.value = false;
-  }
+  },
 );
 
 onMounted(() => {
