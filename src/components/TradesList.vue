@@ -110,7 +110,10 @@ async function fetchTrades() {
     });
 
     // Combine and sort by timestamp (most recent first)
-    const allTrades = [...(response.data || []), ...(responseOut.data || [])];
+    const allTrades = [
+      ...(response.data?.items || []),
+      ...(responseOut.data?.items || []),
+    ];
     allTrades.sort(
       (a, b) =>
         new Date(b.timestamp || 0).getTime() -

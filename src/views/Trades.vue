@@ -91,11 +91,11 @@
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <label class="space-y-1 text-sm text-gray-300">
-          <span>{{ $t("trades.search") }}</span>
+          <span>{{ $t("trades.trader") }}</span>
           <input
-            v-model.trim="filters.query"
+            v-model.trim="filters.trader"
             type="search"
-            :placeholder="$t('trades.searchPlaceholder')"
+            :placeholder="$t('trades.traderPlaceholder')"
             class="filter-control"
           />
         </label>
@@ -169,12 +169,24 @@
         </label>
 
         <label class="space-y-1 text-sm text-gray-300">
+          <span>{{ $t("trades.maxFeesUSD") }}</span>
+          <input
+            v-model="filters.maxFeesUSD"
+            type="number"
+            min="0"
+            step="0.01"
+            inputmode="decimal"
+            class="filter-control"
+          />
+        </label>
+
+        <label class="space-y-1 text-sm text-gray-300">
           <span>{{ $t("trades.fetchSize") }}</span>
           <select v-model.number="fetchSize" class="filter-control">
+            <option :value="25">25</option>
+            <option :value="50">50</option>
             <option :value="100">100</option>
             <option :value="250">250</option>
-            <option :value="500">500</option>
-            <option :value="1000">1000</option>
           </select>
         </label>
 
@@ -218,11 +230,11 @@
           {{ $t("trades.resetFilters") }}
         </button>
         <button
-          class="btn-secondary text-sm"
+          class="btn-primary text-sm"
           :disabled="loading"
-          @click="loadMore"
+          @click="applyFilter"
         >
-          {{ loading ? $t("common.loading") : $t("trades.loadMore") }}
+          {{ loading ? $t("common.loading") : $t("trades.applyFilter") }}
         </button>
       </div>
     </div>
@@ -233,7 +245,7 @@
           {{ $t("trades.matchingTrades") }}
         </div>
         <div class="mt-1 text-2xl font-semibold text-white">
-          {{ filteredTrades.length.toLocaleString(locale) }}
+          {{ totalMatches.toLocaleString(locale) }}
         </div>
       </div>
       <div class="card py-4">
@@ -305,7 +317,7 @@
       </div>
 
       <div
-        v-else-if="filteredTrades.length === 0"
+        v-else-if="trades.length === 0"
         class="py-12 text-center text-gray-400"
       >
         {{ $t("trades.noTrades") }}
@@ -344,7 +356,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="trade in filteredTrades"
+              v-for="trade in trades"
               :key="tradeKey(trade)"
               class="bg-gray-800/40 text-gray-200 transition-colors hover:bg-gray-800/70"
             >
@@ -566,6 +578,30 @@
           </tbody>
         </table>
       </div>
+
+      <div
+        class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div class="text-xs text-gray-400">
+          {{ $t("trades.page", { page: pageNumber }) }}
+        </div>
+        <div class="flex gap-2">
+          <button
+            class="btn-secondary text-sm"
+            :disabled="loading || offset === 0"
+            @click="prevPage"
+          >
+            {{ $t("trades.previous") }}
+          </button>
+          <button
+            class="btn-secondary text-sm"
+            :disabled="loading || !hasMore"
+            @click="nextPage"
+          >
+            {{ $t("trades.next") }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -575,6 +611,7 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import type { GetApiTradeParams, Trade } from "../api/models";
+import { DEXProtocol, TxState } from "../api/models";
 import { getAVMTradeReporterAPI } from "../api";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import FormattedTime from "../components/FormattedTime.vue";
@@ -606,12 +643,16 @@ const api = getAVMTradeReporterAPI();
 const trades = ref<Trade[]>([]);
 const loading = ref(false);
 const error = ref("");
-const fetchSize = ref(250);
-const nextOffset = ref(0);
+const fetchSize = ref(25);
+const offset = ref(0);
+const hasMore = ref(false);
+const totalMatches = ref(0);
 const forceUpdate = ref(0);
 const liveUpdates = ref(0);
 const loadedAt = ref<string | null>(null);
 const fallbackTimestamp = new Date().toISOString();
+
+const pageNumber = computed(() => Math.floor(offset.value / fetchSize.value) + 1);
 
 const routeFilter = reactive({
   asset1: "",
@@ -619,13 +660,14 @@ const routeFilter = reactive({
 });
 
 const filters = reactive({
-  query: "",
+  trader: "",
   protocol: "all",
   state: "all",
   direction: "all" as DirectionFilter,
   minValueUSD: "",
   maxValueUSD: "",
   minFeesUSD: "",
+  maxFeesUSD: "",
   startTime: "",
   endTime: "",
   sortBy: "time-desc" as SortOption,
@@ -743,46 +785,47 @@ const directionOptions = computed(() => {
   return [{ value: "all", label: t("trades.directionAll") }];
 });
 
-const filteredTrades = computed(() => {
-  const minValue = optionalNumber(filters.minValueUSD);
-  const maxValue = optionalNumber(filters.maxValueUSD);
-  const minFees = optionalNumber(filters.minFeesUSD);
-  const start = optionalDate(filters.startTime);
-  const end = optionalDate(filters.endTime);
-  const query = filters.query.trim().toLowerCase();
-
-  return trades.value
-    .filter((trade) => {
-      if (!matchesRoute(trade)) return false;
-      if (filters.protocol !== "all" && trade.protocol !== filters.protocol) {
-        return false;
-      }
-      if (filters.state !== "all" && trade.tradeState !== filters.state) {
-        return false;
-      }
-      if (!matchesDirection(trade)) return false;
-
-      const valueUSD = trade.valueUSD ?? 0;
-      const feesUSD = trade.feesUSD ?? 0;
-      const timestamp = tradeTime(trade);
-      if (minValue !== null && valueUSD < minValue) return false;
-      if (maxValue !== null && valueUSD > maxValue) return false;
-      if (minFees !== null && feesUSD < minFees) return false;
-      if (start !== null && timestamp < start) return false;
-      if (end !== null && timestamp > end) return false;
-      if (query && !matchesText(trade, query)) return false;
-      return true;
-    })
-    .sort(compareTrades);
-});
-
 const matchedValueUSD = computed(() =>
-  filteredTrades.value.reduce((sum, trade) => sum + (trade.valueUSD ?? 0), 0),
+  trades.value.reduce((sum, trade) => sum + (trade.valueUSD ?? 0), 0),
 );
 
 const matchedFeesUSD = computed(() =>
-  filteredTrades.value.reduce((sum, trade) => sum + (trade.feesUSD ?? 0), 0),
+  trades.value.reduce((sum, trade) => sum + (trade.feesUSD ?? 0), 0),
 );
+
+function tradeMatchesFilters(trade: Trade) {
+  if (!matchesRoute(trade)) return false;
+  if (!matchesDirection(trade)) return false;
+  if (filters.protocol !== "all" && trade.protocol !== filters.protocol) {
+    return false;
+  }
+  if (filters.state !== "all" && trade.tradeState !== filters.state) {
+    return false;
+  }
+  if (filters.trader) {
+    if ((trade.trader ?? "").toLowerCase() !== filters.trader.toLowerCase()) {
+      return false;
+    }
+  }
+
+  const minValue = optionalNumber(filters.minValueUSD);
+  const maxValue = optionalNumber(filters.maxValueUSD);
+  const minFees = optionalNumber(filters.minFeesUSD);
+  const maxFees = optionalNumber(filters.maxFeesUSD);
+  const start = optionalDate(filters.startTime);
+  const end = optionalDate(filters.endTime);
+
+  const valueUSD = trade.valueUSD ?? 0;
+  const feesUSD = trade.feesUSD ?? 0;
+  const timestamp = tradeTime(trade);
+  if (minValue !== null && valueUSD < minValue) return false;
+  if (maxValue !== null && valueUSD > maxValue) return false;
+  if (minFees !== null && feesUSD < minFees) return false;
+  if (maxFees !== null && feesUSD > maxFees) return false;
+  if (start !== null && timestamp < start) return false;
+  if (end !== null && timestamp > end) return false;
+  return true;
+}
 
 function syncRouteFilter() {
   routeFilter.asset1 = assetId1.value?.toString() ?? "";
@@ -831,41 +874,6 @@ function tradeTime(trade: Trade) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function compareTrades(left: Trade, right: Trade) {
-  switch (filters.sortBy) {
-    case "time-asc":
-      return tradeTime(left) - tradeTime(right);
-    case "value-desc":
-      return (right.valueUSD ?? 0) - (left.valueUSD ?? 0);
-    case "fees-desc":
-      return (right.feesUSD ?? 0) - (left.feesUSD ?? 0);
-    case "amount-in-desc":
-      return (right.assetAmountIn ?? 0) - (left.assetAmountIn ?? 0);
-    case "amount-out-desc":
-      return (right.assetAmountOut ?? 0) - (left.assetAmountOut ?? 0);
-    case "time-desc":
-    default:
-      return tradeTime(right) - tradeTime(left);
-  }
-}
-
-function matchesText(trade: Trade, query: string) {
-  const searchable = [
-    trade.trader,
-    trade.poolAddress,
-    trade.txId,
-    trade.topTxId,
-    trade.txGroup,
-    trade.poolAppId?.toString(),
-    trade.blockId?.toString(),
-    trade.assetIdIn?.toString(),
-    trade.assetIdOut?.toString(),
-    assetName(trade.assetIdIn),
-    assetName(trade.assetIdOut),
-  ];
-  return searchable.some((value) => value?.toLowerCase().includes(query));
-}
-
 function matchesRoute(trade: Trade) {
   const first = assetId1.value;
   const second = assetId2.value;
@@ -896,40 +904,95 @@ function matchesDirection(trade: Trade) {
   return true;
 }
 
-function buildTradeQueries(offset: number): GetApiTradeParams[] {
-  const size = fetchSize.value;
-  const first = assetId1.value;
-  const second = assetId2.value;
-  if (first !== null && second !== null) {
-    return [
-      { assetIdIn: first, assetIdOut: second, offset, size },
-      { assetIdIn: second, assetIdOut: first, offset, size },
-    ];
+function sortParams(): { sortBy: string; sortDirection: string } {
+  switch (filters.sortBy) {
+    case "time-asc":
+      return { sortBy: "timestamp", sortDirection: "asc" };
+    case "value-desc":
+      return { sortBy: "valueUSD", sortDirection: "desc" };
+    case "fees-desc":
+      return { sortBy: "feesUSD", sortDirection: "desc" };
+    case "amount-in-desc":
+      return { sortBy: "assetAmountIn", sortDirection: "desc" };
+    case "amount-out-desc":
+      return { sortBy: "assetAmountOut", sortDirection: "desc" };
+    case "time-desc":
+    default:
+      return { sortBy: "timestamp", sortDirection: "desc" };
   }
-  if (first !== null) {
-    return [
-      { assetIdIn: first, offset, size },
-      { assetIdOut: first, offset, size },
-    ];
-  }
-  return [{ offset, size }];
 }
 
-async function fetchTrades(reset = true) {
+function buildTradeParams(): GetApiTradeParams {
+  const first = assetId1.value;
+  const second = assetId2.value;
+  const sort = sortParams();
+  const params: GetApiTradeParams = {
+    offset: offset.value,
+    size: fetchSize.value,
+    sortBy: sort.sortBy,
+    sortDirection: sort.sortDirection,
+  };
+
+  if (first !== null && second !== null) {
+    if (filters.direction === "forward") {
+      params.assetIdIn = first;
+      params.assetIdOut = second;
+    } else if (filters.direction === "reverse") {
+      params.assetIdIn = second;
+      params.assetIdOut = first;
+    } else {
+      params.assetIdA = first;
+      params.assetIdB = second;
+    }
+  } else if (first !== null) {
+    if (filters.direction === "asset-sold") {
+      params.assetIdIn = first;
+    } else if (filters.direction === "asset-bought") {
+      params.assetIdOut = first;
+    } else {
+      params.assetId = first;
+    }
+  }
+
+  if (filters.trader) params.trader = filters.trader;
+  if (filters.protocol !== "all") {
+    params.protocol = filters.protocol as DEXProtocol;
+  }
+  if (filters.state !== "all") {
+    params.tradeState = filters.state as TxState;
+  }
+
+  const minValue = optionalNumber(filters.minValueUSD);
+  const maxValue = optionalNumber(filters.maxValueUSD);
+  const minFees = optionalNumber(filters.minFeesUSD);
+  const maxFees = optionalNumber(filters.maxFeesUSD);
+  if (minValue !== null) params.minValueUSD = minValue;
+  if (maxValue !== null) params.maxValueUSD = maxValue;
+  if (minFees !== null) params.minFeesUSD = minFees;
+  if (maxFees !== null) params.maxFeesUSD = maxFees;
+
+  if (filters.startTime) {
+    params.timestampFrom = new Date(filters.startTime).toISOString();
+  }
+  if (filters.endTime) {
+    params.timestampTo = new Date(filters.endTime).toISOString();
+  }
+
+  return params;
+}
+
+async function fetchTrades() {
   loading.value = true;
   error.value = "";
-  const offset = reset ? 0 : nextOffset.value;
   try {
-    const responses = await Promise.all(
-      buildTradeQueries(offset).map((params) => api.getApiTrade(params)),
-    );
-    const loaded = responses.flatMap((response) =>
-      Array.isArray(response.data) ? response.data : [],
-    );
-    trades.value = mergeTrades(reset ? loaded : [...trades.value, ...loaded]);
-    nextOffset.value = offset + fetchSize.value;
+    const response = await api.getApiTrade(buildTradeParams());
+    const page = response.data ?? {};
+    const loaded = Array.isArray(page.items) ? page.items : [];
+    trades.value = loaded;
+    hasMore.value = page.hasMore ?? loaded.length === fetchSize.value;
+    totalMatches.value = page.total ?? loaded.length;
     loadedAt.value = new Date().toISOString();
-    if (reset) liveUpdates.value = 0;
+    liveUpdates.value = 0;
   } catch (fetchError) {
     console.error("Error fetching trades:", fetchError);
     error.value = t("trades.loadError");
@@ -953,30 +1016,50 @@ function mergeTrades(nextTrades: Trade[]) {
   );
 }
 
-function refresh() {
-  void fetchTrades(true);
+function applyFilter() {
+  offset.value = 0;
+  void fetchTrades();
 }
 
-function loadMore() {
-  void fetchTrades(false);
+function refresh() {
+  offset.value = 0;
+  void fetchTrades();
+}
+
+function nextPage() {
+  if (!hasMore.value || loading.value) return;
+  offset.value += fetchSize.value;
+  void fetchTrades();
+}
+
+function prevPage() {
+  if (offset.value === 0 || loading.value) return;
+  offset.value = Math.max(0, offset.value - fetchSize.value);
+  void fetchTrades();
 }
 
 function resetFilters() {
-  filters.query = "";
+  filters.trader = "";
   filters.protocol = "all";
   filters.state = "all";
   filters.direction = "all";
   filters.minValueUSD = "";
   filters.maxValueUSD = "";
   filters.minFeesUSD = "";
+  filters.maxFeesUSD = "";
   filters.startTime = "";
   filters.endTime = "";
   filters.sortBy = "time-desc";
+  offset.value = 0;
+  void fetchTrades();
 }
 
 function handleTradeUpdate(trade: AMMTrade) {
+  // Only live-update the first page when sorted by most recent.
+  if (offset.value !== 0 || filters.sortBy !== "time-desc") return;
+
   const apiTrade = convertAMMTrade(trade);
-  if (!matchesRoute(apiTrade)) return;
+  if (!tradeMatchesFilters(apiTrade)) return;
 
   const existingIndex = trades.value.findIndex(
     (item) => tradeKey(item) === tradeKey(apiTrade),
@@ -990,16 +1073,15 @@ function handleTradeUpdate(trade: AMMTrade) {
     }
     const next = [...trades.value];
     next[existingIndex] = apiTrade;
-    trades.value = mergeTrades(next);
+    trades.value = mergeTrades(next).slice(0, fetchSize.value);
     return;
   }
 
-  trades.value = mergeTrades([apiTrade, ...trades.value]).slice(0, 2000);
-  if (
-    filteredTrades.value.some((item) => tradeKey(item) === tradeKey(apiTrade))
-  ) {
-    liveUpdates.value += 1;
-  }
+  trades.value = mergeTrades([apiTrade, ...trades.value]).slice(
+    0,
+    fetchSize.value,
+  );
+  liveUpdates.value += 1;
 }
 
 function convertAMMTrade(trade: AMMTrade): Trade {
@@ -1149,7 +1231,7 @@ function stateBadgeClass(state?: string | null) {
 
 onMounted(async () => {
   syncRouteFilter();
-  await fetchTrades(true);
+  await fetchTrades();
   signalrService.onTradeReceived(handleTradeUpdate);
   await subscribeToTradeUpdates();
 });
@@ -1164,13 +1246,15 @@ watch(
   async () => {
     syncRouteFilter();
     filters.direction = "all";
-    await fetchTrades(true);
+    offset.value = 0;
+    await fetchTrades();
     await subscribeToTradeUpdates();
   },
 );
 
 watch(fetchSize, async () => {
-  await fetchTrades(true);
+  offset.value = 0;
+  await fetchTrades();
 });
 </script>
 
