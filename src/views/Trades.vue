@@ -652,7 +652,9 @@ const liveUpdates = ref(0);
 const loadedAt = ref<string | null>(null);
 const fallbackTimestamp = new Date().toISOString();
 
-const pageNumber = computed(() => Math.floor(offset.value / fetchSize.value) + 1);
+const pageNumber = computed(
+  () => Math.floor(offset.value / fetchSize.value) + 1,
+);
 
 const routeFilter = reactive({
   asset1: "",
@@ -858,6 +860,9 @@ function applyRouteFilter() {
 }
 
 function optionalNumber(value: string) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
   if (value.trim() === "") return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
