@@ -1,6 +1,8 @@
 <template>
   <div class="p-4 space-y-4">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div
+      class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+    >
       <div class="space-y-2">
         <h1 class="text-2xl font-semibold text-white">{{ pageTitle }}</h1>
         <p class="text-sm text-gray-400">{{ routeDescription }}</p>
@@ -28,7 +30,11 @@
         >
           {{ $t("trades.clearRoute") }}
         </router-link>
-        <button class="btn-primary text-sm" :disabled="loading" @click="refresh">
+        <button
+          class="btn-primary text-sm"
+          :disabled="loading"
+          @click="refresh"
+        >
           {{ $t("trades.refresh") }}
         </button>
       </div>
@@ -44,7 +50,9 @@
         </p>
       </div>
 
-      <div class="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
+      <div
+        class="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end"
+      >
         <label class="space-y-1 text-sm text-gray-300">
           <span>{{ $t("trades.asset1") }}</span>
           <input
@@ -289,7 +297,10 @@
         {{ $t("common.loading") }}
       </div>
 
-      <div v-else-if="error" class="rounded bg-red-900/20 p-4 text-sm text-red-300">
+      <div
+        v-else-if="error"
+        class="rounded bg-red-900/20 p-4 text-sm text-red-300"
+      >
         {{ error }}
       </div>
 
@@ -301,10 +312,14 @@
       </div>
 
       <div v-else class="overflow-x-auto">
-        <table class="min-w-330 w-full border-separate border-spacing-y-2 text-sm">
+        <table
+          class="min-w-330 w-full border-separate border-spacing-y-2 text-sm"
+        >
           <thead>
             <tr class="text-left text-xs uppercase text-gray-400">
-              <th class="px-3 py-2 font-medium">{{ $t("transaction.time") }}</th>
+              <th class="px-3 py-2 font-medium">
+                {{ $t("transaction.time") }}
+              </th>
               <th class="px-3 py-2 font-medium">{{ $t("trades.pair") }}</th>
               <th class="px-3 py-2 font-medium text-right">
                 {{ $t("common.sold") }}
@@ -333,14 +348,19 @@
               :key="tradeKey(trade)"
               class="bg-gray-800/40 text-gray-200 transition-colors hover:bg-gray-800/70"
             >
-              <td class="rounded-l-lg px-3 py-3 align-top text-xs text-gray-400">
+              <td
+                class="rounded-l-lg px-3 py-3 align-top text-xs text-gray-400"
+              >
                 <FormattedTime
                   :timestamp="trade.timestamp || fallbackTimestamp"
                   format="both"
                 />
                 <div v-if="trade.blockId" class="mt-1">
                   <router-link
-                    :to="{ name: 'BlockDetails', params: { round: trade.blockId } }"
+                    :to="{
+                      name: 'BlockDetails',
+                      params: { round: trade.blockId },
+                    }"
                     class="text-blue-200 hover:text-blue-100"
                   >
                     {{ $t("trades.block") }} {{ trade.blockId }}
@@ -386,7 +406,9 @@
                   :to="assetRoute(trade.assetIdOut)"
                   class="font-mono text-blue-100 hover:text-blue-300"
                 >
-                  {{ formatAssetAmount(trade.assetAmountOut, trade.assetIdOut) }}
+                  {{
+                    formatAssetAmount(trade.assetAmountOut, trade.assetIdOut)
+                  }}
                 </router-link>
               </td>
 
@@ -404,7 +426,10 @@
               <td class="px-3 py-3 align-top">
                 <router-link
                   v-if="trade.trader"
-                  :to="{ name: 'AddressDetails', params: { address: trade.trader } }"
+                  :to="{
+                    name: 'AddressDetails',
+                    params: { address: trade.trader },
+                  }"
                   class="font-mono text-blue-100 hover:text-blue-300"
                   :title="trade.trader"
                 >
@@ -417,7 +442,10 @@
                 <div>
                   <router-link
                     v-if="trade.poolAddress"
-                    :to="{ name: 'AddressDetails', params: { address: trade.poolAddress } }"
+                    :to="{
+                      name: 'AddressDetails',
+                      params: { address: trade.poolAddress },
+                    }"
                     class="font-mono text-blue-100 hover:text-blue-300"
                     :title="trade.poolAddress"
                   >
@@ -427,7 +455,10 @@
                 </div>
                 <router-link
                   v-if="trade.poolAddress"
-                  :to="{ name: 'PoolDetails', params: { poolAddress: trade.poolAddress } }"
+                  :to="{
+                    name: 'PoolDetails',
+                    params: { poolAddress: trade.poolAddress },
+                  }"
                   class="mt-1 inline-block text-xs text-purple-300 hover:text-purple-200"
                 >
                   {{ trade.poolAppId || $t("common.viewDetails") }}
@@ -436,7 +467,9 @@
 
               <td class="px-3 py-3 align-top">
                 <div class="flex flex-col items-start gap-2">
-                  <span class="rounded bg-purple-500/20 px-2 py-1 text-xs text-purple-200">
+                  <span
+                    class="rounded bg-purple-500/20 px-2 py-1 text-xs text-purple-200"
+                  >
                     {{ trade.protocol || $t("common.unknown") }}
                   </span>
                   <span :class="stateBadgeClass(trade.tradeState)">
@@ -515,7 +548,11 @@
                   class="font-mono text-blue-100 hover:text-blue-300"
                   :title="trade.topTxId || trade.txId || ''"
                 >
-                  {{ algorandService.formatTransactionId(trade.topTxId || trade.txId || "") }}
+                  {{
+                    algorandService.formatTransactionId(
+                      trade.topTxId || trade.txId || "",
+                    )
+                  }}
                 </router-link>
                 <div
                   v-if="trade.txGroup"
@@ -615,7 +652,11 @@ const hasSingleAssetFilter = computed(
 );
 
 const pageTitle = computed(() => {
-  if (hasPairFilter.value && assetId1.value !== null && assetId2.value !== null) {
+  if (
+    hasPairFilter.value &&
+    assetId1.value !== null &&
+    assetId2.value !== null
+  ) {
     return t("trades.titlePair", {
       asset1: assetName(assetId1.value),
       asset2: assetName(assetId2.value),
@@ -628,7 +669,11 @@ const pageTitle = computed(() => {
 });
 
 const routeDescription = computed(() => {
-  if (hasPairFilter.value && assetId1.value !== null && assetId2.value !== null) {
+  if (
+    hasPairFilter.value &&
+    assetId1.value !== null &&
+    assetId2.value !== null
+  ) {
     return t("trades.descriptionPair", {
       asset1: assetName(assetId1.value),
       asset2: assetName(assetId2.value),
@@ -641,7 +686,11 @@ const routeDescription = computed(() => {
 });
 
 const routeLabel = computed(() => {
-  if (hasPairFilter.value && assetId1.value !== null && assetId2.value !== null) {
+  if (
+    hasPairFilter.value &&
+    assetId1.value !== null &&
+    assetId2.value !== null
+  ) {
     return `${assetName(assetId1.value)} / ${assetName(assetId2.value)}`;
   }
   if (hasSingleAssetFilter.value && assetId1.value !== null) {
@@ -651,7 +700,11 @@ const routeLabel = computed(() => {
 });
 
 const directionOptions = computed(() => {
-  if (hasPairFilter.value && assetId1.value !== null && assetId2.value !== null) {
+  if (
+    hasPairFilter.value &&
+    assetId1.value !== null &&
+    assetId2.value !== null
+  ) {
     return [
       { value: "all", label: t("trades.directionAll") },
       {
@@ -942,7 +995,9 @@ function handleTradeUpdate(trade: AMMTrade) {
   }
 
   trades.value = mergeTrades([apiTrade, ...trades.value]).slice(0, 2000);
-  if (filteredTrades.value.some((item) => tradeKey(item) === tradeKey(apiTrade))) {
+  if (
+    filteredTrades.value.some((item) => tradeKey(item) === tradeKey(apiTrade))
+  ) {
     liveUpdates.value += 1;
   }
 }

@@ -114,7 +114,7 @@ async function fetchTrades() {
     allTrades.sort(
       (a, b) =>
         new Date(b.timestamp || 0).getTime() -
-        new Date(a.timestamp || 0).getTime()
+        new Date(a.timestamp || 0).getTime(),
     );
 
     // Take only the 20 most recent
@@ -159,7 +159,7 @@ function handleTradeUpdate(trade: AMMTrade) {
 
     // Check if trade with same txId already exists
     const existingIndex = trades.value.findIndex(
-      (t) => t.txId === apiTrade.txId
+      (t) => t.txId === apiTrade.txId,
     );
 
     if (existingIndex !== -1) {
@@ -180,7 +180,7 @@ function handleTradeUpdate(trade: AMMTrade) {
       updatedTrades.sort(
         (a, b) =>
           new Date(b.timestamp || 0).getTime() -
-          new Date(a.timestamp || 0).getTime()
+          new Date(a.timestamp || 0).getTime(),
       );
       trades.value = updatedTrades.slice(0, 20);
     }

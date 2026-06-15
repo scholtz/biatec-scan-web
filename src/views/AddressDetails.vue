@@ -145,7 +145,9 @@
 
         <!-- Pool Actions -->
         <div v-if="identifiedPool" class="card">
-          <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div
+            class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
+          >
             <div>
               <h2 class="text-xl font-semibold mb-2">
                 {{ $t("addressDetails.identifiedPool") }}
@@ -156,13 +158,21 @@
                   {{ formatPoolPair(identifiedPool) }}
                 </span>
               </div>
-              <div v-if="identifiedPool.poolAppId" class="text-sm text-gray-400 mt-1">
+              <div
+                v-if="identifiedPool.poolAppId"
+                class="text-sm text-gray-400 mt-1"
+              >
                 {{ $t("addressDetails.poolAppId") }}:
-                <span class="text-white font-mono">{{ identifiedPool.poolAppId }}</span>
+                <span class="text-white font-mono">{{
+                  identifiedPool.poolAppId
+                }}</span>
               </div>
             </div>
             <router-link
-              v-if="identifiedPool.assetIdA !== undefined && identifiedPool.assetIdB !== undefined"
+              v-if="
+                identifiedPool.assetIdA !== undefined &&
+                identifiedPool.assetIdB !== undefined
+              "
               :to="{
                 name: 'TradesByPair',
                 params: {
@@ -369,7 +379,7 @@ const loadAddressInfo = async () => {
   try {
     // Get account information
     const accountResponse = await fetch(
-      `https://mainnet-idx.algonode.cloud/v2/accounts/${address.value}`
+      `https://mainnet-idx.algonode.cloud/v2/accounts/${address.value}`,
     );
 
     if (!accountResponse.ok) {
@@ -444,7 +454,7 @@ const fetchAssetPrices = async () => {
         } catch (e) {
           console.error(`Failed to fetch price for asset ${assetId}`, e);
         }
-      })
+      }),
     );
   }
 };
@@ -575,7 +585,9 @@ const getAssetLabel = (assetId?: number | null): string => {
     });
     return `${t("common.asset")} ${assetId}`;
   }
-  return assetInfo.unitName || assetInfo.name || `${t("common.asset")} ${assetId}`;
+  return (
+    assetInfo.unitName || assetInfo.name || `${t("common.asset")} ${assetId}`
+  );
 };
 
 const formatPoolPair = (pool: Pool): string => {
