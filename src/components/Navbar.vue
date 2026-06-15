@@ -7,18 +7,18 @@
         <div class="flex items-center space-x-8">
           <router-link to="/" class="flex items-center space-x-3">
             <div
-              class="w-8 h-8 bg-gradient-to-r from-white to-primary-200 rounded-lg flex items-center justify-center"
+              class="w-8 h-8 bg-linear-to-r from-white to-primary-200 rounded-lg flex items-center justify-center"
             >
               <img src="../assets/logo.svg" alt="Logo" class="w-7 h-7" />
             </div>
             <span
-              class="text-xl font-bold bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent"
+              class="text-xl font-bold bg-linear-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent"
             >
               Biatec Algorand Scan
             </span>
           </router-link>
 
-          <div class="hidden md:flex space-x-6">
+          <div class="hidden lg:flex space-x-4 xl:space-x-6">
             <router-link
               to="/"
               class="text-gray-300 hover:text-white transition-colors duration-200"
@@ -36,6 +36,12 @@
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
               {{ $t("nav.search") }}
+            </router-link>
+            <router-link
+              to="/trades"
+              class="text-gray-300 hover:text-white transition-colors duration-200"
+            >
+              {{ $t("nav.trades") }}
             </router-link>
             <router-link
               to="/favorite"
@@ -58,7 +64,7 @@
           </div>
         </div>
 
-        <div class="hidden md:flex items-center space-x-4">
+        <div class="hidden xl:flex items-center space-x-4">
           <div class="relative">
             <input
               v-model="searchQuery"
@@ -85,7 +91,7 @@
 
         <!-- Mobile hamburger -->
         <button
-          class="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          class="lg:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500"
           @click="toggleMobile"
           :aria-label="$t('common.toggleNavigation')"
           :aria-expanded="mobileOpen"
@@ -120,7 +126,7 @@
       <transition name="fade-slide">
         <div
           v-if="mobileOpen"
-          class="md:hidden mt-2 pb-4 border-t border-dark-700/50 space-y-4"
+          class="lg:hidden mt-2 pb-4 border-t border-dark-700/50 space-y-4"
         >
           <div class="pt-4 flex flex-col space-y-3">
             <router-link
@@ -153,6 +159,17 @@
               <span>{{ $t("nav.assets") }}</span>
               <span
                 v-if="isActive('/assets')"
+                class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
+              />
+            </router-link>
+            <router-link
+              to="/trades"
+              class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
+              @click="closeMobile"
+            >
+              <span>{{ $t("nav.trades") }}</span>
+              <span
+                v-if="isActive('/trades')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
               />
             </router-link>

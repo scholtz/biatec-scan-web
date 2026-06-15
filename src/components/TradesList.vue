@@ -1,9 +1,12 @@
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-white">
+      <router-link
+        :to="{ name: 'TradesByAsset', params: { assetId1: props.assetId } }"
+        class="text-lg font-semibold text-white hover:text-blue-300 transition-colors"
+      >
         {{ $t("assetDetails.recentTrades") }}
-      </h3>
+      </router-link>
       <div v-if="loading" class="text-sm text-gray-400">
         {{ $t("common.loading") }}...
       </div>

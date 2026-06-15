@@ -143,6 +143,40 @@
           </div>
         </div>
 
+        <!-- Pool Actions -->
+        <div v-if="identifiedPool" class="card">
+          <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 class="text-xl font-semibold mb-2">
+                {{ $t("addressDetails.identifiedPool") }}
+              </h2>
+              <div class="text-sm text-gray-400">
+                {{ $t("addressDetails.poolPair") }}:
+                <span class="text-white font-mono">
+                  {{ formatPoolPair(identifiedPool) }}
+                </span>
+              </div>
+              <div v-if="identifiedPool.poolAppId" class="text-sm text-gray-400 mt-1">
+                {{ $t("addressDetails.poolAppId") }}:
+                <span class="text-white font-mono">{{ identifiedPool.poolAppId }}</span>
+              </div>
+            </div>
+            <router-link
+              v-if="identifiedPool.assetIdA !== undefined && identifiedPool.assetIdB !== undefined"
+              :to="{
+                name: 'TradesByPair',
+                params: {
+                  assetId1: identifiedPool.assetIdA?.toString(),
+                  assetId2: identifiedPool.assetIdB?.toString(),
+                },
+              }"
+              class="btn-secondary text-sm self-start"
+            >
+              {{ $t("addressDetails.viewPoolTrades") }}
+            </router-link>
+          </div>
+        </div>
+
         <!-- Assets -->
         <div v-if="enrichedAssets.length > 0" class="card">
           <h2 class="text-xl font-semibold mb-4">
@@ -282,6 +316,7 @@ import { useI18n } from "vue-i18n";
 import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
 import { getAVMTradeReporterAPI } from "../api";
+import type { Pool } from "../api/models";
 import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
@@ -323,6 +358,7 @@ const loadingTransactions = ref(false);
 const hasMoreTransactions = ref(true);
 const nextToken = ref("");
 const assetPrices = ref<Record<number, number>>({});
+const identifiedPool = ref<Pool | null>(null);
 
 const loadAddressInfo = async () => {
   if (!address.value) return;
@@ -346,6 +382,9 @@ const loadAddressInfo = async () => {
     // Load asset prices
     fetchAssetPrices();
 
+    // Load pool details if this address belongs to an AMM pool.
+    fetchIdentifiedPool();
+
     // Load initial transactions
     await loadTransactions(true);
   } catch (err: unknown) {
@@ -354,6 +393,18 @@ const loadAddressInfo = async () => {
     console.error("Error loading address info:", err);
   } finally {
     loading.value = false;
+  }
+};
+
+const fetchIdentifiedPool = async () => {
+  identifiedPool.value = null;
+  if (!address.value) return;
+
+  try {
+    const response = await api.getApiPool({ address: address.value, size: 1 });
+    identifiedPool.value = response.data?.[0] ?? null;
+  } catch (poolError) {
+    console.error("Error identifying pool address:", poolError);
   }
 };
 
@@ -513,6 +564,22 @@ const formatStatus = (status?: string) => {
   if (status === "Online") return t("status.online");
   if (status === "Offline") return t("status.offline");
   return status;
+};
+
+const getAssetLabel = (assetId?: number | null): string => {
+  if (assetId === undefined || assetId === null) return t("common.unknown");
+  const assetInfo = assetService.getAssetInfo(BigInt(assetId));
+  if (!assetInfo) {
+    assetService.requestAsset(BigInt(assetId), () => {
+      // Asset service cache update is enough for future renders.
+    });
+    return `${t("common.asset")} ${assetId}`;
+  }
+  return assetInfo.unitName || assetInfo.name || `${t("common.asset")} ${assetId}`;
+};
+
+const formatPoolPair = (pool: Pool): string => {
+  return `${getAssetLabel(pool.assetIdA)} / ${getAssetLabel(pool.assetIdB)}`;
 };
 
 onMounted(() => {

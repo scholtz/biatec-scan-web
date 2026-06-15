@@ -155,11 +155,13 @@
  *
  * OpenAPI spec version: v1
  */
+import type { Trade } from './trade';
 
-export type LiquidityDirection = typeof LiquidityDirection[keyof typeof LiquidityDirection];
-
-
-export const LiquidityDirection = {
-  DepositLiquidity: 'DepositLiquidity',
-  WithdrawLiquidity: 'WithdrawLiquidity',
-} as const;
+export interface TradePagedResult {
+  /** @nullable */
+  items?: Trade[] | null;
+  total?: number;
+  offset?: number;
+  size?: number;
+  hasMore?: boolean;
+}

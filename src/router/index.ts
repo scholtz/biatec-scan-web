@@ -28,6 +28,23 @@ const router = createRouter({
       component: Assets,
     },
     {
+      path: "/trades",
+      name: "Trades",
+      component: () => import("../views/Trades.vue"),
+    },
+    {
+      path: "/trades/:assetId1",
+      name: "TradesByAsset",
+      component: () => import("../views/Trades.vue"),
+      props: true,
+    },
+    {
+      path: "/trades/:assetId1/:assetId2",
+      name: "TradesByPair",
+      component: () => import("../views/Trades.vue"),
+      props: true,
+    },
+    {
       path: "/favorite",
       name: "FavoriteAssets",
       component: () => import("../views/FavoriteAssets.vue"),

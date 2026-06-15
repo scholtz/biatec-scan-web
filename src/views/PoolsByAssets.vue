@@ -1,12 +1,27 @@
 <template>
   <div class="p-4 space-y-4">
-    <h1 class="text-xl font-semibold text-white">
-      {{
-        isSingleAsset
-          ? $t("poolsByAssets.poolsContaining", { assetName: asset1Name })
-          : $t("poolsByAssets.poolsFor", { asset1Name, asset2Name })
-      }}
-    </h1>
+    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <h1 class="text-xl font-semibold text-white">
+        {{
+          isSingleAsset
+            ? $t("poolsByAssets.poolsContaining", { assetName: asset1Name })
+            : $t("poolsByAssets.poolsFor", { asset1Name, asset2Name })
+        }}
+      </h1>
+      <router-link
+        v-if="!isSingleAsset"
+        :to="{
+          name: 'TradesByPair',
+          params: {
+            assetId1: state.asset1.toString(),
+            assetId2: state.asset2.toString(),
+          },
+        }"
+        class="btn-secondary text-sm self-start md:self-auto"
+      >
+        {{ $t("poolsByAssets.viewTrades") }}
+      </router-link>
+    </div>
 
     <div class="flex items-center gap-2 text-sm text-gray-400">
       <span>{{ $t("poolsByAssets.showingUpTo", { size: state.size }) }}</span>
