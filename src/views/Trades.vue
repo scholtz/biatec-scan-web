@@ -208,7 +208,7 @@
           />
         </label>
 
-        <label class="space-y-1 text-sm text-gray-300 md:col-span-2">
+        <label class="space-y-1 text-sm text-gray-300">
           <span>{{ $t("trades.sortBy") }}</span>
           <select v-model="filters.sortBy" class="filter-control">
             <option value="time-desc">{{ $t("trades.sortTimeDesc") }}</option>
