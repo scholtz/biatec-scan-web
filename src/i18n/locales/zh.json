@@ -334,7 +334,18 @@
     "identifiedPool": "已识别资金池",
     "poolPair": "资金池交易对",
     "poolAppId": "资金池应用 ID",
-    "viewPoolTrades": "查看资金池交易"
+    "viewPoolTrades": "查看资金池交易",
+    "recentTrades": "最近交易",
+    "noTradesForAddress": "未找到该地址的交易",
+    "assetFilter": "资产筛选",
+    "allAssets": "所有资产",
+    "minUSD": "最小 USD",
+    "maxUSD": "最大 USD",
+    "liveUpdates": "{count} 条实时更新",
+    "noAssets": "未找到资产",
+    "assetAllocation": "分配",
+    "assetsCount": "个资产",
+    "filterByAsset": "按资产筛选交易"
   },
   "status": {
     "online": "在线",

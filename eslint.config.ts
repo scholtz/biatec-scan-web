@@ -24,15 +24,11 @@ export default defineConfig([
   //   language: "css/css",
   //   extends: ["css/recommended"],
   // },
-  // Disable multi-word component names for existing components
+  // Disable multi-word component names for page-level views and single-word components
   {
     files: [
+      "src/views/*.vue",
       "src/components/Navbar.vue",
-      "src/views/About.vue",
-      "src/views/Assets.vue",
-      "src/views/Dashboard.vue",
-      "src/views/Search.vue",
-      "src/views/Settings.vue",
     ],
     rules: {
       "vue/multi-word-component-names": "off",

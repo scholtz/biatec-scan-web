@@ -334,7 +334,18 @@
     "identifiedPool": "Identifizierter Pool",
     "poolPair": "Pool-Paar",
     "poolAppId": "Pool-App-ID",
-    "viewPoolTrades": "Pool-Trades anzeigen"
+    "viewPoolTrades": "Pool-Trades anzeigen",
+    "recentTrades": "Neueste Trades",
+    "noTradesForAddress": "Keine Trades für diese Adresse gefunden",
+    "assetFilter": "Asset-Filter",
+    "allAssets": "Alle Assets",
+    "minUSD": "Min USD",
+    "maxUSD": "Max USD",
+    "liveUpdates": "{count} Live-Updates",
+    "noAssets": "Keine Assets gefunden",
+    "assetAllocation": "Aufteilung",
+    "assetsCount": "Assets",
+    "filterByAsset": "Trades nach Asset filtern"
   },
   "status": {
     "online": "ONLINE",

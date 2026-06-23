@@ -326,6 +326,10 @@
     "round": "Round:",
     "status": "Status:",
     "assets": "Assets",
+    "noAssets": "No assets found",
+    "assetAllocation": "Allocation",
+    "assetsCount": "assets",
+    "filterByAsset": "Filter trades by this asset",
     "recentTransactions": "Recent Transactions",
     "noTransactions": "No transactions found",
     "loadTxError": "Failed to load transactions",
@@ -334,7 +338,14 @@
     "identifiedPool": "Identified Pool",
     "poolPair": "Pool pair",
     "poolAppId": "Pool app ID",
-    "viewPoolTrades": "View Pool Trades"
+    "viewPoolTrades": "View Pool Trades",
+    "recentTrades": "Recent Trades",
+    "noTradesForAddress": "No trades found for this address",
+    "assetFilter": "Asset Filter",
+    "allAssets": "All assets",
+    "minUSD": "Min USD",
+    "maxUSD": "Max USD",
+    "liveUpdates": "{count} live updates"
   },
   "status": {
     "online": "ONLINE",

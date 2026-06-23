@@ -334,7 +334,18 @@
     "identifiedPool": "Zidentyfikowana pula",
     "poolPair": "Para puli",
     "poolAppId": "ID aplikacji puli",
-    "viewPoolTrades": "Zobacz transakcje puli"
+    "viewPoolTrades": "Zobacz transakcje puli",
+    "recentTrades": "Ostatnie transakcje",
+    "noTradesForAddress": "Nie znaleziono transakcji dla tego adresu",
+    "assetFilter": "Filtr aktywów",
+    "allAssets": "Wszystkie aktywa",
+    "minUSD": "Min USD",
+    "maxUSD": "Max USD",
+    "liveUpdates": "{count} aktualizacji na żywo",
+    "noAssets": "Nie znaleziono aktywów",
+    "assetAllocation": "Podział",
+    "assetsCount": "aktywów",
+    "filterByAsset": "Filtruj transakcje według aktywu"
   },
   "status": {
     "online": "ONLINE",

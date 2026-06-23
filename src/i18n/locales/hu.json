@@ -334,7 +334,18 @@
     "identifiedPool": "Azonosított pool",
     "poolPair": "Pool pár",
     "poolAppId": "Pool alkalmazás ID",
-    "viewPoolTrades": "Pool kereskedések megtekintése"
+    "viewPoolTrades": "Pool kereskedések megtekintése",
+    "recentTrades": "Legutóbbi kereskedések",
+    "noTradesForAddress": "Nem találhatók kereskedések ehhez a címhez",
+    "assetFilter": "Eszköz szűrő",
+    "allAssets": "Összes eszköz",
+    "minUSD": "Min USD",
+    "maxUSD": "Max USD",
+    "liveUpdates": "{count} élő frissítés",
+    "noAssets": "Nem találhatók eszközök",
+    "assetAllocation": "Elosztás",
+    "assetsCount": "eszköz",
+    "filterByAsset": "Kereskedések szűrése eszköz szerint"
   },
   "status": {
     "online": "ONLINE",

@@ -334,7 +334,18 @@
     "identifiedPool": "Identifikovaný pool",
     "poolPair": "Pár poolu",
     "poolAppId": "ID aplikace poolu",
-    "viewPoolTrades": "Zobrazit obchody poolu"
+    "viewPoolTrades": "Zobrazit obchody poolu",
+    "recentTrades": "Nedávné obchody",
+    "noTradesForAddress": "Pro tuto adresu nebyly nalezeny žádné obchody",
+    "assetFilter": "Filtr aktiv",
+    "allAssets": "Všechna aktiva",
+    "minUSD": "Min USD",
+    "maxUSD": "Max USD",
+    "liveUpdates": "{count} živých aktualizací",
+    "noAssets": "Žádná aktiva nenalezena",
+    "assetAllocation": "Rozložení",
+    "assetsCount": "aktiv",
+    "filterByAsset": "Filtrovat obchody podle aktiva"
   },
   "status": {
     "online": "ONLINE",

@@ -334,7 +334,18 @@
     "identifiedPool": "Определенный пул",
     "poolPair": "Пара пула",
     "poolAppId": "ID приложения пула",
-    "viewPoolTrades": "Просмотреть торги пула"
+    "viewPoolTrades": "Просмотреть торги пула",
+    "recentTrades": "Последние сделки",
+    "noTradesForAddress": "Сделки для этого адреса не найдены",
+    "assetFilter": "Фильтр активов",
+    "allAssets": "Все активы",
+    "minUSD": "Мин USD",
+    "maxUSD": "Макс USD",
+    "liveUpdates": "{count} обновлений в реальном времени",
+    "noAssets": "Активы не найдены",
+    "assetAllocation": "Распределение",
+    "assetsCount": "активов",
+    "filterByAsset": "Фильтровать сделки по активу"
   },
   "status": {
     "online": "ОНЛАЙН",
