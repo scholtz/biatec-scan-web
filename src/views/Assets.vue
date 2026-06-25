@@ -11,8 +11,10 @@
         </button>
       </div>
     </div>
-    <div class="flex items-center gap-4 text-xs text-gray-400">
-      <label class="flex items-center gap-2">
+    <div
+      class="flex items-center gap-4 text-xs text-gray-400 overflow-x-auto whitespace-nowrap"
+    >
+      <label class="flex items-center gap-2 shrink-0">
         <input
           type="checkbox"
           v-model="showStable"
@@ -21,7 +23,7 @@
         />
         <span>{{ $t("assets.stableAssets") }}</span>
       </label>
-      <label class="flex items-center gap-2">
+      <label class="flex items-center gap-2 shrink-0">
         <input
           type="checkbox"
           v-model="showUtility"
@@ -31,7 +33,7 @@
         <span>{{ $t("assets.utilityTokens") }}</span>
       </label>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 shrink-0">
         <label class="flex items-center gap-2">
           <input
             type="checkbox"
@@ -61,10 +63,10 @@
         </label>
       </div>
 
-      <div>
+      <div class="shrink-0">
         {{ $t("common.page") }}: <span class="text-white">{{ page }}</span>
       </div>
-      <div>
+      <div class="shrink-0">
         {{ $t("common.pageSize") }}:
         <select
           v-model.number="pageSize"
@@ -76,7 +78,7 @@
           </option>
         </select>
       </div>
-      <div>
+      <div class="shrink-0">
         {{ $t("common.totalLoaded") }}:
         <span class="text-white">{{ assets.length }}</span>
       </div>
