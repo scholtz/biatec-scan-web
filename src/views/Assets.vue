@@ -125,7 +125,8 @@
         <div
           v-for="(a, index) in filteredAssets"
           :key="a.index"
-          class="p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors"
+          class="p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors cursor-pointer"
+          @click="goToPools(a.index)"
         >
           <!-- Mobile compact layout -->
           <div class="md:hidden flex items-center gap-3">
@@ -137,6 +138,7 @@
             <RouterLink
               :to="`/asset/${a.index}`"
               class="flex items-center gap-2 min-w-0 flex-1"
+              @click.stop
             >
               <img :src="assetImageUrl(a.index)" class="w-8 h-8 rounded" />
               <div class="min-w-0">
@@ -149,21 +151,6 @@
                   #{{ a.index }} • {{ a.params?.unitName || "-" }}
                 </div>
               </div>
-              <CopyToClipboard
-                :text="a.index.toString()"
-                :toast-message="
-                  t('common.copiedAssetId', {
-                    name: a.params?.name || a.params?.unitName || 'Asset',
-                    id: a.index,
-                  })
-                "
-                :title="
-                  t('common.copyAssetId', {
-                    name: a.params?.name || a.params?.unitName || 'Asset',
-                    id: a.index,
-                  })
-                "
-              />
             </RouterLink>
             <div class="text-right">
               <div class="text-[10px] text-gray-400">
@@ -177,9 +164,8 @@
                   <FormattedNumber
                     :value="a.priceUSD"
                     type="currency"
-                    :minimum-fraction-digits="2"
-                    :maximum-fraction-digits="6"
                     :small-threshold="0.01"
+                    :maximum-significant-digits="4"
                     :significant-digits="4"
                   />
                 </template>
@@ -204,13 +190,8 @@
                 </template>
               </div>
             </div>
-            <RouterLink
-              :to="`/aggregated-pools/${a.index}`"
-              class="text-[10px] text-blue-400 hover:text-blue-300 underline ml-2"
-              >{{ $t("common.pools") }}</RouterLink
-            >
             <button
-              @click="toggleFavorite(a.index)"
+              @click.stop="toggleFavorite(a.index)"
               class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95 ml-2"
               :class="
                 isFavorite(a.index)
@@ -256,9 +237,11 @@
               <RouterLink
                 :to="`/asset/${a.index}`"
                 class="hover:text-blue-300"
+                @click.stop
                 >{{ a.params?.name || "-" }}</RouterLink
               >
               <CopyToClipboard
+                @click.stop
                 :text="a.index.toString()"
                 :toast-message="
                   t('common.copiedAssetId', {
@@ -282,10 +265,9 @@
                 <FormattedNumber
                   :value="a.priceUSD"
                   type="currency"
-                  :minimum-fraction-digits="2"
-                  :maximum-fraction-digits="6"
                   :small-threshold="0.01"
-                  :significant-digits="4"
+                  :maximum-significant-digits="6"
+                  :significant-digits="6"
                 />
               </template>
             </div>
@@ -442,7 +424,7 @@
             </div>
             <div class="text-center">
               <button
-                @click="toggleFavorite(a.index)"
+                @click.stop="toggleFavorite(a.index)"
                 class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
                 :class="
                   isFavorite(a.index)
@@ -479,6 +461,7 @@
               <RouterLink
                 :to="`/aggregated-pools/${a.index}`"
                 class="text-xs text-blue-400 hover:text-blue-300"
+                @click.stop
               >
                 {{ $t("common.viewPools") }}
               </RouterLink>
@@ -510,6 +493,7 @@
 
 <script setup lang="ts">
 import { reactive, watch, onMounted, onUnmounted, computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
@@ -520,6 +504,12 @@ import FormattedNumber from "../components/FormattedNumber.vue";
 import { favoriteService } from "../services/favoriteService";
 
 const { t } = useI18n();
+const router = useRouter();
+
+// Clicking an asset row opens its list of pools (aggregated pools by asset).
+function goToPools(assetIndex: number) {
+  router.push(`/aggregated-pools/${assetIndex}`);
+}
 
 interface State {
   page: number;

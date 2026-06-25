@@ -24,6 +24,11 @@ const props = withDefaults(
     currency?: string;
     minimumFractionDigits?: number;
     maximumFractionDigits?: number;
+    // When set, the value is formatted to a fixed number of significant
+    // digits instead of fixed fraction digits. Keeps width consistent across
+    // very different magnitudes (e.g. $0.013865 vs $61,062.2).
+    minimumSignificantDigits?: number;
+    maximumSignificantDigits?: number;
     placeholder?: string;
     // Small-value formatting (prevents values like 0,00 USD hiding detail)
     smallThreshold?: number;
@@ -46,35 +51,48 @@ const numericValue = computed(() =>
   props.value === null || props.value === undefined ? null : props.value,
 );
 
+const digitOptions = computed(() => {
+  // Prefer significant-digit formatting when requested so that values of very
+  // different magnitudes render with a similar character width.
+  if (props.maximumSignificantDigits != null) {
+    return {
+      maximumSignificantDigits: props.maximumSignificantDigits,
+      ...(props.minimumSignificantDigits != null
+        ? { minimumSignificantDigits: props.minimumSignificantDigits }
+        : {}),
+    };
+  }
+  return {
+    minimumFractionDigits: props.minimumFractionDigits,
+    maximumFractionDigits: props.maximumFractionDigits,
+  };
+});
+
 const baseFormatterOptions = computed(() => {
   if (props.type === "currency") {
     // For USD, use decimal formatting since we handle the $ symbol manually
     if (props.currency === "USD") {
       return {
         style: "decimal" as const,
-        minimumFractionDigits: props.minimumFractionDigits,
-        maximumFractionDigits: props.maximumFractionDigits,
+        ...digitOptions.value,
       };
     }
     return {
       style: "currency" as const,
       currency: props.currency,
-      minimumFractionDigits: props.minimumFractionDigits,
-      maximumFractionDigits: props.maximumFractionDigits,
+      ...digitOptions.value,
     };
   }
   if (props.type === "percent") {
     return {
       style: "percent" as const,
-      minimumFractionDigits: props.minimumFractionDigits,
-      maximumFractionDigits: props.maximumFractionDigits,
+      ...digitOptions.value,
     };
   }
 
   return {
     style: "decimal" as const,
-    minimumFractionDigits: props.minimumFractionDigits,
-    maximumFractionDigits: props.maximumFractionDigits,
+    ...digitOptions.value,
   };
 });
 
