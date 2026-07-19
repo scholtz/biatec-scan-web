@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biatec-scan-arc56-registry-deployment
+  namespace: biatec-scan
+spec:
+  selector:
+    matchLabels:
+      app: biatec-scan-arc56-registry
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: biatec-scan-arc56-registry
+    spec:
+      containers:
+        - name: biatec-scan-arc56-registry
+          image: scholtz2/arc56-registry:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 50m
+              memory: "64Mi"
+            limits:
+              cpu: 500m
+              memory: "256Mi"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 2
+            terminationGracePeriodSeconds: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: biatec-scan-arc56-registry-service
+  namespace: biatec-scan
+spec:
+  type: ClusterIP
+  selector:
+    app: biatec-scan-arc56-registry
+  ports:
+    - name: http
+      protocol: TCP
+      appProtocol: http
+      port: 8080
+      targetPort: 8080
+---
+# Separate Ingress resource (not merged into biatec-scan-algorand-ingress-main) because the
+# rewrite-target/use-regex annotations below apply to the whole Ingress resource in ingress-nginx,
+# and arc56-registry (a plain static nginx image) needs the /arc56-registry prefix stripped, while
+# the other paths on the main ingress must NOT be rewritten.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: biatec-scan-arc56-registry-ingress
+  namespace: biatec-scan
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: "nginx"
+  tls:
+    - hosts:
+        - algorand.scan.biatec.io
+      secretName: tls-algorand.scan.biatec.io
+  rules:
+    - host: algorand.scan.biatec.io
+      http:
+        paths:
+          - path: /arc56-registry(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: biatec-scan-arc56-registry-service
+                port:
+                  number: 8080
