@@ -115,7 +115,7 @@ export function useAbiCallInfo(
         .getAlgodClient()
         .getApplicationByID(appTxn.applicationId)
         .do();
-      return appInfo.params.approvalProgram ?? null;
+      return appInfo.params?.approvalProgram ?? null;
     } catch {
       return null;
     }
@@ -176,7 +176,7 @@ export function useAbiCallInfo(
         .getAlgodClient()
         .getApplicationByID(BigInt(appId))
         .do();
-      const program = appInfo.params.approvalProgram;
+      const program = appInfo.params?.approvalProgram;
       if (!program) return null;
       const hash = await sha256Hex(program);
       return arc56Service.getContractByApprovalHash(hash);
