@@ -88,3 +88,68 @@ spec:
                 name: biatec-scan-arc56-registry-service
                 port:
                   number: 8080
+---
+# scholtz2/arc56-registry:latest is rebuilt upstream on a daily schedule (new
+# approval-programs/ entries get baked in), but imagePullPolicy: Always only causes a
+# re-pull when the Pod is (re)created - it does not watch Docker Hub for `latest`
+# changing. Without something to periodically restart the Deployment, the running Pod
+# just keeps serving whatever image existed at its last (re)start, silently drifting
+# out of sync with the upstream registry (and with scholtz.github.io/ARC56Registry,
+# which redeploys on every push). This CronJob is the automated equivalent of the
+# `kubectl rollout restart` step in update-config.sh, run daily after the upstream
+# rebuild (Generate hash registry @ 12:00 UTC -> Docker publish shortly after).
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: biatec-scan-arc56-registry-restarter
+  namespace: biatec-scan
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: biatec-scan-arc56-registry-restarter
+  namespace: biatec-scan
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: biatec-scan-arc56-registry-restarter
+  namespace: biatec-scan
+subjects:
+  - kind: ServiceAccount
+    name: biatec-scan-arc56-registry-restarter
+    namespace: biatec-scan
+roleRef:
+  kind: Role
+  name: biatec-scan-arc56-registry-restarter
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: biatec-scan-arc56-registry-refresh
+  namespace: biatec-scan
+spec:
+  schedule: "30 14 * * *" # daily, after the upstream Docker Hub push completes (~13:52 UTC observed)
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          serviceAccountName: biatec-scan-arc56-registry-restarter
+          restartPolicy: Never
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl:1.30
+              command:
+                - kubectl
+                - rollout
+                - restart
+                - deployment/biatec-scan-arc56-registry-deployment
+                - -n
+                - biatec-scan
