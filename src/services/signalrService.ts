@@ -12,6 +12,7 @@ import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 import { BiatecBlock } from "../types/BiatecBlock";
 import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
 import { SubscriptionFilter } from "../types/SubscriptionFilter";
+import { debugLog } from "../utils/logger";
 let callbacksTrades: ((trade: AMMTrade) => void)[] = [];
 let callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
 let callbacksPools: ((pool: Pool) => void)[] = [];
@@ -60,7 +61,9 @@ class SignalRService {
         .withUrl("https://algorand-trades.de-4.biatec.io/biatecScanHub", {
           //.withUrl("https://localhost:44390/biatecScanHub", {
           //headers: headers,
-          withCredentials: true,
+          // No cookie-based auth is used (see accessTokenFactory below), so credentials
+          // are not sent cross-origin (AUDIT-2026-07-20-02).
+          withCredentials: false,
           transport: HttpTransportType.WebSockets, // Use WebSockets for real-time updates
           accessTokenFactory: async () => await this.getAuthToken(),
         }) // Biatec scan API SignalR endpoint
@@ -74,27 +77,27 @@ class SignalRService {
       this.connection.keepAliveIntervalInMilliseconds = 10_000;
 
       this.connection.onreconnecting(() => {
-        console.log("SignalR reconnecting...");
+        debugLog("SignalR reconnecting...");
         this.isConnected = false;
       });
 
       this.connection.onreconnected(() => {
-        console.log("SignalR reconnected");
+        debugLog("SignalR reconnected");
         this.handleReconnected();
       });
 
       this.connection.onclose((error) => {
-        console.log("SignalR connection closed", error);
+        debugLog("SignalR connection closed", error);
         this.isConnected = false;
         this.scheduleReconnect();
       });
 
       // Handle subscription confirmation
       this.connection.on("Info", (filter: any) => {
-        console.log(`Info received: "${JSON.stringify(filter)}"`);
+        debugLog(`Info received: "${JSON.stringify(filter)}"`);
       });
       this.connection.on("TestConnectionResult", (result: any) => {
-        console.log(`Test connection result: `, result);
+        debugLog(`Test connection result: `, result);
       });
 
       // Handle subscription errors
@@ -104,11 +107,11 @@ class SignalRService {
 
       // Handle subscription errors
       this.connection.on("Block", (block: any) => {
-        console.log("Block received:", block);
+        debugLog("Block received:", block);
         callbacksBlocks.forEach((callback) => callback(block as BiatecBlock));
       });
       this.connection.on("Asset", (asset: any) => {
-        console.log("asset received:", asset);
+        debugLog("asset received:", asset);
         callbacksAssets.forEach((callback) => callback(asset as BiatecAsset));
       });
       // Handle subscription errors
@@ -141,7 +144,7 @@ class SignalRService {
       });
 
       await this.connection.start();
-      console.log("SignalR connected successfully");
+      debugLog("SignalR connected successfully");
       this.registerVisibilityAndOnlineListeners();
 
       // Subscribe to receive trade updates with empty filter (all trades)
@@ -183,7 +186,7 @@ class SignalRService {
         state !== HubConnectionState.Connecting &&
         state !== HubConnectionState.Reconnecting
       ) {
-        console.log("SignalR connection stale on wake, reconnecting...");
+        debugLog("SignalR connection stale on wake, reconnecting...");
         void this.connect();
       }
     };
@@ -203,7 +206,7 @@ class SignalRService {
       this.connection
         ?.invoke("Subscribe", mergedFilter)
         .then(() => {
-          console.log("Re-subscribed after reconnection:", mergedFilter);
+          debugLog("Re-subscribed after reconnection:", mergedFilter);
         })
         .catch((error) =>
           console.error("Error re-subscribing after reconnection:", error)
@@ -257,7 +260,7 @@ class SignalRService {
   }
 
   public async subscribe(filter: SubscriptionFilter): Promise<void> {
-    console.log("subscribing with filter:", filter);
+    debugLog("subscribing with filter:", filter);
 
     // Add this filter to pending subscriptions if not already present
     const existingIndex = pendingSubscriptions.findIndex(
@@ -271,7 +274,7 @@ class SignalRService {
     const start = Date.now();
 
     if (!this.connection || !this.isConnected) {
-      console.log("Waiting up to 5s for SignalR connection...");
+      debugLog("Waiting up to 5s for SignalR connection...");
 
       // Kick off a connection if none exists
       if (!this.connection) {
@@ -291,7 +294,7 @@ class SignalRService {
       }
 
       if (!this.connection || !this.isConnected) {
-        console.log("Not subscribed: connection timeout (5s)");
+        debugLog("Not subscribed: connection timeout (5s)");
         return;
       }
     }
@@ -301,7 +304,7 @@ class SignalRService {
       const mergedFilter = this.mergeSubscriptionFilters(pendingSubscriptions);
 
       await this.connection.invoke("Subscribe", mergedFilter);
-      console.log(`Subscribed to updates with merged filter:`, mergedFilter);
+      debugLog(`Subscribed to updates with merged filter:`, mergedFilter);
     } catch (error) {
       console.error("Error subscribing to updates:", error);
     }
@@ -321,11 +324,11 @@ class SignalRService {
         const mergedFilter =
           this.mergeSubscriptionFilters(pendingSubscriptions);
         await this.connection.invoke("Subscribe", mergedFilter);
-        console.log(`Re-subscribed with remaining filters:`, mergedFilter);
+        debugLog(`Re-subscribed with remaining filters:`, mergedFilter);
       } else {
         // No more subscriptions, unsubscribe completely
         await this.connection.invoke("Unsubscribe");
-        console.log(`Unsubscribed from all updates`);
+        debugLog(`Unsubscribed from all updates`);
       }
     } catch (error) {
       console.error("Error updating subscription:", error);
@@ -338,7 +341,7 @@ class SignalRService {
     try {
       await this.connection.invoke("Unsubscribe");
       pendingSubscriptions = [];
-      console.log(`Unsubscribed from all updates`);
+      debugLog(`Unsubscribed from all updates`);
     } catch (error) {
       console.error("Error unsubscribing:", error);
     }
