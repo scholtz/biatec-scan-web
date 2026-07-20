@@ -16,11 +16,14 @@ for (const route of routes) {
   test(`page "${route.name}" (${route.path}) loads without console/page errors`, async ({
     page,
   }) => {
-    // SignalR can't reach the live backend from a test environment; the app
-    // is designed to degrade gracefully (shows "OFFLINE"), so those errors
-    // are expected noise rather than page bugs.
+    // SignalR can't reach the live backend from a test environment (blocked by
+    // CORS / no network route), and the app is designed to degrade gracefully
+    // (shows "OFFLINE"), so that specific network failure is expected noise.
+    // Anything else mentioning signalr/negotiation (e.g. a TypeError from a
+    // bug in the connection setup code) must NOT be swallowed by this filter.
     const isExpectedSignalRNoise = (text: string) =>
-      /signalr|negotiation/i.test(text);
+      /signalr|negotiation/i.test(text) &&
+      /failed to fetch|cors policy|err_failed|websocket/i.test(text);
 
     const consoleErrors: string[] = [];
     const pageErrors: string[] = [];
