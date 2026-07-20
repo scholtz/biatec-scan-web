@@ -136,3 +136,12 @@ jobs:
         run: |
           kubectl rollout restart deployment/biatec-scan-fe-app-deployment -n biatec-scan
           kubectl rollout status deployment/biatec-scan-fe-app-deployment -n biatec-scan
+
+      # deployment-arc56-registry.yaml isn't built by this pipeline (its image comes
+      # from the separate ARC56Registry repo) but still needs to be kept in sync -
+      # update-config.sh is manual-only and nothing else applies this manifest, so
+      # changes to it (e.g. the refresh CronJob) would otherwise never reach the
+      # cluster.
+      - name: Apply arc56-registry manifest
+        run: |
+          kubectl apply -f k8s/main/deployment-arc56-registry.yaml
