@@ -51,7 +51,9 @@
         <div
           v-row-visible="rowVisibilityKey(row)"
           class="hidden md:grid gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors"
+          :class="{ 'cursor-pointer': props.onRowClick }"
           :style="gridStyle"
+          @click="props.onRowClick?.(row)"
         >
           <div
             v-for="c in tableColumns.visibleOrderedColumns.value"
@@ -66,6 +68,8 @@
         <div
           v-row-visible="rowVisibilityKey(row)"
           class="md:hidden p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors space-y-1.5"
+          :class="{ 'cursor-pointer': props.onRowClick }"
+          @click="props.onRowClick?.(row)"
         >
           <template v-for="c in tableColumns.visibleOrderedColumns.value" :key="c.key">
             <div v-if="c.pinned" class="flex items-center gap-2 min-w-0 text-sm text-gray-100">
@@ -98,6 +102,9 @@ const props = defineProps<{
   /** Resolved label overrides for columns whose header text needs runtime interpolation
    * (e.g. "Reserve (ALGO)"), keyed by column key. Falls back to $t(column.labelKey). */
   columnLabels?: Partial<Record<string, string>>;
+  /** When set, the whole row becomes clickable. Nested interactive cell content
+   * (links, buttons) should call `@click.stop` to avoid double-navigating. */
+  onRowClick?: (row: T) => void;
 }>();
 
 const { t } = useI18n();
