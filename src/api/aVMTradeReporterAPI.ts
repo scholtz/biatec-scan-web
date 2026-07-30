@@ -277,7 +277,7 @@ export const getAVMTradeReporterAPI = () => {
   const getApiIndexerStatus = <TData = AxiosResponse<Indexer>>(
     options?: AxiosRequestConfig
   ): Promise<TData> => {
-    return axios.default.get(`/api/indexer/status`, options);
+    return axios.default.get(`/api/indexer/status`, options) as Promise<TData>;
   };
 
   const getApiPool = <TData = AxiosResponse<Pool[]>>(
@@ -287,14 +287,14 @@ export const getAVMTradeReporterAPI = () => {
     return axios.default.get(`/api/pool`, {
       ...options,
       params: { ...params, ...options?.params },
-    });
+    }) as Promise<TData>;
   };
 
   const getApiPoolPoolAddress = <TData = AxiosResponse<Pool>>(
     poolAddress: string,
     options?: AxiosRequestConfig
   ): Promise<TData> => {
-    return axios.default.get(`/api/pool/${poolAddress}`, options);
+    return axios.default.get(`/api/pool/${poolAddress}`, options) as Promise<TData>;
   };
 
   const getApiPoolStats = <TData = AxiosResponse<null>>(
@@ -377,7 +377,7 @@ export const getAVMTradeReporterAPI = () => {
     return axios.default.get(`/api/trade`, {
       ...options,
       params: { ...params, ...options?.params },
-    });
+    }) as Promise<TData>;
   };
 
   const getApiLiquidity = <TData = AxiosResponse<Liquidity[]>>(
@@ -387,7 +387,7 @@ export const getAVMTradeReporterAPI = () => {
     return axios.default.get(`/api/liquidity`, {
       ...options,
       params: { ...params, ...options?.params },
-    });
+    }) as Promise<TData>;
   };
 
   return {
