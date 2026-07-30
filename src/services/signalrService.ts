@@ -1,8 +1,10 @@
 import {
   HubConnectionBuilder,
   HubConnection,
+  HubConnectionState,
   LogLevel,
   HttpTransportType,
+  type IRetryPolicy,
 } from "@microsoft/signalr";
 import type { AMMLiquidity, AMMTrade } from "../types/algorand";
 import { getAuthToken as getArc14AuthToken } from "./authService";
@@ -10,23 +12,47 @@ import { AMMAggregatedPool } from "../types/AMMAggregatedPool";
 import { BiatecBlock } from "../types/BiatecBlock";
 import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
 import { SubscriptionFilter } from "../types/SubscriptionFilter";
+import { debugLog } from "../utils/logger";
 let callbacksTrades: ((trade: AMMTrade) => void)[] = [];
 let callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
 let callbacksPools: ((pool: Pool) => void)[] = [];
 let callbacksAggregatedPools: ((pool: AMMAggregatedPool) => void)[] = [];
 let callbacksBlocks: ((block: BiatecBlock) => void)[] = [];
 let callbacksAssets: ((block: BiatecAsset) => void)[] = [];
+let callbacksReconnected: (() => void)[] = [];
 
 let pendingSubscriptions: SubscriptionFilter[] = [];
+
+// Never gives up: short backoff for the first minute, then a steady 30s
+// cadence forever. Browsers can silently drop a WebSocket (sleep, network
+// switch, throttled background tab) without firing a close event until the
+// keep-alive/server-timeout window elapses, so we also pair this with
+// visibility/online triggered reconnect checks below.
+const retryPolicy: IRetryPolicy = {
+  nextRetryDelayInMilliseconds: (retryContext) => {
+    if (retryContext.elapsedMilliseconds < 60_000) {
+      return Math.min(2_000 * (retryContext.previousRetryCount + 1), 10_000);
+    }
+    return 30_000;
+  },
+};
 
 class SignalRService {
   private connection: HubConnection | null = null;
   private isConnected = false;
+  private isConnecting = false;
+  private hasEverConnected = false;
   private reconnectInterval: number | null = null;
+  private listenersRegistered = false;
+
   async getAuthToken(): Promise<string> {
     return await getArc14AuthToken();
   }
   async connect(): Promise<void> {
+    if (this.isConnecting) return;
+    if (this.connection?.state === HubConnectionState.Connected) return;
+
+    this.isConnecting = true;
     try {
       // const headers = {
       //   authorization: await this.getAuthToken(),
@@ -35,49 +61,43 @@ class SignalRService {
         .withUrl("https://algorand-trades.de-4.biatec.io/biatecScanHub", {
           //.withUrl("https://localhost:44390/biatecScanHub", {
           //headers: headers,
-          withCredentials: true,
+          // No cookie-based auth is used (see accessTokenFactory below), so credentials
+          // are not sent cross-origin (AUDIT-2026-07-20-02).
+          withCredentials: false,
           transport: HttpTransportType.WebSockets, // Use WebSockets for real-time updates
           accessTokenFactory: async () => await this.getAuthToken(),
         }) // Biatec scan API SignalR endpoint
-        .withAutomaticReconnect()
+        .withAutomaticReconnect(retryPolicy)
         .configureLogging(LogLevel.Information)
         .build();
 
+      // Detect dead connections faster than the 30s/15s defaults, so a
+      // frozen feed is caught and retried well within a user's patience.
+      this.connection.serverTimeoutInMilliseconds = 20_000;
+      this.connection.keepAliveIntervalInMilliseconds = 10_000;
+
       this.connection.onreconnecting(() => {
-        console.log("SignalR reconnecting...");
+        debugLog("SignalR reconnecting...");
         this.isConnected = false;
       });
 
       this.connection.onreconnected(() => {
-        console.log("SignalR reconnected");
-        this.isConnected = true;
-        // Re-subscribe after reconnection with merged filters
-        if (pendingSubscriptions.length > 0) {
-          const mergedFilter =
-            this.mergeSubscriptionFilters(pendingSubscriptions);
-          this.connection
-            ?.invoke("Subscribe", mergedFilter)
-            .then(() => {
-              console.log("Re-subscribed after reconnection:", mergedFilter);
-            })
-            .catch((error) =>
-              console.error("Error re-subscribing after reconnection:", error)
-            );
-        }
+        debugLog("SignalR reconnected");
+        this.handleReconnected();
       });
 
-      this.connection.onclose(() => {
-        console.log("SignalR connection closed");
+      this.connection.onclose((error) => {
+        debugLog("SignalR connection closed", error);
         this.isConnected = false;
         this.scheduleReconnect();
       });
 
       // Handle subscription confirmation
       this.connection.on("Info", (filter: any) => {
-        console.log(`Info received: "${JSON.stringify(filter)}"`);
+        debugLog(`Info received: "${JSON.stringify(filter)}"`);
       });
       this.connection.on("TestConnectionResult", (result: any) => {
-        console.log(`Test connection result: `, result);
+        debugLog(`Test connection result: `, result);
       });
 
       // Handle subscription errors
@@ -87,11 +107,11 @@ class SignalRService {
 
       // Handle subscription errors
       this.connection.on("Block", (block: any) => {
-        console.log("Block received:", block);
+        debugLog("Block received:", block);
         callbacksBlocks.forEach((callback) => callback(block as BiatecBlock));
       });
       this.connection.on("Asset", (asset: any) => {
-        console.log("asset received:", asset);
+        debugLog("asset received:", asset);
         callbacksAssets.forEach((callback) => callback(asset as BiatecAsset));
       });
       // Handle subscription errors
@@ -124,15 +144,75 @@ class SignalRService {
       });
 
       await this.connection.start();
-      this.isConnected = true;
-      console.log("SignalR connected successfully");
+      debugLog("SignalR connected successfully");
+      this.registerVisibilityAndOnlineListeners();
 
       // Subscribe to receive trade updates with empty filter (all trades)
       await this.connection.invoke("TestConnection");
+
+      if (this.hasEverConnected) {
+        // This is a from-scratch reconnect (the previous connection was torn
+        // down entirely, e.g. after start() failed or automatic reconnect
+        // gave up) rather than a live automatic reconnect, so treat it the
+        // same way: re-subscribe and let views know they may have missed data.
+        this.handleReconnected();
+      } else {
+        this.hasEverConnected = true;
+        this.isConnected = true;
+      }
     } catch (error) {
       console.error("Error connecting to SignalR:", error);
+      this.isConnected = false;
       this.scheduleReconnect();
+    } finally {
+      this.isConnecting = false;
     }
+  }
+
+  /**
+   * Ensures we notice a WebSocket that died silently (laptop sleep, network
+   * change, background-tab timer throttling) without waiting for the
+   * server-timeout window, by checking the connection as soon as the tab
+   * becomes visible/online again and forcing a reconnect if needed.
+   */
+  private registerVisibilityAndOnlineListeners(): void {
+    if (this.listenersRegistered || typeof document === "undefined") return;
+    this.listenersRegistered = true;
+
+    const checkAndReconnect = () => {
+      const state = this.connection?.state;
+      if (
+        state !== HubConnectionState.Connected &&
+        state !== HubConnectionState.Connecting &&
+        state !== HubConnectionState.Reconnecting
+      ) {
+        debugLog("SignalR connection stale on wake, reconnecting...");
+        void this.connect();
+      }
+    };
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") checkAndReconnect();
+    });
+    window.addEventListener("online", checkAndReconnect);
+    window.addEventListener("pageshow", checkAndReconnect);
+  }
+
+  private handleReconnected(): void {
+    this.isConnected = true;
+    // Re-subscribe after reconnection with merged filters
+    if (pendingSubscriptions.length > 0) {
+      const mergedFilter = this.mergeSubscriptionFilters(pendingSubscriptions);
+      this.connection
+        ?.invoke("Subscribe", mergedFilter)
+        .then(() => {
+          debugLog("Re-subscribed after reconnection:", mergedFilter);
+        })
+        .catch((error) =>
+          console.error("Error re-subscribing after reconnection:", error)
+        );
+    }
+    callbacksReconnected.forEach((callback) => callback());
   }
 
   private mergeSubscriptionFilters(
@@ -180,7 +260,7 @@ class SignalRService {
   }
 
   public async subscribe(filter: SubscriptionFilter): Promise<void> {
-    console.log("subscribing with filter:", filter);
+    debugLog("subscribing with filter:", filter);
 
     // Add this filter to pending subscriptions if not already present
     const existingIndex = pendingSubscriptions.findIndex(
@@ -194,7 +274,7 @@ class SignalRService {
     const start = Date.now();
 
     if (!this.connection || !this.isConnected) {
-      console.log("Waiting up to 5s for SignalR connection...");
+      debugLog("Waiting up to 5s for SignalR connection...");
 
       // Kick off a connection if none exists
       if (!this.connection) {
@@ -214,7 +294,7 @@ class SignalRService {
       }
 
       if (!this.connection || !this.isConnected) {
-        console.log("Not subscribed: connection timeout (5s)");
+        debugLog("Not subscribed: connection timeout (5s)");
         return;
       }
     }
@@ -224,7 +304,7 @@ class SignalRService {
       const mergedFilter = this.mergeSubscriptionFilters(pendingSubscriptions);
 
       await this.connection.invoke("Subscribe", mergedFilter);
-      console.log(`Subscribed to updates with merged filter:`, mergedFilter);
+      debugLog(`Subscribed to updates with merged filter:`, mergedFilter);
     } catch (error) {
       console.error("Error subscribing to updates:", error);
     }
@@ -244,11 +324,11 @@ class SignalRService {
         const mergedFilter =
           this.mergeSubscriptionFilters(pendingSubscriptions);
         await this.connection.invoke("Subscribe", mergedFilter);
-        console.log(`Re-subscribed with remaining filters:`, mergedFilter);
+        debugLog(`Re-subscribed with remaining filters:`, mergedFilter);
       } else {
         // No more subscriptions, unsubscribe completely
         await this.connection.invoke("Unsubscribe");
-        console.log(`Unsubscribed from all updates`);
+        debugLog(`Unsubscribed from all updates`);
       }
     } catch (error) {
       console.error("Error updating subscription:", error);
@@ -261,7 +341,7 @@ class SignalRService {
     try {
       await this.connection.invoke("Unsubscribe");
       pendingSubscriptions = [];
-      console.log(`Unsubscribed from all updates`);
+      debugLog(`Unsubscribed from all updates`);
     } catch (error) {
       console.error("Error unsubscribing:", error);
     }
@@ -320,6 +400,18 @@ class SignalRService {
     callbacksAggregatedPools = callbacksAggregatedPools.filter(
       (cb) => cb !== callback
     );
+  }
+  /**
+   * Fires after a reconnect (automatic or from-scratch) completes and
+   * subscriptions have been reinstated. Views should use this to refetch
+   * their current page, since messages broadcast during the outage were
+   * missed and won't be replayed by the hub.
+   */
+  onReconnected(callback: () => void): void {
+    callbacksReconnected.push(callback);
+  }
+  offReconnected(callback: () => void): void {
+    callbacksReconnected = callbacksReconnected.filter((cb) => cb !== callback);
   }
 
   async disconnect(): Promise<void> {

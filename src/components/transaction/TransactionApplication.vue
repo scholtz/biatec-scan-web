@@ -159,28 +159,8 @@
         </div>
       </div>
 
-      <!-- Application Arguments -->
-      <div
-        v-if="
-          transaction.applicationTransaction.applicationArgs &&
-          transaction.applicationTransaction.applicationArgs.length > 0
-        "
-      >
-        <p class="text-sm text-gray-400 mb-3">
-          {{ $t("transaction.appArgs") }} ({{
-            transaction.applicationTransaction.applicationArgs.length
-          }})
-        </p>
-        <div class="space-y-2">
-          <BufferDisplay
-            v-for="(arg, index) in transaction.applicationTransaction
-              .applicationArgs"
-            :key="index"
-            :value="arg"
-            :title="`${$t('common.argument')} ${index}`"
-          />
-        </div>
-      </div>
+      <!-- Application Arguments (ARC56-aware decoding, falls back to raw bytes) -->
+      <AbiMethodCall :transaction="transaction" />
 
       <!-- Schema Information -->
       <div
@@ -284,9 +264,9 @@
 <script setup lang="ts">
 import { PropType } from "vue";
 import algosdk from "algosdk";
-import BufferDisplay from "../BufferDisplay.vue";
 import TransactionStateDelta from "./TransactionStateDelta.vue";
 import InnerTransaction from "./InnerTransaction.vue";
+import AbiMethodCall from "./AbiMethodCall.vue";
 
 defineProps({
   transaction: {

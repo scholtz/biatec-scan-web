@@ -8,16 +8,17 @@ Biatec Algorand Scan is a Vue 3 + TypeScript + Vite frontend application that pr
 
 ### Bootstrap, Build, and Test
 
-- **Install dependencies**: `npm install` -- takes 2-3 minutes, expect deprecation warnings but installation succeeds
-- **Build the application**: `npm run build` -- takes 23 seconds. NEVER CANCEL. Set timeout to 60+ minutes for safety. Produces warnings about large chunks and SignalR comments but build succeeds
+- **Install dependencies**: `pnpm install` -- takes 2-3 minutes, expect deprecation warnings but installation succeeds
+- **Build the application**: `pnpm run build` -- takes 23 seconds. NEVER CANCEL. Set timeout to 60+ minutes for safety. Produces warnings about large chunks and SignalR comments but build succeeds
 - **Type checking**: Included in build process via `vue-tsc -b`
-- **Linting**: `npx eslint src/` -- currently shows 28 errors and 5 warnings (existing issues not related to new changes)
+- **Linting**: `pnpm run lint` -- should pass cleanly; fix any new errors introduced by your changes
+- **E2E tests**: `pnpm exec playwright install --with-deps chromium` once, then `pnpm run test:e2e` -- builds the app, serves it via `vite preview`, and checks that every top-level page loads without console/page errors and that the language switcher (`e2e/i18n.spec.ts`) actually changes rendered text
 
 ### Development and Testing
 
-- **Start development server**: `npm run dev` -- starts instantly on http://localhost:5173/
-- **Preview production build**: `npm run preview` -- serves dist/ on http://localhost:4173/
-- **Generate API client**: `npm run generate:api` -- fails due to network restrictions (external OpenAPI spec), but generated files already exist in src/api/
+- **Start development server**: `pnpm run dev` -- starts instantly on http://localhost:5173/
+- **Preview production build**: `pnpm run preview` -- serves dist/ on http://localhost:4173/
+- **Generate API client**: `pnpm run generate:api` -- fails due to network restrictions (external OpenAPI spec), but generated files already exist in src/api/
 
 ### Manual Validation Requirements
 
@@ -76,7 +77,9 @@ src/
 
 ### Configuration Files
 
-- `package.json` - Dependencies and npm scripts
+- `package.json` - Dependencies and pnpm scripts (this project uses **pnpm**, not npm/yarn)
+- `playwright.config.ts` - Playwright E2E test configuration
+- `e2e/` - Playwright E2E tests (page accessibility + i18n)
 - `vite.config.ts` - Vite build configuration
 - `eslint.config.ts` - ESLint linting rules
 - `tailwind.config.ts` - Tailwind CSS configuration
@@ -114,16 +117,9 @@ src/
 
 ## Known Issues and Limitations
 
-### ESLint Issues (Existing - Not Related to New Changes)
-
-- 28 errors and 5 warnings exist in the codebase
-- Common issues: `@typescript-eslint/no-explicit-any`, `vue/multi-word-component-names`
-- These are existing issues - only fix if directly related to your changes
-- Run `npx eslint src/` to see current issues
-
 ### Network Dependencies
 
-- `npm run generate:api` requires external network access to OpenAPI spec
+- `pnpm run generate:api` requires external network access to OpenAPI spec
 - In restricted environments, this command fails but generated files already exist
 - The application gracefully handles offline/restricted network scenarios
 
@@ -138,16 +134,16 @@ src/
 ### Making Changes to UI Components
 
 1. Edit Vue components in `src/components/` or `src/views/`
-2. Run `npm run dev` to start development server
+2. Run `pnpm run dev` to start development server
 3. Test changes at http://localhost:5173/
-4. Run `npm run build` to ensure production build succeeds
-5. Run `npx eslint src/` only if making substantial changes to check for new linting issues
+4. Run `pnpm run build` to ensure production build succeeds
+5. Run `pnpm run lint` only if making substantial changes to check for new linting issues
 
 ### Working with API Integration
 
 - API models are in `src/api/models/`
 - Services that consume APIs are in `src/services/`
-- If API spec changes, run `npm run generate:api` (if network allows) or manually update types
+- If API spec changes, run `pnpm run generate:api` (if network allows) or manually update types
 - **Always check that API integration still works after changes**
 
 ### Styling and UI Changes
@@ -299,11 +295,12 @@ const computedTitle = computed(() => t("dashboard.title"));
 
 Before considering any changes complete:
 
-- [ ] `npm install` completes successfully
-- [ ] `npm run build` completes successfully (23 seconds expected)
-- [ ] `npm run dev` starts successfully and application loads
+- [ ] `pnpm install` completes successfully
+- [ ] `pnpm run build` completes successfully (23 seconds expected)
+- [ ] `pnpm run dev` starts successfully and application loads
 - [ ] Navigate through main sections (Dashboard, Assets, Search, About)
 - [ ] Verify no new ESLint errors introduced (ignore existing ones)
+- [ ] `pnpm run test:e2e` passes
 - [ ] Take screenshot if UI changes made
 - [ ] Test responsive design if layout changes made
 

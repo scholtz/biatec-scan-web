@@ -1132,6 +1132,14 @@ function createSubscriptionFilter(): SubscriptionFilter {
   };
 }
 
+function handleReconnected() {
+  // A reconnect (automatic or from-scratch) means messages broadcast during
+  // the gap were missed and won't be replayed, so refill the live page.
+  if (offset.value === 0 && filters.sortBy === "time-desc") {
+    void fetchTrades();
+  }
+}
+
 async function subscribeToTradeUpdates() {
   await unsubscribeFromTradeUpdates();
   subscriptionFilter = createSubscriptionFilter();
@@ -1238,11 +1246,13 @@ onMounted(async () => {
   syncRouteFilter();
   await fetchTrades();
   signalrService.onTradeReceived(handleTradeUpdate);
+  signalrService.onReconnected(handleReconnected);
   await subscribeToTradeUpdates();
 });
 
 onUnmounted(async () => {
   signalrService.unsubscribeFromTradeUpdates(handleTradeUpdate);
+  signalrService.offReconnected(handleReconnected);
   await unsubscribeFromTradeUpdates();
 });
 

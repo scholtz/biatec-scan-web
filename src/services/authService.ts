@@ -4,6 +4,12 @@ import { makeArc14AuthHeader, makeArc14TxWithSuggestedParams } from "arc14";
 import { Buffer } from "buffer";
 import { uuidv7 } from "uuidv7";
 
+// SECURITY (AUDIT-2026-07-20-03): this value is signing-key seed material, not an inert
+// identifier. generateAlgorandAccount() below derives an Algorand keypair from it
+// deterministically, so anyone who reads it can reconstruct that keypair and impersonate
+// this browser's ARC-14 auth identity against the Biatec API. It never guards funds or
+// any privileged/write action today, but must never be logged, sent to analytics/error
+// reporters, or otherwise exposed outside this module for that reason.
 let sessionCache: string | null = null;
 
 export function getSessionId(): string {

@@ -12,7 +12,7 @@
       </div>
     </div>
     <div class="flex flex-wrap items-center gap-4 text-xs text-gray-400">
-      <label class="flex items-center gap-2">
+      <label class="flex items-center gap-2 shrink-0">
         <input
           type="checkbox"
           v-model="showStable"
@@ -21,7 +21,7 @@
         />
         <span>{{ $t("assets.stableAssets") }}</span>
       </label>
-      <label class="flex items-center gap-2">
+      <label class="flex items-center gap-2 shrink-0">
         <input
           type="checkbox"
           v-model="showUtility"
@@ -32,10 +32,10 @@
       </label>
       <HelpTooltip :text="t('assets.filtersHelp')" />
 
-      <div>
+      <div class="shrink-0">
         {{ $t("common.page") }}: <span class="text-white">{{ page }}</span>
       </div>
-      <div>
+      <div class="shrink-0">
         {{ $t("common.pageSize") }}:
         <select
           v-model.number="pageSize"
@@ -47,7 +47,7 @@
           </option>
         </select>
       </div>
-      <div>
+      <div class="shrink-0">
         {{ $t("common.totalLoaded") }}:
         <span class="text-white">{{ displayAssets.length }}</span>
       </div>
@@ -62,12 +62,12 @@
     </div>
     <div v-if="!loading && assets.length > 0">
       <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
-
       <DataTable
         :table-columns="tableColumns"
         :rows="displayAssets"
         :row-key="(a: BiatecAsset) => a.index"
         :sort-fns="sortFns"
+        :on-row-click="(a: BiatecAsset) => goToPools(a.index)"
       >
         <template #cell-name="{ row: a }">
           <div class="flex items-center gap-2 min-w-0 flex-1">
@@ -76,6 +76,7 @@
               <RouterLink
                 :to="`/asset/${a.index}`"
                 class="text-sm text-white hover:text-blue-300 truncate block"
+                @click.stop
               >
                 {{ a.params?.name || a.params?.unitName || "Asset " + a.index }}
               </RouterLink>
@@ -84,6 +85,7 @@
               </div>
             </div>
             <CopyToClipboard
+              @click.stop
               :text="a.index.toString()"
               :toast-message="
                 t('common.copiedAssetId', {
@@ -198,7 +200,7 @@
 
         <template #cell-favorite="{ row: a }">
           <button
-            @click="toggleFavorite(a.index)"
+            @click.stop="toggleFavorite(a.index)"
             class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
             :class="
               isFavorite(a.index) ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'
@@ -227,7 +229,11 @@
         </template>
 
         <template #cell-pools="{ row: a }">
-          <RouterLink :to="`/aggregated-pools/${a.index}`" class="text-xs text-blue-400 hover:text-blue-300">
+          <RouterLink
+            :to="`/aggregated-pools/${a.index}`"
+            class="text-xs text-blue-400 hover:text-blue-300"
+            @click.stop
+          >
             {{ $t("common.viewPools") }}
           </RouterLink>
         </template>
@@ -256,6 +262,7 @@
 
 <script setup lang="ts">
 import { reactive, watch, onMounted, onUnmounted, computed, defineComponent, h, ref } from "vue";
+import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
@@ -270,6 +277,12 @@ import HelpTooltip from "../components/HelpTooltip.vue";
 import { useTableColumns, sortRows, type ColumnDef } from "../composables/useTableColumns";
 
 const { t } = useI18n();
+const router = useRouter();
+
+// Clicking an asset row opens its list of pools (aggregated pools by asset).
+function goToPools(assetIndex: number) {
+  router.push(`/aggregated-pools/${assetIndex}`);
+}
 
 interface State {
   page: number;
