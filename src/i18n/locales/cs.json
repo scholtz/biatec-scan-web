@@ -60,7 +60,8 @@
     "description": "Popis",
     "status": "Stav",
     "created": "Vytvořeno",
-    "updated": "Aktualizováno"
+    "updated": "Aktualizováno",
+    "close": "Zavřít"
   },
   "nav": {
     "explore": "Prozkoumat",
@@ -113,7 +114,8 @@
     "utilityTokens": "Utility tokeny",
     "change1H": "1h %",
     "change24H": "24h %",
-    "change7D": "7d %"
+    "change7D": "7d %",
+    "filtersHelp": "Stabilní aktiva zobrazují tokeny navázané na pevnou hodnotu (např. stablecoiny). Utility tokeny zobrazují všechna ostatní aktiva. Obě lze zapnout současně."
   },
   "search": {
     "title": "Síťové vyhledávání",
@@ -282,7 +284,19 @@
     "totalReserveA": "Celková rezerva A",
     "totalReserveB": "Celková rezerva B",
     "volume24H": "Objem 24H",
-    "loadingPools": "Načítají se pooly…"
+    "loadingPools": "Načítají se pooly…",
+    "protocol": "Protokol",
+    "type": "Typ",
+    "address": "Adresa",
+    "poolId": "ID poolu",
+    "lpFee": "Poplatek LP",
+    "protocolFee": "Poplatek protokolu",
+    "priceMin": "Min. cena",
+    "price": "Cena",
+    "priceMax": "Max. cena",
+    "reserveA": "Rezerva A",
+    "reserveB": "Rezerva B",
+    "time": "Čas"
   },
   "blockDetails": {
     "title": "Blok #{round}",
@@ -471,5 +485,19 @@
     "setBytes": "Nastavit bajty",
     "setUint": "Nastavit Uint",
     "delete": "Smazat"
+  },
+  "table": {
+    "columns": "Sloupce",
+    "configureColumns": "Nastavit sloupce",
+    "pinned": "Připnuto",
+    "dragToReorder": "Přetažením změníte pořadí",
+    "moveUp": "Posunout nahoru",
+    "moveDown": "Posunout dolů",
+    "resetToDefault": "Obnovit výchozí",
+    "noSort": "Bez řazení",
+    "showOn": "Zobrazit na",
+    "tierSm": "Všechny obrazovky",
+    "tierLg": "Full HD a větší",
+    "tier4k": "Pouze 4K obrazovky"
   }
 }

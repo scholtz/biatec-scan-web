@@ -60,7 +60,8 @@
     "uints": "Uint-ok",
     "byteSlices": "Byte-Slices",
     "key": "Kulcs",
-    "action": "Művelet"
+    "action": "Művelet",
+    "close": "Bezárás"
   },
   "nav": {
     "explore": "Felfedezés",
@@ -113,7 +114,8 @@
     "utilityTokens": "Használati tokenek",
     "change1H": "1ó %",
     "change24H": "24ó %",
-    "change7D": "7n %"
+    "change7D": "7n %",
+    "filtersHelp": "A Stabil eszközök a fix értékhez kötött tokeneket mutatják (pl. stablecoinok). A Haszonelvű tokenek az összes többi eszközt mutatják. Mindkettő egyszerre is bekapcsolható."
   },
   "search": {
     "title": "Hálózati keresés",
@@ -282,7 +284,19 @@
     "totalReserveA": "Összes A tartalék",
     "totalReserveB": "Összes B tartalék",
     "volume24H": "Forgalom 24Ó",
-    "loadingPools": "Poolok betöltése…"
+    "loadingPools": "Poolok betöltése…",
+    "protocol": "Protokoll",
+    "type": "Típus",
+    "address": "Cím",
+    "poolId": "Pool azonosító",
+    "lpFee": "LP díj",
+    "protocolFee": "Protokoll díj",
+    "priceMin": "Min. ár",
+    "price": "Ár",
+    "priceMax": "Max. ár",
+    "reserveA": "A tartalék",
+    "reserveB": "B tartalék",
+    "time": "Idő"
   },
   "blockDetails": {
     "title": "#{round} blokk",
@@ -471,5 +485,19 @@
     "setBytes": "Bájtok beállítása",
     "setUint": "Uint beállítása",
     "delete": "Törlés"
+  },
+  "table": {
+    "columns": "Oszlopok",
+    "configureColumns": "Oszlopok beállítása",
+    "pinned": "Rögzítve",
+    "dragToReorder": "Húzza az átrendezéshez",
+    "moveUp": "Mozgatás felfelé",
+    "moveDown": "Mozgatás lefelé",
+    "resetToDefault": "Alaphelyzet visszaállítása",
+    "noSort": "Nincs rendezés",
+    "showOn": "Megjelenítés",
+    "tierSm": "Minden képernyő",
+    "tierLg": "Full HD és nagyobb",
+    "tier4k": "Csak 4K képernyők"
   }
 }

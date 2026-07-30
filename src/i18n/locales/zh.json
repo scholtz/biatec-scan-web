@@ -60,7 +60,8 @@
     "description": "描述",
     "status": "状态",
     "created": "创建时间",
-    "updated": "更新时间"
+    "updated": "更新时间",
+    "close": "关闭"
   },
   "nav": {
     "explore": "浏览",
@@ -113,7 +114,8 @@
     "utilityTokens": "实用代币",
     "change1H": "1小时 %",
     "change24H": "24小时 %",
-    "change7D": "7天 %"
+    "change7D": "7天 %",
+    "filtersHelp": "稳定资产显示锚定固定价值的代币（例如稳定币）。功能代币显示所有其他资产。两者可以同时启用。"
   },
   "search": {
     "title": "网络搜索",
@@ -282,7 +284,19 @@
     "totalReserveA": "总储备 A",
     "totalReserveB": "总储备 B",
     "volume24H": "24小时交易量",
-    "loadingPools": "正在加载池…"
+    "loadingPools": "正在加载池…",
+    "protocol": "协议",
+    "type": "类型",
+    "address": "地址",
+    "poolId": "资金池ID",
+    "lpFee": "LP手续费",
+    "protocolFee": "协议手续费",
+    "priceMin": "最低价格",
+    "price": "价格",
+    "priceMax": "最高价格",
+    "reserveA": "储备A",
+    "reserveB": "储备B",
+    "time": "时间"
   },
   "blockDetails": {
     "title": "区块 #{round}",
@@ -471,5 +485,19 @@
     "setBytes": "设置字节",
     "setUint": "设置无符号整数",
     "delete": "删除"
+  },
+  "table": {
+    "columns": "列",
+    "configureColumns": "配置列",
+    "pinned": "已固定",
+    "dragToReorder": "拖动以重新排序",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "resetToDefault": "恢复默认",
+    "noSort": "不排序",
+    "showOn": "显示于",
+    "tierSm": "所有屏幕",
+    "tierLg": "Full HD 及以上",
+    "tier4k": "仅 4K 屏幕"
   }
 }

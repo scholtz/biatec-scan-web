@@ -60,7 +60,8 @@
     "uints": "Uints",
     "byteSlices": "Byte-Slices",
     "key": "Clave",
-    "action": "Acción"
+    "action": "Acción",
+    "close": "Cerrar"
   },
   "nav": {
     "explore": "Explorar",
@@ -113,7 +114,8 @@
     "utilityTokens": "Tokens de utilidad",
     "change1H": "1h %",
     "change24H": "24h %",
-    "change7D": "7d %"
+    "change7D": "7d %",
+    "filtersHelp": "Activos estables muestra tokens vinculados a un valor fijo (por ejemplo, stablecoins). Tokens de utilidad muestra todos los demás activos. Ambos se pueden activar a la vez."
   },
   "search": {
     "title": "Búsqueda de red",
@@ -282,7 +284,19 @@
     "totalReserveA": "Reserva total A",
     "totalReserveB": "Reserva total B",
     "volume24H": "Volumen 24H",
-    "loadingPools": "Cargando pools…"
+    "loadingPools": "Cargando pools…",
+    "protocol": "Protocolo",
+    "type": "Tipo",
+    "address": "Dirección",
+    "poolId": "ID del pool",
+    "lpFee": "Comisión LP",
+    "protocolFee": "Comisión del protocolo",
+    "priceMin": "Precio mín.",
+    "price": "Precio",
+    "priceMax": "Precio máx.",
+    "reserveA": "Reserva A",
+    "reserveB": "Reserva B",
+    "time": "Hora"
   },
   "blockDetails": {
     "title": "Bloque #{round}",
@@ -471,5 +485,19 @@
     "setBytes": "Establecer bytes",
     "setUint": "Establecer uint",
     "delete": "Eliminar"
+  },
+  "table": {
+    "columns": "Columnas",
+    "configureColumns": "Configurar columnas",
+    "pinned": "Fijada",
+    "dragToReorder": "Arrastra para reordenar",
+    "moveUp": "Mover hacia arriba",
+    "moveDown": "Mover hacia abajo",
+    "resetToDefault": "Restablecer valores predeterminados",
+    "noSort": "Sin orden",
+    "showOn": "Mostrar en",
+    "tierSm": "Todas las pantallas",
+    "tierLg": "Full HD y superior",
+    "tier4k": "Solo pantallas 4K"
   }
 }

@@ -33,6 +33,7 @@
       >
         {{ $t("poolsByAssets.refresh") }}
       </button>
+      <ColumnSettingsPanel :columns="tableColumns" class="ml-auto" />
     </div>
 
     <!-- Aggregated Pool Summary -->
@@ -153,25 +154,159 @@
     </div>
     <div v-else-if="state.error" class="text-red-400">{{ state.error }}</div>
 
-    <div v-else class="space-y-1">
-      <div
-        class="hidden md:grid md:grid-cols-13 gap-3 px-2 text-xs text-gray-400"
+    <div v-else>
+      <DataTable
+        :table-columns="tableColumns"
+        :rows="state.pools"
+        :row-key="(p: Pool) => p.poolAddress ?? ''"
+        :sort-fns="sortFns"
       >
-        <div>Protocol</div>
-        <div>Type</div>
-        <div>Address</div>
-        <div class="text-right">Pool ID</div>
-        <div class="text-right">LP Fee</div>
-        <div class="text-right">Protocol Fee</div>
-        <div class="text-right">Price Min</div>
-        <div class="text-right">Price</div>
-        <div class="text-right">Price Max</div>
-        <div class="text-right">Reserve A</div>
-        <div class="text-right">Reserve B</div>
-        <div class="text-right">{{ $t("poolsByAssets.volume24H") }}</div>
-        <div class="text-right">Time</div>
-      </div>
-      <PoolRow v-for="p in state.pools" :key="p.poolAddress ?? ''" :pool="p" />
+        <template #cell-address="{ row: p }">
+          <div class="flex items-center gap-1 min-w-0">
+            <router-link
+              v-if="p.poolAddress"
+              :to="{
+                name: 'AddressDetails',
+                params: { address: p.poolAddress },
+              }"
+              class="text-xs text-blue-100 hover:text-blue-300 font-mono truncate transition-colors duration-200"
+              :title="p.poolAddress"
+            >
+              {{ formatAddress(p.poolAddress) }}
+            </router-link>
+            <CopyToClipboard
+              :text="p.poolAddress ?? ''"
+              :toast-message="`Copied pool address: ${formatAddress(p.poolAddress ?? '')}`"
+              title="Copy pool address to clipboard"
+              class="p-1 text-gray-400 hover:text-white transition-colors shrink-0"
+            />
+          </div>
+        </template>
+
+        <template #cell-protocol="{ row: p }">
+          <span class="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300">
+            {{ p.protocol }}
+          </span>
+        </template>
+
+        <template #cell-type="{ row: p }">
+          <span
+            class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300"
+            v-if="p.ammType == AMMType.StableSwap"
+          >
+            Stable swap
+          </span>
+          <span
+            class="text-xs px-2 py-1 rounded bg-gray-500/20 text-gray-300"
+            v-else-if="p.ammType == 'OldAMM'"
+          >
+            Traditional AMM
+          </span>
+          <span
+            class="text-xs px-2 py-1 rounded bg-green-500/20 text-green-300"
+            v-else-if="p.ammType == 'ConcentratedLiquidityAMM'"
+          >
+            Concentrated liquidity
+          </span>
+          <span class="text-xs px-2 py-1 rounded bg-gray-500/20 text-gray-300" v-else>
+            {{ p.ammType }}
+          </span>
+        </template>
+
+        <template #cell-poolId="{ row: p }">
+          <div class="flex items-center justify-end gap-1">
+            <router-link
+              v-if="p.poolAppId"
+              :to="{
+                name: 'PoolDetails',
+                params: { poolAddress: p.poolAddress },
+              }"
+              class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+            >
+              {{ p.poolAppId.toString() }}
+            </router-link>
+            <CopyToClipboard
+              :text="p.poolAppId?.toString() ?? ''"
+              :toast-message="`Copied pool app ID: ${p.poolAppId?.toString() ?? ''}`"
+              title="Copy pool app id to clipboard"
+              class="p-1 text-gray-400 hover:text-white transition-colors"
+            />
+          </div>
+        </template>
+
+        <template #cell-lpFee="{ row: p }">
+          <template v-if="(p.lpFee ?? 0) > 0">{{ Number((p.lpFee ?? 0) * 100).toLocaleString() }} %</template>
+          <template v-else>-</template>
+        </template>
+
+        <template #cell-protocolFee="{ row: p }">
+          <template v-if="(p.protocolFeePortion ?? 0) > 0"
+            >{{ Number((p.protocolFeePortion ?? 0) * 100).toLocaleString() }} %</template
+          >
+          <template v-else>-</template>
+        </template>
+
+        <template #cell-priceMin="{ row: p }">
+          {{ formattedPriceMin(p) }}
+        </template>
+
+        <template #cell-price="{ row: p }">
+          <router-link
+            :to="{
+              name: 'PoolsByAssets',
+              params: { asset1: p.assetIdA, asset2: p.assetIdB },
+            }"
+            class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+          >
+            {{ formattedPrice(p) }}
+          </router-link>
+        </template>
+
+        <template #cell-priceMax="{ row: p }">
+          {{ formattedPriceMax(p) }}
+        </template>
+
+        <template #cell-reserveA="{ row: p }">
+          <div title="Real reserve">
+            <router-link
+              :to="{ name: 'AssetDetails', params: { assetId: p.assetIdA } }"
+              class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+            >
+              {{ formattedReserveA(p) }}
+            </router-link>
+          </div>
+          <div title="Virtual reserve" class="text-xs text-gray-400">{{ formattedVirtualReserveA(p) }}</div>
+        </template>
+
+        <template #cell-reserveB="{ row: p }">
+          <div title="Real reserve">
+            <router-link
+              :to="{ name: 'AssetDetails', params: { assetId: p.assetIdB } }"
+              class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+            >
+              {{ formattedReserveB(p) }}
+            </router-link>
+          </div>
+          <div title="Virtual reserve" class="text-xs text-gray-400">{{ formattedVirtualReserveB(p) }}</div>
+        </template>
+
+        <template #cell-volume24H="{ row: p }">
+          <template v-if="p.volume24H === undefined || p.volume24H === null">-</template>
+          <template v-else>
+            <FormattedNumber
+              :value="p.volume24H"
+              type="currency"
+              :maximum-fraction-digits="2"
+              :small-threshold="0.01"
+              :significant-digits="4"
+            />
+          </template>
+        </template>
+
+        <template #cell-time="{ row: p }">
+          <FormattedTime :timestamp="p.timestamp || Date.now().toString()" />
+        </template>
+      </DataTable>
     </div>
   </div>
 </template>
@@ -180,11 +315,15 @@
 import { onMounted, watch, computed, reactive, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
-import PoolRow from "../components/PoolRow.vue";
 import { getAVMTradeReporterAPI } from "../api";
 import { assetService } from "../services/assetService";
 import FormattedTime from "../components/FormattedTime.vue";
-import { Pool, AggregatedPool } from "../api/models";
+import FormattedNumber from "../components/FormattedNumber.vue";
+import CopyToClipboard from "../components/CopyToClipboard.vue";
+import DataTable from "../components/table/DataTable.vue";
+import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
+import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
+import { AMMType, Pool, AggregatedPool } from "../api/models";
 import { signalrService } from "../services/signalrService";
 
 const { t } = useI18n();
@@ -205,6 +344,51 @@ const state = reactive({
 const api = getAVMTradeReporterAPI();
 
 const isSingleAsset = computed(() => !route.params.asset2);
+
+const poolColumns: ColumnDef[] = [
+  { key: "address", labelKey: "poolsByAssets.address", pinned: true },
+  { key: "protocol", labelKey: "poolsByAssets.protocol", sortable: true },
+  { key: "type", labelKey: "poolsByAssets.type", sortable: true },
+  { key: "poolId", labelKey: "poolsByAssets.poolId", align: "right", sortable: true },
+  { key: "lpFee", labelKey: "poolsByAssets.lpFee", align: "right", sortable: true },
+  { key: "protocolFee", labelKey: "poolsByAssets.protocolFee", align: "right", sortable: true },
+  { key: "priceMin", labelKey: "poolsByAssets.priceMin", align: "right", sortable: true },
+  { key: "price", labelKey: "poolsByAssets.price", align: "right", sortable: true },
+  { key: "priceMax", labelKey: "poolsByAssets.priceMax", align: "right", sortable: true },
+  { key: "reserveA", labelKey: "poolsByAssets.reserveA", align: "right", sortable: true },
+  { key: "reserveB", labelKey: "poolsByAssets.reserveB", align: "right", sortable: true },
+  { key: "volume24H", labelKey: "poolsByAssets.volume24H", align: "right", sortable: true },
+  { key: "time", labelKey: "poolsByAssets.time", align: "right", sortable: true },
+];
+
+const tableColumns = useTableColumns("pools-by-assets", poolColumns);
+
+const sortFns: Partial<Record<string, (p: Pool) => number | string>> = {
+  protocol: (p) => p.protocol ?? "",
+  type: (p) => p.ammType ?? "",
+  poolId: (p) => (p.poolAppId !== undefined ? Number(p.poolAppId) : Number.NEGATIVE_INFINITY),
+  lpFee: (p) => p.lpFee ?? Number.NEGATIVE_INFINITY,
+  protocolFee: (p) => p.protocolFeePortion ?? Number.NEGATIVE_INFINITY,
+  priceMin: (p) => p.pMin ?? Number.NEGATIVE_INFINITY,
+  price: (p) => (p.virtualAmountA && p.virtualAmountB ? p.virtualAmountA / p.virtualAmountB : Number.NEGATIVE_INFINITY),
+  priceMax: (p) => p.pMax ?? Number.POSITIVE_INFINITY,
+  reserveA: (p) => p.realAmountA ?? Number.NEGATIVE_INFINITY,
+  reserveB: (p) => p.realAmountB ?? Number.NEGATIVE_INFINITY,
+  volume24H: (p) => p.volume24H ?? Number.NEGATIVE_INFINITY,
+  time: (p) => p.timestamp ?? "",
+};
+
+function normalizePool(p: Pool): Pool {
+  if (
+    assetService.needToReverseAssets(
+      BigInt(p.assetIdA ?? 0n),
+      BigInt(p.assetIdB ?? 0n),
+    )
+  ) {
+    return assetService.reversePool(p);
+  }
+  return p;
+}
 
 async function fetchPools() {
   state.loading = true;
@@ -236,7 +420,8 @@ async function fetchPools() {
       });
       pools = res.data as Pool[];
     }
-    // sort pools by the selected asset's real amount (descending)
+    pools = pools.map(normalizePool);
+    // Default sort by the selected asset's real amount (descending); overridden by user's chosen column sort.
     const aSel = Number(state.asset1);
     pools.sort((a, b) => {
       const aval =
@@ -305,6 +490,7 @@ onMounted(async () => {
 
   await Promise.all([fetchPools(), fetchAggregated()]);
 
+  signalrService.onPoolReceived(poolRowUpdateEvent);
   signalrService.onAggregatedPoolReceived(poolUpdateEvent);
   var addresses = state.pools.map((p) => p.poolAddress ?? "");
   var aggregatedIds = [] as string[];
@@ -326,6 +512,7 @@ onMounted(async () => {
   });
 });
 onUnmounted(() => {
+  signalrService.unsubscribeFromPoolUpdates(poolRowUpdateEvent);
   signalrService.unsubscribeFromAggregatedPoolUpdates(poolUpdateEvent);
   signalrService.unsubscribe();
 });
@@ -344,6 +531,15 @@ const poolUpdateEvent = (pool: AggregatedPool) => {
     state.aggregated = assetService.reverseAggregatedPool(pool);
   }
 };
+
+const poolRowUpdateEvent = (pool: Pool) => {
+  const idx = state.pools.findIndex(
+    (x) => x.poolAppId === pool.poolAppId && x.poolAddress === pool.poolAddress,
+  );
+  if (idx === -1) return;
+  state.pools[idx] = normalizePool(pool);
+};
+
 watch(
   () => route.params,
   (p) => {
@@ -494,6 +690,43 @@ const aggregatedPrice = computed(() => {
   const b = state.aggregated.virtualSumB || 0;
   return assetService.formatPairBalance(a, aid, b, bid, false);
 });
+
+// Per-pool cell formatting (folded in from the old PoolRow.vue component)
+function formatAddress(address: string): string {
+  if (!address) return "";
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
+
+function formattedPrice(p: Pool): string {
+  if (!p.virtualAmountA || !p.virtualAmountB || p.assetIdA === undefined || p.assetIdA === null) return "0";
+  return assetService.formatPairBalance(p.virtualAmountA, p.assetIdA ?? 0, p.virtualAmountB, p.assetIdB ?? 0, false);
+}
+function formattedPriceMin(p: Pool): string {
+  if (!p.pMin) return "0";
+  return assetService.formatPairBalanceWithRealValue(p.pMin, p.assetIdA ?? 0, p.assetIdB ?? 0);
+}
+function formattedPriceMax(p: Pool): string {
+  if (!p.pMax) return "∞";
+  return assetService.formatPairBalanceWithRealValue(p.pMax, p.assetIdA ?? 0, p.assetIdB ?? 0);
+}
+function formattedReserveA(p: Pool): string {
+  if (!p.realAmountA || p.assetIdA === undefined || p.assetIdA === null) return "0";
+  return assetService.formatAssetBalance(p.realAmountA, p.assetIdA ?? 0, false);
+}
+function formattedReserveB(p: Pool): string {
+  if (!p.realAmountB || p.assetIdB === undefined || p.assetIdB === null) return "0";
+  return assetService.formatAssetBalance(p.realAmountB, p.assetIdB ?? 0, false);
+}
+function formattedVirtualReserveA(p: Pool): string {
+  if (p.ammType === AMMType.OldAMM && p.virtualAmountA == p.realAmountA) return "";
+  if (!p.virtualAmountA || p.assetIdA === undefined || p.assetIdA === null) return "0";
+  return assetService.formatAssetBalance(p.virtualAmountA, p.assetIdA ?? 0, false);
+}
+function formattedVirtualReserveB(p: Pool): string {
+  if (p.ammType === AMMType.OldAMM && p.virtualAmountB == p.realAmountB) return "";
+  if (!p.virtualAmountB || p.assetIdB === undefined || p.assetIdB === null) return "0";
+  return assetService.formatAssetBalance(p.virtualAmountB, p.assetIdB ?? 0, false);
+}
 </script>
 
 <style scoped></style>

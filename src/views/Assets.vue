@@ -11,7 +11,7 @@
         </button>
       </div>
     </div>
-    <div class="flex items-center gap-4 text-xs text-gray-400">
+    <div class="flex flex-wrap items-center gap-4 text-xs text-gray-400">
       <label class="flex items-center gap-2">
         <input
           type="checkbox"
@@ -30,36 +30,7 @@
         />
         <span>{{ $t("assets.utilityTokens") }}</span>
       </label>
-
-      <div class="flex items-center gap-2">
-        <label class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            :checked="selectedTimes.includes('1H')"
-            @change="toggleTime('1H')"
-            class="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
-          />
-          <span>1H</span>
-        </label>
-        <label class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            :checked="selectedTimes.includes('24H')"
-            @change="toggleTime('24H')"
-            class="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
-          />
-          <span>24H</span>
-        </label>
-        <label class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            :checked="selectedTimes.includes('7D')"
-            @change="toggleTime('7D')"
-            class="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
-          />
-          <span>7D</span>
-        </label>
-      </div>
+      <HelpTooltip :text="t('assets.filtersHelp')" />
 
       <div>
         {{ $t("common.page") }}: <span class="text-white">{{ page }}</span>
@@ -78,8 +49,9 @@
       </div>
       <div>
         {{ $t("common.totalLoaded") }}:
-        <span class="text-white">{{ assets.length }}</span>
+        <span class="text-white">{{ displayAssets.length }}</span>
       </div>
+      <ColumnSettingsPanel :columns="tableColumns" class="ml-auto" />
     </div>
 
     <div v-if="loading" class="text-gray-400">
@@ -90,402 +62,176 @@
     </div>
     <div v-if="!loading && assets.length > 0">
       <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
-      <div
-        :class="`hidden md:grid gap-3 px-2 text-xs text-gray-400 mb-2`"
-        :style="`grid-template-columns: repeat(${gridCols}, 1fr)`"
-      >
-        <div class="w-12 text-right">{{ $t("assets.rank") }}</div>
-        <div>{{ $t("assets.name") }}</div>
-        <div class="text-right">{{ $t("assets.price") }}</div>
-        <div v-if="selectedTimes.includes('1H')" class="text-right">
-          {{ $t("assets.change1H") }}
-        </div>
-        <div v-if="selectedTimes.includes('24H')" class="text-right">
-          {{ $t("assets.change24H") }}
-        </div>
-        <div v-if="selectedTimes.includes('7D')" class="text-right">
-          {{ $t("assets.change7D") }}
-        </div>
-        <div class="text-right">{{ $t("assets.realTvl") }}</div>
-        <div class="text-right">{{ $t("assets.totalTvl") }}</div>
-        <div v-if="selectedTimes.includes('1H')" class="text-right">
-          {{ $t("assets.volume1H") }}
-        </div>
-        <div v-if="selectedTimes.includes('24H')" class="text-right">
-          {{ $t("assets.volume24H") }}
-        </div>
-        <div v-if="selectedTimes.includes('7D')" class="text-right">
-          {{ $t("assets.volume7D") }}
-        </div>
-        <div class="text-right">{{ $t("assets.updated") }}</div>
-        <div class="text-center">{{ $t("common.favorite") }}</div>
-        <div class="text-right">{{ $t("common.pools") }}</div>
-      </div>
-      <div class="space-y-1">
-        <div
-          v-for="(a, index) in filteredAssets"
-          :key="a.index"
-          class="p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors"
-        >
-          <!-- Mobile compact layout -->
-          <div class="md:hidden flex items-center gap-3">
-            <div
-              class="text-xs text-gray-400 font-mono min-w-[2rem] text-right"
-            >
-              #{{ (page - 1) * pageSize + index + 1 }}
-            </div>
-            <RouterLink
-              :to="`/asset/${a.index}`"
-              class="flex items-center gap-2 min-w-0 flex-1"
-            >
-              <img :src="assetImageUrl(a.index)" class="w-8 h-8 rounded" />
-              <div class="min-w-0">
-                <div class="text-white text-sm font-medium truncate">
-                  {{
-                    a.params?.name || a.params?.unitName || "Asset " + a.index
-                  }}
-                </div>
-                <div class="text-[10px] text-gray-400 truncate font-mono">
-                  #{{ a.index }} • {{ a.params?.unitName || "-" }}
-                </div>
-              </div>
-              <CopyToClipboard
-                :text="a.index.toString()"
-                :toast-message="
-                  t('common.copiedAssetId', {
-                    name: a.params?.name || a.params?.unitName || 'Asset',
-                    id: a.index,
-                  })
-                "
-                :title="
-                  t('common.copyAssetId', {
-                    name: a.params?.name || a.params?.unitName || 'Asset',
-                    id: a.index,
-                  })
-                "
-              />
-            </RouterLink>
-            <div class="text-right">
-              <div class="text-[10px] text-gray-400">
-                {{ $t("assets.price") }}
-              </div>
-              <div class="text-xs text-white font-mono">
-                <template v-if="a.priceUSD === undefined || a.priceUSD === null"
-                  >-</template
-                >
-                <template v-else>
-                  <FormattedNumber
-                    :value="a.priceUSD"
-                    type="currency"
-                    :minimum-fraction-digits="2"
-                    :maximum-fraction-digits="6"
-                    :small-threshold="0.01"
-                    :significant-digits="4"
-                  />
-                </template>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-[10px] text-gray-400">
-                {{ $t("assets.realTvl") }}
-              </div>
-              <div class="text-xs text-white font-mono">
-                <template v-if="a.tvL_USD === undefined || a.tvL_USD === null"
-                  >-</template
-                >
-                <template v-else>
-                  <FormattedNumber
-                    :value="a.tvL_USD"
-                    type="currency"
-                    :maximum-fraction-digits="2"
-                    :small-threshold="0.01"
-                    :significant-digits="4"
-                  />
-                </template>
-              </div>
-            </div>
-            <RouterLink
-              :to="`/aggregated-pools/${a.index}`"
-              class="text-[10px] text-blue-400 hover:text-blue-300 underline ml-2"
-              >{{ $t("common.pools") }}</RouterLink
-            >
-            <button
-              @click="toggleFavorite(a.index)"
-              class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95 ml-2"
-              :class="
-                isFavorite(a.index)
-                  ? 'text-yellow-400 animate-pulse'
-                  : 'text-gray-400 hover:text-yellow-300'
-              "
-              :title="
-                isFavorite(a.index)
-                  ? $t('common.removeFromFavorites')
-                  : $t('common.addToFavorites')
-              "
-            >
-              <svg
-                class="w-4 h-4 transition-all duration-300"
-                :class="{ 'drop-shadow-lg': isFavorite(a.index) }"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  v-if="isFavorite(a.index)"
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                />
-                <path
-                  v-else
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                />
-              </svg>
-            </button>
-          </div>
 
-          <div
-            :class="`hidden md:grid gap-3 items-center`"
-            :style="`grid-template-columns: repeat(${gridCols}, 1fr)`"
-          >
-            <div class="w-12 text-sm text-white text-right font-mono">
-              #{{ (page - 1) * pageSize + index + 1 }}
-            </div>
-            <div class="text-sm text-white truncate flex items-center gap-2">
-              <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
+      <DataTable
+        :table-columns="tableColumns"
+        :rows="displayAssets"
+        :row-key="(a: BiatecAsset) => a.index"
+        :sort-fns="sortFns"
+      >
+        <template #cell-name="{ row: a }">
+          <div class="flex items-center gap-2 min-w-0 flex-1">
+            <img :src="assetImageUrl(a.index)" class="w-6 h-6 md:w-6 md:h-6 rounded shrink-0" />
+            <div class="min-w-0">
               <RouterLink
                 :to="`/asset/${a.index}`"
-                class="hover:text-blue-300"
-                >{{ a.params?.name || "-" }}</RouterLink
+                class="text-sm text-white hover:text-blue-300 truncate block"
               >
-              <CopyToClipboard
-                :text="a.index.toString()"
-                :toast-message="
-                  t('common.copiedAssetId', {
-                    name: a.params?.name || a.params?.unitName || 'Asset',
-                    id: a.index,
-                  })
-                "
-                :title="
-                  t('common.copyAssetId', {
-                    name: a.params?.name || a.params?.unitName || 'Asset',
-                    id: a.index,
-                  })
-                "
-              />
-            </div>
-            <div class="text-sm text-white text-right whitespace-nowrap">
-              <template v-if="a.priceUSD === undefined || a.priceUSD === null"
-                >-</template
-              >
-              <template v-else>
-                <FormattedNumber
-                  :value="a.priceUSD"
-                  type="currency"
-                  :minimum-fraction-digits="2"
-                  :maximum-fraction-digits="6"
-                  :small-threshold="0.01"
-                  :significant-digits="4"
-                />
-              </template>
-            </div>
-            <div
-              v-if="selectedTimes.includes('1H')"
-              class="text-sm text-white text-right whitespace-nowrap"
-            >
-              <template v-if="!a.priceUSD || !a.priceUSD1H">-</template>
-              <template v-else>
-                <span
-                  :class="
-                    getChangePercent(a.priceUSD!, a.priceUSD1H!)! > 0
-                      ? 'text-green-400'
-                      : getChangePercent(a.priceUSD!, a.priceUSD1H!)! < 0
-                        ? 'text-red-400'
-                        : 'text-gray-400'
-                  "
-                >
-                  {{
-                    formatPercent(getChangePercent(a.priceUSD!, a.priceUSD1H!))
-                  }}
-                </span>
-              </template>
-            </div>
-            <div
-              v-if="selectedTimes.includes('24H')"
-              class="text-sm text-white text-right whitespace-nowrap"
-            >
-              <template v-if="!a.priceUSD || !a.priceUSD24H">-</template>
-              <template v-else>
-                <span
-                  :class="
-                    getChangePercent(a.priceUSD!, a.priceUSD24H!)! > 0
-                      ? 'text-green-400'
-                      : getChangePercent(a.priceUSD!, a.priceUSD24H!)! < 0
-                        ? 'text-red-400'
-                        : 'text-gray-400'
-                  "
-                >
-                  {{
-                    formatPercent(getChangePercent(a.priceUSD!, a.priceUSD24H!))
-                  }}
-                </span>
-              </template>
-            </div>
-            <div
-              v-if="selectedTimes.includes('7D')"
-              class="text-sm text-white text-right whitespace-nowrap"
-            >
-              <template v-if="!a.priceUSD || !a.priceUSD7D">-</template>
-              <template v-else>
-                <span
-                  :class="
-                    getChangePercent(a.priceUSD!, a.priceUSD7D!)! > 0
-                      ? 'text-green-400'
-                      : getChangePercent(a.priceUSD!, a.priceUSD7D!)! < 0
-                        ? 'text-red-400'
-                        : 'text-gray-400'
-                  "
-                >
-                  {{
-                    formatPercent(getChangePercent(a.priceUSD!, a.priceUSD7D!))
-                  }}
-                </span>
-              </template>
-            </div>
-            <div class="text-sm text-white text-right whitespace-nowrap">
-              <template v-if="a.tvL_USD === undefined || a.tvL_USD === null"
-                >-</template
-              >
-              <template v-else>
-                <FormattedNumber
-                  :value="a.tvL_USD"
-                  type="currency"
-                  :maximum-fraction-digits="2"
-                  :small-threshold="0.01"
-                  :significant-digits="4"
-                />
-              </template>
-            </div>
-            <div class="text-sm text-white text-right whitespace-nowrap">
-              <template
-                v-if="
-                  a.totalTVLAssetInUSD === undefined ||
-                  a.totalTVLAssetInUSD === null
-                "
-                >-</template
-              >
-              <template v-else>
-                <FormattedNumber
-                  :value="a.totalTVLAssetInUSD"
-                  type="currency"
-                  :maximum-fraction-digits="2"
-                  :small-threshold="0.01"
-                  :significant-digits="4"
-                />
-              </template>
-            </div>
-            <div
-              v-if="selectedTimes.includes('1H')"
-              class="text-sm text-white text-right whitespace-nowrap"
-            >
-              <template v-if="a.volume1H === undefined || a.volume1H === null"
-                >-</template
-              >
-              <template v-else>
-                <FormattedNumber
-                  :value="a.volume1H"
-                  type="currency"
-                  :maximum-fraction-digits="2"
-                  :small-threshold="0.01"
-                  :significant-digits="4"
-                />
-              </template>
-            </div>
-            <div
-              v-if="selectedTimes.includes('24H')"
-              class="text-sm text-white text-right whitespace-nowrap"
-            >
-              <template v-if="a.volume24H === undefined || a.volume24H === null"
-                >-</template
-              >
-              <template v-else>
-                <FormattedNumber
-                  :value="a.volume24H"
-                  type="currency"
-                  :maximum-fraction-digits="2"
-                  :small-threshold="0.01"
-                  :significant-digits="4"
-                />
-              </template>
-            </div>
-            <div
-              v-if="selectedTimes.includes('7D')"
-              class="text-sm text-white text-right whitespace-nowrap"
-            >
-              <template v-if="a.volume7D === undefined || a.volume7D === null"
-                >-</template
-              >
-              <template v-else>
-                <FormattedNumber
-                  :value="a.volume7D"
-                  type="currency"
-                  :maximum-fraction-digits="2"
-                  :small-threshold="0.01"
-                  :significant-digits="4"
-                />
-              </template>
-            </div>
-            <div class="text-xs text-gray-400 text-right">
-              <FormattedTime
-                :timestamp="a.timestamp || new Date().toISOString()"
-              />
-            </div>
-            <div class="text-center">
-              <button
-                @click="toggleFavorite(a.index)"
-                class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
-                :class="
-                  isFavorite(a.index)
-                    ? 'text-yellow-400 animate-pulse'
-                    : 'text-gray-400 hover:text-yellow-300'
-                "
-                :title="
-                  isFavorite(a.index)
-                    ? $t('common.removeFromFavorites')
-                    : $t('common.addToFavorites')
-                "
-              >
-                <svg
-                  class="w-5 h-5 transition-all duration-300"
-                  :class="{ 'drop-shadow-lg': isFavorite(a.index) }"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    v-if="isFavorite(a.index)"
-                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                  />
-                  <path
-                    v-else
-                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div class="text-right">
-              <RouterLink
-                :to="`/aggregated-pools/${a.index}`"
-                class="text-xs text-blue-400 hover:text-blue-300"
-              >
-                {{ $t("common.viewPools") }}
+                {{ a.params?.name || a.params?.unitName || "Asset " + a.index }}
               </RouterLink>
+              <div class="text-[10px] text-gray-400 truncate font-mono md:hidden">
+                #{{ a.index }} • {{ a.params?.unitName || "-" }}
+              </div>
             </div>
+            <CopyToClipboard
+              :text="a.index.toString()"
+              :toast-message="
+                t('common.copiedAssetId', {
+                  name: a.params?.name || a.params?.unitName || 'Asset',
+                  id: a.index,
+                })
+              "
+              :title="
+                t('common.copyAssetId', {
+                  name: a.params?.name || a.params?.unitName || 'Asset',
+                  id: a.index,
+                })
+              "
+            />
           </div>
-        </div>
-      </div>
+        </template>
+
+        <template #cell-rank="{ index }">
+          <span class="font-mono">#{{ (page - 1) * pageSize + index + 1 }}</span>
+        </template>
+
+        <template #cell-price="{ row: a }">
+          <template v-if="a.priceUSD === undefined || a.priceUSD === null">-</template>
+          <template v-else>
+            <FormattedNumber
+              :value="a.priceUSD"
+              type="currency"
+              :minimum-fraction-digits="2"
+              :maximum-fraction-digits="6"
+              :small-threshold="0.01"
+              :significant-digits="4"
+            />
+          </template>
+        </template>
+
+        <template #cell-change1H="{ row: a }">
+          <ChangeCell :current="a.priceUSD ?? undefined" :previous="a.priceUSD1H ?? undefined" />
+        </template>
+        <template #cell-change24H="{ row: a }">
+          <ChangeCell :current="a.priceUSD ?? undefined" :previous="a.priceUSD24H ?? undefined" />
+        </template>
+        <template #cell-change7D="{ row: a }">
+          <ChangeCell :current="a.priceUSD ?? undefined" :previous="a.priceUSD7D ?? undefined" />
+        </template>
+
+        <template #cell-realTvl="{ row: a }">
+          <template v-if="a.tvL_USD === undefined || a.tvL_USD === null">-</template>
+          <template v-else>
+            <FormattedNumber
+              :value="a.tvL_USD"
+              type="currency"
+              :maximum-fraction-digits="2"
+              :small-threshold="0.01"
+              :significant-digits="4"
+            />
+          </template>
+        </template>
+
+        <template #cell-totalTvl="{ row: a }">
+          <template v-if="a.totalTVLAssetInUSD === undefined || a.totalTVLAssetInUSD === null">-</template>
+          <template v-else>
+            <FormattedNumber
+              :value="a.totalTVLAssetInUSD"
+              type="currency"
+              :maximum-fraction-digits="2"
+              :small-threshold="0.01"
+              :significant-digits="4"
+            />
+          </template>
+        </template>
+
+        <template #cell-volume1H="{ row: a }">
+          <template v-if="a.volume1H === undefined || a.volume1H === null">-</template>
+          <template v-else>
+            <FormattedNumber
+              :value="a.volume1H"
+              type="currency"
+              :maximum-fraction-digits="2"
+              :small-threshold="0.01"
+              :significant-digits="4"
+            />
+          </template>
+        </template>
+        <template #cell-volume24H="{ row: a }">
+          <template v-if="a.volume24H === undefined || a.volume24H === null">-</template>
+          <template v-else>
+            <FormattedNumber
+              :value="a.volume24H"
+              type="currency"
+              :maximum-fraction-digits="2"
+              :small-threshold="0.01"
+              :significant-digits="4"
+            />
+          </template>
+        </template>
+        <template #cell-volume7D="{ row: a }">
+          <template v-if="a.volume7D === undefined || a.volume7D === null">-</template>
+          <template v-else>
+            <FormattedNumber
+              :value="a.volume7D"
+              type="currency"
+              :maximum-fraction-digits="2"
+              :small-threshold="0.01"
+              :significant-digits="4"
+            />
+          </template>
+        </template>
+
+        <template #cell-updated="{ row: a }">
+          <FormattedTime :timestamp="a.timestamp || new Date().toISOString()" />
+        </template>
+
+        <template #cell-favorite="{ row: a }">
+          <button
+            @click="toggleFavorite(a.index)"
+            class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95"
+            :class="
+              isFavorite(a.index) ? 'text-yellow-400 animate-pulse' : 'text-gray-400 hover:text-yellow-300'
+            "
+            :title="isFavorite(a.index) ? $t('common.removeFromFavorites') : $t('common.addToFavorites')"
+          >
+            <svg
+              class="w-5 h-5 transition-all duration-300"
+              :class="{ 'drop-shadow-lg': isFavorite(a.index) }"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                v-if="isFavorite(a.index)"
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+              <path
+                v-else
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+            </svg>
+          </button>
+        </template>
+
+        <template #cell-pools="{ row: a }">
+          <RouterLink :to="`/aggregated-pools/${a.index}`" class="text-xs text-blue-400 hover:text-blue-300">
+            {{ $t("common.viewPools") }}
+          </RouterLink>
+        </template>
+      </DataTable>
 
       <div class="flex justify-between items-center mt-4 text-xs">
         <button
@@ -509,7 +255,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, onMounted, onUnmounted, computed, ref } from "vue";
+import { reactive, watch, onMounted, onUnmounted, computed, defineComponent, h, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
@@ -518,6 +264,10 @@ import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import { favoriteService } from "../services/favoriteService";
+import DataTable from "../components/table/DataTable.vue";
+import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
+import HelpTooltip from "../components/HelpTooltip.vue";
+import { useTableColumns, sortRows, type ColumnDef } from "../composables/useTableColumns";
 
 const { t } = useI18n();
 
@@ -546,10 +296,62 @@ const state = reactive<State>({
 const showStable = ref(false);
 const showUtility = ref(true);
 
-const selectedTimes = ref<string[]>(["24H"]);
-const STORAGE_KEY = "assets-time-selection";
+// Minimum number of rows to prefetch per page so the frontend has enough data
+// to sort meaningfully by any column, independent of the visible page size.
+const MIN_PREFETCH_SIZE = 200;
 
 const api = getAVMTradeReporterAPI();
+
+const assetColumns: ColumnDef[] = [
+  { key: "name", labelKey: "assets.name", pinned: true },
+  { key: "rank", labelKey: "assets.rank", align: "right" },
+  { key: "price", labelKey: "assets.price", align: "right", sortable: true },
+  { key: "change1H", labelKey: "assets.change1H", align: "right", sortable: true, defaultVisible: false },
+  { key: "change24H", labelKey: "assets.change24H", align: "right", sortable: true },
+  { key: "change7D", labelKey: "assets.change7D", align: "right", sortable: true, defaultVisible: false },
+  { key: "realTvl", labelKey: "assets.realTvl", align: "right", sortable: true },
+  { key: "totalTvl", labelKey: "assets.totalTvl", align: "right", sortable: true },
+  { key: "volume1H", labelKey: "assets.volume1H", align: "right", sortable: true, defaultVisible: false },
+  { key: "volume24H", labelKey: "assets.volume24H", align: "right", sortable: true },
+  { key: "volume7D", labelKey: "assets.volume7D", align: "right", sortable: true, defaultVisible: false },
+  { key: "updated", labelKey: "assets.updated", align: "right", sortable: true },
+  { key: "favorite", labelKey: "common.favorite", align: "center" },
+  { key: "pools", labelKey: "common.pools", align: "right" },
+];
+
+const tableColumns = useTableColumns("assets", assetColumns);
+
+function changePercent(current: number | undefined | null, previous: number | undefined | null): number | undefined {
+  if (current == null || previous == null || previous === 0) return undefined;
+  return ((current - previous) / previous) * 100;
+}
+
+const sortFns: Partial<Record<string, (a: BiatecAsset) => number | string>> = {
+  price: (a) => a.priceUSD ?? Number.NEGATIVE_INFINITY,
+  change1H: (a) => changePercent(a.priceUSD, a.priceUSD1H) ?? Number.NEGATIVE_INFINITY,
+  change24H: (a) => changePercent(a.priceUSD, a.priceUSD24H) ?? Number.NEGATIVE_INFINITY,
+  change7D: (a) => changePercent(a.priceUSD, a.priceUSD7D) ?? Number.NEGATIVE_INFINITY,
+  realTvl: (a) => a.tvL_USD ?? Number.NEGATIVE_INFINITY,
+  totalTvl: (a) => a.totalTVLAssetInUSD ?? Number.NEGATIVE_INFINITY,
+  volume1H: (a) => a.volume1H ?? Number.NEGATIVE_INFINITY,
+  volume24H: (a) => a.volume24H ?? Number.NEGATIVE_INFINITY,
+  volume7D: (a) => a.volume7D ?? Number.NEGATIVE_INFINITY,
+  updated: (a) => a.timestamp ?? "",
+};
+
+// Small inline helper component for the repeated "colored % change" cell markup.
+const ChangeCell = defineComponent({
+  props: { current: { type: Number, default: undefined }, previous: { type: Number, default: undefined } },
+  setup(props) {
+    return () => {
+      const pct = changePercent(props.current, props.previous);
+      if (pct === undefined) return h("span", {}, "-");
+      const cls = pct > 0 ? "text-green-400" : pct < 0 ? "text-red-400" : "text-gray-400";
+      const text = (pct > 0 ? "+" : "") + pct.toFixed(2) + "%";
+      return h("span", { class: cls }, text);
+    };
+  },
+});
 
 // Calculate optimal page size based on available viewport space
 function calculateOptimalPageSize(): number {
@@ -575,9 +377,7 @@ function calculateOptimalPageSize(): number {
     let rowHeight = 47; // Fallback based on measurements
     const rows = document.querySelectorAll(".space-y-1 > div");
     if (rows.length >= 2) {
-      rowHeight =
-        rows[1].getBoundingClientRect().top -
-        rows[0].getBoundingClientRect().top;
+      rowHeight = rows[1].getBoundingClientRect().top - rows[0].getBoundingClientRect().top;
     }
 
     // More aggressive calculation - minimal buffer for maximum space utilization
@@ -601,10 +401,6 @@ function calculateOptimalPageSize(): number {
 
     // Ensure reasonable bounds
     const finalPageSize = Math.max(5, Math.min(150, optimalPageSize));
-
-    console.log(
-      `Calculated optimal page size: ${finalPageSize} (viewport: ${viewportHeight}px, unused bottom: ${unusedSpaceAtBottom}px, usable unused: ${usableUnusedSpace}px, row height: ${rowHeight}px, buffer: ${buffer}px, additional rows: ${additionalRows})`,
-    );
 
     return finalPageSize;
   } catch (error) {
@@ -645,8 +441,10 @@ async function fetchAssets() {
   state.loading = true;
   state.error = "";
   try {
-    // Assuming backend supports offset & size like aggregated pools
+    // Fetch a buffer larger than the visible page size so sorting on the frontend
+    // has enough rows to work with, per the "prefetch 200+ items" requirement.
     const offset = (state.page - 1) * state.pageSize;
+    const fetchSize = Math.max(state.pageSize, MIN_PREFETCH_SIZE);
     const search = showStable.value
       ? showUtility.value
         ? "" // both
@@ -657,7 +455,7 @@ async function fetchAssets() {
     const res = await api.getApiAsset({
       search: search,
       offset,
-      size: state.pageSize,
+      size: fetchSize,
     });
     const data = res as unknown as BiatecAsset[] | { data: BiatecAsset[] };
     const list = Array.isArray(data) ? data : (data as any).data;
@@ -785,7 +583,6 @@ function resubscribeToVisibleAssets() {
 
 function assetUpdateEvent(asset: BiatecAsset) {
   if (!state.subscribedIds.has(asset.index)) return; // ignore assets not on current page
-  console.log("Received asset update on asset overview:", asset);
   const idx = state.assets.findIndex((a) => a.index === asset.index);
   if (idx !== -1) {
     state.assets[idx] = asset;
@@ -809,31 +606,6 @@ function changePageSize() {
   state.page = 1;
   fetchAssets();
 }
-function toggleTime(time: string) {
-  if (selectedTimes.value.includes(time)) {
-    selectedTimes.value = selectedTimes.value.filter((t) => t !== time);
-  } else {
-    selectedTimes.value.push(time);
-  }
-  saveTimeSelection();
-}
-
-function saveTimeSelection() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedTimes.value));
-}
-
-function getChangePercent(
-  current: number | undefined | null,
-  previous: number | undefined | null,
-): number | null {
-  if (current == null || previous == null || previous === 0) return null;
-  return ((current - previous) / previous) * 100;
-}
-
-function formatPercent(value: number | null): string {
-  if (value == null) return "-";
-  return (value > 0 ? "+" : "") + value.toFixed(2) + "%";
-}
 
 function handleFilterChange(type: "stable" | "utility") {
   if (type === "stable" && !showStable.value && !showUtility.value) {
@@ -854,7 +626,9 @@ const filteredAssets = computed(() => {
   });
 });
 
-const gridCols = computed(() => 8 + 2 * selectedTimes.value.length);
+// Sort the prefetched buffer on the frontend, then show only the current page's worth of rows.
+const sortedAssets = computed(() => sortRows(filteredAssets.value, tableColumns.sortState.value, sortFns));
+const displayAssets = computed(() => sortedAssets.value.slice(0, state.pageSize));
 
 function isFavorite(assetIndex: number): boolean {
   return favoriteService.isReactiveFavorite(assetIndex);
@@ -881,16 +655,6 @@ watch(() => state.pageSize, fetchAssets);
 onMounted(async () => {
   // Calculate optimal page size first
   updatePageSizeOptions();
-
-  // Load time selection from localStorage
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    try {
-      selectedTimes.value = JSON.parse(stored);
-    } catch (e) {
-      console.error("Failed to parse stored time selection", e);
-    }
-  }
 
   // Add resize event listener
   window.addEventListener("resize", handleResize);

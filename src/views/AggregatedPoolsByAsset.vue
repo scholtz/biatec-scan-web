@@ -11,6 +11,7 @@
         >
           {{ $t("aggregatedPools.refresh") }}
         </button>
+        <ColumnSettingsPanel :columns="tableColumns" :column-labels="columnLabels" />
       </div>
     </div>
 
@@ -25,41 +26,15 @@
     <div v-else-if="error" class="text-red-400">{{ error }}</div>
 
     <div v-else>
-      <!-- Desktop header -->
-      <div
-        class="hidden md:grid md:grid-cols-11 gap-3 px-2 text-xs text-gray-400 mb-2"
+      <DataTable
+        :table-columns="tableColumns"
+        :rows="pools"
+        :row-key="poolKey"
+        :sort-fns="sortFns"
+        :on-visibility-change="handleVisibility"
+        :column-labels="columnLabels"
       >
-        <div>{{ $t("aggregatedPools.pair") }}</div>
-        <div class="text-right">{{ $t("aggregatedPools.pools") }}</div>
-        <div class="text-right">{{ $t("aggregatedPools.price") }}</div>
-        <div class="text-right">
-          {{ $t("aggregatedPools.reserve", { unitName: assetUnitName }) }}
-        </div>
-        <div class="text-right">{{ $t("aggregatedPools.otherReserve") }}</div>
-        <div class="text-right">
-          {{
-            $t("aggregatedPools.virtualReserve", { unitName: assetUnitName })
-          }}
-        </div>
-        <div class="text-right">
-          {{ $t("aggregatedPools.otherVirtualReserve") }}
-        </div>
-        <div class="text-right">
-          {{ $t("aggregatedPools.totalTvlUsd", { unitName: assetUnitName }) }}
-        </div>
-        <div class="text-right">
-          {{ $t("aggregatedPools.totalTvlOtherUsd") }}
-        </div>
-        <div class="text-right">{{ $t("aggregatedPools.volume24H") }}</div>
-        <div class="text-right">{{ $t("aggregatedPools.updated") }}</div>
-      </div>
-      <div class="space-y-1">
-        <div
-          v-for="p in pools"
-          :key="p.id || `${p.assetIdA}-${p.assetIdB}`"
-          v-observe-visibility="poolKey(p)"
-          class="grid grid-cols-1 md:grid-cols-11 gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60"
-        >
+        <template #cell-pair="{ row: p }">
           <div class="flex items-center gap-2 text-sm text-white truncate">
             <div class="flex -space-x-2">
               <img
@@ -79,73 +54,74 @@
               >{{ pairLabel(p) }}</RouterLink
             >
           </div>
-          <div class="text-xs text-right text-amber-400">
-            {{ p.poolCount ?? "-" }}
-          </div>
-          <div class="text-xs text-right text-white">
-            {{ price(p) }}
-          </div>
-          <div class="text-xs text-right text-white" :title="'Real Reserve'">
-            <RouterLink
-              :to="{
-                name: 'PoolsByAssets',
-                params: { asset1: p.assetIdA, asset2: p.assetIdB },
-              }"
-              class="font-mono text-blue-100 hover:text-blue-300"
-            >
-              {{ reserveSelected(p) }}
-            </RouterLink>
-          </div>
-          <div class="text-xs text-right text-white">
-            <RouterLink
-              :to="{
-                name: 'AggregatedPoolsByAsset',
-                params: { assetId: p.assetIdB },
-              }"
-              class="font-mono text-blue-100 hover:text-blue-300"
-            >
-              {{ reserveOther(p) }}
-            </RouterLink>
-          </div>
-          <div
-            class="text-[10px] text-right text-gray-300"
-            :title="'Virtual Reserve'"
+        </template>
+
+        <template #cell-pools="{ row: p }">
+          <span class="text-amber-400">{{ p.poolCount ?? "-" }}</span>
+        </template>
+
+        <template #cell-price="{ row: p }">
+          {{ price(p) }}
+        </template>
+
+        <template #cell-reserve="{ row: p }">
+          <RouterLink
+            :to="{
+              name: 'PoolsByAssets',
+              params: { asset1: p.assetIdA, asset2: p.assetIdB },
+            }"
+            class="font-mono text-blue-100 hover:text-blue-300"
+            title="Real Reserve"
           >
-            {{ virtualReserveSelected(p) }}
-          </div>
-          <div
-            class="text-[10px] text-right text-gray-300"
-            :title="'Virtual Reserve'"
+            {{ reserveSelected(p) }}
+          </RouterLink>
+        </template>
+
+        <template #cell-otherReserve="{ row: p }">
+          <RouterLink
+            :to="{
+              name: 'AggregatedPoolsByAsset',
+              params: { assetId: p.assetIdB },
+            }"
+            class="font-mono text-blue-100 hover:text-blue-300"
           >
-            {{ virtualReserveOther(p) }}
-          </div>
-          <div class="text-xs text-right text-white">
-            {{ totalTVLAUSD(p) }}
-          </div>
-          <div class="text-xs text-right text-white">
-            {{ totalTVLBUSD(p) }}
-          </div>
-          <div class="text-xs text-right text-white">
-            <template v-if="p.volume24H === undefined || p.volume24H === null"
-              >-</template
-            >
-            <template v-else>
-              <FormattedNumber
-                :value="p.volume24H"
-                type="currency"
-                :maximum-fraction-digits="2"
-                :small-threshold="0.01"
-                :significant-digits="4"
-              />
-            </template>
-          </div>
-          <div class="text-xs text-right text-gray-400">
-            <FormattedTime
-              :timestamp="p.lastUpdated || new Date().toISOString()"
+            {{ reserveOther(p) }}
+          </RouterLink>
+        </template>
+
+        <template #cell-virtualReserve="{ row: p }">
+          <span class="text-gray-300" title="Virtual Reserve">{{ virtualReserveSelected(p) }}</span>
+        </template>
+
+        <template #cell-otherVirtualReserve="{ row: p }">
+          <span class="text-gray-300" title="Virtual Reserve">{{ virtualReserveOther(p) }}</span>
+        </template>
+
+        <template #cell-totalTvlUsd="{ row: p }">
+          {{ totalTVLAUSD(p) }}
+        </template>
+
+        <template #cell-totalTvlOtherUsd="{ row: p }">
+          {{ totalTVLBUSD(p) }}
+        </template>
+
+        <template #cell-volume24H="{ row: p }">
+          <template v-if="p.volume24H === undefined || p.volume24H === null">-</template>
+          <template v-else>
+            <FormattedNumber
+              :value="p.volume24H"
+              type="currency"
+              :maximum-fraction-digits="2"
+              :small-threshold="0.01"
+              :significant-digits="4"
             />
-          </div>
-        </div>
-      </div>
+          </template>
+        </template>
+
+        <template #cell-updated="{ row: p }">
+          <FormattedTime :timestamp="p.lastUpdated || new Date().toISOString()" />
+        </template>
+      </DataTable>
     </div>
   </div>
 </template>
@@ -159,6 +135,12 @@ import { assetService } from "../services/assetService";
 import { signalrService } from "../services/signalrService";
 import FormattedTime from "../components/FormattedTime.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
+import DataTable from "../components/table/DataTable.vue";
+import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
+import { useI18n } from "vue-i18n";
+import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
+
+const { t } = useI18n();
 
 interface State {
   assetId: bigint;
@@ -180,6 +162,39 @@ const state = reactive<State>({
 });
 
 const api = getAVMTradeReporterAPI();
+
+const aggregatedPoolColumns: ColumnDef[] = [
+  { key: "pair", labelKey: "aggregatedPools.pair", pinned: true },
+  { key: "pools", labelKey: "aggregatedPools.pools", align: "right", sortable: true },
+  { key: "price", labelKey: "aggregatedPools.price", align: "right" },
+  { key: "reserve", labelKey: "aggregatedPools.reserve", align: "right", sortable: true },
+  { key: "otherReserve", labelKey: "aggregatedPools.otherReserve", align: "right", sortable: true },
+  { key: "virtualReserve", labelKey: "aggregatedPools.virtualReserve", align: "right", sortable: true },
+  {
+    key: "otherVirtualReserve",
+    labelKey: "aggregatedPools.otherVirtualReserve",
+    align: "right",
+    sortable: true,
+  },
+  { key: "totalTvlUsd", labelKey: "aggregatedPools.totalTvlUsd", align: "right", sortable: true },
+  { key: "totalTvlOtherUsd", labelKey: "aggregatedPools.totalTvlOtherUsd", align: "right", sortable: true },
+  { key: "volume24H", labelKey: "aggregatedPools.volume24H", align: "right", sortable: true },
+  { key: "updated", labelKey: "aggregatedPools.updated", align: "right", sortable: true },
+];
+
+const tableColumns = useTableColumns("aggregated-pools", aggregatedPoolColumns);
+
+const sortFns: Partial<Record<string, (p: AggregatedPool) => number | string>> = {
+  pools: (p) => p.poolCount ?? Number.NEGATIVE_INFINITY,
+  reserve: (p) => p.tvL_A ?? Number.NEGATIVE_INFINITY,
+  otherReserve: (p) => p.tvL_B ?? Number.NEGATIVE_INFINITY,
+  virtualReserve: (p) => p.virtualSumA ?? Number.NEGATIVE_INFINITY,
+  otherVirtualReserve: (p) => p.virtualSumB ?? Number.NEGATIVE_INFINITY,
+  totalTvlUsd: (p) => p.totalTVLAssetAInUSD ?? Number.NEGATIVE_INFINITY,
+  totalTvlOtherUsd: (p) => p.totalTVLAssetBInUSD ?? Number.NEGATIVE_INFINITY,
+  volume24H: (p) => p.volume24H ?? Number.NEGATIVE_INFINITY,
+  updated: (p) => p.lastUpdated ?? "",
+};
 
 async function fetchAggregatedPools() {
   state.loading = true;
@@ -219,7 +234,7 @@ async function fetchAggregatedPools() {
     listB.forEach(normalizeAndStore);
 
     let merged = Array.from(map.values());
-    // Sort by selected asset reserve descending (tvL_A since selected asset is assetIdA in all entries)
+    // Default sort by selected asset reserve descending; overridden by user's chosen column sort.
     merged.sort((a, b) => (b.tvL_A || 0) - (a.tvL_A || 0));
     state.pools = merged;
 
@@ -256,7 +271,7 @@ function aggregatedPoolUpdateEvent(p: AggregatedPool) {
   } else {
     state.pools.push(pool);
   }
-  // Resort
+  // Resort using default ordering; if the user picked a column sort, DataTable re-sorts on top of this.
   state.pools.sort((a, b) => (b.tvL_A || 0) - (a.tvL_A || 0));
 }
 
@@ -284,6 +299,14 @@ const assetName = computed(
 const assetUnitName = computed(
   () => assetInfo.value?.unitName || assetInfo.value?.name || "-",
 );
+
+// Column headers that need the selected asset's unit name interpolated at runtime
+// (e.g. "Reserve (ALGO)") can't be resolved from a static i18n key alone.
+const columnLabels = computed(() => ({
+  reserve: t("aggregatedPools.reserve", { unitName: assetUnitName.value }),
+  virtualReserve: t("aggregatedPools.virtualReserve", { unitName: assetUnitName.value }),
+  totalTvlUsd: t("aggregatedPools.totalTvlUsd", { unitName: assetUnitName.value }),
+}));
 
 function otherAssetInfo(p: AggregatedPool) {
   if (p.assetIdB === undefined || p.assetIdB === null) return null;
@@ -357,7 +380,6 @@ function otherAssetUnitName(p: AggregatedPool) {
 }
 
 // ---- Visibility tracking & dynamic subscription ----
-let intersectionObserver: IntersectionObserver | null = null;
 let subscriptionDebounce: number | null = null;
 let lastSubscriptionSignature = "";
 
@@ -402,34 +424,6 @@ function updateSubscription() {
   lastSubscriptionSignature = signature;
   signalrService.subscribe(payload);
 }
-
-// Directive to observe visibility of each row
-const vObserveVisibility = {
-  mounted(el: HTMLElement, binding: any) {
-    const id: string = binding.value;
-    if (!intersectionObserver) {
-      intersectionObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            const rowId = (entry.target as HTMLElement).dataset.aggId;
-            if (!rowId) return;
-            handleVisibility(rowId, entry.isIntersecting);
-          });
-        },
-        { root: null, threshold: 0.01 },
-      );
-    }
-    el.dataset.aggId = id;
-    intersectionObserver.observe(el);
-  },
-  unmounted(el: HTMLElement) {
-    if (intersectionObserver) intersectionObserver.unobserve(el);
-    const id = el.dataset.aggId;
-    if (id) handleVisibility(id, false);
-  },
-};
-
-// (poolKey used directly in template)
 
 watch(
   () => route.params.assetId,

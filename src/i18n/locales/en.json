@@ -60,7 +60,22 @@
     "status": "Status",
     "created": "Created",
     "updated": "Updated",
-    "backToDashboard": "Back to Dashboard"
+    "backToDashboard": "Back to Dashboard",
+    "close": "Close"
+  },
+  "table": {
+    "columns": "Columns",
+    "configureColumns": "Configure columns",
+    "pinned": "Pinned",
+    "dragToReorder": "Drag to reorder",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "resetToDefault": "Reset to default",
+    "noSort": "No sort",
+    "showOn": "Show on",
+    "tierSm": "All screens",
+    "tierLg": "Full HD and above",
+    "tier4k": "4K screens only"
   },
   "nav": {
     "explore": "Explore",
@@ -113,7 +128,8 @@
     "utilityTokens": "Utility Tokens",
     "change1H": "1h %",
     "change24H": "24h %",
-    "change7D": "7d %"
+    "change7D": "7d %",
+    "filtersHelp": "Stable Assets shows tokens pegged to a fixed value (e.g. stablecoins). Utility Tokens shows all other assets. Both can be enabled at once."
   },
   "search": {
     "title": "Network Search",
@@ -282,7 +298,19 @@
     "totalReserveA": "Total Reserve A",
     "totalReserveB": "Total Reserve B",
     "volume24H": "24H Volume",
-    "loadingPools": "Loading pools…"
+    "loadingPools": "Loading pools…",
+    "protocol": "Protocol",
+    "type": "Type",
+    "address": "Address",
+    "poolId": "Pool ID",
+    "lpFee": "LP Fee",
+    "protocolFee": "Protocol Fee",
+    "priceMin": "Price Min",
+    "price": "Price",
+    "priceMax": "Price Max",
+    "reserveA": "Reserve A",
+    "reserveB": "Reserve B",
+    "time": "Time"
   },
   "blockDetails": {
     "title": "Block #{round}",
