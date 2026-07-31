@@ -63,6 +63,20 @@
     "updated": "Aktualizované",
     "close": "Zavrieť"
   },
+  "table": {
+    "columns": "Stĺpce",
+    "configureColumns": "Nastaviť stĺpce",
+    "pinned": "Pripnuté",
+    "dragToReorder": "Presuňte pre zmenu poradia",
+    "moveUp": "Posunúť nahor",
+    "moveDown": "Posunúť nadol",
+    "resetToDefault": "Obnoviť predvolené",
+    "noSort": "Bez triedenia",
+    "showOn": "Zobraziť na",
+    "tierSm": "Všetky obrazovky",
+    "tierLg": "Full HD a väčšie",
+    "tier4k": "Iba 4K obrazovky"
+  },
   "nav": {
     "explore": "Preskúmať",
     "search": "Vyhľadať",
@@ -512,19 +526,5 @@
     "setBytes": "Nastaviť bajty",
     "setUint": "Nastaviť Uint",
     "delete": "Vymazať"
-  },
-  "table": {
-    "columns": "Stĺpce",
-    "configureColumns": "Nastaviť stĺpce",
-    "pinned": "Pripnuté",
-    "dragToReorder": "Presuňte pre zmenu poradia",
-    "moveUp": "Posunúť nahor",
-    "moveDown": "Posunúť nadol",
-    "resetToDefault": "Obnoviť predvolené",
-    "noSort": "Bez triedenia",
-    "showOn": "Zobraziť na",
-    "tierSm": "Všetky obrazovky",
-    "tierLg": "Full HD a väčšie",
-    "tier4k": "Iba 4K obrazovky"
   }
 }

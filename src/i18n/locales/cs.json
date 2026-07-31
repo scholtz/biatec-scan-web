@@ -63,6 +63,20 @@
     "updated": "Aktualizováno",
     "close": "Zavřít"
   },
+  "table": {
+    "columns": "Sloupce",
+    "configureColumns": "Nastavit sloupce",
+    "pinned": "Připnuto",
+    "dragToReorder": "Přetažením změníte pořadí",
+    "moveUp": "Posunout nahoru",
+    "moveDown": "Posunout dolů",
+    "resetToDefault": "Obnovit výchozí",
+    "noSort": "Bez řazení",
+    "showOn": "Zobrazit na",
+    "tierSm": "Všechny obrazovky",
+    "tierLg": "Full HD a větší",
+    "tier4k": "Pouze 4K obrazovky"
+  },
   "nav": {
     "explore": "Prozkoumat",
     "search": "Hledat",
@@ -512,19 +526,5 @@
     "setBytes": "Nastavit bajty",
     "setUint": "Nastavit Uint",
     "delete": "Smazat"
-  },
-  "table": {
-    "columns": "Sloupce",
-    "configureColumns": "Nastavit sloupce",
-    "pinned": "Připnuto",
-    "dragToReorder": "Přetažením změníte pořadí",
-    "moveUp": "Posunout nahoru",
-    "moveDown": "Posunout dolů",
-    "resetToDefault": "Obnovit výchozí",
-    "noSort": "Bez řazení",
-    "showOn": "Zobrazit na",
-    "tierSm": "Všechny obrazovky",
-    "tierLg": "Full HD a větší",
-    "tier4k": "Pouze 4K obrazovky"
   }
 }

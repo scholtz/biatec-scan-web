@@ -63,6 +63,20 @@
     "updated": "更新时间",
     "close": "关闭"
   },
+  "table": {
+    "columns": "列",
+    "configureColumns": "配置列",
+    "pinned": "已固定",
+    "dragToReorder": "拖动以重新排序",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "resetToDefault": "恢复默认",
+    "noSort": "不排序",
+    "showOn": "显示于",
+    "tierSm": "所有屏幕",
+    "tierLg": "Full HD 及以上",
+    "tier4k": "仅 4K 屏幕"
+  },
   "nav": {
     "explore": "浏览",
     "search": "搜索",
@@ -512,19 +526,5 @@
     "setBytes": "设置字节",
     "setUint": "设置无符号整数",
     "delete": "删除"
-  },
-  "table": {
-    "columns": "列",
-    "configureColumns": "配置列",
-    "pinned": "已固定",
-    "dragToReorder": "拖动以重新排序",
-    "moveUp": "上移",
-    "moveDown": "下移",
-    "resetToDefault": "恢复默认",
-    "noSort": "不排序",
-    "showOn": "显示于",
-    "tierSm": "所有屏幕",
-    "tierLg": "Full HD 及以上",
-    "tier4k": "仅 4K 屏幕"
   }
 }

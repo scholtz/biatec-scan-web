@@ -63,6 +63,20 @@
     "action": "Aktion",
     "close": "Schließen"
   },
+  "table": {
+    "columns": "Spalten",
+    "configureColumns": "Spalten konfigurieren",
+    "pinned": "Angeheftet",
+    "dragToReorder": "Ziehen zum Umsortieren",
+    "moveUp": "Nach oben verschieben",
+    "moveDown": "Nach unten verschieben",
+    "resetToDefault": "Auf Standard zurücksetzen",
+    "noSort": "Keine Sortierung",
+    "showOn": "Anzeigen auf",
+    "tierSm": "Alle Bildschirme",
+    "tierLg": "Full HD und größer",
+    "tier4k": "Nur 4K-Bildschirme"
+  },
   "nav": {
     "explore": "Erkunden",
     "search": "Suchen",
@@ -512,19 +526,5 @@
     "setBytes": "Bytes setzen",
     "setUint": "Uint setzen",
     "delete": "Löschen"
-  },
-  "table": {
-    "columns": "Spalten",
-    "configureColumns": "Spalten konfigurieren",
-    "pinned": "Angeheftet",
-    "dragToReorder": "Ziehen zum Umsortieren",
-    "moveUp": "Nach oben verschieben",
-    "moveDown": "Nach unten verschieben",
-    "resetToDefault": "Auf Standard zurücksetzen",
-    "noSort": "Keine Sortierung",
-    "showOn": "Anzeigen auf",
-    "tierSm": "Alle Bildschirme",
-    "tierLg": "Full HD und größer",
-    "tier4k": "Nur 4K-Bildschirme"
   }
 }

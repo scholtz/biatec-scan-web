@@ -63,6 +63,20 @@
     "action": "Művelet",
     "close": "Bezárás"
   },
+  "table": {
+    "columns": "Oszlopok",
+    "configureColumns": "Oszlopok beállítása",
+    "pinned": "Rögzítve",
+    "dragToReorder": "Húzza az átrendezéshez",
+    "moveUp": "Mozgatás felfelé",
+    "moveDown": "Mozgatás lefelé",
+    "resetToDefault": "Alaphelyzet visszaállítása",
+    "noSort": "Nincs rendezés",
+    "showOn": "Megjelenítés",
+    "tierSm": "Minden képernyő",
+    "tierLg": "Full HD és nagyobb",
+    "tier4k": "Csak 4K képernyők"
+  },
   "nav": {
     "explore": "Felfedezés",
     "search": "Keresés",
@@ -512,19 +526,5 @@
     "setBytes": "Bájtok beállítása",
     "setUint": "Uint beállítása",
     "delete": "Törlés"
-  },
-  "table": {
-    "columns": "Oszlopok",
-    "configureColumns": "Oszlopok beállítása",
-    "pinned": "Rögzítve",
-    "dragToReorder": "Húzza az átrendezéshez",
-    "moveUp": "Mozgatás felfelé",
-    "moveDown": "Mozgatás lefelé",
-    "resetToDefault": "Alaphelyzet visszaállítása",
-    "noSort": "Nincs rendezés",
-    "showOn": "Megjelenítés",
-    "tierSm": "Minden képernyő",
-    "tierLg": "Full HD és nagyobb",
-    "tier4k": "Csak 4K képernyők"
   }
 }
