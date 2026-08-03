@@ -66,8 +66,11 @@ const digitOptions = computed(() => {
         : {}),
     };
   }
+  // Intl.NumberFormat throws a RangeError if minimum > maximum (e.g. a caller
+  // overrides only maximumFractionDigits and leaves the minimum at its
+  // default of 2) — clamp rather than let that exception blank the cell.
   return {
-    minimumFractionDigits: props.minimumFractionDigits,
+    minimumFractionDigits: Math.min(props.minimumFractionDigits, props.maximumFractionDigits),
     maximumFractionDigits: props.maximumFractionDigits,
   };
 });

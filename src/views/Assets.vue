@@ -160,7 +160,13 @@
         <template #cell-fdmc="{ row: a }">
           <template v-if="fdmc(a) === undefined">-</template>
           <template v-else>
-            <FormattedNumber :value="fdmc(a)" type="currency" compact :maximum-fraction-digits="1" />
+            <FormattedNumber
+              :value="fdmc(a)"
+              type="currency"
+              compact
+              :minimum-fraction-digits="0"
+              :maximum-fraction-digits="1"
+            />
           </template>
         </template>
 

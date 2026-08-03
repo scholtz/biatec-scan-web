@@ -43,7 +43,14 @@ export const assetColumns: ColumnDef[] = [
     sortable: true,
     descriptionKey: "assets.totalTvlHelp",
   },
-  { key: "fdmc", labelKey: "assets.fdmc", align: "right", sortable: true, descriptionKey: "assets.fdmcHelp" },
+  {
+    key: "fdmc",
+    labelKey: "assets.fdmc",
+    align: "right",
+    sortable: true,
+    defaultVisible: false,
+    descriptionKey: "assets.fdmcHelp",
+  },
   {
     key: "volume1H",
     labelKey: "assets.volume1H",
