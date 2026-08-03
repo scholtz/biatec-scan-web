@@ -308,26 +308,65 @@ class AssetService {
       tvL_B: pool.tvL_A,
       virtualSumALevel1: pool.virtualSumBLevel1,
       virtualSumBLevel1: pool.virtualSumALevel1,
+      virtualSumALevel1ForPrice: pool.virtualSumBLevel1ForPrice,
+      virtualSumBLevel1ForPrice: pool.virtualSumALevel1ForPrice,
       virtualSumALevel2: pool.virtualSumBLevel2,
       virtualSumBLevel2: pool.virtualSumALevel2,
+      totalTVLAssetAInUSD: pool.totalTVLAssetBInUSD,
+      totalTVLAssetBInUSD: pool.totalTVLAssetAInUSD,
+      priceAUSD1H: pool.priceBUSD1H,
+      priceAUSD24H: pool.priceBUSD24H,
+      priceAUSD7D: pool.priceBUSD7D,
+      priceBUSD1H: pool.priceAUSD1H,
+      priceBUSD24H: pool.priceAUSD24H,
+      priceBUSD7D: pool.priceAUSD7D,
       id: `${pool.assetIdB}-${pool.assetIdA}`,
     };
   };
+
+  /**
+   * Inverts a price-ratio bound (pMin/pMax) for the A/B swap `reversePool`
+   * performs. Both fields use falsy (0/null/undefined) to mean "no bound" —
+   * on the *opposite* side of the pair (pMin's "no bound" reads as 0, pMax's
+   * as ∞), so mapping every falsy value to 0 keeps both conventions correct
+   * after the swap without special-casing which side is which.
+   */
+  private invertPriceBound(v: number | null | undefined): number | null | undefined {
+    if (!v) return 0;
+    return 1 / v;
+  }
 
   reversePool = (pool: Pool): Pool => {
     return {
       ...pool,
       assetIdA: pool.assetIdB,
       assetIdB: pool.assetIdA,
-      a: pool.b,
-      b: pool.a,
-      l: pool.l,
       assetADecimals: pool.assetBDecimals,
       assetBDecimals: pool.assetADecimals,
+      a: pool.b,
+      b: pool.a,
+      stableA: pool.stableB,
+      stableB: pool.stableA,
+      af: pool.bf,
+      bf: pool.af,
+      // Price bounds are ratios of A/B, so swapping the pair also inverts
+      // them and flips which bound is the min vs the max.
+      pMin: this.invertPriceBound(pool.pMax),
+      pMax: this.invertPriceBound(pool.pMin),
       realAmountA: pool.realAmountB,
       realAmountB: pool.realAmountA,
       virtualAmountA: pool.virtualAmountB,
+      virtualAmountAForPrice: pool.virtualAmountBForPrice,
       virtualAmountB: pool.virtualAmountA,
+      virtualAmountBForPrice: pool.virtualAmountAForPrice,
+      totalTVLAssetAInUSD: pool.totalTVLAssetBInUSD,
+      totalTVLAssetBInUSD: pool.totalTVLAssetAInUSD,
+      priceAUSD1H: pool.priceBUSD1H,
+      priceAUSD24H: pool.priceBUSD24H,
+      priceAUSD7D: pool.priceBUSD7D,
+      priceBUSD1H: pool.priceAUSD1H,
+      priceBUSD24H: pool.priceAUSD24H,
+      priceBUSD7D: pool.priceAUSD7D,
     };
   };
 
