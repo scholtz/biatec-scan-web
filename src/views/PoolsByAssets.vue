@@ -332,6 +332,7 @@ import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
 import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
 import { AMMType, Pool, AggregatedPool } from "../api/models";
+import { poolSpotPrice } from "../utils/poolPrice";
 import { signalrService } from "../services/signalrService";
 
 const { t } = useI18n();
@@ -438,7 +439,7 @@ const sortFns: Partial<Record<string, (p: Pool) => number | string>> = {
   lpFee: (p) => p.lpFee ?? Number.NEGATIVE_INFINITY,
   protocolFee: (p) => p.protocolFeePortion ?? Number.NEGATIVE_INFINITY,
   priceMin: (p) => p.pMin ?? Number.NEGATIVE_INFINITY,
-  price: (p) => (p.virtualAmountA && p.virtualAmountB ? p.virtualAmountA / p.virtualAmountB : Number.NEGATIVE_INFINITY),
+  price: (p) => poolSpotPrice(p) ?? Number.NEGATIVE_INFINITY,
   priceMax: (p) => p.pMax ?? Number.POSITIVE_INFINITY,
   reserveA: (p) => p.realAmountA ?? Number.NEGATIVE_INFINITY,
   reserveB: (p) => p.realAmountB ?? Number.NEGATIVE_INFINITY,
@@ -772,8 +773,9 @@ function formatAddress(address: string): string {
 }
 
 function formattedPrice(p: Pool): string {
-  if (!p.virtualAmountA || !p.virtualAmountB || p.assetIdA === undefined || p.assetIdA === null) return "0";
-  return assetService.formatPairBalance(p.virtualAmountA, p.assetIdA ?? 0, p.virtualAmountB, p.assetIdB ?? 0, false);
+  const price = poolSpotPrice(p);
+  if (price === undefined || p.assetIdA === undefined || p.assetIdA === null) return "0";
+  return assetService.formatPairBalanceWithRealValue(price, p.assetIdA, p.assetIdB ?? 0);
 }
 function formattedPriceMin(p: Pool): string {
   if (!p.pMin) return "0";
