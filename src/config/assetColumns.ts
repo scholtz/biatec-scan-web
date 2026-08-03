@@ -66,9 +66,31 @@ export const assetColumns: ColumnDef[] = [
     defaultVisible: false,
     descriptionKey: "assets.volume7DHelp",
   },
-  { key: "updated", labelKey: "assets.updated", align: "right", sortable: true, descriptionKey: "assets.updatedHelp" },
-  { key: "favorite", labelKey: "common.favorite", align: "center", descriptionKey: "common.favoriteHelp" },
-  { key: "pools", labelKey: "common.pools", align: "right", descriptionKey: "assets.poolsHelp" },
+  {
+    key: "updated",
+    labelKey: "assets.updated",
+    align: "right",
+    sortable: true,
+    descriptionKey: "assets.updatedHelp",
+    // Hidden below a Full HD desktop by default so the name column has room
+    // to breathe on phones/tablets/typical laptops; still available via the
+    // column settings panel.
+    defaultTier: "lg",
+  },
+  {
+    key: "favorite",
+    labelKey: "common.favorite",
+    align: "center",
+    descriptionKey: "common.favoriteHelp",
+    defaultTier: "lg",
+  },
+  {
+    key: "pools",
+    labelKey: "common.pools",
+    align: "right",
+    descriptionKey: "assets.poolsHelp",
+    defaultTier: "lg",
+  },
 ];
 
 /** Sort comparators for `assetColumns`, shared so Assets and Favorites sort identically. */
