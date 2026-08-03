@@ -33,6 +33,9 @@ const props = withDefaults(
     // Small-value formatting (prevents values like 0,00 USD hiding detail)
     smallThreshold?: number;
     significantDigits?: number;
+    // Abbreviates large magnitudes using locale-aware compact notation
+    // (e.g. $23.3M, $3.3T) instead of spelling out every digit.
+    compact?: boolean;
   }>(),
   {
     type: "number",
@@ -42,6 +45,7 @@ const props = withDefaults(
     placeholder: "-",
     smallThreshold: 0.01,
     significantDigits: 4,
+    compact: false,
   },
 );
 
@@ -68,6 +72,10 @@ const digitOptions = computed(() => {
   };
 });
 
+const compactOptions = computed(() =>
+  props.compact ? { notation: "compact" as const, compactDisplay: "short" as const } : {},
+);
+
 const baseFormatterOptions = computed(() => {
   if (props.type === "currency") {
     // For USD, use decimal formatting since we handle the $ symbol manually
@@ -75,24 +83,28 @@ const baseFormatterOptions = computed(() => {
       return {
         style: "decimal" as const,
         ...digitOptions.value,
+        ...compactOptions.value,
       };
     }
     return {
       style: "currency" as const,
       currency: props.currency,
       ...digitOptions.value,
+      ...compactOptions.value,
     };
   }
   if (props.type === "percent") {
     return {
       style: "percent" as const,
       ...digitOptions.value,
+      ...compactOptions.value,
     };
   }
 
   return {
     style: "decimal" as const,
     ...digitOptions.value,
+    ...compactOptions.value,
   };
 });
 

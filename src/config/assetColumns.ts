@@ -43,6 +43,7 @@ export const assetColumns: ColumnDef[] = [
     sortable: true,
     descriptionKey: "assets.totalTvlHelp",
   },
+  { key: "fdmc", labelKey: "assets.fdmc", align: "right", sortable: true, descriptionKey: "assets.fdmcHelp" },
   {
     key: "volume1H",
     labelKey: "assets.volume1H",
@@ -93,6 +94,19 @@ export const assetColumns: ColumnDef[] = [
   },
 ];
 
+/**
+ * Fully diluted market capitalisation: latest USD price times the asset's
+ * total token supply (adjusted for decimals). Returns undefined when either
+ * input is missing so callers can render a placeholder instead of 0.
+ */
+export function fdmc(a: BiatecAsset): number | undefined {
+  const price = a.priceUSD;
+  const total = a.params?.total;
+  const decimals = a.params?.decimals ?? 0;
+  if (price == null || total == null) return undefined;
+  return price * (Number(total) / 10 ** decimals);
+}
+
 /** Sort comparators for `assetColumns`, shared so Assets and Favorites sort identically. */
 export const assetSortFns: Partial<Record<string, (a: BiatecAsset) => number | string>> = {
   price: (a) => a.priceUSD ?? Number.NEGATIVE_INFINITY,
@@ -101,6 +115,7 @@ export const assetSortFns: Partial<Record<string, (a: BiatecAsset) => number | s
   change7D: (a) => changePercent(a.priceUSD, a.priceUSD7D) ?? Number.NEGATIVE_INFINITY,
   realTvl: (a) => a.tvL_USD ?? Number.NEGATIVE_INFINITY,
   totalTvl: (a) => a.totalTVLAssetInUSD ?? Number.NEGATIVE_INFINITY,
+  fdmc: (a) => fdmc(a) ?? Number.NEGATIVE_INFINITY,
   volume1H: (a) => a.volume1H ?? Number.NEGATIVE_INFINITY,
   volume24H: (a) => a.volume24H ?? Number.NEGATIVE_INFINITY,
   volume7D: (a) => a.volume7D ?? Number.NEGATIVE_INFINITY,

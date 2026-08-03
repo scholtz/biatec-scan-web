@@ -157,6 +157,13 @@
           </template>
         </template>
 
+        <template #cell-fdmc="{ row: a }">
+          <template v-if="fdmc(a) === undefined">-</template>
+          <template v-else>
+            <FormattedNumber :value="fdmc(a)" type="currency" compact :maximum-fraction-digits="1" />
+          </template>
+        </template>
+
         <template #cell-volume1H="{ row: a }">
           <template v-if="a.volume1H === undefined || a.volume1H === null">-</template>
           <template v-else>
@@ -276,7 +283,7 @@ import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
 import ChangeCell from "../components/table/ChangeCell.vue";
 import HelpTooltip from "../components/HelpTooltip.vue";
 import { useTableColumns, sortRows } from "../composables/useTableColumns";
-import { assetColumns, assetSortFns } from "../config/assetColumns";
+import { assetColumns, assetSortFns, fdmc } from "../config/assetColumns";
 
 const { t } = useI18n();
 const router = useRouter();
