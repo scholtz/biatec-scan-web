@@ -239,7 +239,7 @@
         </template>
       </DataTable>
 
-      <div class="flex justify-between items-center mt-4 text-xs">
+      <div ref="paginationEl" class="flex justify-between items-center mt-4 text-xs">
         <button
           :disabled="page === 1 || loading"
           class="px-2 py-1 rounded bg-gray-700 disabled:opacity-40 text-gray-200 hover:bg-gray-600"
@@ -261,7 +261,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, onMounted, onUnmounted, computed, defineComponent, h, ref } from "vue";
+import { reactive, watch, onMounted, onUnmounted, computed, ref, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
@@ -273,8 +273,10 @@ import FormattedNumber from "../components/FormattedNumber.vue";
 import { favoriteService } from "../services/favoriteService";
 import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
+import ChangeCell from "../components/table/ChangeCell.vue";
 import HelpTooltip from "../components/HelpTooltip.vue";
-import { useTableColumns, sortRows, type ColumnDef } from "../composables/useTableColumns";
+import { useTableColumns, sortRows } from "../composables/useTableColumns";
+import { assetColumns, assetSortFns } from "../config/assetColumns";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -315,116 +317,62 @@ const MIN_PREFETCH_SIZE = 200;
 
 const api = getAVMTradeReporterAPI();
 
-const assetColumns: ColumnDef[] = [
-  { key: "name", labelKey: "assets.name", pinned: true },
-  { key: "rank", labelKey: "assets.rank", align: "right" },
-  { key: "price", labelKey: "assets.price", align: "right", sortable: true },
-  { key: "change1H", labelKey: "assets.change1H", align: "right", sortable: true, defaultVisible: false },
-  { key: "change24H", labelKey: "assets.change24H", align: "right", sortable: true },
-  { key: "change7D", labelKey: "assets.change7D", align: "right", sortable: true, defaultVisible: false },
-  { key: "realTvl", labelKey: "assets.realTvl", align: "right", sortable: true },
-  { key: "totalTvl", labelKey: "assets.totalTvl", align: "right", sortable: true },
-  { key: "volume1H", labelKey: "assets.volume1H", align: "right", sortable: true, defaultVisible: false },
-  { key: "volume24H", labelKey: "assets.volume24H", align: "right", sortable: true },
-  { key: "volume7D", labelKey: "assets.volume7D", align: "right", sortable: true, defaultVisible: false },
-  { key: "updated", labelKey: "assets.updated", align: "right", sortable: true },
-  { key: "favorite", labelKey: "common.favorite", align: "center" },
-  { key: "pools", labelKey: "common.pools", align: "right" },
-];
-
 const tableColumns = useTableColumns("assets", assetColumns);
+const sortFns = assetSortFns;
 
-function changePercent(current: number | undefined | null, previous: number | undefined | null): number | undefined {
-  if (current == null || previous == null || previous === 0) return undefined;
-  return ((current - previous) / previous) * 100;
-}
+// Whether pageSize should keep tracking the viewport-driven "auto" value.
+// Turned off the moment the user manually picks a page size, so we never
+// fight their choice on the next resize/recalculation.
+const pageSizeIsAuto = ref(true);
 
-const sortFns: Partial<Record<string, (a: BiatecAsset) => number | string>> = {
-  price: (a) => a.priceUSD ?? Number.NEGATIVE_INFINITY,
-  change1H: (a) => changePercent(a.priceUSD, a.priceUSD1H) ?? Number.NEGATIVE_INFINITY,
-  change24H: (a) => changePercent(a.priceUSD, a.priceUSD24H) ?? Number.NEGATIVE_INFINITY,
-  change7D: (a) => changePercent(a.priceUSD, a.priceUSD7D) ?? Number.NEGATIVE_INFINITY,
-  realTvl: (a) => a.tvL_USD ?? Number.NEGATIVE_INFINITY,
-  totalTvl: (a) => a.totalTVLAssetInUSD ?? Number.NEGATIVE_INFINITY,
-  volume1H: (a) => a.volume1H ?? Number.NEGATIVE_INFINITY,
-  volume24H: (a) => a.volume24H ?? Number.NEGATIVE_INFINITY,
-  volume7D: (a) => a.volume7D ?? Number.NEGATIVE_INFINITY,
-  updated: (a) => a.timestamp ?? "",
-};
+// Reference to the pagination bar so we can measure real, currently-rendered
+// space instead of guessing at fixed pixel offsets (navbar height, "100px of
+// overhead", etc). Guessing before real content exists is what let the
+// estimate drift from the actual layout and leave a few px of scroll.
+const paginationEl = ref<HTMLElement | null>(null);
 
-// Small inline helper component for the repeated "colored % change" cell markup.
-const ChangeCell = defineComponent({
-  props: { current: { type: Number, default: undefined }, previous: { type: Number, default: undefined } },
-  setup(props) {
-    return () => {
-      const pct = changePercent(props.current, props.previous);
-      if (pct === undefined) return h("span", {}, "-");
-      const cls = pct > 0 ? "text-green-400" : pct < 0 ? "text-red-400" : "text-gray-400";
-      const text = (pct > 0 ? "+" : "") + pct.toFixed(2) + "%";
-      return h("span", { class: cls }, text);
-    };
-  },
-});
-
-// Calculate optimal page size based on available viewport space
-function calculateOptimalPageSize(): number {
+// Calculate the number of rows that fit in the viewport without scrolling,
+// based on the *currently rendered* row height and pagination bar position.
+// Returns null when there isn't enough rendered content yet to measure
+// (e.g. before the first fetch resolves) — callers should keep whatever
+// page size they already have in that case rather than guess.
+function calculateOptimalPageSize(): number | null {
   try {
-    const viewportHeight = window.innerHeight;
+    const rowsContainer = document.querySelector(".space-y-1");
+    const rows = rowsContainer ? (Array.from(rowsContainer.children) as HTMLElement[]) : [];
+    if (!rowsContainer || rows.length < 2) return null;
 
-    // Use DOM-based calculation to get precise measurements
-    const navbar = document.querySelector("nav");
-    const navbarHeight = navbar ? navbar.getBoundingClientRect().height : 65;
+    const rowHeight = rows[1].getBoundingClientRect().top - rows[0].getBoundingClientRect().top;
+    if (!(rowHeight > 0)) return null;
 
-    // Find pagination controls to calculate unused space at bottom
-    const buttons = Array.from(document.querySelectorAll("button"));
-    const prevButton = buttons.find((b) => b.textContent?.includes("Prev"));
-    const paginationContainer = prevButton?.parentElement;
-    let unusedSpaceAtBottom = 200; // Fallback
+    const rowsContainerTop = rowsContainer.getBoundingClientRect().top;
+    const lastRowBottom = rows[rows.length - 1].getBoundingClientRect().bottom;
 
-    if (paginationContainer) {
-      const paginationRect = paginationContainer.getBoundingClientRect();
-      unusedSpaceAtBottom = viewportHeight - paginationRect.bottom;
-    }
+    // Whatever sits below the row list (pagination bar + its margin), measured
+    // from the real DOM rather than assumed — 0 if it isn't rendered yet.
+    const footerHeight = paginationEl.value
+      ? Math.max(0, paginationEl.value.getBoundingClientRect().bottom - lastRowBottom)
+      : 0;
 
-    // Get actual row height by measuring existing rows
-    let rowHeight = 47; // Fallback based on measurements
-    const rows = document.querySelectorAll(".space-y-1 > div");
-    if (rows.length >= 2) {
-      rowHeight = rows[1].getBoundingClientRect().top - rows[0].getBoundingClientRect().top;
-    }
+    // Small safety margin so sub-pixel measurement rounding can never tip the
+    // page into needing a scrollbar.
+    const SAFETY_MARGIN = 4;
+    const availableHeight = window.innerHeight - rowsContainerTop - footerHeight - SAFETY_MARGIN;
+    const fitRows = Math.floor(availableHeight / rowHeight);
 
-    // More aggressive calculation - minimal buffer for maximum space utilization
-    const buffer = Math.max(15, Math.min(25, unusedSpaceAtBottom * 0.1)); // Dynamic buffer: 10% of unused space, capped at 15-25px
-    const usableUnusedSpace = Math.max(0, unusedSpaceAtBottom - buffer);
-    const additionalRows = Math.floor(usableUnusedSpace / rowHeight);
-
-    // Current rows count calculation
-    let baseRows;
-    if (unusedSpaceAtBottom > 40) {
-      // Calculate from full viewport for maximum utilization
-      const usedSpaceFromTop = viewportHeight - unusedSpaceAtBottom;
-      const availableSpaceForRows = usedSpaceFromTop - navbarHeight - 100; // Minimal overhead
-      baseRows = Math.floor(availableSpaceForRows / rowHeight);
-    } else {
-      // Space is very tight, use current count
-      baseRows = rows.length;
-    }
-
-    const optimalPageSize = baseRows + additionalRows;
-
-    // Ensure reasonable bounds
-    const finalPageSize = Math.max(5, Math.min(150, optimalPageSize));
-
-    return finalPageSize;
+    return Math.max(5, Math.min(150, fitRows));
   } catch (error) {
     console.error("Error calculating optimal page size:", error);
-    return 15; // Fallback to default
+    return null;
   }
 }
 
-// Update available page sizes to include the calculated value
-function updatePageSizeOptions() {
+// Recalculate from the real DOM and, if we're still in "auto" mode, apply the
+// result. Returns true when it changed state.pageSize (the pageSize watcher
+// will refetch automatically in that case).
+function updatePageSizeOptions(): boolean {
   const calculated = calculateOptimalPageSize();
+  if (calculated === null) return false;
   state.calculatedPageSize = calculated;
 
   // Create a new array with the calculated value included
@@ -439,10 +387,11 @@ function updatePageSizeOptions() {
 
   state.availablePageSizes = allOptions;
 
-  // Set the calculated value as default if pageSize hasn't been set yet
-  if (state.pageSize === 0) {
+  if (pageSizeIsAuto.value && state.pageSize !== calculated) {
     state.pageSize = calculated;
+    return true;
   }
+  return false;
 }
 
 // Handle window resize to recalculate optimal page size
@@ -616,6 +565,7 @@ function prevPage() {
   }
 }
 function changePageSize() {
+  pageSizeIsAuto.value = false;
   state.page = 1;
   fetchAssets();
 }
@@ -666,14 +616,22 @@ watch(() => state.page, fetchAssets);
 watch(() => state.pageSize, fetchAssets);
 
 onMounted(async () => {
-  // Calculate optimal page size first
-  updatePageSizeOptions();
+  // Nothing is rendered yet, so there's no real layout to measure — start
+  // from the same fallback page size used when measurement fails, then
+  // correct it below once real rows exist.
+  if (state.pageSize === 0) state.pageSize = state.calculatedPageSize;
 
   // Add resize event listener
   window.addEventListener("resize", handleResize);
 
   signalrService.onAssetReceived(assetUpdateEvent);
   await fetchAssets();
+
+  // Now that real rows and the pagination bar are in the DOM, true up the
+  // page size against the actual rendered layout (updatePageSizeOptions
+  // changing state.pageSize triggers a refetch via the watcher above).
+  await nextTick();
+  updatePageSizeOptions();
 });
 
 onUnmounted(() => {

@@ -30,19 +30,21 @@
         class="min-w-0"
         :class="alignClass(c.align)"
       >
-        <button
-          v-if="c.sortable"
-          type="button"
-          class="inline-flex items-center gap-1 hover:text-white max-w-full"
-          :class="alignClass(c.align)"
-          @click="tableColumns.cycleSort(c.key)"
-        >
-          <span class="truncate">{{ labelFor(c) }}</span>
-          <span class="text-[10px] shrink-0" :class="{ 'text-white': tableColumns.sortState.value.key === c.key }">{{
-            sortIndicator(c.key)
-          }}</span>
-        </button>
-        <span v-else class="block truncate">{{ labelFor(c) }}</span>
+        <div class="inline-flex items-center gap-1 max-w-full">
+          <button
+            v-if="c.sortable"
+            type="button"
+            class="inline-flex items-center gap-1 hover:text-white min-w-0"
+            @click="tableColumns.cycleSort(c.key)"
+          >
+            <span class="truncate">{{ labelFor(c) }}</span>
+            <span class="text-[10px] shrink-0" :class="{ 'text-white': tableColumns.sortState.value.key === c.key }">{{
+              sortIndicator(c.key)
+            }}</span>
+          </button>
+          <span v-else class="truncate">{{ labelFor(c) }}</span>
+          <HelpTooltip v-if="c.descriptionKey" :text="t(c.descriptionKey)" class="shrink-0" />
+        </div>
       </div>
     </div>
 
@@ -92,6 +94,7 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { sortRows, type ColumnDef, type UseTableColumnsReturn } from "../../composables/useTableColumns";
+import HelpTooltip from "../HelpTooltip.vue";
 
 const props = defineProps<{
   tableColumns: UseTableColumnsReturn;

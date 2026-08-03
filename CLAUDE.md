@@ -41,6 +41,19 @@ set an explicit baseline text color itself (it currently does, in
 on the wrapper's baseline color or set the color explicitly if it needs to
 differ (links, colored deltas, badges).
 
+## Favorites table must always mirror the main Assets table
+
+`src/views/FavoriteAssets.vue`'s table view is not its own table — it renders
+`DataTable` with the exact same column list as `src/views/Assets.vue`
+(imported from `src/config/assetColumns.ts`, along with the shared
+`assetSortFns` sort comparators and the shared `ChangeCell` component).
+Favorites is conceptually just a user-curated filter over the same asset
+data/columns as the main Assets page, not a separate table with its own
+shape. When you add, remove, rename, or re-describe a column on the Assets
+page, do it in `assetColumns.ts` so both pages pick up the change — never
+fork a parallel column list for Favorites, and never let the two pages'
+column sets, labels, or tooltips drift apart.
+
 ## Localization: every new user-facing string must be translated, not just added to `en.json`
 
 This project's i18n typing (`src/i18n/index.ts`) requires every locale file

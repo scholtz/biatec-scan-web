@@ -8,6 +8,8 @@ export interface ColumnDef {
   key: string;
   /** i18n key for the column label shown in the header and settings panel. */
   labelKey: string;
+  /** i18n key for the help text shown in a tooltip next to the column header. */
+  descriptionKey?: string;
   align?: "left" | "right" | "center" | "center-icon";
   sortable?: boolean;
   defaultVisible?: boolean;

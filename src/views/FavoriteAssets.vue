@@ -109,12 +109,8 @@
             </div>
           </template>
 
-          <template #cell-unit="{ row: a }">
-            {{ a.params?.unitName || "-" }}
-          </template>
-
-          <template #cell-decimals="{ row: a }">
-            {{ a.params?.decimals ?? 0 }}
+          <template #cell-rank="{ index }">
+            <span class="font-mono">#{{ index + 1 }}</span>
           </template>
 
           <template #cell-price="{ row: a }">
@@ -122,7 +118,7 @@
             <template v-else>
               <FormattedNumber
                 :value="a.priceUSD"
-                type="number"
+                type="currency"
                 :minimum-fraction-digits="2"
                 :maximum-fraction-digits="6"
                 :small-threshold="0.01"
@@ -131,12 +127,22 @@
             </template>
           </template>
 
+          <template #cell-change1H="{ row: a }">
+            <ChangeCell :current="a.priceUSD ?? undefined" :previous="a.priceUSD1H ?? undefined" />
+          </template>
+          <template #cell-change24H="{ row: a }">
+            <ChangeCell :current="a.priceUSD ?? undefined" :previous="a.priceUSD24H ?? undefined" />
+          </template>
+          <template #cell-change7D="{ row: a }">
+            <ChangeCell :current="a.priceUSD ?? undefined" :previous="a.priceUSD7D ?? undefined" />
+          </template>
+
           <template #cell-realTvl="{ row: a }">
             <template v-if="a.tvL_USD === undefined || a.tvL_USD === null">-</template>
             <template v-else>
               <FormattedNumber
                 :value="a.tvL_USD"
-                type="number"
+                type="currency"
                 :maximum-fraction-digits="2"
                 :small-threshold="0.01"
                 :significant-digits="4"
@@ -149,7 +155,44 @@
             <template v-else>
               <FormattedNumber
                 :value="a.totalTVLAssetInUSD"
-                type="number"
+                type="currency"
+                :maximum-fraction-digits="2"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
+            </template>
+          </template>
+
+          <template #cell-volume1H="{ row: a }">
+            <template v-if="a.volume1H === undefined || a.volume1H === null">-</template>
+            <template v-else>
+              <FormattedNumber
+                :value="a.volume1H"
+                type="currency"
+                :maximum-fraction-digits="2"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
+            </template>
+          </template>
+          <template #cell-volume24H="{ row: a }">
+            <template v-if="a.volume24H === undefined || a.volume24H === null">-</template>
+            <template v-else>
+              <FormattedNumber
+                :value="a.volume24H"
+                type="currency"
+                :maximum-fraction-digits="2"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
+            </template>
+          </template>
+          <template #cell-volume7D="{ row: a }">
+            <template v-if="a.volume7D === undefined || a.volume7D === null">-</template>
+            <template v-else>
+              <FormattedNumber
+                :value="a.volume7D"
+                type="currency"
                 :maximum-fraction-digits="2"
                 :small-threshold="0.01"
                 :significant-digits="4"
@@ -221,7 +264,9 @@ import CopyToClipboard from "../components/CopyToClipboard.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
-import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
+import ChangeCell from "../components/table/ChangeCell.vue";
+import { useTableColumns } from "../composables/useTableColumns";
+import { assetColumns, assetSortFns } from "../config/assetColumns";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -232,26 +277,10 @@ function goToPools(assetIndex: number) {
   router.push(`/aggregated-pools/${assetIndex}`);
 }
 
-const favoriteAssetColumns: ColumnDef[] = [
-  { key: "name", labelKey: "assets.name", pinned: true },
-  { key: "unit", labelKey: "assets.unit" },
-  { key: "decimals", labelKey: "assets.decimals", align: "right", defaultVisible: false },
-  { key: "price", labelKey: "assets.price", align: "right", sortable: true },
-  { key: "realTvl", labelKey: "assets.realTvl", align: "right", sortable: true },
-  { key: "totalTvl", labelKey: "assets.totalTvl", align: "right", sortable: true },
-  { key: "updated", labelKey: "assets.updated", align: "right", sortable: true },
-  { key: "favorite", labelKey: "common.favorite", align: "center" },
-  { key: "pools", labelKey: "common.pools", align: "right" },
-];
-
-const tableColumns = useTableColumns("favorites", favoriteAssetColumns);
-
-const sortFns: Partial<Record<string, (a: BiatecAsset) => number | string>> = {
-  price: (a) => a.priceUSD ?? Number.NEGATIVE_INFINITY,
-  realTvl: (a) => a.tvL_USD ?? Number.NEGATIVE_INFINITY,
-  totalTvl: (a) => a.totalTVLAssetInUSD ?? Number.NEGATIVE_INFINITY,
-  updated: (a) => a.timestamp ?? "",
-};
+// Favorites is just a user-curated filter over the same asset data as the main
+// Assets table, so it must always expose the exact same columns — see assetColumns.
+const tableColumns = useTableColumns("favorites", assetColumns);
+const sortFns = assetSortFns;
 
 interface State {
   loading: boolean;

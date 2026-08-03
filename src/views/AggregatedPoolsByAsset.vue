@@ -169,22 +169,71 @@ const state = reactive<State>({
 const api = getAVMTradeReporterAPI();
 
 const aggregatedPoolColumns: ColumnDef[] = [
-  { key: "pair", labelKey: "aggregatedPools.pair", pinned: true },
-  { key: "pools", labelKey: "aggregatedPools.pools", align: "right", sortable: true },
-  { key: "price", labelKey: "aggregatedPools.price", align: "right" },
-  { key: "reserve", labelKey: "aggregatedPools.reserve", align: "right", sortable: true },
-  { key: "otherReserve", labelKey: "aggregatedPools.otherReserve", align: "right", sortable: true },
-  { key: "virtualReserve", labelKey: "aggregatedPools.virtualReserve", align: "right", sortable: true },
+  { key: "pair", labelKey: "aggregatedPools.pair", pinned: true, descriptionKey: "aggregatedPools.pairHelp" },
+  {
+    key: "pools",
+    labelKey: "aggregatedPools.pools",
+    align: "right",
+    sortable: true,
+    descriptionKey: "aggregatedPools.poolsHelp",
+  },
+  { key: "price", labelKey: "aggregatedPools.price", align: "right", descriptionKey: "aggregatedPools.priceHelp" },
+  {
+    key: "reserve",
+    labelKey: "aggregatedPools.reserve",
+    align: "right",
+    sortable: true,
+    descriptionKey: "aggregatedPools.reserveHelp",
+  },
+  {
+    key: "otherReserve",
+    labelKey: "aggregatedPools.otherReserve",
+    align: "right",
+    sortable: true,
+    descriptionKey: "aggregatedPools.otherReserveHelp",
+  },
+  {
+    key: "virtualReserve",
+    labelKey: "aggregatedPools.virtualReserve",
+    align: "right",
+    sortable: true,
+    descriptionKey: "aggregatedPools.virtualReserveHelp",
+  },
   {
     key: "otherVirtualReserve",
     labelKey: "aggregatedPools.otherVirtualReserve",
     align: "right",
     sortable: true,
+    descriptionKey: "aggregatedPools.otherVirtualReserveHelp",
   },
-  { key: "totalTvlUsd", labelKey: "aggregatedPools.totalTvlUsd", align: "right", sortable: true },
-  { key: "totalTvlOtherUsd", labelKey: "aggregatedPools.totalTvlOtherUsd", align: "right", sortable: true },
-  { key: "volume24H", labelKey: "aggregatedPools.volume24H", align: "right", sortable: true },
-  { key: "updated", labelKey: "aggregatedPools.updated", align: "right", sortable: true },
+  {
+    key: "totalTvlUsd",
+    labelKey: "aggregatedPools.totalTvlUsd",
+    align: "right",
+    sortable: true,
+    descriptionKey: "aggregatedPools.totalTvlUsdHelp",
+  },
+  {
+    key: "totalTvlOtherUsd",
+    labelKey: "aggregatedPools.totalTvlOtherUsd",
+    align: "right",
+    sortable: true,
+    descriptionKey: "aggregatedPools.totalTvlOtherUsdHelp",
+  },
+  {
+    key: "volume24H",
+    labelKey: "aggregatedPools.volume24H",
+    align: "right",
+    sortable: true,
+    descriptionKey: "aggregatedPools.volume24HHelp",
+  },
+  {
+    key: "updated",
+    labelKey: "aggregatedPools.updated",
+    align: "right",
+    sortable: true,
+    descriptionKey: "aggregatedPools.updatedHelp",
+  },
 ];
 
 const tableColumns = useTableColumns("aggregated-pools", aggregatedPoolColumns);
