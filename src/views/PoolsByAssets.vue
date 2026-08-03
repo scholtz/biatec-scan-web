@@ -160,6 +160,7 @@
         :rows="state.pools"
         :row-key="(p: Pool) => p.poolAddress ?? ''"
         :sort-fns="sortFns"
+        :on-row-click="(p: Pool) => goToPoolDetails(p)"
       >
         <template #cell-address="{ row: p }">
           <div class="flex items-center gap-1 min-w-0">
@@ -171,10 +172,12 @@
               }"
               class="text-xs text-blue-100 hover:text-blue-300 font-mono truncate transition-colors duration-200"
               :title="p.poolAddress"
+              @click.stop
             >
               {{ formatAddress(p.poolAddress) }}
             </router-link>
             <CopyToClipboard
+              @click.stop
               :text="p.poolAddress ?? ''"
               :toast-message="`Copied pool address: ${formatAddress(p.poolAddress ?? '')}`"
               title="Copy pool address to clipboard"
@@ -222,10 +225,12 @@
                 params: { poolAddress: p.poolAddress },
               }"
               class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+              @click.stop
             >
               {{ p.poolAppId.toString() }}
             </router-link>
             <CopyToClipboard
+              @click.stop
               :text="p.poolAppId?.toString() ?? ''"
               :toast-message="`Copied pool app ID: ${p.poolAppId?.toString() ?? ''}`"
               title="Copy pool app id to clipboard"
@@ -257,6 +262,7 @@
               params: { asset1: p.assetIdA, asset2: p.assetIdB },
             }"
             class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+            @click.stop
           >
             {{ formattedPrice(p) }}
           </router-link>
@@ -271,6 +277,7 @@
             <router-link
               :to="{ name: 'AssetDetails', params: { assetId: p.assetIdA } }"
               class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+              @click.stop
             >
               {{ formattedReserveA(p) }}
             </router-link>
@@ -283,6 +290,7 @@
             <router-link
               :to="{ name: 'AssetDetails', params: { assetId: p.assetIdB } }"
               class="text-sm text-blue-100 hover:text-blue-300 transition-colors duration-200"
+              @click.stop
             >
               {{ formattedReserveB(p) }}
             </router-link>
@@ -313,7 +321,7 @@
 
 <script setup lang="ts">
 import { onMounted, watch, computed, reactive, onUnmounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import { assetService } from "../services/assetService";
@@ -329,6 +337,7 @@ import { signalrService } from "../services/signalrService";
 const { t } = useI18n();
 
 const route = useRoute();
+const router = useRouter();
 
 const state = reactive({
   asset1: BigInt((route.params.asset1 as string) || 0),
@@ -479,6 +488,12 @@ async function fetchAggregated() {
 
 async function refresh() {
   await Promise.all([fetchPools(), fetchAggregated()]);
+}
+
+// Clicking a pool row opens that pool's details page.
+function goToPoolDetails(p: Pool) {
+  if (!p.poolAddress) return;
+  router.push({ name: "PoolDetails", params: { poolAddress: p.poolAddress } });
 }
 
 onMounted(async () => {

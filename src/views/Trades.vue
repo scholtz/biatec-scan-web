@@ -356,9 +356,10 @@
           </thead>
           <tbody>
             <tr
-              v-for="trade in trades"
+              v-for="(trade, tradeIndex) in trades"
               :key="tradeKey(trade)"
-              class="bg-gray-800/40 text-gray-200 transition-colors hover:bg-gray-800/70"
+              class="text-gray-200 transition-colors hover:bg-gray-800/70"
+              :class="tradeIndex % 2 === 1 ? 'bg-gray-800/20' : 'bg-gray-800/40'"
             >
               <td
                 class="rounded-l-lg px-3 py-3 align-top text-xs text-gray-400"

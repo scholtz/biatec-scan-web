@@ -58,6 +58,7 @@
         {{ $t("favorites.totalFavorites") }}:
         <span class="text-white">{{ favoriteAssets.length }}</span>
       </div>
+      <ColumnSettingsPanel v-if="currentView === 'table'" :columns="tableColumns" class="ml-auto" />
     </div>
 
     <div v-if="loading" class="text-gray-400">
@@ -77,216 +78,115 @@
       <div v-if="error" class="text-red-400 mb-4">{{ error }}</div>
       <!-- Table View -->
       <div v-if="currentView === 'table'">
-        <div
-          class="hidden md:grid md:grid-cols-10 gap-3 px-2 text-xs text-gray-400 mb-2"
+        <DataTable
+          :table-columns="tableColumns"
+          :rows="favoriteAssets"
+          :row-key="(a: BiatecAsset) => a.index"
+          :sort-fns="sortFns"
+          :on-row-click="(a: BiatecAsset) => goToPools(a.index)"
         >
-          <div>ID</div>
-          <div>Name</div>
-          <div>Unit</div>
-          <div class="text-right">Decimals</div>
-          <div class="text-right">Price (USD)</div>
-          <div class="text-right">Real TVL (USD)</div>
-          <div class="text-right">Total TVL (USD)</div>
-          <div class="text-right">Updated</div>
-          <div class="text-center">Favorite</div>
-          <div class="text-right">Pools</div>
-        </div>
-        <div class="space-y-1">
-          <div
-            v-for="a in favoriteAssets"
-            :key="a.index"
-            class="p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors"
-          >
-            <!-- Mobile compact layout -->
-            <div class="md:hidden flex items-center gap-3">
-              <RouterLink
-                :to="`/asset/${a.index}`"
-                class="flex items-center gap-2 min-w-0 flex-1"
-              >
-                <img :src="assetImageUrl(a.index)" class="w-8 h-8 rounded" />
-                <div class="min-w-0">
-                  <div class="text-white text-sm font-medium truncate">
-                    {{
-                      a.params?.name ||
-                      a.params?.unitName ||
-                      t("favorites.assetPrefix") + a.index
-                    }}
-                  </div>
-                  <div class="text-[10px] text-gray-400 truncate font-mono">
-                    #{{ a.index }} • {{ a.params?.unitName || "-" }}
-                  </div>
-                </div>
-              </RouterLink>
-              <div class="text-right">
-                <div class="text-[10px] text-gray-400">Price</div>
-                <div class="text-xs text-white font-mono">
-                  <template
-                    v-if="a.priceUSD === undefined || a.priceUSD === null"
-                    >-</template
-                  >
-                  <template v-else>
-                    <FormattedNumber
-                      :value="a.priceUSD"
-                      type="number"
-                      :minimum-fraction-digits="2"
-                      :maximum-fraction-digits="6"
-                      :small-threshold="0.01"
-                      :significant-digits="4"
-                    />
-                  </template>
-                </div>
-              </div>
-              <div class="text-right">
-                <div class="text-[10px] text-gray-400">Real TVL</div>
-                <div class="text-xs text-white font-mono">
-                  <template v-if="a.tvL_USD === undefined || a.tvL_USD === null"
-                    >-</template
-                  >
-                  <template v-else>
-                    <FormattedNumber
-                      :value="a.tvL_USD"
-                      type="number"
-                      :maximum-fraction-digits="2"
-                      :small-threshold="0.01"
-                      :significant-digits="4"
-                    />
-                  </template>
-                </div>
-              </div>
-              <RouterLink
-                :to="`/aggregated-pools/${a.index}`"
-                class="text-[10px] text-blue-400 hover:text-blue-300 underline ml-2"
-                >Pools</RouterLink
-              >
-              <button
-                @click="toggleFavorite(a.index)"
-                class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95 ml-2 text-yellow-400 animate-pulse"
-                title="Remove from favorites"
-              >
-                <svg
-                  class="w-4 h-4 transition-all duration-300 drop-shadow-lg"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
+          <template #cell-name="{ row: a }">
+            <div class="flex items-center gap-2 min-w-0 flex-1">
+              <img :src="assetImageUrl(a.index)" class="w-6 h-6 md:w-6 md:h-6 rounded shrink-0" />
+              <div class="min-w-0">
+                <RouterLink
+                  :to="`/asset/${a.index}`"
+                  class="text-sm text-white hover:text-blue-300 truncate block"
+                  @click.stop
                 >
-                  <path
-                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                  />
-                </svg>
-              </button>
+                  {{ a.params?.name || a.params?.unitName || t("favorites.assetPrefix") + a.index }}
+                </RouterLink>
+                <div class="text-[10px] text-gray-400 truncate font-mono md:hidden">
+                  #{{ a.index }} • {{ a.params?.unitName || "-" }}
+                </div>
+              </div>
               <CopyToClipboard
+                @click.stop
                 :text="a.index.toString()"
                 :toast-message="`Copied ${a.params?.name || a.params?.unitName || 'Asset'} asset ID: ${a.index}`"
                 :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
-                class="ml-2"
               />
             </div>
+          </template>
 
-            <!-- Desktop row layout -->
-            <div class="hidden md:grid md:grid-cols-10 gap-3 items-center">
-              <div
-                class="font-mono text-xs text-blue-400 truncate flex items-center gap-1"
+          <template #cell-unit="{ row: a }">
+            {{ a.params?.unitName || "-" }}
+          </template>
+
+          <template #cell-decimals="{ row: a }">
+            {{ a.params?.decimals ?? 0 }}
+          </template>
+
+          <template #cell-price="{ row: a }">
+            <template v-if="a.priceUSD === undefined || a.priceUSD === null">-</template>
+            <template v-else>
+              <FormattedNumber
+                :value="a.priceUSD"
+                type="number"
+                :minimum-fraction-digits="2"
+                :maximum-fraction-digits="6"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
+            </template>
+          </template>
+
+          <template #cell-realTvl="{ row: a }">
+            <template v-if="a.tvL_USD === undefined || a.tvL_USD === null">-</template>
+            <template v-else>
+              <FormattedNumber
+                :value="a.tvL_USD"
+                type="number"
+                :maximum-fraction-digits="2"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
+            </template>
+          </template>
+
+          <template #cell-totalTvl="{ row: a }">
+            <template v-if="a.totalTVLAssetInUSD === undefined || a.totalTVLAssetInUSD === null">-</template>
+            <template v-else>
+              <FormattedNumber
+                :value="a.totalTVLAssetInUSD"
+                type="number"
+                :maximum-fraction-digits="2"
+                :small-threshold="0.01"
+                :significant-digits="4"
+              />
+            </template>
+          </template>
+
+          <template #cell-updated="{ row: a }">
+            <FormattedTime :timestamp="a.timestamp || new Date().toISOString()" />
+          </template>
+
+          <template #cell-favorite="{ row: a }">
+            <button
+              @click.stop="toggleFavorite(a.index)"
+              class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95 text-yellow-400 animate-pulse"
+              :title="t('common.removeFromFavorites')"
+            >
+              <svg
+                class="w-5 h-5 transition-all duration-300 drop-shadow-lg"
+                fill="currentColor"
+                viewBox="0 0 24 24"
               >
-                <RouterLink
-                  :to="`/asset/${a.index}`"
-                  class="hover:text-blue-300"
-                  >{{ a.index }}</RouterLink
-                >
-                <CopyToClipboard
-                  :text="a.index.toString()"
-                  :toast-message="`Copied ${a.params?.name || a.params?.unitName || 'Asset'} asset ID: ${a.index}`"
-                  :title="`Copy ${a.params?.name || a.params?.unitName || 'Asset'} asset id: ${a.index}`"
-                />
-              </div>
-              <div class="text-sm text-white truncate flex items-center gap-2">
-                <img :src="assetImageUrl(a.index)" class="w-6 h-6 rounded" />
-                {{ a.params?.name || "-" }}
-              </div>
-              <div class="text-sm text-white truncate">
-                {{ a.params?.unitName || "-" }}
-              </div>
-              <div class="text-sm text-white text-right">
-                {{ a.params?.decimals ?? 0 }}
-              </div>
-              <div class="text-sm text-white text-right">
-                <template v-if="a.priceUSD === undefined || a.priceUSD === null"
-                  >-</template
-                >
-                <template v-else>
-                  <FormattedNumber
-                    :value="a.priceUSD"
-                    type="number"
-                    :minimum-fraction-digits="2"
-                    :maximum-fraction-digits="6"
-                    :small-threshold="0.01"
-                    :significant-digits="4"
-                  />
-                </template>
-              </div>
-              <div class="text-sm text-white text-right">
-                <template v-if="a.tvL_USD === undefined || a.tvL_USD === null"
-                  >-</template
-                >
-                <template v-else>
-                  <FormattedNumber
-                    :value="a.tvL_USD"
-                    type="number"
-                    :maximum-fraction-digits="2"
-                    :small-threshold="0.01"
-                    :significant-digits="4"
-                  />
-                </template>
-              </div>
-              <div class="text-sm text-white text-right">
-                <template
-                  v-if="
-                    a.totalTVLAssetInUSD === undefined ||
-                    a.totalTVLAssetInUSD === null
-                  "
-                  >-</template
-                >
-                <template v-else>
-                  <FormattedNumber
-                    :value="a.totalTVLAssetInUSD"
-                    type="number"
-                    :maximum-fraction-digits="2"
-                    :small-threshold="0.01"
-                    :significant-digits="4"
-                  />
-                </template>
-              </div>
-              <div class="text-xs text-gray-400 text-right">
-                <FormattedTime
-                  :timestamp="a.timestamp || new Date().toISOString()"
-                />
-              </div>
-              <div class="text-center">
-                <button
-                  @click="toggleFavorite(a.index)"
-                  class="favorite-star-btn transition-all duration-300 hover:scale-110 active:scale-95 text-yellow-400 animate-pulse"
-                  title="Remove from favorites"
-                >
-                  <svg
-                    class="w-5 h-5 transition-all duration-300 drop-shadow-lg"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <div class="text-right">
-                <RouterLink
-                  :to="`/aggregated-pools/${a.index}`"
-                  class="text-xs text-blue-400 hover:text-blue-300"
-                >
-                  {{ $t("favorites.viewPools") }}
-                </RouterLink>
-              </div>
-            </div>
-          </div>
-        </div>
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+            </button>
+          </template>
+
+          <template #cell-pools="{ row: a }">
+            <RouterLink
+              :to="`/aggregated-pools/${a.index}`"
+              class="text-xs text-blue-400 hover:text-blue-300"
+              @click.stop
+            >
+              {{ $t("favorites.viewPools") }}
+            </RouterLink>
+          </template>
+        </DataTable>
       </div>
 
       <!-- Block View -->
@@ -309,6 +209,7 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, onUnmounted, computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
@@ -318,8 +219,39 @@ import FormattedTime from "../components/FormattedTime.vue";
 import AssetBlock from "../components/AssetBlock.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
+import DataTable from "../components/table/DataTable.vue";
+import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
+import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
 
 const { t } = useI18n();
+const router = useRouter();
+
+// Clicking a favorite asset row opens its list of pools (aggregated pools by asset),
+// matching the row-click behavior of the main assets table.
+function goToPools(assetIndex: number) {
+  router.push(`/aggregated-pools/${assetIndex}`);
+}
+
+const favoriteAssetColumns: ColumnDef[] = [
+  { key: "name", labelKey: "assets.name", pinned: true },
+  { key: "unit", labelKey: "assets.unit" },
+  { key: "decimals", labelKey: "assets.decimals", align: "right", defaultVisible: false },
+  { key: "price", labelKey: "assets.price", align: "right", sortable: true },
+  { key: "realTvl", labelKey: "assets.realTvl", align: "right", sortable: true },
+  { key: "totalTvl", labelKey: "assets.totalTvl", align: "right", sortable: true },
+  { key: "updated", labelKey: "assets.updated", align: "right", sortable: true },
+  { key: "favorite", labelKey: "common.favorite", align: "center" },
+  { key: "pools", labelKey: "common.pools", align: "right" },
+];
+
+const tableColumns = useTableColumns("favorites", favoriteAssetColumns);
+
+const sortFns: Partial<Record<string, (a: BiatecAsset) => number | string>> = {
+  price: (a) => a.priceUSD ?? Number.NEGATIVE_INFINITY,
+  realTvl: (a) => a.tvL_USD ?? Number.NEGATIVE_INFINITY,
+  totalTvl: (a) => a.totalTVLAssetInUSD ?? Number.NEGATIVE_INFINITY,
+  updated: (a) => a.timestamp ?? "",
+};
 
 interface State {
   loading: boolean;

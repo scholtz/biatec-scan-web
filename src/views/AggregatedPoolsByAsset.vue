@@ -33,6 +33,7 @@
         :sort-fns="sortFns"
         :on-visibility-change="handleVisibility"
         :column-labels="columnLabels"
+        :on-row-click="(p: AggregatedPool) => goToPools(p)"
       >
         <template #cell-pair="{ row: p }">
           <div class="flex items-center gap-2 text-sm text-white truncate">
@@ -51,6 +52,7 @@
             <RouterLink
               :to="`/pools/${selectedAsset}/${p.assetIdB}`"
               class="font-mono text-blue-100 hover:text-blue-300"
+              @click.stop
               >{{ pairLabel(p) }}</RouterLink
             >
           </div>
@@ -72,6 +74,7 @@
             }"
             class="font-mono text-blue-100 hover:text-blue-300"
             title="Real Reserve"
+            @click.stop
           >
             {{ reserveSelected(p) }}
           </RouterLink>
@@ -84,6 +87,7 @@
               params: { assetId: p.assetIdB },
             }"
             class="font-mono text-blue-100 hover:text-blue-300"
+            @click.stop
           >
             {{ reserveOther(p) }}
           </RouterLink>
@@ -128,7 +132,7 @@
 
 <script setup lang="ts">
 import { reactive, computed, onMounted, onUnmounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { getAVMTradeReporterAPI } from "../api";
 import { AggregatedPool } from "../api/models";
 import { assetService } from "../services/assetService";
@@ -152,6 +156,7 @@ interface State {
 }
 
 const route = useRoute();
+const router = useRouter();
 const state = reactive<State>({
   assetId: BigInt((route.params.assetId as string) || 0),
   pools: [],
@@ -277,6 +282,11 @@ function aggregatedPoolUpdateEvent(p: AggregatedPool) {
 
 function refresh() {
   fetchAggregatedPools();
+}
+
+// Clicking a pair row opens the individual pools for that asset pair.
+function goToPools(p: AggregatedPool) {
+  router.push(`/pools/${state.assetId.toString()}/${p.assetIdB}`);
 }
 
 // Asset name / unit helpers

@@ -50,8 +50,8 @@
       <div v-for="(row, index) in sortedRows" :key="rowKey(row)">
         <div
           v-row-visible="rowVisibilityKey(row)"
-          class="hidden md:grid gap-3 items-center p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors"
-          :class="{ 'cursor-pointer': props.onRowClick }"
+          class="hidden md:grid gap-3 items-center p-2 rounded hover:bg-gray-800/60 transition-colors"
+          :class="[zebraClass(index), { 'cursor-pointer': props.onRowClick }]"
           :style="gridStyle"
           @click="props.onRowClick?.(row)"
         >
@@ -67,8 +67,8 @@
 
         <div
           v-row-visible="rowVisibilityKey(row)"
-          class="md:hidden p-2 rounded bg-gray-800/40 hover:bg-gray-800/60 transition-colors space-y-1.5"
-          :class="{ 'cursor-pointer': props.onRowClick }"
+          class="md:hidden p-2 rounded hover:bg-gray-800/60 transition-colors space-y-1.5"
+          :class="[zebraClass(index), { 'cursor-pointer': props.onRowClick }]"
           @click="props.onRowClick?.(row)"
         >
           <template v-for="c in tableColumns.visibleOrderedColumns.value" :key="c.key">
@@ -158,6 +158,10 @@ const sortedRows = computed(() => sortRows(props.rows, tableColumns.sortState.va
 
 function rowVisibilityKey(row: T): string {
   return String(props.rowKey(row));
+}
+
+function zebraClass(index: number): string {
+  return index % 2 === 1 ? "bg-gray-800/20" : "bg-gray-800/40";
 }
 
 let observer: IntersectionObserver | null = null;
