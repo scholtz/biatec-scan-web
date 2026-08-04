@@ -256,7 +256,11 @@ async function fetchAggregatedPools() {
   state.error = "";
   try {
     const asset = Number(state.assetId);
-    const size = 1000;
+    // The backend truncates to `size` in no meaningful order (no sort param),
+    // so anything below the real pair count silently drops arbitrary pairs —
+    // ALGO alone has 3500+ aggregated pairs. Fetch with a ceiling well above
+    // any current asset's pair count, matching PoolsByAssets' pool fetch.
+    const size = 10000;
     const [resA, resB] = await Promise.all([
       api.getApiAggregatedPool({ assetIdA: asset, size }),
       api.getApiAggregatedPool({ assetIdB: asset, size }),

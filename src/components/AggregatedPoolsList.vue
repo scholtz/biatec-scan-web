@@ -123,7 +123,11 @@ async function fetchAggregatedPools() {
   state.error = "";
   try {
     const asset = Number(props.assetId);
-    const size = 100; // Limit to reasonable number for compact display
+    // Fetch every pair for this asset: the backend truncates to `size` in no
+    // meaningful order, so a small fetch would make the client-side
+    // sort-by-reserve pick its "top" items from an arbitrary subset. The
+    // compact display limit is applied after sorting (maxItems), not here.
+    const size = 10000;
     const [resA, resB] = await Promise.all([
       api.getApiAggregatedPool({ assetIdA: asset, size }),
       api.getApiAggregatedPool({ assetIdB: asset, size }),
