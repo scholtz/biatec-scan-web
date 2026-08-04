@@ -127,14 +127,10 @@ async function fetchAggregatedPools() {
     // meaningful order, so a small fetch would make the client-side
     // sort-by-reserve pick its "top" items from an arbitrary subset. The
     // compact display limit is applied after sorting (maxItems), not here.
-    const size = 10000;
-    const [resA, resB] = await Promise.all([
-      api.getApiAggregatedPool({ assetIdA: asset, size }),
-      api.getApiAggregatedPool({ assetIdB: asset, size }),
-    ]);
-    
-    const listA = (resA.data as AggregatedPool[]) || [];
-    const listB = (resB.data as AggregatedPool[]) || [];
+    // The `assetIdA` filter matches the asset on either side server-side, so
+    // one request suffices (an `assetIdB` query returns the identical set).
+    const res = await api.getApiAggregatedPool({ assetIdA: asset, size: 10000 });
+    const listA = (res.data as AggregatedPool[]) || [];
     const map = new Map<string, AggregatedPool>();
     const selected = BigInt(asset);
 
@@ -158,7 +154,6 @@ async function fetchAggregatedPools() {
     }
 
     listA.forEach(normalizeAndStore);
-    listB.forEach(normalizeAndStore);
 
     let merged = Array.from(map.values());
     // Sort by selected asset reserve descending (tvL_A since selected asset is assetIdA in all entries)

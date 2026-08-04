@@ -251,22 +251,26 @@ const sortFns: Partial<Record<string, (p: AggregatedPool) => number | string>> =
   updated: (p) => p.lastUpdated ?? "",
 };
 
+// Show at most this many pairs, picked by highest reserve after fetching the
+// full set (the backend can't sort, so the top-N must be computed client-side).
+const MAX_DISPLAYED_PAIRS = 1000;
+
 async function fetchAggregatedPools() {
   state.loading = true;
   state.error = "";
   try {
     const asset = Number(state.assetId);
-    // The backend truncates to `size` in no meaningful order (no sort param),
-    // so anything below the real pair count silently drops arbitrary pairs —
-    // ALGO alone has 3500+ aggregated pairs. Fetch with a ceiling well above
-    // any current asset's pair count, matching PoolsByAssets' pool fetch.
-    const size = 10000;
-    const [resA, resB] = await Promise.all([
-      api.getApiAggregatedPool({ assetIdA: asset, size }),
-      api.getApiAggregatedPool({ assetIdB: asset, size }),
-    ]);
-    const listA = (resA.data as AggregatedPool[]) || [];
-    const listB = (resB.data as AggregatedPool[]) || [];
+    // The backend has no sort parameter and truncates to `size` in no
+    // meaningful order, so a capped fetch returns an arbitrary subset (ALGO
+    // has 3500+ pairs and e.g. Vote/ALGO — #19 by reserve — was missing from
+    // an arbitrary first-1000 slice). Fetch every pair, then keep only the
+    // top MAX_DISPLAYED_PAIRS by reserve below. The `assetIdA` filter matches
+    // the asset on either side of the pair server-side, so one request
+    // suffices — a second `assetIdB` query returns the identical set.
+    // TODO: fetch a server-sorted top-N directly once AVMTradeReporter
+    // supports ordering (scholtz/AVMTradeReporter#18).
+    const res = await api.getApiAggregatedPool({ assetIdA: asset, size: 10000 });
+    const listA = (res.data as AggregatedPool[]) || [];
     const map = new Map<string, AggregatedPool>();
     const selected = BigInt(asset);
 
@@ -290,12 +294,13 @@ async function fetchAggregatedPools() {
     }
 
     listA.forEach(normalizeAndStore);
-    listB.forEach(normalizeAndStore);
 
     let merged = Array.from(map.values());
     // Default sort by selected asset reserve descending; overridden by user's chosen column sort.
     merged.sort((a, b) => (b.tvL_A || 0) - (a.tvL_A || 0));
-    state.pools = merged;
+    // Cap what we keep/render: 3500+ rows of this table (images, links,
+    // per-row IntersectionObserver, asset-info lookups) freeze the page.
+    state.pools = merged.slice(0, MAX_DISPLAYED_PAIRS);
 
     // Initial subscription (asset scoped) – we'll refine to visible shortly
     scheduleSubscriptionUpdate();
