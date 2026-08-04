@@ -332,7 +332,7 @@ import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
 import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
 import { AMMType, Pool, AggregatedPool } from "../api/models";
-import { poolSpotPrice } from "../utils/poolPrice";
+import { poolSpotPrice, aggregatedPoolSpotPrice } from "../utils/poolPrice";
 import { signalrService } from "../services/signalrService";
 
 const { t } = useI18n();
@@ -759,11 +759,13 @@ const aggregatedPrice = computed(() => {
     state.aggregated.assetIdB === null
   )
     return "—";
-  const aid = BigInt(state.aggregated.assetIdA);
-  const bid = BigInt(state.aggregated.assetIdB);
-  const a = state.aggregated.virtualSumA || 0;
-  const b = state.aggregated.virtualSumB || 0;
-  return assetService.formatPairBalance(a, aid, b, bid, false);
+  const price = aggregatedPoolSpotPrice(state.aggregated);
+  if (price === undefined) return "—";
+  return assetService.formatPairBalanceWithRealValue(
+    price,
+    state.aggregated.assetIdA,
+    state.aggregated.assetIdB,
+  );
 });
 
 // Per-pool cell formatting (folded in from the old PoolRow.vue component)

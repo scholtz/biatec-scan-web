@@ -56,6 +56,7 @@ import FormattedTime from "./FormattedTime.vue";
 import { signalrService } from "../services/signalrService";
 import { AggregatedPool } from "../api/models";
 import StyledBox from "./StyledBox.vue";
+import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
 
 const { t } = useI18n();
 
@@ -179,12 +180,12 @@ const formattedPrice = computed(() => {
     return t('common.loading');
   }
 
-  return assetService.formatPairBalance(
-    state.pool.virtualSumA ?? 0,
-    BigInt(state.pool.assetIdA ?? 0),
-    state.pool.virtualSumB ?? 0,
-    BigInt(state.pool.assetIdB ?? 0),
-    false
+  const spot = aggregatedPoolSpotPrice(state.pool);
+  if (spot === undefined) return "-";
+  return assetService.formatPairBalanceWithRealValue(
+    spot,
+    state.pool.assetIdA ?? 0,
+    state.pool.assetIdB ?? 0
   );
 });
 </script>

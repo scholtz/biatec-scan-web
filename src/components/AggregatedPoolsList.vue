@@ -92,6 +92,7 @@ import { getAVMTradeReporterAPI } from "../api";
 import { AggregatedPool } from "../api/models";
 import { assetService } from "../services/assetService";
 import { signalrService } from "../services/signalrService";
+import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
 
 const props = defineProps<{
   assetId: string;
@@ -228,14 +229,9 @@ function pairLabel(p: AggregatedPool) {
 
 function formatPrice(p: AggregatedPool) {
   if (p.assetIdA === undefined || p.assetIdB === undefined) return "-";
-  if (p.virtualSumA === undefined || p.virtualSumB === undefined) return "-";
-  return assetService.formatPairBalance(
-    p.virtualSumA || 0,
-    BigInt(p.assetIdA),
-    p.virtualSumB || 0,
-    BigInt(p.assetIdB),
-    false
-  );
+  const spot = aggregatedPoolSpotPrice(p);
+  if (spot === undefined) return "-";
+  return assetService.formatPairBalanceWithRealValue(spot, p.assetIdA, p.assetIdB);
 }
 
 function formatTVLAUSD(p: AggregatedPool) {

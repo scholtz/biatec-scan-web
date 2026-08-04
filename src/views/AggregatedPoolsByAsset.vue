@@ -143,6 +143,7 @@ import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
 import { useI18n } from "vue-i18n";
 import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
+import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
 
 const { t } = useI18n();
 
@@ -404,14 +405,9 @@ function virtualReserveOther(p: AggregatedPool) {
 }
 function price(p: AggregatedPool) {
   if (p.assetIdA === undefined || p.assetIdB === undefined) return "-";
-  if (p.virtualSumA === undefined || p.virtualSumB === undefined) return "-";
-  return assetService.formatPairBalance(
-    p.virtualSumA || 0,
-    BigInt(p.assetIdA),
-    p.virtualSumB || 0,
-    BigInt(p.assetIdB),
-    false,
-  );
+  const spot = aggregatedPoolSpotPrice(p);
+  if (spot === undefined) return "-";
+  return assetService.formatPairBalanceWithRealValue(spot, p.assetIdA, p.assetIdB);
 }
 function totalTVLAUSD(p: AggregatedPool) {
   if (p.totalTVLAssetAInUSD === undefined || p.totalTVLAssetAInUSD === null)
