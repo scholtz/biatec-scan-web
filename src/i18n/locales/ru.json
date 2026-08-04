@@ -562,6 +562,11 @@
     "innerTransactions": "Внутренние транзакции",
     "innerTransaction": "Внутренняя транзакция",
     "backToParent": "Вернуться к родительской транзакции",
+    "balanceImpact": "Изменение балансов",
+    "balanceImpactDesc": "Чистые изменения балансов всех счетов, затронутых этой транзакцией, включая все внутренние транзакции и комиссии.",
+    "balanceImpactInclFee": "включая комиссию {fee} ALGO",
+    "balanceImpactTotalFees": "Комиссии всего: {fee} ALGO",
+    "balanceImpactNone": "Эта транзакция не изменила балансы счетов.",
     "setBytes": "Установить байты",
     "setUint": "Установить uint",
     "delete": "Удалить"

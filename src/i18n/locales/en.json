@@ -562,6 +562,11 @@
     "innerTransactions": "Inner Transactions",
     "innerTransaction": "Inner Transaction",
     "backToParent": "Back to Parent Transaction",
+    "balanceImpact": "Balance Impact",
+    "balanceImpactDesc": "Net balance changes for every account affected by this transaction, including all inner transactions and fees.",
+    "balanceImpactInclFee": "includes {fee} ALGO in fees",
+    "balanceImpactTotalFees": "Total fees: {fee} ALGO",
+    "balanceImpactNone": "This transaction did not change any account balances.",
     "setBytes": "Set Bytes",
     "setUint": "Set Uint",
     "delete": "Delete"

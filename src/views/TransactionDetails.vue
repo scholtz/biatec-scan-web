@@ -21,6 +21,9 @@
       <!-- Transaction ID -->
       <TransactionIdSection :transaction="transaction" />
 
+      <!-- Balance Impact -->
+      <TransactionBalanceImpact :transaction="transaction" />
+
       <!-- Payment Transaction Details -->
       <TransactionPayment :transaction="transaction" />
 
@@ -103,6 +106,7 @@ import { algorandService } from "../services/algorandService";
 import algosdk from "algosdk";
 import TransactionHeader from "../components/transaction/TransactionHeader.vue";
 import TransactionIdSection from "../components/transaction/TransactionIdSection.vue";
+import TransactionBalanceImpact from "../components/transaction/TransactionBalanceImpact.vue";
 import TransactionPayment from "../components/transaction/TransactionPayment.vue";
 import TransactionAssetTransfer from "../components/transaction/TransactionAssetTransfer.vue";
 import TransactionAssetConfig from "../components/transaction/TransactionAssetConfig.vue";

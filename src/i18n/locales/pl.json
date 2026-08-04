@@ -562,6 +562,11 @@
     "innerTransactions": "Transakcje wewnętrzne",
     "innerTransaction": "Transakcja wewnętrzna",
     "backToParent": "Powrót do transakcji nadrzędnej",
+    "balanceImpact": "Wpływ na salda",
+    "balanceImpactDesc": "Zmiany netto sald wszystkich kont objętych tą transakcją, w tym wszystkich transakcji wewnętrznych i opłat.",
+    "balanceImpactInclFee": "w tym {fee} ALGO opłat",
+    "balanceImpactTotalFees": "Łączne opłaty: {fee} ALGO",
+    "balanceImpactNone": "Ta transakcja nie zmieniła sald żadnych kont.",
     "setBytes": "Ustaw bajty",
     "setUint": "Ustaw uint",
     "delete": "Usuń"

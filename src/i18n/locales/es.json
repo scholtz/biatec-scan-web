@@ -562,6 +562,11 @@
     "innerTransactions": "Transacciones internas",
     "innerTransaction": "Transacción interna",
     "backToParent": "Volver a la transacción padre",
+    "balanceImpact": "Impacto en los saldos",
+    "balanceImpactDesc": "Cambios netos en los saldos de todas las cuentas afectadas por esta transacción, incluidas todas las transacciones internas y las comisiones.",
+    "balanceImpactInclFee": "incluye {fee} ALGO en comisiones",
+    "balanceImpactTotalFees": "Comisiones totales: {fee} ALGO",
+    "balanceImpactNone": "Esta transacción no modificó los saldos de ninguna cuenta.",
     "setBytes": "Establecer bytes",
     "setUint": "Establecer uint",
     "delete": "Eliminar"

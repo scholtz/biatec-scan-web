@@ -562,6 +562,11 @@
     "innerTransactions": "Belső tranzakciók",
     "innerTransaction": "Belső tranzakció",
     "backToParent": "Vissza a szülő tranzakcióhoz",
+    "balanceImpact": "Egyenlegváltozások",
+    "balanceImpactDesc": "A tranzakció által érintett összes számla nettó egyenlegváltozása, beleértve az összes belső tranzakciót és díjat.",
+    "balanceImpactInclFee": "tartalmaz {fee} ALGO díjat",
+    "balanceImpactTotalFees": "Díjak összesen: {fee} ALGO",
+    "balanceImpactNone": "Ez a tranzakció nem változtatta meg egyetlen számla egyenlegét sem.",
     "setBytes": "Bájtok beállítása",
     "setUint": "Uint beállítása",
     "delete": "Törlés"

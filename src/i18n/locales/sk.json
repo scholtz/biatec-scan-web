@@ -562,6 +562,11 @@
     "innerTransactions": "Vnútorné transakcie",
     "innerTransaction": "Vnútorná transakcia",
     "backToParent": "Späť na nadradenú transakciu",
+    "balanceImpact": "Dopad na zostatky",
+    "balanceImpactDesc": "Čisté zmeny zostatkov všetkých účtov dotknutých touto transakciou vrátane všetkých vnútorných transakcií a poplatkov.",
+    "balanceImpactInclFee": "vrátane poplatkov {fee} ALGO",
+    "balanceImpactTotalFees": "Celkové poplatky: {fee} ALGO",
+    "balanceImpactNone": "Táto transakcia nezmenila zostatky žiadneho účtu.",
     "setBytes": "Nastaviť bajty",
     "setUint": "Nastaviť Uint",
     "delete": "Vymazať"

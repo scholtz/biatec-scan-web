@@ -562,6 +562,11 @@
     "innerTransactions": "内部交易",
     "innerTransaction": "内部交易",
     "backToParent": "返回父交易",
+    "balanceImpact": "余额变动",
+    "balanceImpactDesc": "此交易影响的所有账户的净余额变动，包括所有内部交易和手续费。",
+    "balanceImpactInclFee": "含手续费 {fee} ALGO",
+    "balanceImpactTotalFees": "手续费总计：{fee} ALGO",
+    "balanceImpactNone": "此交易未改变任何账户余额。",
     "setBytes": "设置字节",
     "setUint": "设置无符号整数",
     "delete": "删除"
