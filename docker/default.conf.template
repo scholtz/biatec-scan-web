@@ -9,7 +9,15 @@ server {
     # Security headers (AUDIT-2026-07-20-01). Read-only explorer with no known XSS sink
     # today, but these are the primary defense-in-depth control against any future one,
     # and they protect the localStorage session id (see authService.ts) from exfiltration.
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://algorand-trades.de-4.biatec.io wss://algorand-trades.de-4.biatec.io https://algorand-algod-public.de-4.biatec.io https://mainnet-idx.algonode.cloud https://mainnet-idx.voi.nodely.dev https://algorand.scan.biatec.io; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
+    #
+    # CSP_CONNECT_SRC is substituted at container start (nginx's built-in
+    # docker-entrypoint envsubst-on-templates step) from a plain env var, so
+    # the same image can be deployed to any network (mainnet, testnet, later
+    # voi/aramid) by only changing the container's environment - see
+    # k8s/*/deployment-fe.yaml. It must be kept in sync with the VITE_* API/
+    # algod/indexer URLs baked into the JS bundle at build time for that
+    # same environment.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' ${CSP_CONNECT_SRC}; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "DENY" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;

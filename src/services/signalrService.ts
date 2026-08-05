@@ -13,6 +13,7 @@ import { BiatecBlock } from "../types/BiatecBlock";
 import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
 import { SubscriptionFilter } from "../types/SubscriptionFilter";
 import { debugLog } from "../utils/logger";
+import { signalrHubUrl } from "../config/env";
 let callbacksTrades: ((trade: AMMTrade) => void)[] = [];
 let callbacksLiquidity: ((liquidity: AMMLiquidity) => void)[] = [];
 let callbacksPools: ((pool: Pool) => void)[] = [];
@@ -58,7 +59,7 @@ class SignalRService {
       //   authorization: await this.getAuthToken(),
       // };
       this.connection = new HubConnectionBuilder()
-        .withUrl("https://algorand-trades.de-4.biatec.io/biatecScanHub", {
+        .withUrl(signalrHubUrl, {
           //.withUrl("https://localhost:44390/biatecScanHub", {
           //headers: headers,
           // No cookie-based auth is used (see accessTokenFactory below), so credentials

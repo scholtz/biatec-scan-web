@@ -270,6 +270,7 @@ import { useRoute } from "vue-router";
 import type { AMMPool } from "../types/algorand";
 import { assetService } from "../services/assetService";
 import { algorandService } from "../services/algorandService";
+import { apiBaseUrl } from "../config/env";
 import FormattedTime from "../components/FormattedTime.vue";
 import ApplicationStateSchemas from "../components/ApplicationStateSchemas.vue";
 import ApplicationProgram from "../components/ApplicationProgram.vue";
@@ -294,9 +295,7 @@ const loadPoolInfo = async () => {
 
   try {
     // Fetch pool information from the API
-    const response = await fetch(
-      `https://algorand-trades.de-4.biatec.io/api/pool/${poolAddress.value}`
-    );
+    const response = await fetch(`${apiBaseUrl}/api/pool/${poolAddress.value}`);
 
     if (!response.ok) {
       throw new Error(

@@ -14,6 +14,9 @@ env:
   PRIVATE_IMAGE: harbor.de-4.biatec.io/biatec/biatec-scan-fe
 
 jobs:
+  # -----------------------------------------------------------------------
+  # Stage 1: test - runs on every push and PR, gates everything below.
+  # -----------------------------------------------------------------------
   test:
     runs-on: ubuntu-latest
 
@@ -61,11 +64,48 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
-  build-and-deploy:
+  # -----------------------------------------------------------------------
+  # Stage 2: version - one version string shared by every image built in
+  # this run, so the same run's build/deploy-stage/deploy-production jobs
+  # all agree on which tag they're pushing/deploying.
+  # -----------------------------------------------------------------------
+  version:
     needs: test
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.vars.outputs.version }}
+    steps:
+      - name: Generate version
+        id: vars
+        run: |
+          DATE=$(date +'%Y.%m.%d')
+          echo "version=1.$DATE-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
+  # -----------------------------------------------------------------------
+  # Stage 3: build - builds one image per network, each with its own
+  # network-specific VITE_* build args baked in (Vite only reads env vars at
+  # build time), and pushes to Docker Hub + the private registry. Adding a
+  # future network (voi, aramid, ...) is a new matrix entry here plus a new
+  # k8s/<network> manifest - no other workflow changes needed.
+  # -----------------------------------------------------------------------
+  build:
+    needs: version
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - network: mainnet
+            vite_api_base_url: https://api.algorand.scan.biatec.io
+            vite_algorand_algod_url: https://algorand-algod-public.de-4.biatec.io
+            vite_algorand_indexer_url: https://mainnet-idx.4160.nodely.dev
+            vite_arc56_registry_url: https://algorand.scan.biatec.io/arc56-registry
+          - network: testnet
+            vite_api_base_url: https://api.testnet.scan.biatec.io
+            vite_algorand_algod_url: https://testnet-api.4160.nodely.dev
+            vite_algorand_indexer_url: https://testnet-idx.4160.nodely.dev
+            vite_arc56_registry_url: https://algorand.scan.biatec.io/arc56-registry
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -73,15 +113,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Generate version
-        id: vars
-        run: |
-          DATE=$(date +'%Y.%m.%d')
-          echo "version=1.$DATE-main" >> $GITHUB_OUTPUT
-
-      # -----------------------
-      # Build & Push (Docker Hub + Private Registry)
-      # -----------------------
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -95,23 +126,41 @@ jobs:
           username: ${{ secrets.PRIVATE_REGISTRY_USER }}
           password: ${{ secrets.PRIVATE_REGISTRY_TOKEN }}
 
-      - name: Build & Push Images
+      - name: Build & Push ${{ matrix.network }} image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/Dockerfile
           push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.network }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.network }}
+          build-args: |
+            VITE_API_BASE_URL=${{ matrix.vite_api_base_url }}
+            VITE_ALGORAND_ALGOD_URL=${{ matrix.vite_algorand_algod_url }}
+            VITE_ALGORAND_INDEXER_URL=${{ matrix.vite_algorand_indexer_url }}
+            VITE_ARC56_REGISTRY_URL=${{ matrix.vite_arc56_registry_url }}
           tags: |
-            ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }}
-            ${{ env.DOCKERHUB_IMAGE }}:latest
-            ${{ env.PRIVATE_IMAGE }}:${{ steps.vars.outputs.version }}
-            ${{ env.PRIVATE_IMAGE }}:latest
+            ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-${{ needs.version.outputs.version }}
+            ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-latest
+            ${{ env.PRIVATE_IMAGE }}:${{ matrix.network }}-${{ needs.version.outputs.version }}
+            ${{ env.PRIVATE_IMAGE }}:${{ matrix.network }}-latest
 
-      # -----------------------
-      # Deploy to Kubernetes
-      # -----------------------
+  # -----------------------------------------------------------------------
+  # Stage 4: deploy-stage - deploys the testnet image to testnet.scan.biatec.io.
+  # Uses the GitHub "Stage" environment so its secrets/protection rules can
+  # differ from Production (Settings > Environments > Stage in the repo).
+  # -----------------------------------------------------------------------
+  deploy-stage:
+    needs: [version, build]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: Stage
+      url: https://testnet.scan.biatec.io
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Set up kubectl
         uses: azure/setup-kubectl@v4
         with:
@@ -124,7 +173,48 @@ jobs:
 
       - name: Update manifest image tag
         run: |
-          sed -i "s#image: \\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.version }}#" k8s/main/deployment-fe.yaml
+          sed -i "s#image: \\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:testnet-${{ needs.version.outputs.version }}#" k8s/testnet/deployment-fe.yaml
+          echo '----- Modified manifest (image lines) -----'
+          grep -n 'image:' k8s/testnet/deployment-fe.yaml
+
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f k8s/testnet/deployment-fe.yaml
+
+      - name: Restart & Verify rollout
+        run: |
+          kubectl rollout restart deployment/biatec-scan-fe-testnet-app-deployment -n biatec-scan-testnet
+          kubectl rollout status deployment/biatec-scan-fe-testnet-app-deployment -n biatec-scan-testnet
+
+  # -----------------------------------------------------------------------
+  # Stage 5: deploy-production - only runs after deploy-stage succeeds, and
+  # only once the "Production" environment's protection rules (e.g. required
+  # reviewers, configured in the GitHub UI) are satisfied.
+  # -----------------------------------------------------------------------
+  deploy-production:
+    needs: [version, build, deploy-stage]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://algorand.scan.biatec.io
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.30.0
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+
+      - name: Update manifest image tag
+        run: |
+          sed -i "s#image: \\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ needs.version.outputs.version }}#" k8s/main/deployment-fe.yaml
           echo '----- Modified manifest (image lines) -----'
           grep -n 'image:' k8s/main/deployment-fe.yaml
 

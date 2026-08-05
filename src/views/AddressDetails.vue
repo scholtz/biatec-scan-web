@@ -677,6 +677,7 @@ import { getAVMTradeReporterAPI } from "../api";
 import type { Pool, Trade } from "../api/models";
 import type { AMMTrade } from "../types/algorand";
 import type { SubscriptionFilter } from "../types/SubscriptionFilter";
+import { assetImageUrl as sharedAssetImageUrl, indexerUrl } from "../config/env";
 import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
@@ -932,7 +933,7 @@ function assetName(assetId?: number | null): string {
 }
 
 function assetImageUrl(assetId?: number | null): string {
-  return `https://algorand-trades.de-4.biatec.io/api/asset/image/${assetId ?? 0}`;
+  return sharedAssetImageUrl(assetId ?? 0);
 }
 
 function tradeKey(trade: Trade): string {
@@ -1079,7 +1080,7 @@ const loadAddressInfo = async () => {
 
   try {
     const accountResponse = await fetch(
-      `https://mainnet-idx.algonode.cloud/v2/accounts/${address.value}`,
+      `${indexerUrl}/v2/accounts/${address.value}`,
     );
 
     if (!accountResponse.ok) {
@@ -1153,7 +1154,7 @@ const loadTransactions = async (reset = false) => {
   loadingTransactions.value = true;
 
   try {
-    const url = `https://mainnet-idx.algonode.cloud/v2/accounts/${address.value}/transactions?limit=${PAGE_SIZE}${nextToken.value ? `&next=${nextToken.value}` : ""}`;
+    const url = `${indexerUrl}/v2/accounts/${address.value}/transactions?limit=${PAGE_SIZE}${nextToken.value ? `&next=${nextToken.value}` : ""}`;
     const response = await fetch(url);
 
     if (!response.ok) {

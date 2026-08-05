@@ -53,7 +53,7 @@
           class="flex justify-between vertical-align-middle items-center"
         >
           <img
-            :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${trade.assetIdIn}`"
+            :src="assetImageUrl(trade.assetIdIn)"
             class="inline-block w-6 h-6 mr-1"
           />
           <div
@@ -65,7 +65,7 @@
             <span class="text-white text-xs font-bold">⇄</span>
           </div>
           <img
-            :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${trade.assetIdOut}`"
+            :src="assetImageUrl(trade.assetIdOut)"
             class="inline-block w-6 h-6 ml-1"
           />
         </div>
@@ -273,6 +273,7 @@ import { useI18n } from "vue-i18n";
 import type { AMMTrade } from "../types/algorand";
 import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
+import { assetImageUrl } from "../config/env";
 import FormattedNumber from "./FormattedNumber.vue";
 import FormattedTime from "./FormattedTime.vue";
 import StyledBox from "./StyledBox.vue";

@@ -185,7 +185,7 @@ const getApiAggregatedPool = (
     params?: GetApiAggregatedPoolParams,
  ) => {
       return axiosInstance<AggregatedPool[]>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/aggregated-pool`, method: 'GET',
+      {url: `/api/aggregated-pool`, method: 'GET',
         params
     },
       );
@@ -195,7 +195,7 @@ const getApiAggregatedPoolReload = (
     params?: GetApiAggregatedPoolReloadParams,
  ) => {
       return axiosInstance<AggregatedPool>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/aggregated-pool/reload`, method: 'GET',
+      {url: `/api/aggregated-pool/reload`, method: 'GET',
         params
     },
       );
@@ -205,7 +205,7 @@ const getApiAsset = (
     params?: GetApiAssetParams,
  ) => {
       return axiosInstance<BiatecAsset[]>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/asset`, method: 'GET',
+      {url: `/api/asset`, method: 'GET',
         params
     },
       );
@@ -215,7 +215,7 @@ const getApiAssetImageAssetId = (
     assetId: number,
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/asset/image/${assetId}`, method: 'GET'
+      {url: `/api/asset/image/${assetId}`, method: 'GET'
     },
       );
     }
@@ -224,7 +224,7 @@ const getApiIndexerStatus = (
 
  ) => {
       return axiosInstance<Indexer>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/indexer/status`, method: 'GET'
+      {url: `/api/indexer/status`, method: 'GET'
     },
       );
     }
@@ -233,7 +233,7 @@ const getApiLiquidity = (
     params?: GetApiLiquidityParams,
  ) => {
       return axiosInstance<Liquidity[]>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/liquidity`, method: 'GET',
+      {url: `/api/liquidity`, method: 'GET',
         params
     },
       );
@@ -243,7 +243,7 @@ const getApiOHLCConfig = (
 
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/OHLC/config`, method: 'GET'
+      {url: `/api/OHLC/config`, method: 'GET'
     },
       );
     }
@@ -252,7 +252,7 @@ const getApiOHLCTime = (
 
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/OHLC/time`, method: 'GET'
+      {url: `/api/OHLC/time`, method: 'GET'
     },
       );
     }
@@ -261,7 +261,7 @@ const getApiOHLCSymbols = (
     params?: GetApiOHLCSymbolsParams,
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/OHLC/symbols`, method: 'GET',
+      {url: `/api/OHLC/symbols`, method: 'GET',
         params
     },
       );
@@ -271,7 +271,7 @@ const getApiOHLCSymbolInfo = (
     params?: GetApiOHLCSymbolInfoParams,
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/OHLC/symbol_info`, method: 'GET',
+      {url: `/api/OHLC/symbol_info`, method: 'GET',
         params
     },
       );
@@ -281,7 +281,7 @@ const getApiOHLCSearch = (
     params?: GetApiOHLCSearchParams,
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/OHLC/search`, method: 'GET',
+      {url: `/api/OHLC/search`, method: 'GET',
         params
     },
       );
@@ -291,7 +291,7 @@ const getApiOHLCMarks = (
 
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/OHLC/marks`, method: 'GET'
+      {url: `/api/OHLC/marks`, method: 'GET'
     },
       );
     }
@@ -300,7 +300,7 @@ const getApiOHLCTimescaleMarks = (
 
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/OHLC/timescale_marks`, method: 'GET'
+      {url: `/api/OHLC/timescale_marks`, method: 'GET'
     },
       );
     }
@@ -309,7 +309,7 @@ const getApiOHLCQuotes = (
     params?: GetApiOHLCQuotesParams,
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/OHLC/quotes`, method: 'GET',
+      {url: `/api/OHLC/quotes`, method: 'GET',
         params
     },
       );
@@ -319,7 +319,7 @@ const getApiOHLCHistory = (
     params?: GetApiOHLCHistoryParams,
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/OHLC/history`, method: 'GET',
+      {url: `/api/OHLC/history`, method: 'GET',
         params
     },
       );
@@ -329,7 +329,7 @@ const getApiPool = (
     params?: GetApiPoolParams,
  ) => {
       return axiosInstance<Pool[]>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/pool`, method: 'GET',
+      {url: `/api/pool`, method: 'GET',
         params
     },
       );
@@ -339,7 +339,7 @@ const getApiPoolStats = (
     params?: GetApiPoolStatsParams,
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/pool/stats`, method: 'GET',
+      {url: `/api/pool/stats`, method: 'GET',
         params
     },
       );
@@ -349,7 +349,7 @@ const getApiPoolReload = (
     params?: GetApiPoolReloadParams,
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/pool/reload`, method: 'GET',
+      {url: `/api/pool/reload`, method: 'GET',
         params
     },
       );
@@ -359,7 +359,7 @@ const getApiSearch = (
     params?: GetApiSearchParams,
  ) => {
       return axiosInstance<SearchResponse>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/search`, method: 'GET',
+      {url: `/api/search`, method: 'GET',
         params
     },
       );
@@ -369,7 +369,7 @@ const getApiSignalrAuthTest = (
 
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/signalr/auth-test`, method: 'GET'
+      {url: `/api/signalr/auth-test`, method: 'GET'
     },
       );
     }
@@ -378,7 +378,7 @@ const getApiSignalrAuthTestAuthorized = (
 
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/signalr/auth-test-authorized`, method: 'GET'
+      {url: `/api/signalr/auth-test-authorized`, method: 'GET'
     },
       );
     }
@@ -387,7 +387,7 @@ const postApiSignalrTestBroadcast = (
     postApiSignalrTestBroadcastBody?: string,
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/signalr/test-broadcast`, method: 'POST',
+      {url: `/api/signalr/test-broadcast`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: postApiSignalrTestBroadcastBody
     },
@@ -398,7 +398,7 @@ const postApiSignalrTestTrade = (
 
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/signalr/test-trade`, method: 'POST'
+      {url: `/api/signalr/test-trade`, method: 'POST'
     },
       );
     }
@@ -407,7 +407,7 @@ const getApiSignalrConnections = (
 
  ) => {
       return axiosInstance<void>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/signalr/connections`, method: 'GET'
+      {url: `/api/signalr/connections`, method: 'GET'
     },
       );
     }
@@ -416,7 +416,7 @@ const getApiTrade = (
     params?: GetApiTradeParams,
  ) => {
       return axiosInstance<TradePagedResult>(
-      {url: `https://algorand-trades.de-4.biatec.io/api/trade`, method: 'GET',
+      {url: `/api/trade`, method: 'GET',
         params
     },
       );

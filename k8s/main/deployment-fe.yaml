@@ -15,8 +15,22 @@ spec:
     spec:
       containers:
         - name: biatec-scan-fe-app
-          image: scholtz2/biatec-scan-fe:1.2025.09.28-main
+          image: scholtz2/biatec-scan-fe:mainnet-1.2025.09.28-main
           imagePullPolicy: Always
+          env:
+            # Only the CSP header is set at runtime; the API/algod/indexer
+            # URLs themselves are VITE_* build-time values baked into this
+            # image's JS bundle by the mainnet build - see
+            # .github/workflows/build-fe.yml. Keep this in sync with those
+            # build args whenever either changes.
+            - name: CSP_CONNECT_SRC
+              value: >-
+                https://api.algorand.scan.biatec.io
+                wss://api.algorand.scan.biatec.io
+                https://algorand-algod-public.de-4.biatec.io
+                https://mainnet-idx.4160.nodely.dev
+                https://mainnet-idx.voi.nodely.dev
+                https://algorand.scan.biatec.io
           resources:
             requests:
               cpu: 200m

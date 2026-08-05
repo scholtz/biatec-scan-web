@@ -120,6 +120,7 @@ import { computed, ref } from "vue";
 import type { BiatecAsset } from "../api/models";
 import { favoriteService } from "../services/favoriteService";
 import FormattedNumber from "./FormattedNumber.vue";
+import { assetImageUrl as sharedAssetImageUrl } from "../config/env";
 
 interface Props {
   asset: BiatecAsset;
@@ -140,7 +141,7 @@ const assetImageUrl = computed(() => {
   if (imageError.value) {
     return "/default-asset.png"; // fallback image
   }
-  return `https://algorand-trades.de-4.biatec.io/api/asset/image/${props.asset.index}`;
+  return sharedAssetImageUrl(props.asset.index);
 });
 
 const assetName = computed(() => {

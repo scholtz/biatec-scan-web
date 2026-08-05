@@ -621,6 +621,7 @@ import { assetService } from "../services/assetService";
 import { signalrService } from "../services/signalrService";
 import type { AMMTrade } from "../types/algorand";
 import type { SubscriptionFilter } from "../types/SubscriptionFilter";
+import { assetImageUrl as sharedAssetImageUrl } from "../config/env";
 
 type DirectionFilter =
   | "all"
@@ -1198,7 +1199,7 @@ function pairLabel(trade: Trade) {
 }
 
 function assetImageUrl(assetId?: number | null) {
-  return `https://algorand-trades.de-4.biatec.io/api/asset/image/${assetId ?? 0}`;
+  return sharedAssetImageUrl(assetId ?? 0);
 }
 
 function assetRoute(assetId?: number | null) {

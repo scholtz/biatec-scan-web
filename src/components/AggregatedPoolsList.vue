@@ -93,6 +93,7 @@ import { AggregatedPool } from "../api/models";
 import { assetService } from "../services/assetService";
 import { signalrService } from "../services/signalrService";
 import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
+import { assetImageUrl as sharedAssetImageUrl } from "../config/env";
 
 const props = defineProps<{
   assetId: string;
@@ -244,7 +245,7 @@ function formatTVLAUSD(p: AggregatedPool) {
 
 function assetImageUrl(id?: number) {
   if (id === undefined || id === null) return "";
-  return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
+  return sharedAssetImageUrl(id);
 }
 
 function otherAssetUnitName(p: AggregatedPool) {

@@ -90,7 +90,7 @@
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
             >
               <img
-                :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${state.aggregated.assetIdA}`"
+                :src="assetImageUrl(state.aggregated.assetIdA ?? 0)"
                 class="inline-block w-10 h-10 mt-3"
               />
             </router-link>
@@ -134,7 +134,7 @@
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
             >
               <img
-                :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${state.aggregated.assetIdB}`"
+                :src="assetImageUrl(state.aggregated.assetIdB ?? 0)"
                 class="inline-block w-10 h-10 mt-3"
               />
             </router-link>
@@ -334,6 +334,7 @@ import { useTableColumns, type ColumnDef } from "../composables/useTableColumns"
 import { AMMType, Pool, AggregatedPool } from "../api/models";
 import { poolSpotPrice, aggregatedPoolSpotPrice } from "../utils/poolPrice";
 import { signalrService } from "../services/signalrService";
+import { assetImageUrl } from "../config/env";
 
 const { t } = useI18n();
 

@@ -290,6 +290,7 @@ import ChangeCell from "../components/table/ChangeCell.vue";
 import HelpTooltip from "../components/HelpTooltip.vue";
 import { useTableColumns, sortRows } from "../composables/useTableColumns";
 import { assetColumns, assetSortFns, fdmc } from "../config/assetColumns";
+import { assetImageUrl as sharedAssetImageUrl } from "../config/env";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -622,7 +623,7 @@ function toggleFavorite(assetIndex: number): void {
 }
 
 function assetImageUrl(id: number) {
-  return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
+  return sharedAssetImageUrl(id);
 }
 
 watch(() => state.page, fetchAssets);

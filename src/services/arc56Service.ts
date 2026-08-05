@@ -1,9 +1,7 @@
 import type { Arc56AbiSignatureLookup, Arc56Contract } from "../types/arc56";
+import { arc56RegistryUrl as baseUrl } from "../config/env";
 
 // Static, read-only JSON registry (scholtz2/arc56-registry). No auth, no mutation endpoints.
-const baseUrl: string =
-  (import.meta as any)?.env?.VITE_ARC56_REGISTRY_URL ||
-  "https://algorand.scan.biatec.io/arc56-registry";
 
 const HEX_RE = /^[0-9a-f]+$/;
 

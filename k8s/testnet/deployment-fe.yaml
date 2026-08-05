@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: biatec-scan-testnet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biatec-scan-fe-testnet-app-deployment
+  namespace: biatec-scan-testnet
+spec:
+  selector:
+    matchLabels:
+      app: biatec-scan-fe-testnet-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: biatec-scan-fe-testnet-app
+    spec:
+      containers:
+        - name: biatec-scan-fe-testnet-app
+          image: scholtz2/biatec-scan-fe:testnet-1.2025.09.28-main
+          imagePullPolicy: Always
+          env:
+            # Only the CSP header is set at runtime (the API/algod/indexer
+            # URLs themselves are VITE_* build-time values baked into this
+            # image's JS bundle by the testnet build - see
+            # .github/workflows/build-fe.yml). Keep this in sync with those
+            # build args whenever either changes.
+            - name: CSP_CONNECT_SRC
+              value: >-
+                https://api.testnet.scan.biatec.io
+                wss://api.testnet.scan.biatec.io
+                https://testnet-api.4160.nodely.dev
+                https://testnet-idx.4160.nodely.dev
+                https://algorand.scan.biatec.io
+          resources:
+            requests:
+              cpu: 100m
+              memory: "150Mi"
+            limits:
+              cpu: 1000m
+              memory: "500Mi"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 2
+            terminationGracePeriodSeconds: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: biatec-scan-fe-testnet-service
+  namespace: biatec-scan-testnet
+spec:
+  type: ClusterIP
+  selector:
+    app: biatec-scan-fe-testnet-app
+  ports:
+    - name: http
+      protocol: TCP
+      appProtocol: http
+      port: 8080
+      targetPort: 8080
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: biatec-scan-algorand-ingress-testnet
+  namespace: biatec-scan-testnet
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: "nginx"
+  tls:
+    - hosts:
+        - testnet.scan.biatec.io
+      secretName: tls-testnet.scan.biatec.io
+  rules:
+    - host: testnet.scan.biatec.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: biatec-scan-fe-testnet-service
+                port:
+                  number: 8080

@@ -9,7 +9,7 @@
             class="w-32 h-32 rounded-full bg-white/5 p-2 shadow-lg flex items-center justify-center overflow-hidden"
           >
             <img
-              :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${assetId}`"
+              :src="assetImageUrl(assetId)"
               :alt="$t('assetDetails.assetImage')"
               class="w-full h-full object-contain rounded-full"
             />
@@ -209,6 +209,7 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import { favoriteService } from "../services/favoriteService";
+import { assetImageUrl } from "../config/env";
 import { signalrService } from "../services/signalrService";
 import { algorandService } from "../services/algorandService";
 import type { SubscriptionFilter } from "../types/SubscriptionFilter";

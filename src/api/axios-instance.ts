@@ -1,12 +1,11 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { getAuthToken } from "../services/authService";
+import { apiBaseUrl } from "../config/env";
 
 // A shared axios instance used by the generated client.
 // You can customize headers, interceptors, or baseURL here.
 const instance: AxiosInstance = axios.create({
-  baseURL:
-    (import.meta as any)?.env?.VITE_API_BASE_URL ||
-    "https://algorand-trades.de-4.biatec.io",
+  baseURL: apiBaseUrl,
 });
 
 // Attach ARC-0014 Authorization automatically

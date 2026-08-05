@@ -1,9 +1,10 @@
 import algosdk from "algosdk";
 import i18n from "../i18n";
+import { algodUrl, indexerUrl, apiBaseUrl } from "../config/env";
 
 class AlgorandService {
-  private algodUrl = "https://algorand-algod-public.de-4.biatec.io";
-  private indexerUrl = "https://mainnet-idx.algonode.cloud";
+  private algodUrl = algodUrl;
+  private indexerUrl = indexerUrl;
   private algodClient: algosdk.Algodv2;
   private indexerClient: algosdk.Indexer;
 
@@ -106,7 +107,7 @@ class AlgorandService {
 
       // Fallback to API
       try {
-        const apiUrl = `https://algorand-trades.de-4.biatec.io/api/trade?txId=${txId}&size=1`;
+        const apiUrl = `${apiBaseUrl}/api/trade?txId=${txId}&size=1`;
         const apiResponse = await fetch(apiUrl);
 
         if (!apiResponse.ok) {

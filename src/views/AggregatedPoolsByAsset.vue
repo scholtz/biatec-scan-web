@@ -144,6 +144,7 @@ import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
 import { useI18n } from "vue-i18n";
 import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
 import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
+import { assetImageUrl as sharedAssetImageUrl } from "../config/env";
 
 const { t } = useI18n();
 
@@ -436,7 +437,7 @@ function totalTVLBUSD(p: AggregatedPool) {
 }
 function assetImageUrl(id?: number) {
   if (id === undefined || id === null) return "";
-  return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
+  return sharedAssetImageUrl(id);
 }
 function otherAssetUnitName(p: AggregatedPool) {
   const other = otherAssetInfo(p);

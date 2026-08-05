@@ -7,7 +7,7 @@
           class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
         >
           <img
-            :src="`https://algorand-trades.de-4.biatec.io/api/asset/image/${asset.index}`"
+            :src="assetImageUrl(asset.index)"
             class="inline-block w-10 h-10 mr-1"
           />
         </RouterLink>
@@ -82,6 +82,7 @@
 import { computed, onMounted, onUnmounted, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
+import { assetImageUrl } from "../config/env";
 import FormattedTime from "./FormattedTime.vue";
 import { signalrService } from "../services/signalrService";
 import { BiatecAsset } from "../api/models";

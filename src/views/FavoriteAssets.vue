@@ -280,6 +280,7 @@ import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
 import ChangeCell from "../components/table/ChangeCell.vue";
 import { useTableColumns } from "../composables/useTableColumns";
 import { assetColumns, assetSortFns, fdmc } from "../config/assetColumns";
+import { assetImageUrl as sharedAssetImageUrl } from "../config/env";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -545,7 +546,7 @@ function addDemoAssets() {
 }
 
 function assetImageUrl(id: number) {
-  return `https://algorand-trades.de-4.biatec.io/api/asset/image/${id}`;
+  return sharedAssetImageUrl(id);
 }
 
 onMounted(async () => {
