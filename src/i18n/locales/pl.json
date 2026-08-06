@@ -336,6 +336,10 @@
     "priceMax": "Cena maks.",
     "reserveA": "Rezerwa A",
     "reserveB": "Rezerwa B",
+    "feesLp24H": "Opłaty LP (24H)",
+    "feesProtocol24H": "Opłaty protokołu (24H)",
+    "aprDaily": "APR (dzienne)",
+    "aprWeekly": "APR (tygodniowe)",
     "time": "Czas",
     "addressHelp": "Adres on-chain kontraktu/konta puli.",
     "protocolHelp": "Protokół DEX obsługujący tę pulę (np. Pact, Tiny, Biatec).",
@@ -349,6 +353,10 @@
     "reserveAHelp": "Rzeczywista (a jeśli się różni, także wirtualna) rezerwa pierwszego zasobu w tej puli.",
     "reserveBHelp": "Rzeczywista (a jeśli się różni, także wirtualna) rezerwa drugiego zasobu w tej puli.",
     "volume24HHelp": "Wolumen obrotu (USD) w tej puli w ciągu ostatnich 24 godzin.",
+    "feesLp24HHelp": "Opłaty w USD zarobione przez dostawców płynności w ciągu ostatnich 24 godzin (opłata LP pomniejszona o udział protokołu, zastosowana do wolumenu 24H).",
+    "feesProtocol24HHelp": "Opłaty w USD zarobione przez protokół w ciągu ostatnich 24 godzin (opłata LP pomnożona przez udział protokołu, zastosowana do wolumenu 24H).",
+    "aprDailyHelp": "Roczna stopa zwrotu dla dostawców płynności na podstawie opłat z ostatnich 24 godzin w stosunku do TVL puli: (opłaty LP 24H / TVL) × 365.",
+    "aprWeeklyHelp": "Roczna stopa zwrotu dla dostawców płynności na podstawie opłat z ostatnich 7 dni w stosunku do TVL puli: (opłaty LP 7D / TVL) × (365 / 7). Wygładza jednodniowe skoki wolumenu.",
     "timeHelp": "Kiedy dane tej puli zostały ostatnio zaktualizowane."
   },
   "blockDetails": {

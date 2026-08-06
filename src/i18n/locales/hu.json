@@ -336,6 +336,10 @@
     "priceMax": "Max. ár",
     "reserveA": "A tartalék",
     "reserveB": "B tartalék",
+    "feesLp24H": "LP díjak (24Ó)",
+    "feesProtocol24H": "Protokoll díjak (24Ó)",
+    "aprDaily": "APR (napi)",
+    "aprWeekly": "APR (heti)",
     "time": "Idő",
     "addressHelp": "A pool szerződésének/számlájának on-chain címe.",
     "protocolHelp": "Az ezt a poolt üzemeltető DEX protokoll (pl. Pact, Tiny, Biatec).",
@@ -349,6 +353,10 @@
     "reserveAHelp": "Az első eszköz valós (és, ha eltér, virtuális) tartaléka ebben a poolban.",
     "reserveBHelp": "A második eszköz valós (és, ha eltér, virtuális) tartaléka ebben a poolban.",
     "volume24HHelp": "Az ezen a poolon átfolyó kereskedési volumen (USD) az elmúlt 24 órában.",
+    "feesLp24HHelp": "A likviditásszolgáltatók által az elmúlt 24 órában megkeresett USD díjak (az LP díj mínusz a protokoll részesedése, a 24órás volumenre alkalmazva).",
+    "feesProtocol24HHelp": "A protokoll által az elmúlt 24 órában megkeresett USD díjak (az LP díj szorozva a protokoll részesedésével, a 24órás volumenre alkalmazva).",
+    "aprDailyHelp": "A likviditásszolgáltatók éves hozama az elmúlt 24 óra díjai alapján, a pool TVL-jéhez viszonyítva: (24órás LP díjak / TVL) × 365.",
+    "aprWeeklyHelp": "A likviditásszolgáltatók éves hozama az elmúlt 7 nap díjai alapján, a pool TVL-jéhez viszonyítva: (7 napos LP díjak / TVL) × (365 / 7). Kisimítja az egynapos volumenkilengéseket.",
     "timeHelp": "Mikor frissültek utoljára ennek a poolnak az adatai."
   },
   "blockDetails": {

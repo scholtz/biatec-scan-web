@@ -336,6 +336,10 @@
     "priceMax": "Max. Preis",
     "reserveA": "Reserve A",
     "reserveB": "Reserve B",
+    "feesLp24H": "LP-Gebühren (24H)",
+    "feesProtocol24H": "Protokollgebühren (24H)",
+    "aprDaily": "APR (täglich)",
+    "aprWeekly": "APR (wöchentlich)",
     "time": "Zeit",
     "addressHelp": "On-Chain-Adresse des Pool-Contracts/-Kontos.",
     "protocolHelp": "Das DEX-Protokoll, das diesen Pool betreibt (z. B. Pact, Tiny, Biatec).",
@@ -349,6 +353,10 @@
     "reserveAHelp": "Reale (und, falls abweichend, virtuelle) Reserve des ersten Assets in diesem Pool.",
     "reserveBHelp": "Reale (und, falls abweichend, virtuelle) Reserve des zweiten Assets in diesem Pool.",
     "volume24HHelp": "Handelsvolumen (USD) über diesen Pool in den letzten 24 Stunden.",
+    "feesLp24HHelp": "USD-Gebühren, die Liquiditätsanbieter in den letzten 24 Stunden verdient haben (LP-Gebühr abzüglich des Protokollanteils, angewendet auf das 24H-Volumen).",
+    "feesProtocol24HHelp": "USD-Gebühren, die das Protokoll in den letzten 24 Stunden verdient hat (LP-Gebühr mal Protokollanteil, angewendet auf das 24H-Volumen).",
+    "aprDailyHelp": "Annualisierte Rendite für Liquiditätsanbieter basierend auf den Gebühren der letzten 24 Stunden im Verhältnis zum TVL des Pools: (24H LP-Gebühren / TVL) × 365.",
+    "aprWeeklyHelp": "Annualisierte Rendite für Liquiditätsanbieter basierend auf den Gebühren der letzten 7 Tage im Verhältnis zum TVL des Pools: (7D LP-Gebühren / TVL) × (365 / 7). Glättet eintägige Volumenspitzen.",
     "timeHelp": "Wann die Daten dieses Pools zuletzt aktualisiert wurden."
   },
   "blockDetails": {

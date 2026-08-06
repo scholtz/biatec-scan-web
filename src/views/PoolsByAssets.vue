@@ -311,6 +311,46 @@
           </template>
         </template>
 
+        <template #cell-feesLp24H="{ row: p }">
+          <template v-if="lpFeesCollected24H(p) === undefined">-</template>
+          <template v-else>
+            <FormattedNumber
+              :value="lpFeesCollected24H(p)"
+              type="currency"
+              :maximum-fraction-digits="2"
+              :small-threshold="0.01"
+              :significant-digits="4"
+            />
+          </template>
+        </template>
+
+        <template #cell-feesProtocol24H="{ row: p }">
+          <template v-if="protocolFeesCollected24H(p) === undefined">-</template>
+          <template v-else>
+            <FormattedNumber
+              :value="protocolFeesCollected24H(p)"
+              type="currency"
+              :maximum-fraction-digits="2"
+              :small-threshold="0.01"
+              :significant-digits="4"
+            />
+          </template>
+        </template>
+
+        <template #cell-aprDaily="{ row: p }">
+          <template v-if="dailyApr(p) === undefined">-</template>
+          <template v-else>
+            <FormattedNumber :value="dailyApr(p)" type="percent" :maximum-fraction-digits="2" />
+          </template>
+        </template>
+
+        <template #cell-aprWeekly="{ row: p }">
+          <template v-if="weeklyApr(p) === undefined">-</template>
+          <template v-else>
+            <FormattedNumber :value="weeklyApr(p)" type="percent" :maximum-fraction-digits="2" />
+          </template>
+        </template>
+
         <template #cell-time="{ row: p }">
           <FormattedTime :timestamp="p.timestamp || Date.now().toString()" />
         </template>
@@ -333,6 +373,12 @@ import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
 import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
 import { AMMType, Pool, AggregatedPool } from "../api/models";
 import { poolSpotPrice, aggregatedPoolSpotPrice } from "../utils/poolPrice";
+import {
+  lpFeesCollected24H,
+  protocolFeesCollected24H,
+  dailyApr,
+  weeklyApr,
+} from "../utils/poolFees";
 import { signalrService } from "../services/signalrService";
 import { assetImageUrl } from "../config/env";
 
@@ -428,6 +474,34 @@ const poolColumns: ColumnDef[] = [
     sortable: true,
     descriptionKey: "poolsByAssets.volume24HHelp",
   },
+  {
+    key: "feesLp24H",
+    labelKey: "poolsByAssets.feesLp24H",
+    align: "right",
+    sortable: true,
+    descriptionKey: "poolsByAssets.feesLp24HHelp",
+  },
+  {
+    key: "feesProtocol24H",
+    labelKey: "poolsByAssets.feesProtocol24H",
+    align: "right",
+    sortable: true,
+    descriptionKey: "poolsByAssets.feesProtocol24HHelp",
+  },
+  {
+    key: "aprDaily",
+    labelKey: "poolsByAssets.aprDaily",
+    align: "right",
+    sortable: true,
+    descriptionKey: "poolsByAssets.aprDailyHelp",
+  },
+  {
+    key: "aprWeekly",
+    labelKey: "poolsByAssets.aprWeekly",
+    align: "right",
+    sortable: true,
+    descriptionKey: "poolsByAssets.aprWeeklyHelp",
+  },
   { key: "time", labelKey: "poolsByAssets.time", align: "right", sortable: true, descriptionKey: "poolsByAssets.timeHelp" },
 ];
 
@@ -445,6 +519,10 @@ const sortFns: Partial<Record<string, (p: Pool) => number | string>> = {
   reserveA: (p) => p.realAmountA ?? Number.NEGATIVE_INFINITY,
   reserveB: (p) => p.realAmountB ?? Number.NEGATIVE_INFINITY,
   volume24H: (p) => p.volume24H ?? Number.NEGATIVE_INFINITY,
+  feesLp24H: (p) => lpFeesCollected24H(p) ?? Number.NEGATIVE_INFINITY,
+  feesProtocol24H: (p) => protocolFeesCollected24H(p) ?? Number.NEGATIVE_INFINITY,
+  aprDaily: (p) => dailyApr(p) ?? Number.NEGATIVE_INFINITY,
+  aprWeekly: (p) => weeklyApr(p) ?? Number.NEGATIVE_INFINITY,
   time: (p) => p.timestamp ?? "",
 };
 

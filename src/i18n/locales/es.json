@@ -336,6 +336,10 @@
     "priceMax": "Precio máx.",
     "reserveA": "Reserva A",
     "reserveB": "Reserva B",
+    "feesLp24H": "Comisiones LP (24H)",
+    "feesProtocol24H": "Comisiones del protocolo (24H)",
+    "aprDaily": "APR (diario)",
+    "aprWeekly": "APR (semanal)",
     "time": "Hora",
     "addressHelp": "Dirección on-chain del contrato/cuenta del pool.",
     "protocolHelp": "El protocolo DEX que opera este pool (p. ej. Pact, Tiny, Biatec).",
@@ -349,6 +353,10 @@
     "reserveAHelp": "Reserva real (y, si difiere, virtual) del primer activo en este pool.",
     "reserveBHelp": "Reserva real (y, si difiere, virtual) del segundo activo en este pool.",
     "volume24HHelp": "Volumen de operaciones (USD) a través de este pool en las últimas 24 horas.",
+    "feesLp24HHelp": "Comisiones en USD ganadas por los proveedores de liquidez en las últimas 24 horas (comisión LP menos la parte del protocolo, aplicada al volumen de 24H).",
+    "feesProtocol24HHelp": "Comisiones en USD ganadas por el protocolo en las últimas 24 horas (comisión LP multiplicada por la parte del protocolo, aplicada al volumen de 24H).",
+    "aprDailyHelp": "Rendimiento anualizado para proveedores de liquidez basado en las comisiones de las últimas 24 horas en relación con el TVL del pool: (comisiones LP de 24H / TVL) × 365.",
+    "aprWeeklyHelp": "Rendimiento anualizado para proveedores de liquidez basado en las comisiones de los últimos 7 días en relación con el TVL del pool: (comisiones LP de 7D / TVL) × (365 / 7). Suaviza los picos de volumen de un solo día.",
     "timeHelp": "Cuándo se actualizaron por última vez los datos de este pool."
   },
   "blockDetails": {

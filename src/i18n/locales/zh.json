@@ -336,6 +336,10 @@
     "priceMax": "最高价格",
     "reserveA": "储备A",
     "reserveB": "储备B",
+    "feesLp24H": "LP手续费（24小时）",
+    "feesProtocol24H": "协议手续费（24小时）",
+    "aprDaily": "年化收益率（每日）",
+    "aprWeekly": "年化收益率（每周）",
     "time": "时间",
     "addressHelp": "资金池合约/账户的链上地址。",
     "protocolHelp": "运营此资金池的DEX协议（例如 Pact、Tiny、Biatec）。",
@@ -349,6 +353,10 @@
     "reserveAHelp": "此资金池中第一种资产的真实（如有不同，还有虚拟）储备。",
     "reserveBHelp": "此资金池中第二种资产的真实（如有不同，还有虚拟）储备。",
     "volume24HHelp": "此资金池过去24小时的交易量（美元）。",
+    "feesLp24HHelp": "流动性提供者过去24小时赚取的美元手续费（LP手续费减去协议份额，按24小时交易量计算）。",
+    "feesProtocol24HHelp": "协议过去24小时赚取的美元手续费（LP手续费乘以协议份额，按24小时交易量计算）。",
+    "aprDailyHelp": "根据过去24小时的手续费相对于资金池TVL计算的流动性提供者年化收益率：（24小时LP手续费 / TVL）× 365。",
+    "aprWeeklyHelp": "根据过去7天的手续费相对于资金池TVL计算的流动性提供者年化收益率：（7天LP手续费 / TVL）×（365 / 7）。可平滑单日交易量波动。",
     "timeHelp": "此资金池数据上次更新的时间。"
   },
   "blockDetails": {

@@ -336,6 +336,10 @@
     "priceMax": "Price Max",
     "reserveA": "Reserve A",
     "reserveB": "Reserve B",
+    "feesLp24H": "LP Fees (24H)",
+    "feesProtocol24H": "Protocol Fees (24H)",
+    "aprDaily": "APR (Daily)",
+    "aprWeekly": "APR (Weekly)",
     "time": "Time",
     "addressHelp": "On-chain address of the pool contract/account.",
     "protocolHelp": "The DEX protocol that operates this pool (e.g. Pact, Tiny, Biatec).",
@@ -349,6 +353,10 @@
     "reserveAHelp": "Real (and, where different, virtual) reserve of the first asset held in this pool.",
     "reserveBHelp": "Real (and, where different, virtual) reserve of the second asset held in this pool.",
     "volume24HHelp": "Trading volume (USD) through this pool over the last 24 hours.",
+    "feesLp24HHelp": "USD fees earned by liquidity providers over the last 24 hours (LP Fee minus the protocol's portion, applied to the 24H volume).",
+    "feesProtocol24HHelp": "USD fees earned by the protocol over the last 24 hours (LP Fee times the protocol's portion, applied to the 24H volume).",
+    "aprDailyHelp": "Annualized yield for liquidity providers based on the last 24 hours of fees relative to the pool's TVL: (24H LP fees / TVL) × 365.",
+    "aprWeeklyHelp": "Annualized yield for liquidity providers based on the last 7 days of fees relative to the pool's TVL: (7D LP fees / TVL) × (365 / 7). Smooths out single-day volume spikes.",
     "timeHelp": "When this pool's data was last updated."
   },
   "blockDetails": {

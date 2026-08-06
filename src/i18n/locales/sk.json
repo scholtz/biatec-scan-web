@@ -336,6 +336,10 @@
     "priceMax": "Max. cena",
     "reserveA": "Rezerva A",
     "reserveB": "Rezerva B",
+    "feesLp24H": "Poplatky LP (24H)",
+    "feesProtocol24H": "Poplatky protokolu (24H)",
+    "aprDaily": "APR (denné)",
+    "aprWeekly": "APR (týždenné)",
     "time": "Čas",
     "addressHelp": "On-chain adresa kontraktu/účtu poolu.",
     "protocolHelp": "DEX protokol, ktorý prevádzkuje tento pool (napr. Pact, Tiny, Biatec).",
@@ -349,6 +353,10 @@
     "reserveAHelp": "Reálna (a ak sa líši, virtuálna) rezerva prvého aktíva v tomto pooli.",
     "reserveBHelp": "Reálna (a ak sa líši, virtuálna) rezerva druhého aktíva v tomto pooli.",
     "volume24HHelp": "Objem obchodovania (USD) v tomto pooli za posledných 24 hodín.",
+    "feesLp24HHelp": "USD poplatky získané poskytovateľmi likvidity za posledných 24 hodín (poplatok LP mínus podiel protokolu, aplikovaný na 24H objem).",
+    "feesProtocol24HHelp": "USD poplatky získané protokolom za posledných 24 hodín (poplatok LP krát podiel protokolu, aplikovaný na 24H objem).",
+    "aprDailyHelp": "Ročný výnos pre poskytovateľov likvidity na základe poplatkov za posledných 24 hodín vzhľadom na TVL poolu: (24H poplatky LP / TVL) × 365.",
+    "aprWeeklyHelp": "Ročný výnos pre poskytovateľov likvidity na základe poplatkov za posledných 7 dní vzhľadom na TVL poolu: (7D poplatky LP / TVL) × (365 / 7). Vyhladzuje jednodňové výkyvy objemu.",
     "timeHelp": "Kedy boli údaje tohto poolu naposledy aktualizované."
   },
   "blockDetails": {
