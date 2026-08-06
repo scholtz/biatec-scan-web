@@ -1,5 +1,32 @@
 # Project notes for Claude
 
+## Multi-repo workspace: frontend + backend live side by side
+
+This repo is normally opened via `biatec-scan.code-workspace`, which includes
+two folders:
+
+- **Biatec Scan Frontend** (`.`, this repo) — Vue 3 + Tailwind DEX explorer.
+- **AVM Trade Reporter** (`../AVMTradeReporter`) — the backend API this
+  frontend consumes (indexes Algorand DEX activity, serves ARC-14-authed
+  endpoints like `algorand-trades.de-4.biatec.io`).
+
+When a task involves data that looks wrong, missing, or shaped differently
+than expected (prices, pool aggregates, balances, etc.), don't assume the bug
+is in the frontend — check whether the API response itself is the problem
+first. `../AVMTradeReporter` is a sibling checkout on disk, not just a
+reference: read its source, grep it, and propose/make changes there directly
+when the fix belongs on the backend, rather than working around a backend bug
+purely in frontend code. Cross-repo issues (e.g. a field the frontend needs
+that the backend doesn't send, a calculation that's wrong upstream) should be
+diagnosed and, where reasonable, fixed in both repos together rather than
+papered over with a frontend-only workaround — if a workaround is still the
+right short-term call (e.g. the backend fix is out of scope or already
+tracked in an issue), say so explicitly and note it as temporary.
+
+Related sibling checkout also available: `../../BiatecCLAMM` (the on-chain
+CLAMM contracts in TEAL/Algo — the source of truth for pool pricing formulas
+that both the backend and frontend need to match).
+
 ## CSS grid / table layout gotchas
 
 This app renders "table" rows as repeated `display:grid` containers (one grid

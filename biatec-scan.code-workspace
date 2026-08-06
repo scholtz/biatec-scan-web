@@ -1,0 +1,12 @@
+{
+  "folders": [
+    {
+      "name": "Biatec Scan Frontend",
+      "path": ".",
+    },
+    {
+      "name": "AVM Trade Reporter",
+      "path": "../AVMTradeReporter",
+    },
+  ],
+}
