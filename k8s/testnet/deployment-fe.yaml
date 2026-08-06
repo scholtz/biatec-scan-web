@@ -76,6 +76,25 @@ spec:
       targetPort: 8080
 
 ---
+# The TradingView chart microservice (biatec-charts-service) is only deployed
+# once, in the biatec-scan (mainnet) namespace - see k8s/main/deployment-fe.yaml.
+# An Ingress can only route to a Service in its own namespace, so this
+# ExternalName Service acts as a same-namespace alias that forwards to it, so
+# /charts works on testnet the same way it does on mainnet.
+apiVersion: v1
+kind: Service
+metadata:
+  name: biatec-charts-service
+  namespace: biatec-scan-testnet
+spec:
+  type: ExternalName
+  externalName: biatec-charts-service.biatec-scan.svc.cluster.local
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -101,3 +120,11 @@ spec:
                 name: biatec-scan-fe-testnet-service
                 port:
                   number: 8080
+
+          - path: /charts
+            pathType: Prefix
+            backend:
+              service:
+                name: biatec-charts-service
+                port:
+                  number: 80
