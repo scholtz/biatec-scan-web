@@ -114,8 +114,8 @@
       "trending": "Felkapott eszközök",
       "gainers": "Legnagyobb nyertesek",
       "losers": "Legnagyobb vesztesek",
-      "valueGainers": "Legnagyobb értéknövekedés",
-      "valueLosers": "Legnagyobb értékcsökkenés"
+      "valueGainers": "Legnagyobb likviditásnövekedés",
+      "valueLosers": "Legnagyobb likviditáscsökkenés"
     },
     "title": "Eszközök",
     "rank": "Helyezés",

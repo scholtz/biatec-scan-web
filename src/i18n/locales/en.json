@@ -114,8 +114,8 @@
       "trending": "Trending assets",
       "gainers": "Top gainers",
       "losers": "Top losers",
-      "valueGainers": "Top value gainers",
-      "valueLosers": "Top value losers"
+      "valueGainers": "Top liquidity gainers",
+      "valueLosers": "Top liquidity losers"
     },
     "title": "Assets",
     "rank": "Rank",

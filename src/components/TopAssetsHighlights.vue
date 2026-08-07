@@ -12,6 +12,7 @@
         {{ card.title }}
       </div>
       <div class="space-y-1.5">
+        <div v-if="card.items.length === 0" class="text-xs text-gray-500 px-1 py-0.5">—</div>
         <RouterLink
           v-for="(item, i) in card.items"
           :key="item.assetId"
@@ -52,14 +53,8 @@
               </span>
             </template>
             <template v-else>
-              <span :class="signClass(item.tvlChange24HUSD)">
-                {{ (item.tvlChange24HUSD ?? 0) > 0 ? "+" : (item.tvlChange24HUSD ?? 0) < 0 ? "-" : "" }}<FormattedNumber
-                  :value="Math.abs(item.tvlChange24HUSD ?? 0)"
-                  type="currency"
-                  compact
-                  :minimum-fraction-digits="0"
-                  :maximum-fraction-digits="1"
-                />
+              <span :class="signClass(item.tvlChange24HPercent)">
+                {{ formatPercent(item.tvlChange24HPercent) }}
               </span>
             </template>
           </span>
@@ -106,14 +101,15 @@ const cards = computed<Card[]>(() => {
     ["valueGainers", "tvlChange", d.topValueGainers ?? undefined],
     ["valueLosers", "tvlChange", d.topValueLosers ?? undefined],
   ];
-  return defs
-    .filter(([, , items]) => (items?.length ?? 0) > 0)
-    .map(([key, metric, items]) => ({
-      key,
-      metric,
-      items: items!,
-      title: t(`assets.topLists.${key}`),
-    }));
+  // Always render all six boxes so the layout is stable — a list that happens
+  // to be empty (e.g. no losers right now) shows a placeholder instead of
+  // disappearing.
+  return defs.map(([key, metric, items]) => ({
+    key,
+    metric,
+    items: items ?? [],
+    title: t(`assets.topLists.${key}`),
+  }));
 });
 
 function signClass(value: number | null | undefined): string {

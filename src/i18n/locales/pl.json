@@ -114,8 +114,8 @@
       "trending": "Aktywa w trendzie",
       "gainers": "Największe wzrosty",
       "losers": "Największe spadki",
-      "valueGainers": "Największy wzrost wartości",
-      "valueLosers": "Największy spadek wartości"
+      "valueGainers": "Największy wzrost płynności",
+      "valueLosers": "Największy spadek płynności"
     },
     "title": "Zasoby",
     "rank": "Ranking",

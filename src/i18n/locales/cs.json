@@ -114,8 +114,8 @@
       "trending": "Trendující aktiva",
       "gainers": "Největší růsty",
       "losers": "Největší poklesy",
-      "valueGainers": "Největší nárůst hodnoty",
-      "valueLosers": "Největší pokles hodnoty"
+      "valueGainers": "Největší nárůst likvidity",
+      "valueLosers": "Největší pokles likvidity"
     },
     "title": "Assety",
     "rank": "Pořadí",

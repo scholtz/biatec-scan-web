@@ -114,8 +114,8 @@
       "trending": "趋势资产",
       "gainers": "涨幅榜",
       "losers": "跌幅榜",
-      "valueGainers": "价值增长榜",
-      "valueLosers": "价值下跌榜"
+      "valueGainers": "流动性增长榜",
+      "valueLosers": "流动性下跌榜"
     },
     "title": "资产",
     "rank": "排名",
