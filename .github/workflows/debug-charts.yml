@@ -1,0 +1,50 @@
+name: Debug charts routing
+
+# Temporary diagnostic workflow (manual only) to figure out why
+# testnet.scan.biatec.io/charts still serves the old charting widget build
+# even though the stage deployment rolled out the new image. Safe to delete
+# once the routing issue is resolved.
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.30.0
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+
+      - name: Inspect testnet charts routing
+        run: |
+          set -x
+          kubectl get pods -n biatec-scan-testnet -o wide
+          kubectl get svc -n biatec-scan-testnet -o wide
+          kubectl get endpoints biatec-charts-service -n biatec-scan-testnet -o yaml || true
+          kubectl get deployment biatec-charts-stage-deployment -n biatec-scan-testnet -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}' || true
+          kubectl get pods -n biatec-scan-testnet -l app=biatec-charts-stage -o jsonpath='{range .items[*]}{.metadata.name} {.status.phase} {.status.containerStatuses[0].imageID}{"\n"}{end}' || true
+
+      - name: Inspect all ingresses claiming the testnet host
+        run: |
+          set -x
+          kubectl get ingress -A
+          kubectl get ingress -A -o json | jq -r '.items[] | select(.spec.rules[]?.host | test("scan.biatec.io")) | "\(.metadata.namespace)/\(.metadata.name) age=\(.metadata.creationTimestamp) hosts=\([.spec.rules[].host] | join(",")) paths=\([.spec.rules[].http.paths[] | "\(.path)->\(.backend.service.name):\(.backend.service.port.number // .backend.service.port.name)"] | join(" "))"'
+
+      - name: Inspect mainnet charts objects
+        run: |
+          set -x
+          kubectl get pods -n biatec-scan -o wide | grep -i chart || true
+          kubectl get svc biatec-charts-service -n biatec-scan -o yaml || true
+          kubectl get deployments -n biatec-scan | grep -i chart || true
+
+      - name: Probe stage pod directly
+        run: |
+          set -x
+          kubectl run curl-probe --rm -i --restart=Never -n biatec-scan-testnet --image=curlimages/curl --timeout=90s -- \
+            sh -c 'curl -s http://biatec-charts-service.biatec-scan-testnet.svc.cluster.local/charts/index.html | head -8' || true
