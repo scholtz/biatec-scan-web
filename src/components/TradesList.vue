@@ -96,32 +96,18 @@ async function fetchTrades() {
 
     console.log(`Fetching trades for asset ${props.assetId}`);
 
-    // Use the real API endpoint
+    // `assetId` matches trades where the asset is on either side, and (unlike
+    // the plain assetIdIn/assetIdOut filters) returns a PagedResult with
+    // `items` rather than a bare array.
     const api = getAVMTradeReporterAPI();
     const response = await api.getApiTrade({
-      assetIdIn: Number(props.assetId),
+      assetId: Number(props.assetId),
       size: 20, // Fetch last 20 trades
+      sortBy: "timestamp",
+      sortDirection: "desc",
     });
 
-    // Also fetch trades where this asset is the output
-    const responseOut = await api.getApiTrade({
-      assetIdOut: Number(props.assetId),
-      size: 20, // Fetch last 20 trades
-    });
-
-    // Combine and sort by timestamp (most recent first)
-    const allTrades = [
-      ...(response.data?.items || []),
-      ...(responseOut.data?.items || []),
-    ];
-    allTrades.sort(
-      (a, b) =>
-        new Date(b.timestamp || 0).getTime() -
-        new Date(a.timestamp || 0).getTime(),
-    );
-
-    // Take only the 20 most recent
-    trades.value = allTrades.slice(0, 20);
+    trades.value = response.data?.items || [];
   } catch (err: unknown) {
     console.error("Error fetching trades:", err);
     error.value = t("assetDetails.tradesFetchError");
