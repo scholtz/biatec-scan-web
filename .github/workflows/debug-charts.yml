@@ -11,6 +11,9 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Set up kubectl
         uses: azure/setup-kubectl@v4
         with:
@@ -20,6 +23,23 @@ jobs:
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+
+      # ingress-nginx kept a stale upstream from when biatec-charts-service
+      # was type ExternalName (converting the type in place doesn't always
+      # regenerate the nginx config). Deleting and recreating the Service
+      # forces a config regeneration.
+      - name: Recreate testnet charts service to flush stale ingress upstream
+        run: |
+          set -x
+          kubectl delete svc biatec-charts-service -n biatec-scan-testnet --ignore-not-found
+          kubectl apply -f k8s/testnet/deployment-charts.yaml
+          sleep 10
+
+      - name: Verify through public ingress
+        run: |
+          set -x
+          curl -s https://testnet.scan.biatec.io/charts/index.html | head -8
+          curl -sI https://testnet.scan.biatec.io/charts/index.html | grep -i last-modified || true
 
       - name: Inspect testnet charts routing
         run: |
