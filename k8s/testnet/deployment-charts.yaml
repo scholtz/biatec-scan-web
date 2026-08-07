@@ -32,12 +32,17 @@ spec:
           image: harbor.de-4.biatec.io/biatec/biatec-charting-widget:stage
           imagePullPolicy: Always
           env:
-            # Injected as <base href> into index.html at container start
-            # (docker/40-inject-base-href.sh in the biatec-charting-widget
-            # repo) - the one thing that differs between environments, so
-            # the same image serves stage and production.
+            # Injected into index.html at container start
+            # (docker/40-inject-runtime-config.sh in the
+            # biatec-charting-widget repo) - the only things that differ
+            # between environments, so the same image serves stage and
+            # production. The API host must match this frontend's origin:
+            # each AVM Trade Reporter instance allows CORS only from its own
+            # frontend.
             - name: CHARTS_BASE_HREF
               value: https://testnet.scan.biatec.io/charts/
+            - name: CHARTS_API_BASE_URL
+              value: https://api.testnet.scan.biatec.io
           ports:
             - containerPort: 80
               protocol: TCP
