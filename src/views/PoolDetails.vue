@@ -270,12 +270,13 @@ import { useRoute } from "vue-router";
 import type { AMMPool } from "../types/algorand";
 import { assetService } from "../services/assetService";
 import { algorandService } from "../services/algorandService";
-import { apiBaseUrl } from "../config/env";
+import { getAVMTradeReporterAPI } from "../api";
 import FormattedTime from "../components/FormattedTime.vue";
 import ApplicationStateSchemas from "../components/ApplicationStateSchemas.vue";
 import ApplicationProgram from "../components/ApplicationProgram.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 
+const api = getAVMTradeReporterAPI();
 const route = useRoute();
 const poolAddress = computed(() => route.params.poolAddress as string);
 
@@ -294,25 +295,27 @@ const loadPoolInfo = async () => {
   error.value = "";
 
   try {
-    // Fetch pool information from the API
-    const response = await fetch(`${apiBaseUrl}/api/pool/${poolAddress.value}`);
+    // Fetch pool information from the API. The backend has no
+    // /api/pool/{address} route - pools are looked up via the list endpoint's
+    // `address` filter, and the shared client attaches the ARC-14 auth header.
+    const response = await api.getApiPool({
+      address: poolAddress.value,
+      size: 1,
+    });
+    const poolData = response.data?.[0];
 
-    if (!response.ok) {
-      throw new Error(
-        `Pool not found: ${response.status} ${response.statusText}`
-      );
+    if (!poolData) {
+      throw new Error(`Pool not found: ${poolAddress.value}`);
     }
-
-    const poolData = await response.json();
 
     // Map the API response to our AMMPool interface
     poolInfo.value = {
       poolAddress: poolData.poolAddress || poolAddress.value,
       poolAppId: BigInt(poolData.poolAppId || 0),
       assetIdA:
-        poolData.assetIdA !== undefined ? BigInt(poolData.assetIdA) : undefined,
+        poolData.assetIdA != null ? BigInt(poolData.assetIdA) : undefined,
       assetIdB:
-        poolData.assetIdB !== undefined ? BigInt(poolData.assetIdB) : undefined,
+        poolData.assetIdB != null ? BigInt(poolData.assetIdB) : undefined,
       assetIdLP: poolData.assetIdLP ? BigInt(poolData.assetIdLP) : undefined,
       a: poolData.a ? BigInt(poolData.a) : undefined,
       b: poolData.b ? BigInt(poolData.b) : undefined,
@@ -320,8 +323,8 @@ const loadPoolInfo = async () => {
       protocol: poolData.protocol || "Unknown",
       timestamp: poolData.timestamp || new Date().toISOString(),
       isReversed: assetService.needToReverseAssets(
-        poolData.assetIdA !== undefined ? BigInt(poolData.assetIdA) : 0n,
-        poolData.assetIdB !== undefined ? BigInt(poolData.assetIdB) : 0n
+        poolData.assetIdA != null ? BigInt(poolData.assetIdA) : 0n,
+        poolData.assetIdB != null ? BigInt(poolData.assetIdB) : 0n
       ),
     };
   } catch (err: unknown) {
