@@ -1,0 +1,66 @@
+# Stage deployment of the TradingView charting widget, serving
+# https://testnet.scan.biatec.io/charts/ (the /charts Ingress path in
+# deployment-fe.yaml routes to the Service below).
+#
+# The image is built by the biatec-charting-widget repo's build.yml, which
+# pushes every main-branch build as the moving `stage` tag. This manifest is
+# applied (and the deployment restarted, so the Always pull policy fetches
+# the newest `stage` image) by this repo's deploy-stage job in
+# .github/workflows/build-fe.yml.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biatec-charts-stage-deployment
+  namespace: biatec-scan-testnet
+spec:
+  selector:
+    matchLabels:
+      app: biatec-charts-stage
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: biatec-charts-stage
+    spec:
+      containers:
+        - name: biatec-charts
+          image: harbor.de-4.biatec.io/biatec/biatec-charting-widget:stage
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: "50Mi"
+            limits:
+              cpu: 500m
+              memory: "200Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: biatec-charts-service
+  namespace: biatec-scan-testnet
+spec:
+  type: ClusterIP
+  selector:
+    app: biatec-charts-stage
+  ports:
+    - name: http
+      protocol: TCP
+      appProtocol: http
+      port: 80
+      targetPort: 80

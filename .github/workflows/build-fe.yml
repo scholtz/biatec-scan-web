@@ -186,6 +186,16 @@ jobs:
           kubectl rollout restart deployment/biatec-scan-fe-testnet-app-deployment -n biatec-scan-testnet
           kubectl rollout status deployment/biatec-scan-fe-testnet-app-deployment -n biatec-scan-testnet
 
+      # The charting widget image is built by the biatec-charting-widget repo
+      # (moving `stage` tag); its manifest lives here so all cluster access
+      # stays in this repo. The restart makes imagePullPolicy: Always fetch
+      # whatever `stage` currently points to.
+      - name: Deploy charting widget (stage)
+        run: |
+          kubectl apply -f k8s/testnet/deployment-charts.yaml
+          kubectl rollout restart deployment/biatec-charts-stage-deployment -n biatec-scan-testnet
+          kubectl rollout status deployment/biatec-charts-stage-deployment -n biatec-scan-testnet
+
   # Production is no longer deployed automatically from this flow - promoting
   # a build to production is a manual, separate action. See
   # .github/workflows/promote-production.yml, which is triggered by hand once

@@ -108,3 +108,14 @@ jobs:
       - name: Apply arc56-registry manifest
         run: |
           kubectl apply -f k8s/main/deployment-arc56-registry.yaml
+
+      # The charting widget image is built and promoted (moving `production`
+      # tag) by the biatec-charting-widget repo's workflows; its manifest
+      # lives here so all cluster access stays in this repo. The restart
+      # makes imagePullPolicy: Always fetch whatever `production` currently
+      # points to.
+      - name: Deploy charting widget (production)
+        run: |
+          kubectl apply -f k8s/main/deployment-charts.yaml
+          kubectl rollout restart deployment/biatec-charts-deployment -n biatec-scan
+          kubectl rollout status deployment/biatec-charts-deployment -n biatec-scan

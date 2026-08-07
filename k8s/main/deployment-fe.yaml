@@ -106,6 +106,11 @@ spec:
                 port:
                   number: 8080
 
+          # biatec-charts-service (the TradingView chart microservice) is
+          # defined in k8s/main/deployment-charts.yaml (image: the moving
+          # `production` tag, promoted manually in the biatec-charting-widget
+          # repo) and applied + restarted by this repo's deploy-production
+          # job. Testnet runs the `stage` tag via k8s/testnet.
           - path: /charts
             pathType: Prefix
             backend:
