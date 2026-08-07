@@ -117,6 +117,14 @@
       "valueGainers": "Top-Liquiditätsgewinner",
       "valueLosers": "Top-Liquiditätsverlierer"
     },
+    "topListsHelp": {
+      "popular": "Die meistgehandelten Assets nach USD-Volumen in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
+      "trending": "Die meistgehandelten Assets nach USD-Volumen in der letzten Stunde. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
+      "gainers": "Assets mit dem höchsten prozentualen Kursanstieg in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
+      "losers": "Assets mit dem stärksten prozentualen Kursrückgang in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
+      "valueGainers": "Assets mit dem höchsten prozentualen Zuwachs an realer Liquidität (TVL) in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
+      "valueLosers": "Assets mit dem stärksten prozentualen Rückgang an realer Liquidität (TVL) in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL."
+    },
     "title": "Assets",
     "rank": "Rang",
     "id": "ID",

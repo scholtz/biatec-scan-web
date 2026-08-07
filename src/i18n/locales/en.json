@@ -117,6 +117,14 @@
       "valueGainers": "Top liquidity gainers",
       "valueLosers": "Top liquidity losers"
     },
+    "topListsHelp": {
+      "popular": "The most traded assets by USD volume over the last 24 hours. Only the top 150 assets by real TVL are considered.",
+      "trending": "The most traded assets by USD volume over the last hour. Only the top 150 assets by real TVL are considered.",
+      "gainers": "Assets with the highest price gain in percent over the last 24 hours. Only the top 150 assets by real TVL are considered.",
+      "losers": "Assets with the biggest price drop in percent over the last 24 hours. Only the top 150 assets by real TVL are considered.",
+      "valueGainers": "Assets with the highest growth of real liquidity (TVL) in percent over the last 24 hours. Only the top 150 assets by real TVL are considered.",
+      "valueLosers": "Assets with the biggest decline of real liquidity (TVL) in percent over the last 24 hours. Only the top 150 assets by real TVL are considered."
+    },
     "title": "Assets",
     "rank": "Rank",
     "id": "ID",

@@ -8,8 +8,11 @@
       :key="card.key"
       class="bg-gray-800/60 border border-gray-700 rounded-lg p-3 min-w-0"
     >
-      <div class="text-[11px] uppercase tracking-wide text-gray-400 font-semibold mb-2 truncate">
-        {{ card.title }}
+      <div class="flex items-center gap-1.5 mb-2 min-w-0">
+        <div class="text-[11px] uppercase tracking-wide text-gray-400 font-semibold truncate min-w-0">
+          {{ card.title }}
+        </div>
+        <HelpTooltip :text="card.help" class="shrink-0" />
       </div>
       <div class="space-y-1.5">
         <div v-if="card.items.length === 0" class="text-xs text-gray-500 px-1 py-0.5">—</div>
@@ -70,6 +73,7 @@ import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import type { TopAssetItem, TopAssetsResponse } from "../api/models";
 import FormattedNumber from "./FormattedNumber.vue";
+import HelpTooltip from "./HelpTooltip.vue";
 import { assetImageUrl } from "../config/env";
 
 const { t } = useI18n();
@@ -86,6 +90,7 @@ type Metric = "volume24H" | "volume1H" | "priceChange" | "tvlChange";
 interface Card {
   key: string;
   title: string;
+  help: string;
   metric: Metric;
   items: TopAssetItem[];
 }
@@ -109,6 +114,7 @@ const cards = computed<Card[]>(() => {
     metric,
     items: items ?? [],
     title: t(`assets.topLists.${key}`),
+    help: t(`assets.topListsHelp.${key}`),
   }));
 });
 

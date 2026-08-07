@@ -117,6 +117,14 @@
       "valueGainers": "Legnagyobb likviditásnövekedés",
       "valueLosers": "Legnagyobb likviditáscsökkenés"
     },
+    "topListsHelp": {
+      "popular": "A legnagyobb USD forgalmú eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
+      "trending": "A legnagyobb USD forgalmú eszközök az elmúlt egy órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
+      "gainers": "A legnagyobb százalékos áremelkedést mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
+      "losers": "A legnagyobb százalékos árcsökkenést mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
+      "valueGainers": "A valós likviditás (TVL) legnagyobb százalékos növekedését mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
+      "valueLosers": "A valós likviditás (TVL) legnagyobb százalékos csökkenését mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre."
+    },
     "title": "Eszközök",
     "rank": "Helyezés",
     "id": "ID",

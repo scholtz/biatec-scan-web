@@ -117,6 +117,14 @@
       "valueGainers": "Najväčší nárast likvidity",
       "valueLosers": "Najväčší pokles likvidity"
     },
+    "topListsHelp": {
+      "popular": "Najobchodovanejšie aktíva podľa objemu v USD za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
+      "trending": "Najobchodovanejšie aktíva podľa objemu v USD za poslednú hodinu. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
+      "gainers": "Aktíva s najvyšším percentuálnym rastom ceny za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
+      "losers": "Aktíva s najväčším percentuálnym poklesom ceny za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
+      "valueGainers": "Aktíva s najvyšším percentuálnym rastom reálnej likvidity (TVL) za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
+      "valueLosers": "Aktíva s najväčším percentuálnym poklesom reálnej likvidity (TVL) za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL."
+    },
     "title": "Assety",
     "rank": "Poradie",
     "id": "ID",

@@ -117,6 +117,14 @@
       "valueGainers": "Mayores ganancias de liquidez",
       "valueLosers": "Mayores pérdidas de liquidez"
     },
+    "topListsHelp": {
+      "popular": "Los activos más negociados por volumen en USD en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",
+      "trending": "Los activos más negociados por volumen en USD en la última hora. Solo se consideran los 150 principales activos por TVL real.",
+      "gainers": "Activos con la mayor subida porcentual de precio en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",
+      "losers": "Activos con la mayor caída porcentual de precio en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",
+      "valueGainers": "Activos con el mayor aumento porcentual de liquidez real (TVL) en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",
+      "valueLosers": "Activos con la mayor disminución porcentual de liquidez real (TVL) en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real."
+    },
     "title": "Assets",
     "rank": "Rango",
     "id": "ID",
