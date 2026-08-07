@@ -24,6 +24,24 @@ export const arc56RegistryUrl: string =
   viteEnv.VITE_ARC56_REGISTRY_URL ||
   "https://algorand.scan.biatec.io/arc56-registry";
 
+/**
+ * Base URL of the TradingView charts microservice. In deployed environments
+ * (mainnet and testnet alike) `/charts` is routed by the same ingress as the
+ * frontend, so a relative URL keeps the iframe on the current host instead of
+ * leaking to production. Local dev has no `/charts` route, so fall back to
+ * the public production instance there.
+ */
+export const chartsBaseUrl: string =
+  viteEnv.VITE_CHARTS_BASE_URL ||
+  ((viteEnv as Record<string, unknown>).DEV
+    ? "https://algorand.scan.biatec.io/charts"
+    : "/charts");
+
+/** Builds the chart page URL for a given ASA id. */
+export function assetChartUrl(assetId: number | string | bigint): string {
+  return `${chartsBaseUrl}/?interval=4H&assetA=${assetId}`;
+}
+
 /** SignalR realtime hub, served from the same API host. */
 export const signalrHubUrl = `${apiBaseUrl}/biatecScanHub`;
 
