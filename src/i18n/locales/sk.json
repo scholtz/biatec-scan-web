@@ -109,6 +109,14 @@
     "offline": "ODPOJENÉ"
   },
   "assets": {
+    "topLists": {
+      "popular": "Populárne aktíva",
+      "trending": "Trendujúce aktíva",
+      "gainers": "Najväčšie rasty",
+      "losers": "Najväčšie poklesy",
+      "valueGainers": "Najväčší nárast hodnoty",
+      "valueLosers": "Najväčší pokles hodnoty"
+    },
     "title": "Assety",
     "rank": "Poradie",
     "id": "ID",

@@ -11,6 +11,7 @@
         </button>
       </div>
     </div>
+    <TopAssetsHighlights />
     <div class="flex flex-wrap items-center gap-4 text-xs text-gray-400">
       <label class="flex items-center gap-2 shrink-0">
         <input
@@ -288,6 +289,7 @@ import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
 import ChangeCell from "../components/table/ChangeCell.vue";
 import HelpTooltip from "../components/HelpTooltip.vue";
+import TopAssetsHighlights from "../components/TopAssetsHighlights.vue";
 import { useTableColumns, sortRows } from "../composables/useTableColumns";
 import { assetColumns, assetSortFns, fdmc } from "../config/assetColumns";
 import { assetImageUrl as sharedAssetImageUrl } from "../config/env";

@@ -176,6 +176,7 @@ import type {
   Liquidity,
   Pool,
   SearchResponse,
+  TopAssetsResponse,
   TradePagedResult
 } from './models';
 
@@ -207,6 +208,15 @@ const getApiAsset = (
       return axiosInstance<BiatecAsset[]>(
       {url: `/api/asset`, method: 'GET',
         params
+    },
+      );
+    }
+
+const getApiAssetTop = (
+
+ ) => {
+      return axiosInstance<TopAssetsResponse>(
+      {url: `/api/asset/top`, method: 'GET'
     },
       );
     }
@@ -422,10 +432,11 @@ const getApiTrade = (
       );
     }
 
-return {getApiAggregatedPool,getApiAggregatedPoolReload,getApiAsset,getApiAssetImageAssetId,getApiIndexerStatus,getApiLiquidity,getApiOHLCConfig,getApiOHLCTime,getApiOHLCSymbols,getApiOHLCSymbolInfo,getApiOHLCSearch,getApiOHLCMarks,getApiOHLCTimescaleMarks,getApiOHLCQuotes,getApiOHLCHistory,getApiPool,getApiPoolStats,getApiPoolReload,getApiSearch,getApiSignalrAuthTest,getApiSignalrAuthTestAuthorized,postApiSignalrTestBroadcast,postApiSignalrTestTrade,getApiSignalrConnections,getApiTrade}};
+return {getApiAggregatedPool,getApiAggregatedPoolReload,getApiAsset,getApiAssetTop,getApiAssetImageAssetId,getApiIndexerStatus,getApiLiquidity,getApiOHLCConfig,getApiOHLCTime,getApiOHLCSymbols,getApiOHLCSymbolInfo,getApiOHLCSearch,getApiOHLCMarks,getApiOHLCTimescaleMarks,getApiOHLCQuotes,getApiOHLCHistory,getApiPool,getApiPoolStats,getApiPoolReload,getApiSearch,getApiSignalrAuthTest,getApiSignalrAuthTestAuthorized,postApiSignalrTestBroadcast,postApiSignalrTestTrade,getApiSignalrConnections,getApiTrade}};
 export type GetApiAggregatedPoolResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAggregatedPool']>>>
 export type GetApiAggregatedPoolReloadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAggregatedPoolReload']>>>
 export type GetApiAssetResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAsset']>>>
+export type GetApiAssetTopResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAssetTop']>>>
 export type GetApiAssetImageAssetIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAssetImageAssetId']>>>
 export type GetApiIndexerStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiIndexerStatus']>>>
 export type GetApiLiquidityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiLiquidity']>>>

@@ -183,6 +183,8 @@ export * from './liquidityDirection';
 export * from './pool';
 export * from './problemDetails';
 export * from './searchResponse';
+export * from './topAssetItem';
+export * from './topAssetsResponse';
 export * from './trade';
 export * from './tradePagedResult';
 export * from './txState';

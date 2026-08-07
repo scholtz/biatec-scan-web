@@ -109,6 +109,14 @@
     "offline": "DESCONECTADO"
   },
   "assets": {
+    "topLists": {
+      "popular": "Activos populares",
+      "trending": "Activos en tendencia",
+      "gainers": "Mayores subidas",
+      "losers": "Mayores caídas",
+      "valueGainers": "Mayores ganancias de valor",
+      "valueLosers": "Mayores pérdidas de valor"
+    },
     "title": "Assets",
     "rank": "Rango",
     "id": "ID",

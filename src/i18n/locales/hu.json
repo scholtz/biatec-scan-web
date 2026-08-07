@@ -109,6 +109,14 @@
     "offline": "OFFLINE"
   },
   "assets": {
+    "topLists": {
+      "popular": "Népszerű eszközök",
+      "trending": "Felkapott eszközök",
+      "gainers": "Legnagyobb nyertesek",
+      "losers": "Legnagyobb vesztesek",
+      "valueGainers": "Legnagyobb értéknövekedés",
+      "valueLosers": "Legnagyobb értékcsökkenés"
+    },
     "title": "Eszközök",
     "rank": "Helyezés",
     "id": "ID",

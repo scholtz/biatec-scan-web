@@ -109,6 +109,14 @@
     "offline": "OFFLINE"
   },
   "assets": {
+    "topLists": {
+      "popular": "Beliebte Assets",
+      "trending": "Trendende Assets",
+      "gainers": "Top-Gewinner",
+      "losers": "Top-Verlierer",
+      "valueGainers": "Top-Wertgewinner",
+      "valueLosers": "Top-Wertverlierer"
+    },
     "title": "Assets",
     "rank": "Rang",
     "id": "ID",

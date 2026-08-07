@@ -109,6 +109,14 @@
     "offline": "OFFLINE"
   },
   "assets": {
+    "topLists": {
+      "popular": "Popularne aktywa",
+      "trending": "Aktywa w trendzie",
+      "gainers": "Największe wzrosty",
+      "losers": "Największe spadki",
+      "valueGainers": "Największy wzrost wartości",
+      "valueLosers": "Największy spadek wartości"
+    },
     "title": "Zasoby",
     "rank": "Ranking",
     "id": "ID",
