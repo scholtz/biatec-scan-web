@@ -186,52 +186,7 @@ jobs:
           kubectl rollout restart deployment/biatec-scan-fe-testnet-app-deployment -n biatec-scan-testnet
           kubectl rollout status deployment/biatec-scan-fe-testnet-app-deployment -n biatec-scan-testnet
 
-  # -----------------------------------------------------------------------
-  # Stage 5: deploy-production - only runs after deploy-stage succeeds, and
-  # only once the "Production" environment's protection rules (e.g. required
-  # reviewers, configured in the GitHub UI) are satisfied.
-  # -----------------------------------------------------------------------
-  deploy-production:
-    needs: [version, build, deploy-stage]
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    environment:
-      name: Production
-      url: https://algorand.scan.biatec.io
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: v1.30.0
-
-      - name: Configure kubeconfig
-        run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
-
-      - name: Update manifest image tag
-        run: |
-          sed -i "s#image: \\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ needs.version.outputs.version }}#" k8s/main/deployment-fe.yaml
-          echo '----- Modified manifest (image lines) -----'
-          grep -n 'image:' k8s/main/deployment-fe.yaml
-
-      - name: Apply Kubernetes manifests
-        run: |
-          kubectl apply -f k8s/main/deployment-fe.yaml
-
-      - name: Restart & Verify rollout
-        run: |
-          kubectl rollout restart deployment/biatec-scan-fe-app-deployment -n biatec-scan
-          kubectl rollout status deployment/biatec-scan-fe-app-deployment -n biatec-scan
-
-      # deployment-arc56-registry.yaml isn't built by this pipeline (its image comes
-      # from the separate ARC56Registry repo) but still needs to be kept in sync -
-      # update-config.sh is manual-only and nothing else applies this manifest, so
-      # changes to it (e.g. the refresh CronJob) would otherwise never reach the
-      # cluster.
-      - name: Apply arc56-registry manifest
-        run: |
-          kubectl apply -f k8s/main/deployment-arc56-registry.yaml
+  # Production is no longer deployed automatically from this flow - promoting
+  # a build to production is a manual, separate action. See
+  # .github/workflows/promote-production.yml, which is triggered by hand once
+  # a version has been verified on Stage.

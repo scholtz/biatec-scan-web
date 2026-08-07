@@ -1,0 +1,110 @@
+name: Promote to Production
+
+# Manual-only pipeline. Run this once a version has been built by "CI/CD -
+# Biatec Scan" (build-fe.yml) and verified on Stage. It re-tags that
+# version's already-pushed mainnet image as "latest" in both registries and
+# deploys it to production - it never builds a new image itself.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: >-
+          Version string to promote, exactly as produced by the "version"
+          job in build-fe.yml (e.g. 1.2026.08.07-a1b2c3d). Find it in the
+          build/deploy-stage logs for the run you want to promote.
+        required: true
+        type: string
+
+env:
+  DOCKERHUB_IMAGE: scholtz2/biatec-scan-fe
+  PRIVATE_REGISTRY: harbor.de-4.biatec.io
+  PRIVATE_IMAGE: harbor.de-4.biatec.io/biatec/biatec-scan-fe
+
+jobs:
+  # ---------------------------------------------------------------------
+  # Stage 1: promote-tag - re-tags the already-built & pushed
+  # mainnet-<version> image as mainnet-latest in both registries. Doesn't
+  # rebuild anything - just moves the "latest" pointer.
+  # ---------------------------------------------------------------------
+  promote-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to Private Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.PRIVATE_REGISTRY }}
+          username: ${{ secrets.PRIVATE_REGISTRY_USER }}
+          password: ${{ secrets.PRIVATE_REGISTRY_TOKEN }}
+
+      - name: Pull versioned image
+        run: docker pull ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ inputs.version }}
+
+      - name: Tag & push mainnet-latest (Docker Hub)
+        run: |
+          docker tag ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ inputs.version }} ${{ env.DOCKERHUB_IMAGE }}:mainnet-latest
+          docker push ${{ env.DOCKERHUB_IMAGE }}:mainnet-latest
+
+      - name: Tag & push mainnet-latest (Private Registry)
+        run: |
+          docker tag ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ inputs.version }} ${{ env.PRIVATE_IMAGE }}:mainnet-latest
+          docker push ${{ env.PRIVATE_IMAGE }}:mainnet-latest
+
+  # ---------------------------------------------------------------------
+  # Stage 2: deploy-production - only runs once the "Production"
+  # environment's protection rules (e.g. required reviewers, configured in
+  # the GitHub UI) are satisfied. Deploys the version pinned by the input,
+  # not the "latest" tag, so the manifest always records exactly which
+  # build is running.
+  # ---------------------------------------------------------------------
+  deploy-production:
+    needs: promote-tag
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://algorand.scan.biatec.io
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.30.0
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+
+      - name: Update manifest image tag
+        run: |
+          sed -i "s#image: \\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ inputs.version }}#" k8s/main/deployment-fe.yaml
+          echo '----- Modified manifest (image lines) -----'
+          grep -n 'image:' k8s/main/deployment-fe.yaml
+
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f k8s/main/deployment-fe.yaml
+
+      - name: Restart & Verify rollout
+        run: |
+          kubectl rollout restart deployment/biatec-scan-fe-app-deployment -n biatec-scan
+          kubectl rollout status deployment/biatec-scan-fe-app-deployment -n biatec-scan
+
+      # deployment-arc56-registry.yaml isn't built by this pipeline (its image comes
+      # from the separate ARC56Registry repo) but still needs to be kept in sync -
+      # update-config.sh is manual-only and nothing else applies this manifest, so
+      # changes to it (e.g. the refresh CronJob) would otherwise never reach the
+      # cluster.
+      - name: Apply arc56-registry manifest
+        run: |
+          kubectl apply -f k8s/main/deployment-arc56-registry.yaml
