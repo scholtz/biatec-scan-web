@@ -22,6 +22,11 @@ spec:
       labels:
         app: biatec-charts-stage
     spec:
+      # regcred is created/refreshed by the deploy-stage job in
+      # .github/workflows/build-fe.yml from the PRIVATE_REGISTRY_* secrets -
+      # harbor.de-4.biatec.io is a private registry.
+      imagePullSecrets:
+        - name: regcred
       containers:
         - name: biatec-charts
           image: harbor.de-4.biatec.io/biatec/biatec-charting-widget:stage

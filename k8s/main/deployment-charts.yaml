@@ -23,6 +23,11 @@ spec:
       labels:
         app: biatec-charts
     spec:
+      # regcred is created/refreshed by the deploy-production job in
+      # .github/workflows/promote-production.yml from the PRIVATE_REGISTRY_*
+      # secrets - harbor.de-4.biatec.io is a private registry.
+      imagePullSecrets:
+        - name: regcred
       containers:
         - name: biatec-charts
           image: harbor.de-4.biatec.io/biatec/biatec-charting-widget:production

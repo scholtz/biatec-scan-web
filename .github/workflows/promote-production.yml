@@ -116,6 +116,14 @@ jobs:
       # points to.
       - name: Deploy charting widget (production)
         run: |
+          # harbor.de-4.biatec.io is private - make sure the pull secret the
+          # charts Deployment references exists/is current in the namespace.
+          kubectl create secret docker-registry regcred \
+            --namespace biatec-scan \
+            --docker-server=harbor.de-4.biatec.io \
+            --docker-username='${{ secrets.PRIVATE_REGISTRY_USER }}' \
+            --docker-password='${{ secrets.PRIVATE_REGISTRY_TOKEN }}' \
+            --dry-run=client -o yaml | kubectl apply -f -
           kubectl apply -f k8s/main/deployment-charts.yaml
           kubectl rollout restart deployment/biatec-charts-deployment -n biatec-scan
           kubectl rollout status deployment/biatec-charts-deployment -n biatec-scan

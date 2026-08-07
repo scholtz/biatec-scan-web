@@ -192,6 +192,22 @@ jobs:
       # whatever `stage` currently points to.
       - name: Deploy charting widget (stage)
         run: |
+          # harbor.de-4.biatec.io is private - make sure the pull secret the
+          # charts Deployment references exists/is current in the namespace.
+          kubectl create secret docker-registry regcred \
+            --namespace biatec-scan-testnet \
+            --docker-server=harbor.de-4.biatec.io \
+            --docker-username='${{ secrets.PRIVATE_REGISTRY_USER }}' \
+            --docker-password='${{ secrets.PRIVATE_REGISTRY_TOKEN }}' \
+            --dry-run=client -o yaml | kubectl apply -f -
+          # One-time migration: the testnet charts service used to be an
+          # ExternalName alias to the mainnet namespace; kubectl apply can't
+          # always convert ExternalName -> ClusterIP in place, so drop the
+          # alias first if it's still there.
+          if [ "$(kubectl get svc biatec-charts-service -n biatec-scan-testnet -o jsonpath='{.spec.type}' --ignore-not-found)" = "ExternalName" ]; then
+            echo "Removing legacy ExternalName biatec-charts-service"
+            kubectl delete svc biatec-charts-service -n biatec-scan-testnet
+          fi
           kubectl apply -f k8s/testnet/deployment-charts.yaml
           kubectl rollout restart deployment/biatec-charts-stage-deployment -n biatec-scan-testnet
           kubectl rollout status deployment/biatec-charts-stage-deployment -n biatec-scan-testnet
