@@ -33,7 +33,10 @@ interface PersistedShape {
 }
 
 const STORAGE_PREFIX = "biatec-table-config";
-const STORAGE_VERSION = 2;
+// v3: reorganized per-screen-size defaults (tiers + default visibility) so the
+// initial view stays readable; bumping discards configs saved under old keys
+// whose persisted tiers would otherwise shadow the new defaults forever.
+const STORAGE_VERSION = 3;
 
 function storageKeyFor(id: string): string {
   return `${STORAGE_PREFIX}:${id}:v${STORAGE_VERSION}`;

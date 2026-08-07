@@ -402,6 +402,10 @@ const api = getAVMTradeReporterAPI();
 
 const isSingleAsset = computed(() => !route.params.asset2);
 
+// Default visibility is deliberately tiered so a first-time visitor sees a
+// compact, readable table: essentials ("sm") on any desktop width, secondary
+// detail ("lg") from Full HD up, and power-user columns hidden by default but
+// available via the Columns panel.
 const poolColumns: ColumnDef[] = [
   { key: "address", labelKey: "poolsByAssets.address", pinned: true, descriptionKey: "poolsByAssets.addressHelp" },
   {
@@ -410,13 +414,20 @@ const poolColumns: ColumnDef[] = [
     sortable: true,
     descriptionKey: "poolsByAssets.protocolHelp",
   },
-  { key: "type", labelKey: "poolsByAssets.type", sortable: true, descriptionKey: "poolsByAssets.typeHelp" },
+  {
+    key: "type",
+    labelKey: "poolsByAssets.type",
+    sortable: true,
+    descriptionKey: "poolsByAssets.typeHelp",
+    defaultTier: "lg",
+  },
   {
     key: "poolId",
     labelKey: "poolsByAssets.poolId",
     align: "right",
     sortable: true,
     descriptionKey: "poolsByAssets.poolIdHelp",
+    defaultTier: "lg",
   },
   {
     key: "lpFee",
@@ -424,6 +435,7 @@ const poolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "poolsByAssets.lpFeeHelp",
+    defaultTier: "lg",
   },
   {
     key: "protocolFee",
@@ -431,6 +443,7 @@ const poolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "poolsByAssets.protocolFeeHelp",
+    defaultVisible: false,
   },
   {
     key: "priceMin",
@@ -438,6 +451,7 @@ const poolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "poolsByAssets.priceMinHelp",
+    defaultTier: "xl4k",
   },
   {
     key: "price",
@@ -452,6 +466,7 @@ const poolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "poolsByAssets.priceMaxHelp",
+    defaultTier: "xl4k",
   },
   {
     key: "reserveA",
@@ -480,6 +495,7 @@ const poolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "poolsByAssets.feesLp24HHelp",
+    defaultTier: "lg",
   },
   {
     key: "feesProtocol24H",
@@ -487,6 +503,7 @@ const poolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "poolsByAssets.feesProtocol24HHelp",
+    defaultVisible: false,
   },
   {
     key: "aprDaily",
@@ -501,8 +518,16 @@ const poolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "poolsByAssets.aprWeeklyHelp",
+    defaultTier: "lg",
   },
-  { key: "time", labelKey: "poolsByAssets.time", align: "right", sortable: true, descriptionKey: "poolsByAssets.timeHelp" },
+  {
+    key: "time",
+    labelKey: "poolsByAssets.time",
+    align: "right",
+    sortable: true,
+    descriptionKey: "poolsByAssets.timeHelp",
+    defaultTier: "lg",
+  },
 ];
 
 const tableColumns = useTableColumns("pools-by-assets", poolColumns);

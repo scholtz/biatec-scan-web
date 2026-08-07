@@ -20,6 +20,8 @@
       </button>
     </div>
 
+    <div class="md:overflow-x-auto">
+    <div class="table-min-width" :style="tableMinWidthStyle">
     <div
       class="hidden md:grid gap-3 px-2 text-xs text-gray-400 mb-2"
       :style="gridStyle"
@@ -86,6 +88,8 @@
           </template>
         </div>
       </div>
+    </div>
+    </div>
     </div>
   </div>
 </template>
@@ -157,6 +161,13 @@ const gridStyle = computed(() => ({
   gridTemplateColumns: `repeat(${tableColumns.visibleOrderedColumns.value.length}, minmax(0, 1fr))`,
 }));
 
+/** Guarantees each visible column at least ~120px on desktop; when the columns
+ * no longer fit the viewport, the wrapper scrolls horizontally instead of the
+ * equal-width tracks crushing content into unreadable slivers. */
+const tableMinWidthStyle = computed(() => ({
+  "--table-min-w": `${tableColumns.visibleOrderedColumns.value.length * 120}px`,
+}));
+
 const sortedRows = computed(() => sortRows(props.rows, tableColumns.sortState.value, props.sortFns));
 
 function rowVisibilityKey(row: T): string {
@@ -199,4 +210,12 @@ const vRowVisible = {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+/* Desktop-only min width: the mobile (<md) card layout must never force
+ * horizontal scrolling, so the floor only applies alongside the md:grid view. */
+@media (min-width: 768px) {
+  .table-min-width {
+    min-width: var(--table-min-w);
+  }
+}
+</style>

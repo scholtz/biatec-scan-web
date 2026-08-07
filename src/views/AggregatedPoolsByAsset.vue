@@ -235,6 +235,7 @@ const aggregatedPoolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "aggregatedPools.virtualReserveHelp",
+    defaultVisible: false,
   },
   {
     key: "otherVirtualReserve",
@@ -242,6 +243,7 @@ const aggregatedPoolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "aggregatedPools.otherVirtualReserveHelp",
+    defaultVisible: false,
   },
   {
     key: "totalTvlUsd",
@@ -256,6 +258,7 @@ const aggregatedPoolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "aggregatedPools.totalTvlOtherUsdHelp",
+    defaultTier: "lg",
   },
   {
     key: "volume24H",
@@ -270,6 +273,7 @@ const aggregatedPoolColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "aggregatedPools.updatedHelp",
+    defaultTier: "lg",
   },
 ];
 

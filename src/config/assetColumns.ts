@@ -56,6 +56,9 @@ export const assetColumns: ColumnDef[] = [
     align: "right",
     sortable: true,
     descriptionKey: "assets.totalTvlHelp",
+    // Real TVL is the headline liquidity metric; total TVL is secondary detail
+    // that only gets a default slot on Full HD-class widths and up.
+    defaultTier: "lg",
   },
   {
     key: "fdmc",
