@@ -8,5 +8,9 @@
       "name": "AVM Trade Reporter",
       "path": "../AVMTradeReporter",
     },
+    {
+      "name": "Biatec Charting Widget",
+      "path": "../biatec-charting-widget",
+    },
   ],
 }
