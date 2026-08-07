@@ -31,6 +31,13 @@ spec:
         - name: biatec-charts
           image: harbor.de-4.biatec.io/biatec/biatec-charting-widget:stage
           imagePullPolicy: Always
+          env:
+            # Injected as <base href> into index.html at container start
+            # (docker/40-inject-base-href.sh in the biatec-charting-widget
+            # repo) - the one thing that differs between environments, so
+            # the same image serves stage and production.
+            - name: CHARTS_BASE_HREF
+              value: https://testnet.scan.biatec.io/charts/
           ports:
             - containerPort: 80
               protocol: TCP
