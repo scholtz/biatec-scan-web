@@ -168,35 +168,15 @@
  *
  * OpenAPI spec version: v1
  */
-import type { Address } from './address';
 
-export interface AssetParams {
-  clawback?: Address;
-  creator?: Address;
-  /**
-     * @minimum 0
-     * @maximum 19
-     */
-  decimals?: number;
-  /** @nullable */
-  defaultFrozen?: boolean | null;
-  freeze?: Address;
-  manager?: Address;
-  /** @nullable */
-  metadataHash?: string | null;
-  /** @nullable */
-  name?: string | null;
-  /** @nullable */
-  nameB64?: string | null;
-  reserve?: Address;
-  /** @nullable */
-  total?: number | null;
-  /** @nullable */
-  unitName?: string | null;
-  /** @nullable */
-  unitNameB64?: string | null;
-  /** @nullable */
-  url?: string | null;
-  /** @nullable */
-  urlB64?: string | null;
-}
+export type PoolOrderBy = typeof PoolOrderBy[keyof typeof PoolOrderBy];
+
+
+export const PoolOrderBy = {
+  NUMBER_0: 0,
+  NUMBER_1: 1,
+  NUMBER_2: 2,
+  NUMBER_3: 3,
+  NUMBER_4: 4,
+  NUMBER_5: 5,
+} as const;

@@ -152,7 +152,11 @@
     "change1H": "1h %",
     "change24H": "24h %",
     "change7D": "7d %",
-    "filtersHelp": "Stabilní aktiva zobrazují tokeny navázané na pevnou hodnotu (např. stablecoiny). Utility tokeny zobrazují všechna ostatní aktiva. Obě lze zapnout současně."
+    "filtersHelp": "Stabilní aktiva zobrazují tokeny navázané na pevnou hodnotu (např. stablecoiny). Utility tokeny zobrazují všechna ostatní aktiva. Obě lze zapnout současně.",
+    "price7DChart": "Graf ceny za 7 dní",
+    "price7DChartHelp": "Cena tohoto aktiva v USD za posledních 7 dní jako OHLC svíčky (6hodinové intervaly sestavené z hodinových dat). Zelené svíčky zavřely výše, než otevřely, červené níže. Najetím na svíčku zobrazíte open/high/low/close.",
+    "realTvl7DChart": "Graf reálného TVL za 7 dní",
+    "realTvl7DChartHelp": "Reálné TVL (v USD) tohoto aktiva za posledních 7 dní jako OHLC svíčky (6hodinové intervaly z hodinových snímků). Historie se doplňuje každou hodinu, graf se tedy naplní během týdne."
   },
   "search": {
     "title": "Síťové vyhledávání",
@@ -320,7 +324,11 @@
     "totalTvlUsdHelp": "Celková hodnota v USD vybraného aktiva uzamčená napříč všemi pooly tohoto páru.",
     "totalTvlOtherUsdHelp": "Celková hodnota v USD druhého aktiva uzamčená napříč všemi pooly tohoto páru.",
     "volume24HHelp": "Objem obchodování (USD) tohoto páru za posledních 24 hodin.",
-    "updatedHelp": "Kdy byla data tohoto páru naposledy aktualizována."
+    "updatedHelp": "Kdy byla data tohoto páru naposledy aktualizována.",
+    "otherPrice7DChart": "Cena 7 dní (párové aktivum)",
+    "otherPrice7DChartHelp": "7denní OHLC graf ceny párového aktiva v USD.",
+    "otherTvl7DChart": "Reálné TVL 7 dní (párové aktivum)",
+    "otherTvl7DChartHelp": "7denní OHLC graf reálného TVL (v USD) párového aktiva."
   },
   "poolsByAssets": {
     "poolsContaining": "Pooly obsahující {assetName}",

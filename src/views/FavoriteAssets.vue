@@ -127,6 +127,10 @@
             </template>
           </template>
 
+          <template #cell-price7DChart="{ row: a }">
+            <AssetSparkline :asset-id="a.index" series="price" :label="t('assets.price7DChart')" />
+          </template>
+
           <template #cell-change1H="{ row: a }">
             <ChangeCell :current="a.priceUSD ?? undefined" :previous="a.priceUSD1H ?? undefined" />
           </template>
@@ -148,6 +152,10 @@
                 :significant-digits="4"
               />
             </template>
+          </template>
+
+          <template #cell-realTvl7DChart="{ row: a }">
+            <AssetSparkline :asset-id="a.index" series="tvl" :label="t('assets.realTvl7DChart')" />
           </template>
 
           <template #cell-totalTvl="{ row: a }">
@@ -278,6 +286,7 @@ import FormattedNumber from "../components/FormattedNumber.vue";
 import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
 import ChangeCell from "../components/table/ChangeCell.vue";
+import AssetSparkline from "../components/table/AssetSparkline.vue";
 import { useTableColumns } from "../composables/useTableColumns";
 import { assetColumns, assetSortFns, fdmc } from "../config/assetColumns";
 import { assetImageUrl as sharedAssetImageUrl } from "../config/env";

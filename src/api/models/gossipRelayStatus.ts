@@ -168,35 +168,13 @@
  *
  * OpenAPI spec version: v1
  */
-import type { Address } from './address';
 
-export interface AssetParams {
-  clawback?: Address;
-  creator?: Address;
-  /**
-     * @minimum 0
-     * @maximum 19
-     */
-  decimals?: number;
+export interface GossipRelayStatus {
   /** @nullable */
-  defaultFrozen?: boolean | null;
-  freeze?: Address;
-  manager?: Address;
+  host?: string | null;
+  connectedAtUtc?: string;
+  messageCount?: number;
+  winCount?: number;
   /** @nullable */
-  metadataHash?: string | null;
-  /** @nullable */
-  name?: string | null;
-  /** @nullable */
-  nameB64?: string | null;
-  reserve?: Address;
-  /** @nullable */
-  total?: number | null;
-  /** @nullable */
-  unitName?: string | null;
-  /** @nullable */
-  unitNameB64?: string | null;
-  /** @nullable */
-  url?: string | null;
-  /** @nullable */
-  urlB64?: string | null;
+  lastMessageUtc?: string | null;
 }

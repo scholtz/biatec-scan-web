@@ -152,7 +152,11 @@
     "change1H": "1h %",
     "change24H": "24h %",
     "change7D": "7d %",
-    "filtersHelp": "Stabile Assets zeigt Token mit festem Wertbezug (z. B. Stablecoins). Utility-Token zeigt alle anderen Assets. Beide können gleichzeitig aktiviert werden."
+    "filtersHelp": "Stabile Assets zeigt Token mit festem Wertbezug (z. B. Stablecoins). Utility-Token zeigt alle anderen Assets. Beide können gleichzeitig aktiviert werden.",
+    "price7DChart": "Preis-Chart 7 Tage",
+    "price7DChartHelp": "USD-Preis dieses Assets über die letzten 7 Tage als OHLC-Kerzen (6-Stunden-Intervalle aus Stundendaten). Grüne Kerzen schlossen höher als sie eröffneten, rote niedriger. Fahren Sie über eine Kerze für Open/High/Low/Close.",
+    "realTvl7DChart": "Reales-TVL-Chart 7 Tage",
+    "realTvl7DChartHelp": "Reales TVL (in USD) dieses Assets über die letzten 7 Tage als OHLC-Kerzen (6-Stunden-Intervalle aus stündlichen Momentaufnahmen). Die Historie wächst stündlich, der Chart füllt sich also im Laufe einer Woche."
   },
   "search": {
     "title": "Netzwerk-Suche",
@@ -320,7 +324,11 @@
     "totalTvlUsdHelp": "Gesamter USD-Wert des ausgewählten Assets, der über alle Pools dieses Paares gesperrt ist.",
     "totalTvlOtherUsdHelp": "Gesamter USD-Wert des anderen Assets, der über alle Pools dieses Paares gesperrt ist.",
     "volume24HHelp": "Handelsvolumen (USD) für dieses Paar in den letzten 24 Stunden.",
-    "updatedHelp": "Wann die Daten dieses Paares zuletzt aktualisiert wurden."
+    "updatedHelp": "Wann die Daten dieses Paares zuletzt aktualisiert wurden.",
+    "otherPrice7DChart": "Preis 7 Tage (gepaartes Asset)",
+    "otherPrice7DChartHelp": "7-Tage-OHLC-Chart des USD-Preises des gepaarten Assets.",
+    "otherTvl7DChart": "Reales TVL 7 Tage (gepaartes Asset)",
+    "otherTvl7DChartHelp": "7-Tage-OHLC-Chart des realen TVL (in USD) des gepaarten Assets."
   },
   "poolsByAssets": {
     "poolsContaining": "Pools mit {assetName}",

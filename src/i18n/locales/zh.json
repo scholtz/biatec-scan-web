@@ -152,7 +152,11 @@
     "change1H": "1小时 %",
     "change24H": "24小时 %",
     "change7D": "7天 %",
-    "filtersHelp": "稳定资产显示锚定固定价值的代币（例如稳定币）。功能代币显示所有其他资产。两者可以同时启用。"
+    "filtersHelp": "稳定资产显示锚定固定价值的代币（例如稳定币）。功能代币显示所有其他资产。两者可以同时启用。",
+    "price7DChart": "7天价格图",
+    "price7DChartHelp": "该资产过去7天的美元价格，以OHLC蜡烛图显示（由每小时数据构建的6小时区间）。绿色蜡烛收盘价高于开盘价，红色则相反。将鼠标悬停在蜡烛上可查看开盘/最高/最低/收盘价。",
+    "realTvl7DChart": "7天真实TVL图",
+    "realTvl7DChartHelp": "该资产过去7天的真实TVL（美元），以OHLC蜡烛图显示（由每小时快照构建的6小时区间）。历史数据每小时累积一次，图表将在一周内逐渐填满。"
   },
   "search": {
     "title": "网络搜索",
@@ -320,7 +324,11 @@
     "totalTvlUsdHelp": "所选资产在此交易对所有资金池中锁定的美元总价值。",
     "totalTvlOtherUsdHelp": "另一种资产在此交易对所有资金池中锁定的美元总价值。",
     "volume24HHelp": "此交易对过去24小时的交易量（美元）。",
-    "updatedHelp": "此交易对数据上次刷新的时间。"
+    "updatedHelp": "此交易对数据上次刷新的时间。",
+    "otherPrice7DChart": "7天价格（配对资产）",
+    "otherPrice7DChartHelp": "配对资产美元价格的7天OHLC图。",
+    "otherTvl7DChart": "7天真实TVL（配对资产）",
+    "otherTvl7DChartHelp": "配对资产真实TVL（美元）的7天OHLC图。"
   },
   "poolsByAssets": {
     "poolsContaining": "包含 {assetName} 的池",

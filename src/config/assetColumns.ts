@@ -13,6 +13,13 @@ export const assetColumns: ColumnDef[] = [
   { key: "rank", labelKey: "assets.rank", align: "right", descriptionKey: "assets.rankHelp" },
   { key: "price", labelKey: "assets.price", align: "right", sortable: true, descriptionKey: "assets.priceHelp" },
   {
+    key: "price7DChart",
+    labelKey: "assets.price7DChart",
+    align: "right",
+    descriptionKey: "assets.price7DChartHelp",
+    defaultTier: "lg",
+  },
+  {
     key: "change1H",
     labelKey: "assets.change1H",
     align: "right",
@@ -36,6 +43,13 @@ export const assetColumns: ColumnDef[] = [
     descriptionKey: "assets.change7DHelp",
   },
   { key: "realTvl", labelKey: "assets.realTvl", align: "right", sortable: true, descriptionKey: "assets.realTvlHelp" },
+  {
+    key: "realTvl7DChart",
+    labelKey: "assets.realTvl7DChart",
+    align: "right",
+    descriptionKey: "assets.realTvl7DChartHelp",
+    defaultTier: "lg",
+  },
   {
     key: "totalTvl",
     labelKey: "assets.totalTvl",

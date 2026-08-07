@@ -168,35 +168,16 @@
  *
  * OpenAPI spec version: v1
  */
-import type { Address } from './address';
 
-export interface AssetParams {
-  clawback?: Address;
-  creator?: Address;
-  /**
-     * @minimum 0
-     * @maximum 19
-     */
-  decimals?: number;
+export interface TimeseriesCandles {
   /** @nullable */
-  defaultFrozen?: boolean | null;
-  freeze?: Address;
-  manager?: Address;
+  t?: number[] | null;
   /** @nullable */
-  metadataHash?: string | null;
+  o?: number[] | null;
   /** @nullable */
-  name?: string | null;
+  h?: number[] | null;
   /** @nullable */
-  nameB64?: string | null;
-  reserve?: Address;
+  l?: number[] | null;
   /** @nullable */
-  total?: number | null;
-  /** @nullable */
-  unitName?: string | null;
-  /** @nullable */
-  unitNameB64?: string | null;
-  /** @nullable */
-  url?: string | null;
-  /** @nullable */
-  urlB64?: string | null;
+  c?: number[] | null;
 }

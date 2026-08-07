@@ -122,6 +122,10 @@
           </template>
         </template>
 
+        <template #cell-price7DChart="{ row: a }">
+          <AssetSparkline :asset-id="a.index" series="price" :label="t('assets.price7DChart')" />
+        </template>
+
         <template #cell-change1H="{ row: a }">
           <ChangeCell :current="a.priceUSD ?? undefined" :previous="a.priceUSD1H ?? undefined" />
         </template>
@@ -143,6 +147,10 @@
               :significant-digits="4"
             />
           </template>
+        </template>
+
+        <template #cell-realTvl7DChart="{ row: a }">
+          <AssetSparkline :asset-id="a.index" series="tvl" :label="t('assets.realTvl7DChart')" />
         </template>
 
         <template #cell-totalTvl="{ row: a }">
@@ -288,6 +296,7 @@ import { favoriteService } from "../services/favoriteService";
 import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
 import ChangeCell from "../components/table/ChangeCell.vue";
+import AssetSparkline from "../components/table/AssetSparkline.vue";
 import HelpTooltip from "../components/HelpTooltip.vue";
 import TopAssetsHighlights from "../components/TopAssetsHighlights.vue";
 import { useTableColumns, sortRows } from "../composables/useTableColumns";

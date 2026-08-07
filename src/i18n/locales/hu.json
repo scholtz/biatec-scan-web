@@ -152,7 +152,11 @@
     "change1H": "1ó %",
     "change24H": "24ó %",
     "change7D": "7n %",
-    "filtersHelp": "A Stabil eszközök a fix értékhez kötött tokeneket mutatják (pl. stablecoinok). A Haszonelvű tokenek az összes többi eszközt mutatják. Mindkettő egyszerre is bekapcsolható."
+    "filtersHelp": "A Stabil eszközök a fix értékhez kötött tokeneket mutatják (pl. stablecoinok). A Haszonelvű tokenek az összes többi eszközt mutatják. Mindkettő egyszerre is bekapcsolható.",
+    "price7DChart": "7 napos árgrafikon",
+    "price7DChartHelp": "Az eszköz USD-ára az elmúlt 7 napban OHLC gyertyákként (órás adatokból épített 6 órás intervallumok). A zöld gyertyák a nyitásnál magasabban zártak, a pirosak alacsonyabban. Vigye az egeret egy gyertya fölé az open/high/low/close értékekhez.",
+    "realTvl7DChart": "7 napos valós TVL grafikon",
+    "realTvl7DChartHelp": "Az eszköz valós TVL-je (USD-ben) az elmúlt 7 napban OHLC gyertyákként (órás pillanatképekből épített 6 órás intervallumok). Az előzmények óránként gyűlnek, így a grafikon egy hét alatt telik fel."
   },
   "search": {
     "title": "Hálózati keresés",
@@ -320,7 +324,11 @@
     "totalTvlUsdHelp": "A kiválasztott eszköz ennek a párnak az összes poolján lekötött teljes USD értéke.",
     "totalTvlOtherUsdHelp": "A másik eszköz ennek a párnak az összes poolján lekötött teljes USD értéke.",
     "volume24HHelp": "Ennek a párnak a kereskedési volumene (USD) az elmúlt 24 órában.",
-    "updatedHelp": "Mikor frissültek utoljára ennek a párnak az adatai."
+    "updatedHelp": "Mikor frissültek utoljára ennek a párnak az adatai.",
+    "otherPrice7DChart": "Ár 7 nap (párosított eszköz)",
+    "otherPrice7DChartHelp": "A párosított eszköz USD-árának 7 napos OHLC grafikonja.",
+    "otherTvl7DChart": "Valós TVL 7 nap (párosított eszköz)",
+    "otherTvl7DChartHelp": "A párosított eszköz valós TVL-jének (USD-ben) 7 napos OHLC grafikonja."
   },
   "poolsByAssets": {
     "poolsContaining": "{assetName} eszközt tartalmazó poolok",

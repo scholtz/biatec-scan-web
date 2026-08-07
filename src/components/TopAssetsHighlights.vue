@@ -19,7 +19,7 @@
           class="flex items-center gap-2 min-w-0 rounded px-1 py-0.5 -mx-1 hover:bg-gray-700/60"
         >
           <span class="text-[10px] text-gray-500 font-mono shrink-0 w-3">{{ i + 1 }}</span>
-          <img :src="assetImageUrl(item.assetId)" class="w-5 h-5 rounded shrink-0" />
+          <img :src="assetImageUrl(item.assetId ?? 0)" class="w-5 h-5 rounded shrink-0" />
           <span class="text-xs text-white truncate min-w-0 flex-1">
             {{ item.unitName || item.name || "#" + item.assetId }}
           </span>
@@ -99,12 +99,12 @@ const cards = computed<Card[]>(() => {
   const d = data.value;
   if (!d) return [];
   const defs: Array<[string, Metric, TopAssetItem[] | undefined]> = [
-    ["popular", "volume24H", d.popular],
-    ["trending", "volume1H", d.trending],
-    ["gainers", "priceChange", d.topGainers],
-    ["losers", "priceChange", d.topLosers],
-    ["valueGainers", "tvlChange", d.topValueGainers],
-    ["valueLosers", "tvlChange", d.topValueLosers],
+    ["popular", "volume24H", d.popular ?? undefined],
+    ["trending", "volume1H", d.trending ?? undefined],
+    ["gainers", "priceChange", d.topGainers ?? undefined],
+    ["losers", "priceChange", d.topLosers ?? undefined],
+    ["valueGainers", "tvlChange", d.topValueGainers ?? undefined],
+    ["valueLosers", "tvlChange", d.topValueLosers ?? undefined],
   ];
   return defs
     .filter(([, , items]) => (items?.length ?? 0) > 0)

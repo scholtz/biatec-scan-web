@@ -152,7 +152,11 @@
     "change1H": "1h %",
     "change24H": "24h %",
     "change7D": "7d %",
-    "filtersHelp": "Activos estables muestra tokens vinculados a un valor fijo (por ejemplo, stablecoins). Tokens de utilidad muestra todos los demás activos. Ambos se pueden activar a la vez."
+    "filtersHelp": "Activos estables muestra tokens vinculados a un valor fijo (por ejemplo, stablecoins). Tokens de utilidad muestra todos los demás activos. Ambos se pueden activar a la vez.",
+    "price7DChart": "Gráfico de precio 7 días",
+    "price7DChartHelp": "Precio en USD de este activo durante los últimos 7 días como velas OHLC (intervalos de 6 horas construidos a partir de datos horarios). Las velas verdes cerraron por encima de su apertura, las rojas por debajo. Pase el cursor sobre una vela para ver open/high/low/close.",
+    "realTvl7DChart": "Gráfico de TVL real 7 días",
+    "realTvl7DChartHelp": "TVL real (en USD) de este activo durante los últimos 7 días como velas OHLC (intervalos de 6 horas a partir de instantáneas horarias). El historial se acumula cada hora, por lo que el gráfico se completa a lo largo de una semana."
   },
   "search": {
     "title": "Búsqueda de red",
@@ -320,7 +324,11 @@
     "totalTvlUsdHelp": "Valor total en USD del activo seleccionado bloqueado en todos los pools de este par.",
     "totalTvlOtherUsdHelp": "Valor total en USD del otro activo bloqueado en todos los pools de este par.",
     "volume24HHelp": "Volumen de operaciones (USD) de este par en las últimas 24 horas.",
-    "updatedHelp": "Cuándo se actualizaron por última vez los datos de este par."
+    "updatedHelp": "Cuándo se actualizaron por última vez los datos de este par.",
+    "otherPrice7DChart": "Precio 7 días (activo emparejado)",
+    "otherPrice7DChartHelp": "Gráfico OHLC de 7 días del precio en USD del activo emparejado.",
+    "otherTvl7DChart": "TVL real 7 días (activo emparejado)",
+    "otherTvl7DChartHelp": "Gráfico OHLC de 7 días del TVL real (en USD) del activo emparejado."
   },
   "poolsByAssets": {
     "poolsContaining": "Pools que contienen {assetName}",

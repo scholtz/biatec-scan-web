@@ -66,6 +66,26 @@
           {{ price(p) }}
         </template>
 
+        <template #cell-otherPrice7DChart="{ row: p }">
+          <AssetSparkline
+            v-if="p.assetIdB !== undefined && p.assetIdB !== null"
+            :asset-id="p.assetIdB"
+            series="price"
+            :label="t('aggregatedPools.otherPrice7DChart')"
+          />
+          <template v-else>-</template>
+        </template>
+
+        <template #cell-otherTvl7DChart="{ row: p }">
+          <AssetSparkline
+            v-if="p.assetIdB !== undefined && p.assetIdB !== null"
+            :asset-id="p.assetIdB"
+            series="tvl"
+            :label="t('aggregatedPools.otherTvl7DChart')"
+          />
+          <template v-else>-</template>
+        </template>
+
         <template #cell-reserve="{ row: p }">
           <RouterLink
             :to="{
@@ -141,6 +161,7 @@ import FormattedTime from "../components/FormattedTime.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
+import AssetSparkline from "../components/table/AssetSparkline.vue";
 import { useI18n } from "vue-i18n";
 import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
 import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
@@ -180,6 +201,20 @@ const aggregatedPoolColumns: ColumnDef[] = [
     descriptionKey: "aggregatedPools.poolsHelp",
   },
   { key: "price", labelKey: "aggregatedPools.price", align: "right", descriptionKey: "aggregatedPools.priceHelp" },
+  {
+    key: "otherPrice7DChart",
+    labelKey: "aggregatedPools.otherPrice7DChart",
+    align: "right",
+    descriptionKey: "aggregatedPools.otherPrice7DChartHelp",
+    defaultTier: "lg",
+  },
+  {
+    key: "otherTvl7DChart",
+    labelKey: "aggregatedPools.otherTvl7DChart",
+    align: "right",
+    descriptionKey: "aggregatedPools.otherTvl7DChartHelp",
+    defaultTier: "lg",
+  },
   {
     key: "reserve",
     labelKey: "aggregatedPools.reserve",

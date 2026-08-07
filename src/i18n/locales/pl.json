@@ -152,7 +152,11 @@
     "change1H": "1h %",
     "change24H": "24h %",
     "change7D": "7d %",
-    "filtersHelp": "Aktywa stabilne pokazują tokeny powiązane ze stałą wartością (np. stablecoiny). Tokeny użytkowe pokazują wszystkie pozostałe aktywa. Oba filtry można włączyć jednocześnie."
+    "filtersHelp": "Aktywa stabilne pokazują tokeny powiązane ze stałą wartością (np. stablecoiny). Tokeny użytkowe pokazują wszystkie pozostałe aktywa. Oba filtry można włączyć jednocześnie.",
+    "price7DChart": "Wykres ceny z 7 dni",
+    "price7DChartHelp": "Cena tego aktywa w USD z ostatnich 7 dni jako świece OHLC (6-godzinne przedziały zbudowane z danych godzinowych). Zielone świece zamknęły się wyżej niż otworzyły, czerwone niżej. Najedź na świecę, aby zobaczyć open/high/low/close.",
+    "realTvl7DChart": "Wykres realnego TVL z 7 dni",
+    "realTvl7DChartHelp": "Realne TVL (w USD) tego aktywa z ostatnich 7 dni jako świece OHLC (6-godzinne przedziały z godzinowych migawek). Historia przyrasta co godzinę, więc wykres wypełnia się w ciągu tygodnia."
   },
   "search": {
     "title": "Wyszukiwanie",
@@ -320,7 +324,11 @@
     "totalTvlUsdHelp": "Całkowita wartość w USD wybranego zasobu zablokowana we wszystkich pulach tej pary.",
     "totalTvlOtherUsdHelp": "Całkowita wartość w USD drugiego zasobu zablokowana we wszystkich pulach tej pary.",
     "volume24HHelp": "Wolumen obrotu (USD) tej pary w ciągu ostatnich 24 godzin.",
-    "updatedHelp": "Kiedy dane tej pary zostały ostatnio zaktualizowane."
+    "updatedHelp": "Kiedy dane tej pary zostały ostatnio zaktualizowane.",
+    "otherPrice7DChart": "Cena 7 dni (aktywo sparowane)",
+    "otherPrice7DChartHelp": "7-dniowy wykres OHLC ceny sparowanego aktywa w USD.",
+    "otherTvl7DChart": "Realne TVL 7 dni (aktywo sparowane)",
+    "otherTvl7DChartHelp": "7-dniowy wykres OHLC realnego TVL (w USD) sparowanego aktywa."
   },
   "poolsByAssets": {
     "poolsContaining": "Pule zawierające {assetName}",

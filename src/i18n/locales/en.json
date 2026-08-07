@@ -152,7 +152,11 @@
     "change1H": "1h %",
     "change24H": "24h %",
     "change7D": "7d %",
-    "filtersHelp": "Stable Assets shows tokens pegged to a fixed value (e.g. stablecoins). Utility Tokens shows all other assets. Both can be enabled at once."
+    "filtersHelp": "Stable Assets shows tokens pegged to a fixed value (e.g. stablecoins). Utility Tokens shows all other assets. Both can be enabled at once.",
+    "price7DChart": "Price 7d chart",
+    "price7DChartHelp": "USD price of this asset over the last 7 days as OHLC candles (6-hour buckets, built from hourly data). Green candles closed higher than they opened, red ones lower. Hover a candle for its open/high/low/close.",
+    "realTvl7DChart": "Real TVL 7d chart",
+    "realTvl7DChartHelp": "Real TVL (USD) of this asset over the last 7 days as OHLC candles (6-hour buckets, built from hourly snapshots). The history accumulates hourly, so the chart fills up over a week."
   },
   "search": {
     "title": "Network Search",
@@ -320,7 +324,11 @@
     "totalTvlUsdHelp": "Total USD value of the selected asset locked across all pools for this pair.",
     "totalTvlOtherUsdHelp": "Total USD value of the other asset locked across all pools for this pair.",
     "volume24HHelp": "Trading volume (USD) for this pair over the last 24 hours.",
-    "updatedHelp": "When this pair's data was last refreshed."
+    "updatedHelp": "When this pair's data was last refreshed.",
+    "otherPrice7DChart": "Price 7d (paired asset)",
+    "otherPrice7DChartHelp": "7-day USD price OHLC chart of the paired asset.",
+    "otherTvl7DChart": "Real TVL 7d (paired asset)",
+    "otherTvl7DChartHelp": "7-day real TVL (USD) OHLC chart of the paired asset."
   },
   "poolsByAssets": {
     "poolsContaining": "Pools containing {assetName}",

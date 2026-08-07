@@ -168,35 +168,30 @@
  *
  * OpenAPI spec version: v1
  */
-import type { Address } from './address';
+import type { DEXProtocol } from './dEXProtocol';
 
-export interface AssetParams {
-  clawback?: Address;
-  creator?: Address;
-  /**
-     * @minimum 0
-     * @maximum 19
-     */
-  decimals?: number;
+export interface AssetStat {
+  assetId?: number;
+  protocol?: DEXProtocol;
   /** @nullable */
-  defaultFrozen?: boolean | null;
-  freeze?: Address;
-  manager?: Address;
+  readonly id?: string | null;
   /** @nullable */
-  metadataHash?: string | null;
-  /** @nullable */
-  name?: string | null;
-  /** @nullable */
-  nameB64?: string | null;
-  reserve?: Address;
-  /** @nullable */
-  total?: number | null;
+  assetName?: string | null;
   /** @nullable */
   unitName?: string | null;
   /** @nullable */
-  unitNameB64?: string | null;
+  decimals?: number | null;
   /** @nullable */
-  url?: string | null;
+  imageUrl?: string | null;
   /** @nullable */
-  urlB64?: string | null;
+  priceUSD?: number | null;
+  tvlusd?: number;
+  volume24hUSD?: number;
+  volume7dUSD?: number;
+  fees24hUSD?: number;
+  fees7dUSD?: number;
+  apr24h?: number;
+  apr7d?: number;
+  poolCount?: number;
+  lastUpdated?: string;
 }

@@ -168,35 +168,14 @@
  *
  * OpenAPI spec version: v1
  */
-import type { Address } from './address';
 
-export interface AssetParams {
-  clawback?: Address;
-  creator?: Address;
-  /**
-     * @minimum 0
-     * @maximum 19
-     */
-  decimals?: number;
+export interface DexStatsResponse {
   /** @nullable */
-  defaultFrozen?: boolean | null;
-  freeze?: Address;
-  manager?: Address;
-  /** @nullable */
-  metadataHash?: string | null;
-  /** @nullable */
-  name?: string | null;
-  /** @nullable */
-  nameB64?: string | null;
-  reserve?: Address;
-  /** @nullable */
-  total?: number | null;
-  /** @nullable */
-  unitName?: string | null;
-  /** @nullable */
-  unitNameB64?: string | null;
-  /** @nullable */
-  url?: string | null;
-  /** @nullable */
-  urlB64?: string | null;
+  protocol?: string | null;
+  from?: string;
+  to?: string;
+  volumeUSD?: number;
+  feesUSD?: number;
+  feesLPUSD?: number;
+  feesProtocolUSD?: number;
 }
