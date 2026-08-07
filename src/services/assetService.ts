@@ -214,11 +214,11 @@ class AssetService {
   ): boolean => {
     const a = BigInt(assetA);
     const b = BigInt(assetB);
-    if (a === 31566704n) {
-      // usdc
+    if (a === 31566704n || a === 10458941n) {
+      // usdc (31566704 mainnet, 10458941 testnet)
       return true;
     }
-    if (b === 31566704n) {
+    if (b === 31566704n || b === 10458941n) {
       return false;
     }
     if (a === 760037151n) {
