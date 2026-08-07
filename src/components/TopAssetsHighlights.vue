@@ -129,7 +129,8 @@ function formatPercent(value: number | null | undefined): string {
 async function fetchTopAssets() {
   try {
     const res = await getAVMTradeReporterAPI().getApiAssetTop();
-    data.value = (res as any)?.data ?? (res as unknown as TopAssetsResponse);
+    const payload = res as unknown as TopAssetsResponse | { data?: TopAssetsResponse };
+    data.value = (payload as { data?: TopAssetsResponse }).data ?? (payload as TopAssetsResponse);
   } catch {
     // Highlights are a non-essential enhancement of the assets page — on API
     // failure simply keep whatever was shown before (or render nothing).
