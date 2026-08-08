@@ -19,6 +19,13 @@ export const algodUrl: string =
 export const indexerUrl: string =
   viteEnv.VITE_ALGORAND_INDEXER_URL || "https://mainnet-idx.4160.nodely.dev";
 
+/**
+ * ASA id of the network's native USDC token, used as the USD quote asset for
+ * the ALGO/USD price (31566704 on mainnet, 10458941 on testnet).
+ */
+export const usdcAssetId: number =
+  Number(viteEnv.VITE_USDC_ASSET_ID) || 31566704;
+
 /** ARC-56 ABI registry (chain-agnostic, shared across networks). */
 export const arc56RegistryUrl: string =
   viteEnv.VITE_ARC56_REGISTRY_URL ||

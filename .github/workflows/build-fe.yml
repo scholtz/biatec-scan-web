@@ -101,11 +101,13 @@ jobs:
             vite_algorand_algod_url: https://algorand-algod-public.de-4.biatec.io
             vite_algorand_indexer_url: https://mainnet-idx.4160.nodely.dev
             vite_arc56_registry_url: https://algorand.scan.biatec.io/arc56-registry
+            vite_usdc_asset_id: 31566704
           - network: testnet
             vite_api_base_url: https://api.testnet.scan.biatec.io
             vite_algorand_algod_url: https://testnet-api.4160.nodely.dev
             vite_algorand_indexer_url: https://testnet-idx.4160.nodely.dev
             vite_arc56_registry_url: https://algorand.scan.biatec.io/arc56-registry
+            vite_usdc_asset_id: 10458941
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -139,6 +141,7 @@ jobs:
             VITE_ALGORAND_ALGOD_URL=${{ matrix.vite_algorand_algod_url }}
             VITE_ALGORAND_INDEXER_URL=${{ matrix.vite_algorand_indexer_url }}
             VITE_ARC56_REGISTRY_URL=${{ matrix.vite_arc56_registry_url }}
+            VITE_USDC_ASSET_ID=${{ matrix.vite_usdc_asset_id }}
           tags: |
             ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-${{ needs.version.outputs.version }}
             ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-latest

@@ -5,18 +5,17 @@
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6 mb-8"
     >
       <StyledBox class="text-center">
-        <h3 class="text-2xl font-bold text-white" v-if="state.algoPrice">
-          <div
-            v-if="state.algoPrice.virtualSumA && state.algoPrice.virtualSumB"
-          >
+        <h3
+          class="text-2xl font-bold text-white"
+          v-if="state.algoPrice && algoPriceValue"
+        >
+          <div>
             <RouterLink
               :to="`/pools/${state.algoPrice.assetIdA}/${state.algoPrice.assetIdB}`"
               class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
             >
               <FormattedNumber
-                :value="
-                  state.algoPrice.virtualSumB / state.algoPrice.virtualSumA
-                "
+                :value="algoPriceValue"
                 type="number"
                 :minimum-fraction-digits="2"
                 :maximum-fraction-digits="6"
@@ -28,7 +27,7 @@
         </h3>
         <h3 class="text-2xl font-bold text-gray-400" v-else>
           <RouterLink
-            :to="`/pools/0/31566704`"
+            :to="`/pools/0/${usdcAssetId}`"
             class="font-mono truncate text-blue-100 hover:text-blue-300 transition-colors duration-300"
           >
             {{ $t("common.loading") }}
@@ -249,6 +248,9 @@ import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
 import StyledBox from "../components/StyledBox.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
+import { getAVMTradeReporterAPI } from "../api";
+import { usdcAssetId } from "../config/env";
+import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
 
 const { t } = useI18n();
 
@@ -268,6 +270,10 @@ const state = reactive({
   tokensToLoad: [] as bigint[],
   algoPrice: null as AggregatedPool | null,
 });
+
+const algoPriceValue = computed(() =>
+  state.algoPrice ? aggregatedPoolSpotPrice(state.algoPrice) : undefined
+);
 
 // Top Aggregated Pools: only asset A = 0 (ALGO), sorted by reserve A desc, top 10
 const filteredAggregatedPools = computed(() => {
@@ -311,6 +317,23 @@ onMounted(async () => {
 
   await signalrService.subscribe(createDashboardSubscriptionFilter());
   state.mounted = true;
+
+  // Fetch the current ALGO/USDC aggregated pool once so the price shows
+  // immediately; SignalR pushes only arrive when a trade updates the pool,
+  // which can take a long time on low-activity networks (e.g. testnet).
+  try {
+    const res = await getAVMTradeReporterAPI().getApiAggregatedPool({
+      assetIdA: 0,
+      assetIdB: usdcAssetId,
+      size: 1,
+    });
+    const pool = Array.isArray(res.data) ? res.data[0] : undefined;
+    if (pool && !state.algoPrice) {
+      state.algoPrice = pool;
+    }
+  } catch (e) {
+    console.error("Error fetching initial ALGO/USDC aggregated pool:", e);
+  }
 
   // Update current time every second for network status calculation
   timeInterval = setInterval(() => {
@@ -422,7 +445,7 @@ const onTradeReceivedEvent = (trade: AMMTrade) => {
 const onAggregatedPoolReceivedEvent = (pool: AggregatedPool) => {
   try {
     //console.log("onAggregatedPoolReceived.pool", pool.id, pool);
-    if (pool.id == "0-31566704") {
+    if (pool.id == `0-${usdcAssetId}`) {
       // algo-usdc
       state.algoPrice = pool;
       console.log("Received aggregated pool algo-usdc:", pool);

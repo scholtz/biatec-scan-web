@@ -153,7 +153,7 @@
             <router-link
               :to="{
                 name: 'PoolsByAssets',
-                params: { asset1: assetId, asset2: 31566704 },
+                params: { asset1: assetId, asset2: usdcAssetId },
               }"
               class="btn-secondary text-sm py-2 px-4"
             >
@@ -209,7 +209,7 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import { favoriteService } from "../services/favoriteService";
-import { assetChartUrl, assetImageUrl } from "../config/env";
+import { assetChartUrl, assetImageUrl, usdcAssetId } from "../config/env";
 import { signalrService } from "../services/signalrService";
 import { algorandService } from "../services/algorandService";
 import type { SubscriptionFilter } from "../types/SubscriptionFilter";
