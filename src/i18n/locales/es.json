@@ -309,7 +309,12 @@
     "loadingPoolInfo": "Cargando información del pool...",
     "poolInformation": "Información del pool",
     "retry": "Reintentar",
-    "copyPoolAddress": "Copiar dirección del pool al portapapeles"
+    "copyPoolAddress": "Copiar dirección del pool al portapapeles",
+    "recentActivity": "Actividad reciente del pool",
+    "recentTrades": "Operaciones recientes",
+    "noTrades": "No se encontraron operaciones recientes para este pool",
+    "recentLiquidity": "Cambios recientes de liquidez",
+    "noLiquidity": "No se encontraron cambios recientes de liquidez para este pool"
   },
   "aggregatedPools": {
     "title": "Pools agregados que contienen {assetName}",

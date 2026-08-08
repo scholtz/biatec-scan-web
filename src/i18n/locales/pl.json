@@ -309,7 +309,12 @@
     "loadingPoolInfo": "Ładowanie informacji o puli…",
     "poolInformation": "Informacje o puli",
     "retry": "Ponów",
-    "copyPoolAddress": "Skopiuj adres puli do schowka"
+    "copyPoolAddress": "Skopiuj adres puli do schowka",
+    "recentActivity": "Ostatnia aktywność puli",
+    "recentTrades": "Ostatnie transakcje",
+    "noTrades": "Nie znaleziono ostatnich transakcji dla tej puli",
+    "recentLiquidity": "Ostatnie zmiany płynności",
+    "noLiquidity": "Nie znaleziono ostatnich zmian płynności dla tej puli"
   },
   "aggregatedPools": {
     "title": "Zagregowane pule zawierające {assetName}",

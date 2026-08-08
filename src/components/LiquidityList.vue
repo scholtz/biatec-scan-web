@@ -2,7 +2,11 @@
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold text-white">
-        {{ $t("assetDetails.recentLiquidity") }}
+        {{
+          props.poolAddress
+            ? $t("poolDetails.recentLiquidity")
+            : $t("assetDetails.recentLiquidity")
+        }}
       </h3>
       <div v-if="loading" class="text-sm text-gray-400">
         {{ $t("common.loading") }}...
@@ -17,7 +21,11 @@
       v-if="!loading && liquidity.length === 0"
       class="text-gray-400 text-center py-8"
     >
-      {{ $t("assetDetails.noLiquidity") }}
+      {{
+        props.poolAddress
+          ? $t("poolDetails.noLiquidity")
+          : $t("assetDetails.noLiquidity")
+      }}
     </div>
 
     <div v-else class="space-y-2">
@@ -44,8 +52,11 @@ import LiquidityCard from "./LiquidityCard.vue";
 
 const { t } = useI18n();
 
+// Either assetId or poolAddress must be provided: assetId scopes the list to
+// liquidity events touching an asset, poolAddress scopes it to a single pool.
 const props = defineProps<{
-  assetId: string;
+  assetId?: string;
+  poolAddress?: string;
 }>();
 
 const liquidity = ref<Liquidity[]>([]);
@@ -79,8 +90,8 @@ function convertToAMMLiquidity(liquidityItem: Liquidity): AMMLiquidity {
   };
 }
 
-async function fetchLiquidity(assetId: string = props.assetId) {
-  if (!assetId || assetId === "0") {
+async function fetchLiquidity(assetId: string | undefined = props.assetId) {
+  if (!props.poolAddress && (!assetId || assetId === "0")) {
     liquidity.value = [];
     return;
   }
@@ -89,25 +100,33 @@ async function fetchLiquidity(assetId: string = props.assetId) {
     loading.value = true;
     error.value = "";
 
-    console.log(`Fetching liquidity for asset ${assetId}`);
-
-    // Use the real API endpoint
     const api = getAVMTradeReporterAPI();
 
-    // Fetch liquidity where this asset is assetIdA
-    const responseA = await api.getApiLiquidity({
-      assetIdA: Number(assetId),
-      size: 20, // Fetch last 20 liquidity updates
-    });
+    let allLiquidity: Liquidity[];
+    if (props.poolAddress) {
+      // Pool mode - a single call filtered by the pool escrow address
+      const response = await api.getApiLiquidity({
+        poolAddress: props.poolAddress,
+        size: 20, // Fetch last 20 liquidity updates
+      });
+      allLiquidity = response.data || [];
+    } else {
+      // Fetch liquidity where this asset is assetIdA
+      const responseA = await api.getApiLiquidity({
+        assetIdA: Number(assetId),
+        size: 20, // Fetch last 20 liquidity updates
+      });
 
-    // Fetch liquidity where this asset is assetIdB
-    const responseB = await api.getApiLiquidity({
-      assetIdB: Number(assetId),
-      size: 20, // Fetch last 20 liquidity updates
-    });
+      // Fetch liquidity where this asset is assetIdB
+      const responseB = await api.getApiLiquidity({
+        assetIdB: Number(assetId),
+        size: 20, // Fetch last 20 liquidity updates
+      });
 
-    // Combine and deduplicate by txId, then sort by timestamp (most recent first)
-    const allLiquidity = [...(responseA.data || []), ...(responseB.data || [])];
+      allLiquidity = [...(responseA.data || []), ...(responseB.data || [])];
+    }
+
+    // Deduplicate by txId, then sort by timestamp (most recent first)
     const uniqueLiquidity = allLiquidity.filter(
       (item, index, self) =>
         index === self.findIndex((t) => t.txId === item.txId)
@@ -128,12 +147,19 @@ async function fetchLiquidity(assetId: string = props.assetId) {
   }
 }
 
-function handleLiquidityUpdate(liquidityUpdate: AMMLiquidity) {
-  // Only add liquidity updates for this specific asset
-  if (
+function liquidityMatchesScope(liquidityUpdate: AMMLiquidity): boolean {
+  if (props.poolAddress) {
+    return liquidityUpdate.poolAddress === props.poolAddress;
+  }
+  return (
     liquidityUpdate.assetIdA.toString() === props.assetId ||
     liquidityUpdate.assetIdB.toString() === props.assetId
-  ) {
+  );
+}
+
+function handleLiquidityUpdate(liquidityUpdate: AMMLiquidity) {
+  // Only add liquidity updates for this component's asset or pool scope
+  if (liquidityMatchesScope(liquidityUpdate)) {
     // Convert AMMLiquidity back to Liquidity for consistency
     const apiLiquidity: Liquidity = {
       assetIdA: liquidityUpdate.assetIdA,
@@ -181,7 +207,7 @@ function handleLiquidityUpdate(liquidityUpdate: AMMLiquidity) {
   }
 }
 
-function createSubscriptionFilter(assetId: string): SubscriptionFilter {
+function createSubscriptionFilter(assetId: string | undefined): SubscriptionFilter {
   return {
     RecentBlocks: false,
     RecentTrades: false,
@@ -190,13 +216,13 @@ function createSubscriptionFilter(assetId: string): SubscriptionFilter {
     RecentAggregatedPool: false,
     RecentAssets: false,
     MainAggregatedPools: false,
-    PoolsAddresses: [],
+    PoolsAddresses: props.poolAddress ? [props.poolAddress] : [],
     AggregatedPoolsIds: [],
-    AssetIds: [assetId],
+    AssetIds: props.poolAddress || !assetId ? [] : [assetId],
   };
 }
 
-async function subscribeToLiquidityUpdates(assetId: string) {
+async function subscribeToLiquidityUpdates(assetId: string | undefined) {
   await unsubscribeFromLiquidityUpdates();
   const filter = createSubscriptionFilter(assetId);
   subscriptionFilter = filter;

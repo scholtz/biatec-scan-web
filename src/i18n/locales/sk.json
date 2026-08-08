@@ -309,7 +309,12 @@
     "loadingPoolInfo": "Načítavajú sa informácie o poole...",
     "poolInformation": "Informácie o poole",
     "retry": "Skúsiť znovu",
-    "copyPoolAddress": "Skopírovať adresu poolu do schránky"
+    "copyPoolAddress": "Skopírovať adresu poolu do schránky",
+    "recentActivity": "Nedávna aktivita poolu",
+    "recentTrades": "Nedávne obchody",
+    "noTrades": "Pre tento pool sa nenašli žiadne nedávne obchody",
+    "recentLiquidity": "Nedávne zmeny likvidity",
+    "noLiquidity": "Pre tento pool sa nenašli žiadne nedávne zmeny likvidity"
   },
   "aggregatedPools": {
     "title": "Agregované pooly obsahujúce {assetName}",

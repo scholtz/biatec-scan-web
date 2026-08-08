@@ -2,11 +2,15 @@
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <router-link
+        v-if="props.assetId"
         :to="{ name: 'TradesByAsset', params: { assetId1: props.assetId } }"
         class="text-lg font-semibold text-white hover:text-blue-300 transition-colors"
       >
         {{ $t("assetDetails.recentTrades") }}
       </router-link>
+      <h3 v-else class="text-lg font-semibold text-white">
+        {{ $t("poolDetails.recentTrades") }}
+      </h3>
       <div v-if="loading" class="text-sm text-gray-400">
         {{ $t("common.loading") }}...
       </div>
@@ -20,7 +24,9 @@
       v-if="!loading && trades.length === 0"
       class="text-gray-400 text-center py-8"
     >
-      {{ $t("assetDetails.noTrades") }}
+      {{
+        props.assetId ? $t("assetDetails.noTrades") : $t("poolDetails.noTrades")
+      }}
     </div>
 
     <div v-else class="space-y-2">
@@ -32,7 +38,7 @@
         <TradeCard
           :trade="convertToAMMTrade(trade)"
           :extendedDisplay="true"
-          price-mode="selected"
+          :price-mode="props.assetId ? 'selected' : 'both'"
           :selected-asset-id="props.assetId"
         />
       </div>
@@ -52,8 +58,11 @@ import TradeCard from "./TradeCard.vue";
 
 const { t } = useI18n();
 
+// Either assetId or poolAddress must be provided: assetId scopes the list to
+// trades touching an asset, poolAddress scopes it to a single pool.
 const props = defineProps<{
-  assetId: string;
+  assetId?: string;
+  poolAddress?: string;
 }>();
 
 const trades = ref<Trade[]>([]);
@@ -88,20 +97,24 @@ function convertToAMMTrade(trade: Trade): AMMTrade {
 }
 
 async function fetchTrades() {
-  if (!props.assetId || props.assetId === "0") return;
+  if (props.poolAddress) {
+    // Pool mode ignores assetId entirely
+  } else if (!props.assetId || props.assetId === "0") {
+    return;
+  }
 
   try {
     loading.value = true;
     error.value = "";
-
-    console.log(`Fetching trades for asset ${props.assetId}`);
 
     // `assetId` matches trades where the asset is on either side, and (unlike
     // the plain assetIdIn/assetIdOut filters) returns a PagedResult with
     // `items` rather than a bare array.
     const api = getAVMTradeReporterAPI();
     const response = await api.getApiTrade({
-      assetId: Number(props.assetId),
+      ...(props.poolAddress
+        ? { poolAddress: props.poolAddress }
+        : { assetId: Number(props.assetId) }),
       size: 20, // Fetch last 20 trades
       sortBy: "timestamp",
       sortDirection: "desc",
@@ -116,12 +129,19 @@ async function fetchTrades() {
   }
 }
 
-function handleTradeUpdate(trade: AMMTrade) {
-  // Only add trades for this specific asset
-  if (
+function tradeMatchesScope(trade: AMMTrade): boolean {
+  if (props.poolAddress) {
+    return trade.poolAddress === props.poolAddress;
+  }
+  return (
     trade.assetIdIn.toString() === props.assetId ||
     trade.assetIdOut.toString() === props.assetId
-  ) {
+  );
+}
+
+function handleTradeUpdate(trade: AMMTrade) {
+  // Only add trades for this component's asset or pool scope
+  if (tradeMatchesScope(trade)) {
     // Convert AMMTrade back to Trade for consistency
     const apiTrade: Trade = {
       assetIdIn: Number(trade.assetIdIn),
@@ -180,7 +200,7 @@ onMounted(() => {
   fetchTrades();
   signalrService.onTradeReceived(handleTradeUpdate);
 
-  // Subscribe to trades for this specific asset
+  // Subscribe to trades for this component's asset or pool scope
   subscriptionFilter = {
     RecentBlocks: false,
     RecentTrades: true,
@@ -189,9 +209,9 @@ onMounted(() => {
     RecentAggregatedPool: false,
     RecentAssets: false,
     MainAggregatedPools: false,
-    PoolsAddresses: [],
+    PoolsAddresses: props.poolAddress ? [props.poolAddress] : [],
     AggregatedPoolsIds: [],
-    AssetIds: [props.assetId], // Subscribe to trades for this specific asset
+    AssetIds: props.poolAddress || !props.assetId ? [] : [props.assetId],
   };
   signalrService.subscribe(subscriptionFilter);
 });

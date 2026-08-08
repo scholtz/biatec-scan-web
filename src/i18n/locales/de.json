@@ -309,7 +309,12 @@
     "loadingPoolInfo": "Pool-Informationen werden geladen...",
     "poolInformation": "Pool-Informationen",
     "retry": "Wiederholen",
-    "copyPoolAddress": "Pool-Adresse in die Zwischenablage kopieren"
+    "copyPoolAddress": "Pool-Adresse in die Zwischenablage kopieren",
+    "recentActivity": "Letzte Pool-Aktivität",
+    "recentTrades": "Letzte Trades",
+    "noTrades": "Keine aktuellen Trades für diesen Pool gefunden",
+    "recentLiquidity": "Letzte Liquiditätsänderungen",
+    "noLiquidity": "Keine aktuellen Liquiditätsänderungen für diesen Pool gefunden"
   },
   "aggregatedPools": {
     "title": "Aggregierte Pools mit {assetName}",

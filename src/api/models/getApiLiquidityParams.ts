@@ -173,6 +173,8 @@ export type GetApiLiquidityParams = {
 assetIdA?: number;
 assetIdB?: number;
 txId?: string;
+poolAddress?: string;
+poolAppId?: number;
 offset?: number;
 size?: number;
 };

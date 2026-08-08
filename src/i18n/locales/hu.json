@@ -309,7 +309,12 @@
     "loadingPoolInfo": "Pool információk betöltése...",
     "poolInformation": "Pool információk",
     "retry": "Újrapróbálás",
-    "copyPoolAddress": "Pool cím vágólapra másolása"
+    "copyPoolAddress": "Pool cím vágólapra másolása",
+    "recentActivity": "Legutóbbi pool aktivitás",
+    "recentTrades": "Legutóbbi kereskedések",
+    "noTrades": "Nem található friss kereskedés ehhez a poolhoz",
+    "recentLiquidity": "Legutóbbi likviditásváltozások",
+    "noLiquidity": "Nem található friss likviditásváltozás ehhez a poolhoz"
   },
   "aggregatedPools": {
     "title": "{assetName} eszközt tartalmazó összesített poolok",

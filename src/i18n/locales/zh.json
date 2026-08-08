@@ -309,7 +309,12 @@
     "loadingPoolInfo": "正在加载池信息...",
     "poolInformation": "池信息",
     "retry": "重试",
-    "copyPoolAddress": "复制池地址到剪贴板"
+    "copyPoolAddress": "复制池地址到剪贴板",
+    "recentActivity": "最近池活动",
+    "recentTrades": "最近交易",
+    "noTrades": "未找到该池的最近交易",
+    "recentLiquidity": "最近流动性变化",
+    "noLiquidity": "未找到该池的最近流动性变化"
   },
   "aggregatedPools": {
     "title": "包含 {assetName} 的聚合池",
