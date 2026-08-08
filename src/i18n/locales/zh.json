@@ -1,4 +1,11 @@
 {
+  "miniChart": {
+    "range": "从 {from} 到 {until}",
+    "open": "开盘",
+    "high": "最高",
+    "low": "最低",
+    "close": "收盘"
+  },
   "common": {
     "loading": "加载中...",
     "refresh": "刷新",

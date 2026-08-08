@@ -1,4 +1,11 @@
 {
+  "miniChart": {
+    "range": "Od {from} do {until}",
+    "open": "Otevření",
+    "high": "Maximum",
+    "low": "Minimum",
+    "close": "Závěr"
+  },
   "common": {
     "loading": "Načítání...",
     "refresh": "Obnovit",

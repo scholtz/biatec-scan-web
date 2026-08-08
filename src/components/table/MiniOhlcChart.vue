@@ -1,39 +1,99 @@
 <template>
-  <svg
+  <span
     v-if="drawn.length"
-    :width="width"
-    :height="height"
-    :viewBox="`0 0 ${width} ${height}`"
-    class="inline-block align-middle"
-    role="img"
-    :aria-label="ariaLabel"
+    class="relative inline-block align-middle"
+    @mouseleave="hovered = null"
   >
-    <g v-for="(c, i) in drawn" :key="i">
-      <title>{{ c.tooltip }}</title>
-      <line
-        :x1="c.x + candleWidth / 2"
-        :x2="c.x + candleWidth / 2"
-        :y1="c.wickTop"
-        :y2="c.wickBottom"
-        :stroke="c.color"
-        stroke-width="1"
-        stroke-opacity="0.7"
-      />
-      <rect
-        :x="c.x + 0.5"
-        :y="c.bodyTop"
-        :width="candleWidth - 1"
-        :height="c.bodyHeight"
-        :fill="c.color"
-        rx="0.5"
-      />
-    </g>
-  </svg>
+    <svg
+      :width="width"
+      :height="height"
+      :viewBox="`0 0 ${width} ${height}`"
+      class="block"
+      role="img"
+      :aria-label="ariaLabel"
+    >
+      <g v-for="(c, i) in drawn" :key="i">
+        <rect
+          v-if="hovered === i"
+          :x="c.x"
+          y="0"
+          :width="candleWidth"
+          :height="height"
+          fill="#ffffff"
+          fill-opacity="0.12"
+          rx="1"
+        />
+        <line
+          :x1="c.x + candleWidth / 2"
+          :x2="c.x + candleWidth / 2"
+          :y1="c.wickTop"
+          :y2="c.wickBottom"
+          :stroke="c.color"
+          stroke-width="1"
+          :stroke-opacity="hovered === i ? 1 : 0.7"
+        />
+        <rect
+          :x="c.x + 0.5"
+          :y="c.bodyTop"
+          :width="candleWidth - 1"
+          :height="c.bodyHeight"
+          :fill="c.color"
+          rx="0.5"
+        />
+        <!-- Full-height transparent hit area so hovering anywhere in the column works. -->
+        <rect
+          :x="c.x"
+          y="0"
+          :width="candleWidth"
+          :height="height"
+          fill="transparent"
+          @mouseenter="hovered = i"
+          @mousemove="onMove"
+        />
+      </g>
+    </svg>
+
+    <Teleport to="body">
+      <div
+        v-if="hovered !== null && drawn[hovered]"
+        class="fixed z-50 pointer-events-none bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-3 text-xs text-gray-200 w-max max-w-[90vw]"
+        :style="{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y}px` }"
+      >
+        <div v-if="label" class="font-semibold text-white mb-1">{{ label }}</div>
+        <div class="text-gray-400 mb-1.5 whitespace-nowrap">
+          {{ t("miniChart.range", { from: drawn[hovered].from, until: drawn[hovered].until }) }}
+        </div>
+        <table class="w-full">
+          <tbody>
+            <tr>
+              <td class="pr-4 text-gray-400">{{ t("miniChart.open") }}</td>
+              <td class="text-right font-mono text-gray-100">{{ drawn[hovered].openText }}</td>
+            </tr>
+            <tr>
+              <td class="pr-4 text-gray-400">{{ t("miniChart.high") }}</td>
+              <td class="text-right font-mono text-green-400">{{ drawn[hovered].highText }}</td>
+            </tr>
+            <tr>
+              <td class="pr-4 text-gray-400">{{ t("miniChart.low") }}</td>
+              <td class="text-right font-mono text-red-400">{{ drawn[hovered].lowText }}</td>
+            </tr>
+            <tr>
+              <td class="pr-4 text-gray-400">{{ t("miniChart.close") }}</td>
+              <td class="text-right font-mono" :style="{ color: drawn[hovered].color }">
+                {{ drawn[hovered].closeText }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </Teleport>
+  </span>
   <span v-else class="text-gray-500">-</span>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import type { TimeseriesCandles } from "../../api/models";
 
 /**
@@ -44,8 +104,9 @@ import type { TimeseriesCandles } from "../../api/models";
  * larger buckets (default 28 ≙ 6h candles over 7 days) before drawing. Direction
  * is encoded redundantly — color (project-wide green/red delta convention) AND
  * candle geometry (close vs open position) — so the chart stays readable for
- * colorblind users. Each candle carries a native <title> tooltip with its
- * date range and O/H/L/C values.
+ * colorblind users. Hovering a candle highlights it and shows a tooltip
+ * (teleported to <body> so table-cell overflow clipping can't cut it off) with
+ * the bucket's date range and O/H/L/C values in USD.
  */
 
 const props = withDefaults(
@@ -56,15 +117,33 @@ const props = withDefaults(
     height?: number;
     /** How many candles to draw after aggregating the hourly input. */
     targetCandles?: number;
-    /** Label prefix for the aria description, e.g. "Price 7d". */
+    /** Label prefix for the aria description and tooltip header, e.g. "Price 7d". */
     label?: string;
   }>(),
   { series: null, width: 112, height: 28, targetCandles: 28, label: "" },
 );
 
+const { t } = useI18n();
+
 const UP_COLOR = "#4ade80"; // tailwind green-400, matches ChangeCell positive
 const DOWN_COLOR = "#f87171"; // tailwind red-400, matches ChangeCell negative
 const FLAT_COLOR = "#9ca3af"; // tailwind gray-400
+
+const hovered = ref<number | null>(null);
+const tooltipPos = ref({ x: 0, y: 0 });
+
+const TOOLTIP_EST_WIDTH = 240;
+const TOOLTIP_EST_HEIGHT = 140;
+
+function onMove(e: MouseEvent) {
+  // Follow the cursor with a small offset, flipping to the other side when the
+  // tooltip would run past the viewport edge.
+  let x = e.clientX + 14;
+  let y = e.clientY + 14;
+  if (x + TOOLTIP_EST_WIDTH > window.innerWidth) x = e.clientX - 14 - TOOLTIP_EST_WIDTH;
+  if (y + TOOLTIP_EST_HEIGHT > window.innerHeight) y = e.clientY - 14 - TOOLTIP_EST_HEIGHT;
+  tooltipPos.value = { x: Math.max(4, x), y: Math.max(4, y) };
+}
 
 interface Bucket {
   t: number;
@@ -100,9 +179,19 @@ const candleWidth = computed(() => (buckets.value.length ? props.width / buckets
 function formatValue(v: number): string {
   if (!isFinite(v)) return "-";
   const abs = Math.abs(v);
-  if (abs >= 1000) return v.toLocaleString(undefined, { maximumFractionDigits: 0 });
-  if (abs >= 1) return v.toLocaleString(undefined, { maximumFractionDigits: 4 });
-  return v.toLocaleString(undefined, { maximumSignificantDigits: 4 });
+  if (abs >= 1000) return "$" + v.toLocaleString(undefined, { maximumFractionDigits: 0 });
+  if (abs >= 1) return "$" + v.toLocaleString(undefined, { maximumFractionDigits: 4 });
+  return "$" + v.toLocaleString(undefined, { maximumSignificantDigits: 4 });
+}
+
+function formatDateTime(unixSeconds: number): string {
+  return new Date(unixSeconds * 1000).toLocaleString(undefined, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 const drawn = computed(() => {
@@ -129,11 +218,6 @@ const drawn = computed(() => {
     const yClose = scale(b.c);
     const bodyTop = Math.min(yOpen, yClose);
     const bodyHeight = Math.max(1, Math.abs(yOpen - yClose));
-    const from = new Date(b.t * 1000).toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-    });
     return {
       x: i * w,
       bodyTop,
@@ -141,7 +225,12 @@ const drawn = computed(() => {
       wickTop: scale(b.h),
       wickBottom: scale(b.l),
       color: b.c > b.o ? UP_COLOR : b.c < b.o ? DOWN_COLOR : FLAT_COLOR,
-      tooltip: `${from} — O ${formatValue(b.o)} H ${formatValue(b.h)} L ${formatValue(b.l)} C ${formatValue(b.c)}`,
+      from: formatDateTime(b.t),
+      until: formatDateTime(b.tEnd),
+      openText: formatValue(b.o),
+      highText: formatValue(b.h),
+      lowText: formatValue(b.l),
+      closeText: formatValue(b.c),
     };
   });
 });

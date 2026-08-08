@@ -1,4 +1,11 @@
 {
+  "miniChart": {
+    "range": "Desde {from} hasta {until}",
+    "open": "Apertura",
+    "high": "Máximo",
+    "low": "Mínimo",
+    "close": "Cierre"
+  },
   "common": {
     "loading": "Cargando...",
     "refresh": "Actualizar",

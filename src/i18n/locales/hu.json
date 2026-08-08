@@ -1,4 +1,11 @@
 {
+  "miniChart": {
+    "range": "{from} és {until} között",
+    "open": "Nyitás",
+    "high": "Maximum",
+    "low": "Minimum",
+    "close": "Zárás"
+  },
   "common": {
     "loading": "Betöltés...",
     "refresh": "Frissítés",

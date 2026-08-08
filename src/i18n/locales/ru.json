@@ -1,4 +1,11 @@
 {
+  "miniChart": {
+    "range": "С {from} по {until}",
+    "open": "Открытие",
+    "high": "Максимум",
+    "low": "Минимум",
+    "close": "Закрытие"
+  },
   "common": {
     "loading": "Загрузка...",
     "refresh": "Обновить",
