@@ -27,17 +27,10 @@
           <span class="text-xs text-white truncate min-w-0 flex-1">
             {{ item.unitName || item.name || "#" + item.assetId }}
           </span>
-          <span class="text-xs shrink-0">
-            <template v-if="card.metric === 'priceChange'">
-              <span :class="signClass(item.priceChange24HPercent)">
-                {{ formatPercent(item.priceChange24HPercent) }}
-              </span>
-            </template>
-            <template v-else>
-              <span :class="signClass(item.tvlChange24HPercent)">
-                {{ formatPercent(item.tvlChange24HPercent) }}
-              </span>
-            </template>
+          <span class="text-xs shrink-0" :title="changeTooltip(card.metric, item)">
+            <span :class="signClass(changePercent(card.metric, item))">
+              {{ formatPercent(changePercent(card.metric, item)) }}
+            </span>
           </span>
         </RouterLink>
       </div>
@@ -53,7 +46,7 @@ import type { TopAssetItem, TopAssetsResponse } from "../api/models";
 import HelpTooltip from "./HelpTooltip.vue";
 import { assetImageUrl } from "../config/env";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const data = ref<TopAssetsResponse | null>(null);
 
@@ -62,9 +55,10 @@ const data = ref<TopAssetsResponse | null>(null);
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 let refreshTimer: ReturnType<typeof setInterval> | undefined;
 
-// Popular/trending are *ranked* by trade volume server-side, but like the
-// gainers/losers boxes they *display* the 24h price change percentage.
-type Metric = "priceChange" | "tvlChange";
+// Popular/trending are *ranked* by 24h/1h trade volume server-side and *display*
+// the volume change of that window vs the previous window; the other boxes
+// display price / real-TVL change percentages.
+type Metric = "volume24H" | "volume1H" | "priceChange" | "tvlChange";
 
 interface Card {
   key: string;
@@ -78,8 +72,8 @@ const cards = computed<Card[]>(() => {
   const d = data.value;
   if (!d) return [];
   const defs: Array<[string, Metric, TopAssetItem[] | undefined]> = [
-    ["popular", "priceChange", d.popular ?? undefined],
-    ["trending", "priceChange", d.trending ?? undefined],
+    ["popular", "volume24H", d.popular ?? undefined],
+    ["trending", "volume1H", d.trending ?? undefined],
     ["gainers", "priceChange", d.topGainers ?? undefined],
     ["losers", "priceChange", d.topLosers ?? undefined],
     ["valueGainers", "tvlChange", d.topValueGainers ?? undefined],
@@ -105,6 +99,90 @@ function signClass(value: number | null | undefined): string {
 function formatPercent(value: number | null | undefined): string {
   if (value === null || value === undefined) return "-";
   return (value > 0 ? "+" : "") + value.toFixed(2) + "%";
+}
+
+function changePercent(metric: Metric, item: TopAssetItem): number | null | undefined {
+  switch (metric) {
+    case "volume24H":
+      return item.volume24HChangePercent;
+    case "volume1H":
+      return item.volume1HChangePercent;
+    case "priceChange":
+      return item.priceChange24HPercent;
+    case "tvlChange":
+      return item.tvlChange24HPercent;
+  }
+}
+
+function fmtUsdCompact(value: number): string {
+  return new Intl.NumberFormat(locale.value, {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
+function fmtPrice(value: number): string {
+  return new Intl.NumberFormat(locale.value, {
+    style: "currency",
+    currency: "USD",
+    maximumSignificantDigits: 6,
+  }).format(value);
+}
+
+// "15:35" for 1h windows, "Aug 8, 15:35" for 24h windows (locale-aware).
+function fmtTime(date: Date, withDate: boolean): string {
+  return new Intl.DateTimeFormat(
+    locale.value,
+    withDate
+      ? { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }
+      : { hour: "2-digit", minute: "2-digit" },
+  ).format(date);
+}
+
+// Native title tooltip explaining the percentage: the compared time window and the
+// real values of the previous and current period.
+function changeTooltip(metric: Metric, item: TopAssetItem): string {
+  const generatedAt = data.value?.generatedAt ? new Date(data.value.generatedAt) : new Date();
+  const hourMs = 3_600_000;
+  const windowHours = metric === "volume1H" ? 1 : 24;
+  const from = new Date(generatedAt.getTime() - windowHours * hourMs);
+  const withDate = windowHours === 24;
+  const params = {
+    from: fmtTime(from, withDate),
+    to: fmtTime(generatedAt, withDate),
+  };
+  switch (metric) {
+    case "volume1H":
+      if (item.volume1HUSDPrev === null || item.volume1HUSDPrev === undefined) return "";
+      return t("assets.topListsTooltip.volumeChange", {
+        ...params,
+        prev: fmtUsdCompact(item.volume1HUSDPrev),
+        curr: fmtUsdCompact(item.volume1HUSD ?? 0),
+      });
+    case "volume24H":
+      if (item.volume24HUSDPrev === null || item.volume24HUSDPrev === undefined) return "";
+      return t("assets.topListsTooltip.volumeChange", {
+        ...params,
+        prev: fmtUsdCompact(item.volume24HUSDPrev),
+        curr: fmtUsdCompact(item.volume24HUSD ?? 0),
+      });
+    case "priceChange":
+      if (item.priceUSD24H === null || item.priceUSD24H === undefined) return "";
+      return t("assets.topListsTooltip.priceChange", {
+        ...params,
+        prev: fmtPrice(item.priceUSD24H),
+        curr: fmtPrice(item.priceUSD ?? 0),
+      });
+    case "tvlChange":
+      if (item.realTVLUSD24H === null || item.realTVLUSD24H === undefined) return "";
+      return t("assets.topListsTooltip.tvlChange", {
+        ...params,
+        prev: fmtUsdCompact(item.realTVLUSD24H),
+        curr: fmtUsdCompact(item.realTVLUSD ?? 0),
+      });
+  }
 }
 
 async function fetchTopAssets() {

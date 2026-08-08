@@ -118,12 +118,17 @@
       "valueLosers": "Legnagyobb likviditáscsökkenés"
     },
     "topListsHelp": {
-      "popular": "A legnagyobb USD forgalmú eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
-      "trending": "A legnagyobb USD forgalmú eszközök az elmúlt egy órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
+      "popular": "A legnagyobb USD forgalmú eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre. A százalék a forgalom változását mutatja az előző 24 órás időszakhoz képest.",
+      "trending": "A legnagyobb USD forgalmú eszközök az elmúlt egy órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre. A százalék a forgalom változását mutatja az előző órához képest.",
       "gainers": "A legnagyobb százalékos áremelkedést mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
       "losers": "A legnagyobb százalékos árcsökkenést mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
       "valueGainers": "A valós likviditás (TVL) legnagyobb százalékos növekedését mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
       "valueLosers": "A valós likviditás (TVL) legnagyobb százalékos csökkenését mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre."
+    },
+    "topListsTooltip": {
+      "volumeChange": "{from} és {to} között a kereskedési forgalom {prev} értékről {curr} értékre változott.",
+      "priceChange": "{from} és {to} között az ár {prev} értékről {curr} értékre változott.",
+      "tvlChange": "{from} és {to} között a valós likviditás (TVL) {prev} értékről {curr} értékre változott."
     },
     "title": "Eszközök",
     "rank": "Helyezés",

@@ -186,6 +186,7 @@ export interface AssetStat {
   /** @nullable */
   priceUSD?: number | null;
   tvlusd?: number;
+  tvlOtherUSD?: number;
   volume24hUSD?: number;
   volume7dUSD?: number;
   fees24hUSD?: number;

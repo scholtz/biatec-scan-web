@@ -118,12 +118,17 @@
       "valueLosers": "Top-Liquiditätsverlierer"
     },
     "topListsHelp": {
-      "popular": "Die meistgehandelten Assets nach USD-Volumen in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
-      "trending": "Die meistgehandelten Assets nach USD-Volumen in der letzten Stunde. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
+      "popular": "Die meistgehandelten Assets nach USD-Volumen in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL. Der Prozentwert zeigt die Volumenänderung gegenüber dem vorherigen 24-Stunden-Fenster.",
+      "trending": "Die meistgehandelten Assets nach USD-Volumen in der letzten Stunde. Berücksichtigt werden nur die Top 150 Assets nach realem TVL. Der Prozentwert zeigt die Volumenänderung gegenüber der vorherigen Stunde.",
       "gainers": "Assets mit dem höchsten prozentualen Kursanstieg in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
       "losers": "Assets mit dem stärksten prozentualen Kursrückgang in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
       "valueGainers": "Assets mit dem höchsten prozentualen Zuwachs an realer Liquidität (TVL) in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
       "valueLosers": "Assets mit dem stärksten prozentualen Rückgang an realer Liquidität (TVL) in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL."
+    },
+    "topListsTooltip": {
+      "volumeChange": "Von {from} bis {to} änderte sich das Handelsvolumen von {prev} auf {curr}.",
+      "priceChange": "Von {from} bis {to} änderte sich der Preis von {prev} auf {curr}.",
+      "tvlChange": "Von {from} bis {to} änderte sich die reale Liquidität (TVL) von {prev} auf {curr}."
     },
     "title": "Assets",
     "rank": "Rang",

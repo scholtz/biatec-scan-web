@@ -1,9 +1,13 @@
 import type { ConfigExternal } from "orval";
 
-// Orval configuration for generating a typed Axios client from the Biatec Scan OpenAPI spec
+// Orval configuration for generating a typed Axios client from the Biatec Scan OpenAPI spec.
+// Defaults to the production API spec; set ORVAL_INPUT to generate from another environment,
+// e.g. stage (testnet) right after a backend API change was deployed there but not yet
+// promoted to production:
+//   ORVAL_INPUT=https://api.testnet.scan.biatec.io/swagger/v1/swagger.json npm run generate:api
 const config: ConfigExternal = {
   api: {
-    input: "https://algorand-trades.de-4.biatec.io/swagger/v1/swagger.json",
+    input: process.env.ORVAL_INPUT ?? "https://algorand-trades.de-4.biatec.io/swagger/v1/swagger.json",
     output: {
       target: "src/api/index.ts",
       schemas: "src/api/models",

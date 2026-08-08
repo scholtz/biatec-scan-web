@@ -183,7 +183,15 @@ export interface TopAssetItem {
   /** @nullable */
   priceChange24HPercent?: number | null;
   volume1HUSD?: number;
+  /** @nullable */
+  volume1HUSDPrev?: number | null;
+  /** @nullable */
+  volume1HChangePercent?: number | null;
   volume24HUSD?: number;
+  /** @nullable */
+  volume24HUSDPrev?: number | null;
+  /** @nullable */
+  volume24HChangePercent?: number | null;
   realTVLUSD?: number;
   /** @nullable */
   realTVLUSD24H?: number | null;

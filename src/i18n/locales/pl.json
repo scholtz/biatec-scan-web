@@ -118,12 +118,17 @@
       "valueLosers": "Największy spadek płynności"
     },
     "topListsHelp": {
-      "popular": "Najczęściej handlowane aktywa według wolumenu w USD w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
-      "trending": "Najczęściej handlowane aktywa według wolumenu w USD w ciągu ostatniej godziny. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
+      "popular": "Najczęściej handlowane aktywa według wolumenu w USD w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL. Procent pokazuje zmianę wolumenu względem poprzedniego okna 24-godzinnego.",
+      "trending": "Najczęściej handlowane aktywa według wolumenu w USD w ciągu ostatniej godziny. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL. Procent pokazuje zmianę wolumenu względem poprzedniej godziny.",
       "gainers": "Aktywa z najwyższym procentowym wzrostem ceny w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
       "losers": "Aktywa z największym procentowym spadkiem ceny w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
       "valueGainers": "Aktywa z najwyższym procentowym wzrostem realnej płynności (TVL) w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
       "valueLosers": "Aktywa z największym procentowym spadkiem realnej płynności (TVL) w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL."
+    },
+    "topListsTooltip": {
+      "volumeChange": "Od {from} do {to} wolumen obrotu zmienił się z {prev} na {curr}.",
+      "priceChange": "Od {from} do {to} cena zmieniła się z {prev} na {curr}.",
+      "tvlChange": "Od {from} do {to} realna płynność (TVL) zmieniła się z {prev} na {curr}."
     },
     "title": "Zasoby",
     "rank": "Ranking",

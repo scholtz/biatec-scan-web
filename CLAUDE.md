@@ -27,6 +27,39 @@ Related sibling checkout also available: `../../BiatecCLAMM` (the on-chain
 CLAMM contracts in TEAL/Algo — the source of truth for pool pricing formulas
 that both the backend and frontend need to match).
 
+## Backend API change → regenerated frontend client workflow
+
+When a task needs a change to the AVMTradeReporter API surface (new/changed
+DTO fields or endpoints) that the frontend then consumes, follow this exact
+sequence — the frontend client is generated from a *deployed* swagger spec,
+so the backend must be released before the client can be regenerated:
+
+1. Make the backend change in `../AVMTradeReporter` and run its tests:
+   `dotnet test AVMTradeReporterTests/AVMTradeReporterTests.csproj`.
+2. Commit and push to `master` (the backend repo's main branch is named
+   `master`, not `main`). Every push to `master` triggers the
+   "Build and Deploy" GitHub workflow (`.github/workflows/deploy.yml`),
+   which builds the Docker images and deploys them to the **stage**
+   environment (testnet, `https://testnet.scan.biatec.io`, API at
+   `https://api.testnet.scan.biatec.io`). Production is NOT touched —
+   promoting to production is a separate manual workflow
+   (`promote-production.yml`).
+3. Wait for the workflow to finish:
+   `gh run list --repo scholtz/AVMTradeReporter` /
+   `gh run watch <run-id> --repo scholtz/AVMTradeReporter --exit-status`.
+4. In this repo, regenerate the typed Axios client from the *stage* spec
+   (production swagger won't have the new fields until promotion):
+   `ORVAL_INPUT=https://api.testnet.scan.biatec.io/swagger/v1/swagger.json npm run generate:api`
+   (on PowerShell: `$env:ORVAL_INPUT = '...'; npm run generate:api`).
+   `orval.config.ts` defaults to the production spec when `ORVAL_INPUT` is
+   unset. The generator rewrites `src/api/index.ts` + `src/api/models/`.
+5. Make the frontend change, run `npm run build` (type-check + vite), and
+   commit both the generated client and the feature change together.
+6. Note in the final summary that production still serves the old API until
+   `promote-production.yml` is run manually in the backend repo — the
+   frontend on mainnet must tolerate the missing fields until then (new
+   generated fields are optional/nullable, so this is usually automatic).
+
 ## CSS grid / table layout gotchas
 
 This app renders "table" rows as repeated `display:grid` containers (one grid
