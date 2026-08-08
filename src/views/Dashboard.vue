@@ -244,7 +244,7 @@ import PoolCard from "../components/PoolCard.vue";
 import AggregatedPoolCard from "../components/AggregatedPoolCard.vue";
 import AssetCard from "../components/AssetCard.vue";
 import { BiatecBlock } from "../types/BiatecBlock";
-import { AggregatedPool, BiatecAsset, Pool } from "../api/models";
+import { AggregatedPool, BiatecAsset, Pool, Trade } from "../api/models";
 import StyledBox from "../components/StyledBox.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
@@ -305,6 +305,64 @@ const networkStatus = computed(() => {
   }
 });
 
+// The SignalR feed only pushes trades made while the page is open, so on
+// low-activity networks (e.g. testnet) the panel would sit empty forever.
+// Seed it from the REST API like the Trades page does, then let live pushes
+// take over; also used to refill after a reconnect gap.
+const loadRecentTrades = async () => {
+  try {
+    const res = await getAVMTradeReporterAPI().getApiTrade({
+      size: 20,
+      sortBy: "timestamp",
+      sortDirection: "desc",
+    });
+    const items = Array.isArray(res.data?.items) ? res.data.items : [];
+    for (const trade of items.map(convertApiTrade)) {
+      if (!trade.txId) continue;
+      if (!state.recentTrades.some((t) => t.txId === trade.txId)) {
+        state.recentTrades.push(trade);
+      }
+    }
+    state.recentTrades = [...state.recentTrades]
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      )
+      .slice(0, 50);
+  } catch (e) {
+    console.error("Error fetching recent trades:", e);
+  }
+};
+
+const convertApiTrade = (trade: Trade): AMMTrade => ({
+  assetIdIn: BigInt(trade.assetIdIn ?? 0),
+  assetIdOut: BigInt(trade.assetIdOut ?? 0),
+  assetAmountIn: trade.assetAmountIn ?? 0,
+  assetAmountOut: trade.assetAmountOut ?? 0,
+  valueUSD: trade.valueUSD,
+  priceAssetInUSD: trade.priceAssetInUSD,
+  priceAssetOutUSD: trade.priceAssetOutUSD,
+  feesUSD: trade.feesUSD,
+  feesUSDProvider: trade.feesUSDProvider,
+  feesUSDProtocol: trade.feesUSDProtocol,
+  txId: trade.txId ?? "",
+  blockId: BigInt(trade.blockId ?? 0),
+  txGroup: trade.txGroup ?? "",
+  timestamp: trade.timestamp ?? "",
+  protocol: trade.protocol ?? "",
+  trader: trade.trader ?? "",
+  poolAddress: trade.poolAddress ?? "",
+  poolAppId: BigInt(trade.poolAppId ?? 0),
+  topTxId: trade.topTxId ?? "",
+  tradeState: trade.tradeState ?? "",
+});
+
+const onReconnectedEvent = () => {
+  state.connectionStatus = true;
+  // Messages broadcast during the outage were missed; refill from the API.
+  void loadRecentTrades();
+};
+
 onMounted(async () => {
   // Set up SignalR for AMM trades
 
@@ -314,8 +372,12 @@ onMounted(async () => {
   signalrService.onLiquidityReceived(onLiquidityReceivedEvent);
   signalrService.onPoolReceived(onPoolReceivedEvent);
   signalrService.onAssetReceived(onAssetReceivedEvent);
+  signalrService.onReconnected(onReconnectedEvent);
 
+  const seedTrades = loadRecentTrades();
   await signalrService.subscribe(createDashboardSubscriptionFilter());
+  state.connectionStatus = signalrService.getConnectionState();
+  await seedTrades;
   state.mounted = true;
 
   // Fetch the current ALGO/USDC aggregated pool once so the price shows
@@ -487,6 +549,7 @@ onUnmounted(async () => {
     onAggregatedPoolReceivedEvent
   );
   signalrService.unsubscribeFromBlockUpdates(onBlockReceivedEvent);
+  signalrService.offReconnected(onReconnectedEvent);
 
   if (timeInterval) {
     clearInterval(timeInterval);
