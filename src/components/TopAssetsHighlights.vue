@@ -28,29 +28,7 @@
             {{ item.unitName || item.name || "#" + item.assetId }}
           </span>
           <span class="text-xs shrink-0">
-            <template v-if="card.metric === 'volume24H'">
-              <span class="text-gray-200">
-                <FormattedNumber
-                  :value="item.volume24HUSD ?? 0"
-                  type="currency"
-                  compact
-                  :minimum-fraction-digits="0"
-                  :maximum-fraction-digits="1"
-                />
-              </span>
-            </template>
-            <template v-else-if="card.metric === 'volume1H'">
-              <span class="text-gray-200">
-                <FormattedNumber
-                  :value="item.volume1HUSD ?? 0"
-                  type="currency"
-                  compact
-                  :minimum-fraction-digits="0"
-                  :maximum-fraction-digits="1"
-                />
-              </span>
-            </template>
-            <template v-else-if="card.metric === 'priceChange'">
+            <template v-if="card.metric === 'priceChange'">
               <span :class="signClass(item.priceChange24HPercent)">
                 {{ formatPercent(item.priceChange24HPercent) }}
               </span>
@@ -72,7 +50,6 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import type { TopAssetItem, TopAssetsResponse } from "../api/models";
-import FormattedNumber from "./FormattedNumber.vue";
 import HelpTooltip from "./HelpTooltip.vue";
 import { assetImageUrl } from "../config/env";
 
@@ -85,7 +62,9 @@ const data = ref<TopAssetsResponse | null>(null);
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 let refreshTimer: ReturnType<typeof setInterval> | undefined;
 
-type Metric = "volume24H" | "volume1H" | "priceChange" | "tvlChange";
+// Popular/trending are *ranked* by trade volume server-side, but like the
+// gainers/losers boxes they *display* the 24h price change percentage.
+type Metric = "priceChange" | "tvlChange";
 
 interface Card {
   key: string;
@@ -99,8 +78,8 @@ const cards = computed<Card[]>(() => {
   const d = data.value;
   if (!d) return [];
   const defs: Array<[string, Metric, TopAssetItem[] | undefined]> = [
-    ["popular", "volume24H", d.popular ?? undefined],
-    ["trending", "volume1H", d.trending ?? undefined],
+    ["popular", "priceChange", d.popular ?? undefined],
+    ["trending", "priceChange", d.trending ?? undefined],
     ["gainers", "priceChange", d.topGainers ?? undefined],
     ["losers", "priceChange", d.topLosers ?? undefined],
     ["valueGainers", "tvlChange", d.topValueGainers ?? undefined],
