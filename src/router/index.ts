@@ -2,6 +2,32 @@ import { createRouter, createWebHistory } from "vue-router";
 import Assets from "../views/Assets.vue";
 // Lazy import for aggregated pools by asset
 
+// After a new deploy the old hashed chunk files are gone, so a client still
+// running the previous build fails to lazy-load route components with
+// "Failed to fetch dynamically imported module". Recover by reloading once so
+// the browser picks up the new index.html and chunk names.
+const RELOAD_FLAG = "chunk-reload-at";
+
+const reloadOnStaleChunk = (targetPath?: string) => {
+  const last = Number(sessionStorage.getItem(RELOAD_FLAG) || 0);
+  // Only auto-reload if we haven't just done so — avoids an infinite reload
+  // loop if the chunk is genuinely unreachable (e.g. offline).
+  if (Date.now() - last < 10_000) return false;
+  sessionStorage.setItem(RELOAD_FLAG, String(Date.now()));
+  window.location.assign(targetPath ?? window.location.href);
+  return true;
+};
+
+const isChunkLoadError = (error: unknown): boolean => {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    /Failed to fetch dynamically imported module/i.test(message) ||
+    /Importing a module script failed/i.test(message) ||
+    /error loading dynamically imported module/i.test(message) ||
+    /Unable to preload CSS/i.test(message)
+  );
+};
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -119,6 +145,22 @@ const router = createRouter({
       component: () => import("../views/About.vue"),
     },
   ],
+});
+
+router.onError((error, to) => {
+  if (isChunkLoadError(error)) {
+    // Navigate to the target route via a full page load so the new build's
+    // index.html (with fresh chunk URLs) is fetched.
+    reloadOnStaleChunk(to?.fullPath);
+  }
+});
+
+// Vite fires this when a modulepreload/CSS preload of a chunk fails (covers
+// failures outside router navigation, e.g. preloaded shared chunks).
+window.addEventListener("vite:preloadError", (event) => {
+  if (reloadOnStaleChunk()) {
+    event.preventDefault();
+  }
 });
 
 export default router;
