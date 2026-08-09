@@ -41,18 +41,34 @@
       </div>
 
       <div v-else class="space-y-2">
+        <div class="flex justify-between items-center px-3 text-xs text-gray-500">
+          <span>{{ t("addressDetails.balanceChangeAsset") }}</span>
+          <div class="text-right">
+            <div>{{ t("addressDetails.balanceChangeAmount") }}</div>
+            <div>{{ t("addressDetails.balanceChangeValuationUSD") }}</div>
+          </div>
+        </div>
         <div
           v-for="row in deltaRows"
           :key="row.assetId"
           class="flex justify-between items-center p-3 bg-gray-800 rounded"
         >
           <span class="text-white text-sm truncate mr-2">{{ row.label }}</span>
-          <span
-            class="font-mono text-sm flex-shrink-0"
-            :class="row.amount > 0 ? 'text-green-400' : 'text-red-400'"
-          >
-            {{ row.amount > 0 ? "+" : "-" }}{{ row.formatted }}
-          </span>
+          <div class="text-right flex-shrink-0">
+            <div
+              class="font-mono text-sm"
+              :class="row.amount > 0 ? 'text-green-400' : 'text-red-400'"
+            >
+              {{ row.amount > 0 ? "+" : "-" }}{{ row.formatted }}
+            </div>
+            <div
+              v-if="row.formattedUSD"
+              class="font-mono text-xs"
+              :class="row.amount > 0 ? 'text-green-400/70' : 'text-red-400/70'"
+            >
+              {{ row.amount > 0 ? "+" : "-" }}{{ row.formattedUSD }}
+            </div>
+          </div>
         </div>
       </div>
     </template>
@@ -72,6 +88,7 @@ const props = defineProps<{
   loading: boolean;
   truncated: boolean;
   earliestTime: number | null;
+  assetPrices: Record<number, number>;
 }>();
 
 const { t, locale } = useI18n();
@@ -139,9 +156,26 @@ const deltaRows = computed(() => {
       const formatted = new Intl.NumberFormat(locale.value, {
         maximumFractionDigits: Math.min(Math.max(decimals, 2), 8),
       }).format(Math.abs(amount));
-      return { assetId, amount, formatted, label: assetLabel(assetId) };
+      const price = props.assetPrices[assetId] ?? 0;
+      const valuationUSD = amount * price;
+      const formattedUSD =
+        price > 0
+          ? new Intl.NumberFormat(locale.value, {
+              style: "currency",
+              currency: "USD",
+              maximumFractionDigits: 2,
+            }).format(Math.abs(valuationUSD))
+          : null;
+      return {
+        assetId,
+        amount,
+        formatted,
+        label: assetLabel(assetId),
+        valuationUSD,
+        formattedUSD,
+      };
     })
-    .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
+    .sort((a, b) => Math.abs(b.valuationUSD) - Math.abs(a.valuationUSD));
 });
 </script>
 

@@ -477,7 +477,10 @@
     "duration7d": "Last 7 days",
     "duration30d": "Last 30 days",
     "duration90d": "Last 90 days",
-    "duration1y": "Last year"
+    "duration1y": "Last year",
+    "balanceChangeAsset": "Asset",
+    "balanceChangeAmount": "Change",
+    "balanceChangeValuationUSD": "Current USD valuation"
   },
   "status": {
     "online": "ONLINE",

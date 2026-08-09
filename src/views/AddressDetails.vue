@@ -188,6 +188,7 @@
           :loading="addressHistory.loading.value"
           :truncated="addressHistory.truncated.value"
           :earliest-time="addressHistory.earliestTime.value"
+          :asset-prices="assetPrices"
         />
 
         <!-- 3-Column Grid: Assets | Transactions | Trades -->
