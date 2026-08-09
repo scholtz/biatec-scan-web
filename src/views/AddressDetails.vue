@@ -383,8 +383,10 @@
               {{ $t("addressDetails.recentTransactions") }}
             </h2>
 
+            <TransactionFilterBar v-model="txFilter" />
+
             <div
-              v-if="loadingTransactions && transactions.length === 0"
+              v-if="loadingTransactions && pagedTransactions.length === 0"
               class="text-center py-4 text-gray-400 text-sm"
             >
               <div
@@ -401,45 +403,12 @@
             </div>
 
             <div v-else class="space-y-2">
-              <div
+              <AddressTransactionRow
                 v-for="tx in pagedTransactions"
                 :key="tx.id"
-                class="p-3 bg-gray-800 rounded hover:bg-gray-700 transition-colors"
-              >
-                <div class="flex justify-between items-start mb-1">
-                  <router-link
-                    :to="{
-                      name: 'TransactionDetails',
-                      params: { txId: tx.id },
-                    }"
-                    class="text-blue-400 hover:text-blue-300 font-mono text-xs"
-                    v-if="tx.id"
-                  >
-                    {{ algorandService.formatTransactionId(tx.id) }}
-                  </router-link>
-                  <span
-                    class="text-xs text-gray-400"
-                    v-if="tx['round-time']"
-                  >
-                    <FormattedTime :timestamp="BigInt(tx['round-time'])" />
-                  </span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-gray-400 text-xs">{{
-                    formatTransactionType(tx["tx-type"] || "unknown")
-                  }}</span>
-                  <div class="text-right">
-                    <div class="text-white text-xs">
-                      {{ $t("addressDetails.round") }}
-                      {{ tx["confirmed-round"] || "N/A" }}
-                    </div>
-                    <div class="text-gray-400 text-xs">
-                      {{ $t("addressDetails.fee") }}
-                      {{ algorandService.formatAlgoAmount(tx.fee) }} ALGO
-                    </div>
-                  </div>
-                </div>
-              </div>
+                :tx="tx"
+                :link-query="txLinkQuery"
+              />
             </div>
 
             <!-- Transactions pagination -->
@@ -668,7 +637,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
@@ -681,6 +650,14 @@ import { assetImageUrl as sharedAssetImageUrl, indexerUrl } from "../config/env"
 import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
+import TransactionFilterBar from "../components/address/TransactionFilterBar.vue";
+import AddressTransactionRow from "../components/address/AddressTransactionRow.vue";
+import { useAddressTransactions } from "../composables/useAddressTransactions";
+import {
+  txFilterFromQuery,
+  txFilterToQuery,
+  type TxFilterState,
+} from "../utils/txFilter";
 
 const { t, locale } = useI18n();
 const api = getAVMTradeReporterAPI();
@@ -702,16 +679,8 @@ interface AccountInfo {
   assets?: AccountAsset[];
 }
 
-interface IndexerTransaction {
-  id: string;
-  fee: number;
-  "round-time"?: number;
-  "tx-type"?: string;
-  "confirmed-round"?: number;
-  [key: string]: any;
-}
-
 const route = useRoute();
+const router = useRouter();
 const address = computed(() => route.params.address as string);
 
 // Account state
@@ -721,12 +690,23 @@ const accountInfo = ref<AccountInfo | null>(null);
 const assetPrices = ref<Record<number, number>>({});
 const identifiedPool = ref<Pool | null>(null);
 
-// Transaction state
-const transactions = ref<IndexerTransaction[]>([]);
-const loadingTransactions = ref(false);
-const hasMoreTransactions = ref(true);
-const nextToken = ref("");
-const txPage = ref(0);
+// Transaction filter + fetch/pagination (shared with TransactionDetails' address panel)
+const txFilter = ref<TxFilterState>(txFilterFromQuery(route.query as Record<string, unknown>));
+const {
+  loading: loadingTransactions,
+  pagedTransactions,
+  page: txPage,
+  canGoNext: canGoToNextTxPage,
+  reset: resetTransactions,
+  next: nextTxPage,
+  prev: prevTxPage,
+} = useAddressTransactions(address, txFilter);
+
+// Query params for linking to a transaction while preserving the address + filter context
+const txLinkQuery = computed(() => ({
+  address: address.value,
+  ...txFilterToQuery(txFilter.value),
+}));
 
 // Assets pagination
 const assetsPage = ref(0);
@@ -823,18 +803,6 @@ const pagedAssets = computed(() =>
   ),
 );
 
-// Transactions pagination
-const pagedTransactions = computed(() =>
-  transactions.value.slice(
-    txPage.value * PAGE_SIZE,
-    (txPage.value + 1) * PAGE_SIZE,
-  ),
-);
-const canGoToNextTxPage = computed(() => {
-  const nextStart = (txPage.value + 1) * PAGE_SIZE;
-  return nextStart < transactions.value.length || hasMoreTransactions.value;
-});
-
 // Trades filtering and pagination
 const filteredAddressTrades = computed(() => {
   return addressTrades.value.filter((trade) => {
@@ -890,6 +858,20 @@ const pieChartSlices = computed(() => {
 
 watch([tradeAssetFilter, tradeMinUSD, tradeMaxUSD], () => {
   tradesPage.value = 0;
+});
+
+// Keep the URL in sync so the current transaction filter can be shared via link
+watch(
+  txFilter,
+  (filter) => {
+    router.replace({ query: { ...route.query, ...txFilterToQuery(filter) } });
+  },
+  { deep: true },
+);
+
+// Re-derive the filter from the URL when navigating directly between addresses
+watch(address, () => {
+  txFilter.value = txFilterFromQuery(route.query as Record<string, unknown>);
 });
 
 // ---- Functions ----
@@ -1053,23 +1035,6 @@ async function unsubscribeFromAddressTrades() {
   await signalrService.unsubscribeFilter(filter);
 }
 
-// Transaction pagination helpers
-async function nextTxPage() {
-  const nextStart = (txPage.value + 1) * PAGE_SIZE;
-  if (nextStart >= transactions.value.length) {
-    if (hasMoreTransactions.value) {
-      await loadTransactions(false);
-    } else {
-      return;
-    }
-  }
-  txPage.value++;
-}
-
-function prevTxPage() {
-  if (txPage.value > 0) txPage.value--;
-}
-
 // ---- Data loading ----
 
 const loadAddressInfo = async () => {
@@ -1092,7 +1057,7 @@ const loadAddressInfo = async () => {
 
     fetchAssetPrices();
     fetchIdentifiedPool();
-    await loadTransactions(true);
+    await resetTransactions();
   } catch (err: unknown) {
     error.value =
       err instanceof Error ? err.message : t("addressDetails.loadError");
@@ -1148,37 +1113,6 @@ const fetchAssetPrices = async () => {
   }
 };
 
-const loadTransactions = async (reset = false) => {
-  if (!address.value) return;
-
-  loadingTransactions.value = true;
-
-  try {
-    const url = `${indexerUrl}/v2/accounts/${address.value}/transactions?limit=${PAGE_SIZE}${nextToken.value ? `&next=${nextToken.value}` : ""}`;
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(t("addressDetails.loadTxError"));
-    }
-
-    const data = await response.json();
-
-    if (reset) {
-      transactions.value = data.transactions || [];
-      txPage.value = 0;
-    } else {
-      transactions.value.push(...(data.transactions || []));
-    }
-
-    nextToken.value = data["next-token"] || "";
-    hasMoreTransactions.value = !!data["next-token"];
-  } catch (err) {
-    console.error("Error loading transactions:", err);
-  } finally {
-    loadingTransactions.value = false;
-  }
-};
-
 // ---- Formatters ----
 
 const formatAlgoAmount = (microAlgos: number): string =>
@@ -1194,18 +1128,6 @@ const formatAssetAmount = (amount: number, assetId: number): string => {
     maximumFractionDigits: Math.min(Math.max(decimals, 2), 8),
   }).format(value);
   return `${formatted} ${unitName}`;
-};
-
-const formatTransactionType = (txType: string): string => {
-  const typeMap: { [key: string]: string } = {
-    pay: t("transaction.type.pay"),
-    axfer: t("transaction.type.axfer"),
-    acfg: t("transaction.type.acfg"),
-    afrz: t("transaction.type.afrz"),
-    appl: t("transaction.type.appl"),
-    keyreg: t("transaction.type.keyreg"),
-  };
-  return typeMap[txType] || txType;
 };
 
 const formatStatus = (status?: string) => {

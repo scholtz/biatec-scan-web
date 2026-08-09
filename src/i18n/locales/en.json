@@ -463,7 +463,12 @@
     "allAssets": "All assets",
     "minUSD": "Min USD",
     "maxUSD": "Max USD",
-    "liveUpdates": "{count} live updates"
+    "liveUpdates": "{count} live updates",
+    "txTypeFilter": "Type",
+    "allTypes": "All types",
+    "txMinAmountFilter": "Min amount",
+    "txAssetIdFilter": "Asset ID",
+    "txAssetIdPlaceholder": "e.g. 31566704"
   },
   "status": {
     "online": "ONLINE",
@@ -613,6 +618,7 @@
     "innerTransactions": "Inner Transactions",
     "innerTransaction": "Inner Transaction",
     "backToParent": "Back to Parent Transaction",
+    "addressContextTitle": "Address Transactions",
     "balanceImpact": "Balance Impact",
     "balanceImpactDesc": "Net balance changes for every account affected by this transaction, including all inner transactions and fees.",
     "balanceImpactInclFee": "includes {fee} ALGO in fees",

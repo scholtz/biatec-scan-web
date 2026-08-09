@@ -15,6 +15,76 @@
         </router-link>
       </div>
 
+      <!-- Address Transaction Filter Context -->
+      <div v-if="contextAddress" class="card mb-6 space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <h2 class="text-xl font-semibold text-white">
+            {{ $t("transaction.addressContextTitle") }}
+          </h2>
+          <router-link
+            :to="{
+              name: 'AddressDetails',
+              params: { address: contextAddress },
+              query: txFilterToQuery(txFilter),
+            }"
+            class="text-blue-400 hover:text-blue-300 font-mono text-sm break-all"
+          >
+            {{ contextAddress }}
+          </router-link>
+        </div>
+
+        <TransactionFilterBar v-model="txFilter" />
+
+        <div
+          v-if="addressTx.loading.value && addressTx.pagedTransactions.value.length === 0"
+          class="text-center py-4 text-gray-400 text-sm"
+        >
+          <div
+            class="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"
+          ></div>
+          {{ $t("common.loading") }}
+        </div>
+
+        <div
+          v-else-if="addressTx.pagedTransactions.value.length === 0"
+          class="text-center py-4 text-gray-400 text-sm"
+        >
+          {{ $t("addressDetails.noTransactions") }}
+        </div>
+
+        <div v-else class="space-y-2">
+          <AddressTransactionRow
+            v-for="tx in addressTx.pagedTransactions.value"
+            :key="tx.id"
+            :tx="tx"
+            :link-query="txLinkQuery"
+            :is-current="tx.id === transaction.id"
+          />
+        </div>
+
+        <div class="flex justify-between items-center pt-1">
+          <button
+            :disabled="addressTx.page.value === 0"
+            @click="addressTx.prev"
+            class="btn-secondary text-sm"
+          >
+            {{ $t("common.prev") }}
+          </button>
+          <span class="text-xs text-gray-400">
+            {{ $t("common.page") }} {{ addressTx.page.value + 1 }}
+          </span>
+          <button
+            :disabled="!addressTx.canGoNext.value || addressTx.loading.value"
+            @click="addressTx.next"
+            class="btn-secondary text-sm"
+          >
+            {{
+              addressTx.loading.value ? $t("common.loading") : $t("common.next")
+            }}
+          </button>
+        </div>
+      </div>
+
       <!-- Transaction Header -->
       <TransactionHeader :transaction="transaction" />
 
@@ -101,9 +171,17 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { algorandService } from "../services/algorandService";
 import algosdk from "algosdk";
+import TransactionFilterBar from "../components/address/TransactionFilterBar.vue";
+import AddressTransactionRow from "../components/address/AddressTransactionRow.vue";
+import { useAddressTransactions } from "../composables/useAddressTransactions";
+import {
+  txFilterFromQuery,
+  txFilterToQuery,
+  type TxFilterState,
+} from "../utils/txFilter";
 import TransactionHeader from "../components/transaction/TransactionHeader.vue";
 import TransactionIdSection from "../components/transaction/TransactionIdSection.vue";
 import TransactionBalanceImpact from "../components/transaction/TransactionBalanceImpact.vue";
@@ -118,6 +196,7 @@ import TransactionTechnicalDetails from "../components/transaction/TransactionTe
 import TransactionApplication from "../components/transaction/TransactionApplication.vue";
 
 const route = useRoute();
+const router = useRouter();
 const transaction = ref<algosdk.indexerModels.Transaction | null>(null);
 const rootTransaction = ref<algosdk.indexerModels.Transaction | null>(null);
 const isLoading = ref(true);
@@ -129,6 +208,33 @@ const rootTxId = computed(() => {
 const isInnerTransaction = computed(() => {
   return !!route.params.innerPath;
 });
+
+// Address filter context: when arriving from an address's (filtered)
+// transaction list, keep that address + filter visible and usable here too.
+const contextAddress = computed(() => (route.query.address as string) || "");
+const txFilter = ref<TxFilterState>(txFilterFromQuery(route.query as Record<string, unknown>));
+const addressTx = useAddressTransactions(contextAddress, txFilter);
+
+const txLinkQuery = computed(() => ({
+  address: contextAddress.value,
+  ...txFilterToQuery(txFilter.value),
+}));
+
+watch(
+  txFilter,
+  (filter) => {
+    router.replace({ query: { ...route.query, ...txFilterToQuery(filter) } });
+  },
+  { deep: true },
+);
+
+watch(
+  contextAddress,
+  (addr) => {
+    if (addr) void addressTx.reset();
+  },
+  { immediate: true },
+);
 
 const loadTransaction = async (txId: string, innerPath?: string) => {
   isLoading.value = true;
