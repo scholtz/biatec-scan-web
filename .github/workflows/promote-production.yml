@@ -11,8 +11,11 @@ on:
         description: >-
           Version string to promote, exactly as produced by the "version"
           job in build-fe.yml (e.g. 1.2026.08.07-a1b2c3d). Find it in the
-          build/deploy-stage logs for the run you want to promote.
-        required: true
+          build/deploy-stage logs for the run you want to promote. Leave
+          empty to promote the newest build currently on Stage (looked up
+          in Docker Hub).
+        required: false
+        default: ""
         type: string
 
 env:
@@ -22,11 +25,44 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------
+  # Stage 0: resolve-version - uses the supplied version as-is, or, when
+  # none was given, finds the newest versioned image in Docker Hub. Every
+  # build-fe.yml run pushes mainnet-<version> and testnet-<version> (the
+  # Stage image) with the same version string, so the newest mainnet-*
+  # versioned tag is exactly the version currently on Stage.
+  # ---------------------------------------------------------------------
+  resolve-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - name: Resolve version to promote
+        id: resolve
+        run: |
+          version="${{ inputs.version }}"
+          if [ -z "$version" ]; then
+            echo "No version supplied - looking up the newest stage build in Docker Hub"
+            version=$(curl -fsSL "https://hub.docker.com/v2/repositories/${DOCKERHUB_IMAGE}/tags?page_size=100&ordering=last_updated" \
+              | jq -r '.results[].name' \
+              | grep -E '^mainnet-1\.' \
+              | grep -vx 'mainnet-latest' \
+              | head -n 1 \
+              | sed 's/^mainnet-//')
+          fi
+          if [ -z "$version" ]; then
+            echo "::error::Could not resolve a version to promote (no versioned mainnet-* tag found in Docker Hub)"
+            exit 1
+          fi
+          echo "Promoting version: $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------
   # Stage 1: promote-tag - re-tags the already-built & pushed
   # mainnet-<version> image as mainnet-latest in both registries. Doesn't
   # rebuild anything - just moves the "latest" pointer.
   # ---------------------------------------------------------------------
   promote-tag:
+    needs: resolve-version
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
@@ -46,16 +82,16 @@ jobs:
           password: ${{ secrets.PRIVATE_REGISTRY_TOKEN }}
 
       - name: Pull versioned image
-        run: docker pull ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ inputs.version }}
+        run: docker pull ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ needs.resolve-version.outputs.version }}
 
       - name: Tag & push mainnet-latest (Docker Hub)
         run: |
-          docker tag ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ inputs.version }} ${{ env.DOCKERHUB_IMAGE }}:mainnet-latest
+          docker tag ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ needs.resolve-version.outputs.version }} ${{ env.DOCKERHUB_IMAGE }}:mainnet-latest
           docker push ${{ env.DOCKERHUB_IMAGE }}:mainnet-latest
 
       - name: Tag & push mainnet-latest (Private Registry)
         run: |
-          docker tag ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ inputs.version }} ${{ env.PRIVATE_IMAGE }}:mainnet-latest
+          docker tag ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ needs.resolve-version.outputs.version }} ${{ env.PRIVATE_IMAGE }}:mainnet-latest
           docker push ${{ env.PRIVATE_IMAGE }}:mainnet-latest
 
   # ---------------------------------------------------------------------
@@ -66,7 +102,7 @@ jobs:
   # build is running.
   # ---------------------------------------------------------------------
   deploy-production:
-    needs: promote-tag
+    needs: [resolve-version, promote-tag]
     runs-on: ubuntu-latest
     environment:
       name: Production
@@ -87,7 +123,7 @@ jobs:
 
       - name: Update manifest image tag
         run: |
-          sed -i "s#image: \\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ inputs.version }}#" k8s/main/deployment-fe.yaml
+          sed -i "s#image: \\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ needs.resolve-version.outputs.version }}#" k8s/main/deployment-fe.yaml
           echo '----- Modified manifest (image lines) -----'
           grep -n 'image:' k8s/main/deployment-fe.yaml
 
@@ -124,6 +160,18 @@ jobs:
             --docker-username='${{ secrets.PRIVATE_REGISTRY_USER }}' \
             --docker-password='${{ secrets.PRIVATE_REGISTRY_TOKEN }}' \
             --dry-run=client -o yaml | kubectl apply -f -
+          # One-time migration: an older (manually created) charts Deployment
+          # in this namespace has a different spec.selector than the manifest,
+          # and spec.selector is immutable - kubectl apply fails with
+          # "field is immutable". Delete the old Deployment first so apply can
+          # recreate it with the manifest's selector. (Brief downtime for
+          # /charts only, and only when the selector actually differs.)
+          existing_selector=$(kubectl get deployment biatec-charts-deployment -n biatec-scan \
+            -o jsonpath='{.spec.selector.matchLabels}' --ignore-not-found)
+          if [ -n "$existing_selector" ] && [ "$existing_selector" != '{"app":"biatec-charts"}' ]; then
+            echo "Existing selector $existing_selector differs from manifest - recreating Deployment"
+            kubectl delete deployment biatec-charts-deployment -n biatec-scan
+          fi
           kubectl apply -f k8s/main/deployment-charts.yaml
           kubectl rollout restart deployment/biatec-charts-deployment -n biatec-scan
           kubectl rollout status deployment/biatec-charts-deployment -n biatec-scan
