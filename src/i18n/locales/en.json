@@ -350,10 +350,8 @@
     "totalTvlOtherUsdHelp": "Total USD value of the other asset locked across all pools for this pair.",
     "volume24HHelp": "Trading volume (USD) for this pair over the last 24 hours.",
     "updatedHelp": "When this pair's data was last refreshed.",
-    "otherPrice7DChart": "Price 7d (paired asset)",
-    "otherPrice7DChartHelp": "7-day USD price OHLC chart of the paired asset.",
-    "otherTvl7DChart": "Real TVL 7d (paired asset)",
-    "otherTvl7DChartHelp": "7-day real TVL (USD) OHLC chart of the paired asset."
+    "pairPrice7DChart": "Pair price 7d",
+    "pairPrice7DChartHelp": "7-day chart of the pair price — the selected asset priced in the paired asset, derived from both assets' hourly USD prices (intra-hour highs/lows are approximate)."
   },
   "poolsByAssets": {
     "poolsContaining": "Pools containing {assetName}",

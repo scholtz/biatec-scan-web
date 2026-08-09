@@ -350,10 +350,8 @@
     "totalTvlOtherUsdHelp": "Gesamter USD-Wert des anderen Assets, der über alle Pools dieses Paares gesperrt ist.",
     "volume24HHelp": "Handelsvolumen (USD) für dieses Paar in den letzten 24 Stunden.",
     "updatedHelp": "Wann die Daten dieses Paares zuletzt aktualisiert wurden.",
-    "otherPrice7DChart": "Preis 7 Tage (gepaartes Asset)",
-    "otherPrice7DChartHelp": "7-Tage-OHLC-Chart des USD-Preises des gepaarten Assets.",
-    "otherTvl7DChart": "Reales TVL 7 Tage (gepaartes Asset)",
-    "otherTvl7DChartHelp": "7-Tage-OHLC-Chart des realen TVL (in USD) des gepaarten Assets."
+    "pairPrice7DChart": "Paarpreis 7 Tage",
+    "pairPrice7DChartHelp": "7-Tage-Chart des Paarpreises — das ausgewählte Asset bewertet im gepaarten Asset, abgeleitet aus den stündlichen USD-Preisen beider Assets (Hochs/Tiefs innerhalb der Stunde sind Näherungswerte)."
   },
   "poolsByAssets": {
     "poolsContaining": "Pools mit {assetName}",

@@ -14,6 +14,7 @@
     "check-typescript-errors-tsc": "tsc --noEmit",
     "check-typescript-errors-vue": "vue-tsc --noEmit",
     "lint": "eslint src/**/*.{ts,vue} --ext .ts,.vue",
+    "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },
@@ -54,6 +55,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.65.0",
     "vite": "^8.2.0",
+    "vitest": "^4.1.10",
     "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "^3.3.9"
   }

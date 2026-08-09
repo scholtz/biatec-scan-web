@@ -350,10 +350,8 @@
     "totalTvlOtherUsdHelp": "Całkowita wartość w USD drugiego zasobu zablokowana we wszystkich pulach tej pary.",
     "volume24HHelp": "Wolumen obrotu (USD) tej pary w ciągu ostatnich 24 godzin.",
     "updatedHelp": "Kiedy dane tej pary zostały ostatnio zaktualizowane.",
-    "otherPrice7DChart": "Cena 7 dni (aktywo sparowane)",
-    "otherPrice7DChartHelp": "7-dniowy wykres OHLC ceny sparowanego aktywa w USD.",
-    "otherTvl7DChart": "Realne TVL 7 dni (aktywo sparowane)",
-    "otherTvl7DChartHelp": "7-dniowy wykres OHLC realnego TVL (w USD) sparowanego aktywa."
+    "pairPrice7DChart": "Cena pary 7 dni",
+    "pairPrice7DChartHelp": "7-dniowy wykres ceny pary — wybrane aktywo wycenione w sparowanym aktywie, wyliczony z godzinowych cen USD obu aktywów (maksima/minima wewnątrz godziny są przybliżone)."
   },
   "poolsByAssets": {
     "poolsContaining": "Pule zawierające {assetName}",

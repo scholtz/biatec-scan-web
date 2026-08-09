@@ -350,10 +350,8 @@
     "totalTvlOtherUsdHelp": "A másik eszköz ennek a párnak az összes poolján lekötött teljes USD értéke.",
     "volume24HHelp": "Ennek a párnak a kereskedési volumene (USD) az elmúlt 24 órában.",
     "updatedHelp": "Mikor frissültek utoljára ennek a párnak az adatai.",
-    "otherPrice7DChart": "Ár 7 nap (párosított eszköz)",
-    "otherPrice7DChartHelp": "A párosított eszköz USD-árának 7 napos OHLC grafikonja.",
-    "otherTvl7DChart": "Valós TVL 7 nap (párosított eszköz)",
-    "otherTvl7DChartHelp": "A párosított eszköz valós TVL-jének (USD-ben) 7 napos OHLC grafikonja."
+    "pairPrice7DChart": "Pár ára 7 nap",
+    "pairPrice7DChartHelp": "A pár árának 7 napos grafikonja — a kiválasztott eszköz a párosított eszközben árazva, mindkét eszköz óránkénti USD-árából számítva (az órán belüli maximumok/minimumok közelítőek)."
   },
   "poolsByAssets": {
     "poolsContaining": "{assetName} eszközt tartalmazó poolok",

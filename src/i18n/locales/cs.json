@@ -350,10 +350,8 @@
     "totalTvlOtherUsdHelp": "Celková hodnota v USD druhého aktiva uzamčená napříč všemi pooly tohoto páru.",
     "volume24HHelp": "Objem obchodování (USD) tohoto páru za posledních 24 hodin.",
     "updatedHelp": "Kdy byla data tohoto páru naposledy aktualizována.",
-    "otherPrice7DChart": "Cena 7 dní (párové aktivum)",
-    "otherPrice7DChartHelp": "7denní OHLC graf ceny párového aktiva v USD.",
-    "otherTvl7DChart": "Reálné TVL 7 dní (párové aktivum)",
-    "otherTvl7DChartHelp": "7denní OHLC graf reálného TVL (v USD) párového aktiva."
+    "pairPrice7DChart": "Cena páru 7 dní",
+    "pairPrice7DChartHelp": "7denní graf ceny páru — vybrané aktivum oceněné v párovém aktivu, odvozený z hodinových USD cen obou aktiv (vnitrohodinová maxima/minima jsou přibližná)."
   },
   "poolsByAssets": {
     "poolsContaining": "Pooly obsahující {assetName}",

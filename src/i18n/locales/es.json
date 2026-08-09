@@ -350,10 +350,8 @@
     "totalTvlOtherUsdHelp": "Valor total en USD del otro activo bloqueado en todos los pools de este par.",
     "volume24HHelp": "Volumen de operaciones (USD) de este par en las últimas 24 horas.",
     "updatedHelp": "Cuándo se actualizaron por última vez los datos de este par.",
-    "otherPrice7DChart": "Precio 7 días (activo emparejado)",
-    "otherPrice7DChartHelp": "Gráfico OHLC de 7 días del precio en USD del activo emparejado.",
-    "otherTvl7DChart": "TVL real 7 días (activo emparejado)",
-    "otherTvl7DChartHelp": "Gráfico OHLC de 7 días del TVL real (en USD) del activo emparejado."
+    "pairPrice7DChart": "Precio del par 7 días",
+    "pairPrice7DChartHelp": "Gráfico de 7 días del precio del par — el activo seleccionado valorado en el activo emparejado, derivado de los precios horarios en USD de ambos activos (los máximos/mínimos intrahorarios son aproximados)."
   },
   "poolsByAssets": {
     "poolsContaining": "Pools que contienen {assetName}",

@@ -66,22 +66,17 @@
           {{ price(p) }}
         </template>
 
-        <template #cell-otherPrice7DChart="{ row: p }">
-          <AssetSparkline
-            v-if="p.assetIdB !== undefined && p.assetIdB !== null"
-            :asset-id="p.assetIdB"
-            series="price"
-            :label="t('aggregatedPools.otherPrice7DChart')"
-          />
-          <template v-else>-</template>
-        </template>
-
-        <template #cell-otherTvl7DChart="{ row: p }">
-          <AssetSparkline
-            v-if="p.assetIdB !== undefined && p.assetIdB !== null"
-            :asset-id="p.assetIdB"
-            series="tvl"
-            :label="t('aggregatedPools.otherTvl7DChart')"
+        <template #cell-pairPrice7DChart="{ row: p }">
+          <PairSparkline
+            v-if="
+              p.assetIdA !== undefined &&
+              p.assetIdA !== null &&
+              p.assetIdB !== undefined &&
+              p.assetIdB !== null
+            "
+            :base-asset-id="p.assetIdA"
+            :quote-asset-id="p.assetIdB"
+            :label="t('aggregatedPools.pairPrice7DChart')"
           />
           <template v-else>-</template>
         </template>
@@ -161,7 +156,7 @@ import FormattedTime from "../components/FormattedTime.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
-import AssetSparkline from "../components/table/AssetSparkline.vue";
+import PairSparkline from "../components/table/PairSparkline.vue";
 import { useI18n } from "vue-i18n";
 import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
 import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
@@ -202,17 +197,10 @@ const aggregatedPoolColumns: ColumnDef[] = [
   },
   { key: "price", labelKey: "aggregatedPools.price", align: "right", descriptionKey: "aggregatedPools.priceHelp" },
   {
-    key: "otherPrice7DChart",
-    labelKey: "aggregatedPools.otherPrice7DChart",
+    key: "pairPrice7DChart",
+    labelKey: "aggregatedPools.pairPrice7DChart",
     align: "right",
-    descriptionKey: "aggregatedPools.otherPrice7DChartHelp",
-    defaultTier: "lg",
-  },
-  {
-    key: "otherTvl7DChart",
-    labelKey: "aggregatedPools.otherTvl7DChart",
-    align: "right",
-    descriptionKey: "aggregatedPools.otherTvl7DChartHelp",
+    descriptionKey: "aggregatedPools.pairPrice7DChartHelp",
     defaultTier: "lg",
   },
   {

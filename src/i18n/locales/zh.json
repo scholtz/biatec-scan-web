@@ -350,10 +350,8 @@
     "totalTvlOtherUsdHelp": "另一种资产在此交易对所有资金池中锁定的美元总价值。",
     "volume24HHelp": "此交易对过去24小时的交易量（美元）。",
     "updatedHelp": "此交易对数据上次刷新的时间。",
-    "otherPrice7DChart": "7天价格（配对资产）",
-    "otherPrice7DChartHelp": "配对资产美元价格的7天OHLC图。",
-    "otherTvl7DChart": "7天真实TVL（配对资产）",
-    "otherTvl7DChartHelp": "配对资产真实TVL（美元）的7天OHLC图。"
+    "pairPrice7DChart": "7天交易对价格",
+    "pairPrice7DChartHelp": "交易对价格的7天图表——以配对资产计价的所选资产，由两种资产的每小时美元价格推算（小时内最高/最低为近似值）。"
   },
   "poolsByAssets": {
     "poolsContaining": "包含 {assetName} 的池",
