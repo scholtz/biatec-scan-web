@@ -111,6 +111,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: "/group/:round/:groupId",
+      name: "GroupDetails",
+      component: () => import("../views/GroupDetails.vue"),
+      props: true,
+    },
+    {
       path: "/transaction/:txId",
       name: "TransactionDetails",
       component: () => import("../views/TransactionDetails.vue"),

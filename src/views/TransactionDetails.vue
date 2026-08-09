@@ -89,7 +89,10 @@
       <TransactionHeader :transaction="transaction" />
 
       <!-- Transaction ID -->
-      <TransactionIdSection :transaction="transaction" />
+      <TransactionIdSection
+        :transaction="transaction"
+        :round="rootTransaction?.confirmedRound"
+      />
 
       <!-- Balance Impact -->
       <TransactionBalanceImpact :transaction="transaction" />
