@@ -476,7 +476,8 @@
     "duration24h": "Last 24 hours",
     "duration7d": "Last 7 days",
     "duration30d": "Last 30 days",
-    "duration90d": "Last 90 days"
+    "duration90d": "Last 90 days",
+    "duration1y": "Last year"
   },
   "status": {
     "online": "ONLINE",

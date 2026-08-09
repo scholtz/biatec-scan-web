@@ -81,6 +81,7 @@ const durationOptions = [
   { key: "7d", labelKey: "addressDetails.duration7d", seconds: 7 * 24 * 60 * 60 },
   { key: "30d", labelKey: "addressDetails.duration30d", seconds: 30 * 24 * 60 * 60 },
   { key: "90d", labelKey: "addressDetails.duration90d", seconds: 90 * 24 * 60 * 60 },
+  { key: "1y", labelKey: "addressDetails.duration1y", seconds: 365 * 24 * 60 * 60 },
 ];
 
 const durationKey = ref("24h");

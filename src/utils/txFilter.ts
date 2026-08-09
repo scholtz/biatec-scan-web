@@ -11,7 +11,7 @@ export interface FilterableTransaction {
   "confirmed-round"?: number;
   "payment-transaction"?: { amount?: number; receiver?: string };
   "asset-transfer-transaction"?: { amount?: number; "asset-id"?: number; receiver?: string };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface TxFilterState {
