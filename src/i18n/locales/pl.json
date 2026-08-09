@@ -126,7 +126,7 @@
     },
     "topListsHelp": {
       "popular": "Najczęściej handlowane aktywa według wolumenu w USD w ciągu ostatnich 24 godzin, z wyłączeniem aktywów stabilnych i bazowych. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL. Procent pokazuje zmianę ceny aktywa w ciągu ostatnich 24 godzin.",
-      "trending": "Najczęściej handlowane aktywa według wolumenu w USD w ciągu ostatniej godziny, z wyłączeniem aktywów stabilnych i bazowych. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL. Procent pokazuje zmianę wolumenu względem poprzedniej godziny.",
+      "trending": "Najczęściej handlowane aktywa według wolumenu w USD w ciągu ostatniej godziny, z wyłączeniem aktywów stabilnych i bazowych. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL. Każdy wiersz pokazuje aktualną cenę aktywa w USD; procent pokazuje zmianę wolumenu względem poprzedniej godziny.",
       "gainers": "Aktywa z najwyższym procentowym wzrostem ceny w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
       "losers": "Aktywa z największym procentowym spadkiem ceny w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
       "valueGainers": "Aktywa z najwyższym procentowym wzrostem realnej płynności (TVL) w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",

@@ -126,7 +126,7 @@
     },
     "topListsHelp": {
       "popular": "Nejobchodovanější aktiva podle objemu v USD za posledních 24 hodin, bez stabilních a bázových aktiv. Zohledňuje se jen top 150 aktiv podle reálného TVL. Procento ukazuje změnu ceny aktiva za posledních 24 hodin.",
-      "trending": "Nejobchodovanější aktiva podle objemu v USD za poslední hodinu, bez stabilních a bázových aktiv. Zohledňuje se jen top 150 aktiv podle reálného TVL. Procento ukazuje změnu objemu oproti předchozí hodině.",
+      "trending": "Nejobchodovanější aktiva podle objemu v USD za poslední hodinu, bez stabilních a bázových aktiv. Zohledňuje se jen top 150 aktiv podle reálného TVL. Každý řádek zobrazuje aktuální cenu aktiva v USD; procento ukazuje změnu objemu oproti předchozí hodině.",
       "gainers": "Aktiva s nejvyšším procentním růstem ceny za posledních 24 hodin. Zohledňuje se jen top 150 aktiv podle reálného TVL.",
       "losers": "Aktiva s největším procentním poklesem ceny za posledních 24 hodin. Zohledňuje se jen top 150 aktiv podle reálného TVL.",
       "valueGainers": "Aktiva s nejvyšším procentním růstem reálné likvidity (TVL) za posledních 24 hodin. Zohledňuje se jen top 150 aktiv podle reálného TVL.",
