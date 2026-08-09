@@ -116,7 +116,7 @@
               <select
                 class="bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[11px] text-gray-200 flex-1 min-w-0"
                 :value="columns.getTier(key)"
-                @change="columns.setTier(key, ($event.target as HTMLSelectElement).value as any)"
+                @change="onTierChange(key, $event)"
               >
                 <option value="sm">{{ $t("table.tierSm") }}</option>
                 <option value="lg">{{ $t("table.tierLg") }}</option>
@@ -145,6 +145,7 @@ import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { UseTableColumnsReturn } from "../../composables/useTableColumns";
 import { usePointerDragReorder } from "../../composables/usePointerDragReorder";
+import type { ViewportTier } from "../../composables/useViewportTier";
 
 const props = defineProps<{
   columns: UseTableColumnsReturn;
@@ -165,6 +166,17 @@ function resolveLabel(key: string): string {
 const drag = usePointerDragReorder((key, toIndex) => {
   props.columns.reorder(key, toIndex);
 });
+
+function isViewportTier(value: string): value is ViewportTier {
+  return value === "sm" || value === "lg" || value === "xl4k";
+}
+
+function onTierChange(key: string, event: Event) {
+  const value = (event.target as HTMLSelectElement).value;
+  if (isViewportTier(value)) {
+    props.columns.setTier(key, value);
+  }
+}
 
 function onDocumentClick(e: MouseEvent) {
   if (!open.value) return;

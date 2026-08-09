@@ -138,9 +138,11 @@ class AlgorandService {
     }
   }
 
-  async searchById(
-    id: string
-  ): Promise<{ type: "block" | "transaction"; data: any } | null> {
+  async searchById(id: string): Promise<
+    | { type: "block"; data: algosdk.BlockHeader }
+    | { type: "transaction"; data: algosdk.indexerModels.Transaction }
+    | null
+  > {
     // Try as block number first
     if (!isNaN(Number(id))) {
       const block = await this.getBlock(BigInt(id));
@@ -159,13 +161,7 @@ class AlgorandService {
   }
 
   formatAlgoAmount(microAlgos: number | bigint): string {
-    const globalLocale = (i18n.global as any).locale;
-    const locale =
-      typeof globalLocale === "object" &&
-      globalLocale !== null &&
-      "value" in globalLocale
-        ? (globalLocale as any).value
-        : (globalLocale as string);
+    const locale = i18n.global.locale.value;
     return (Number(microAlgos) / 1000000).toLocaleString(locale, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 6,
@@ -194,10 +190,7 @@ class AlgorandService {
         return BigInt(accountInfo.amount);
       }
       const assets = accountInfo.assets || [];
-      const asset = assets.find((a: any) => {
-        const id = a["asset-id"] !== undefined ? a["asset-id"] : a.assetId;
-        return id !== undefined && BigInt(id) === assetId;
-      });
+      const asset = assets.find((a) => a.assetId === assetId);
       return asset ? BigInt(asset.amount) : 0n;
     } catch (error) {
       console.error(`Error fetching account balance for ${address}:`, error);

@@ -349,12 +349,12 @@ const convertApiTrade = (trade: Trade): AMMTrade => ({
   blockId: BigInt(trade.blockId ?? 0),
   txGroup: trade.txGroup ?? "",
   timestamp: trade.timestamp ?? "",
-  protocol: trade.protocol ?? "",
+  protocol: trade.protocol ?? "Biatec",
   trader: trade.trader ?? "",
   poolAddress: trade.poolAddress ?? "",
   poolAppId: BigInt(trade.poolAppId ?? 0),
   topTxId: trade.topTxId ?? "",
-  tradeState: trade.tradeState ?? "",
+  tradeState: trade.tradeState ?? "Confirmed",
 });
 
 const onReconnectedEvent = () => {
@@ -397,7 +397,10 @@ onMounted(async () => {
     console.error("Error fetching initial ALGO/USDC aggregated pool:", e);
   }
 
-  // Update current time every second for network status calculation
+  // Update current time every second for network status calculation. Cast
+  // needed because TS resolves this call against @types/node's overload
+  // (NodeJS.Timeout) rather than the DOM one (number) even though this
+  // always runs in the browser.
   timeInterval = setInterval(() => {
     currentTime.value = Date.now();
   }, 1000) as unknown as number;

@@ -41,7 +41,7 @@ const detectBrowserLanguage = (): string => {
   return 'en'
 }
 
-const i18n = createI18n<[MessageSchema], MessageLanguages>({
+const i18n = createI18n<[MessageSchema], MessageLanguages, false>({
   legacy: false,
   locale: detectBrowserLanguage(),
   fallbackLocale: 'en',

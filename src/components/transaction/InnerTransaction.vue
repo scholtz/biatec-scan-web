@@ -94,6 +94,7 @@
 </template>
 
 <script setup lang="ts">
+import type algosdk from "algosdk";
 import { PropType, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import TransactionStateDelta from "./TransactionStateDelta.vue";
@@ -105,7 +106,7 @@ const { locale } = useI18n();
 
 const props = defineProps({
   transaction: {
-    type: Object as PropType<any>,
+    type: Object as PropType<algosdk.indexerModels.Transaction>,
     required: true,
   },
   parentTxId: {
@@ -121,7 +122,7 @@ const props = defineProps({
 const assetDecimals = ref<number>(0);
 const assetUnitName = ref<string>("");
 
-const loadAssetInfo = (assetId: number) => {
+const loadAssetInfo = (assetId: bigint | number) => {
   const asset = getTokenFromLocalStorage(assetId);
   if (asset) {
     assetDecimals.value = asset.decimals;

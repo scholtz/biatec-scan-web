@@ -77,7 +77,9 @@ const formattedTime = computed(() => {
 });
 
 onMounted(() => {
-  // Update current time every second
+  // Update current time every second. Cast needed because TS resolves this
+  // call against @types/node's overload (NodeJS.Timeout) rather than the DOM
+  // one (number) even though this always runs in the browser.
   timeInterval = setInterval(() => {
     currentTime.value = Date.now();
   }, 1000) as unknown as number;

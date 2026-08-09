@@ -1,5 +1,25 @@
 # Project notes for Claude
 
+## Total type safety: no `any`, no unbadged `unknown`
+
+Do not use the `any` type. Do not use `unknown` either, except where it is
+genuinely required — and when you do use it, attach a one-line comment on
+that exact line (or the containing block) explaining why a proper type isn't
+possible. The one standing exception that needs no per-site comment is a
+`catch (e: unknown)` binding: it's the idiomatic, self-evidently-necessary
+TS pattern (the language itself only ever gives you `unknown`/`any` there),
+so don't clutter every catch block repeating that. Everything else —
+`unknown[]` rest-args, `as unknown as X` casts, index signatures, SignalR/
+external-payload handlers — does need its own comment, since those are
+judgment calls specific to that call site. The one standing exception to the
+whole rule is generated API client code under `src/api/` (Orval output),
+which is not hand-maintained and is exempt.
+
+If you're tempted to reach for `as any` to silence a type error, stop and
+find/define the real type instead (narrow a union, add a type guard, extend
+an interface, or import the correct generated model) — a cast that discards
+type information is exactly what this rule exists to prevent.
+
 ## Multi-repo workspace: frontend + backend live side by side
 
 This repo is normally opened via `biatec-scan.code-workspace`, which includes

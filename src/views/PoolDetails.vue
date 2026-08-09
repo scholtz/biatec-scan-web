@@ -238,7 +238,7 @@ const loadPoolInfo = async () => {
       a: poolData.a ? BigInt(poolData.a) : undefined,
       b: poolData.b ? BigInt(poolData.b) : undefined,
       l: poolData.l ? BigInt(poolData.l) : undefined,
-      protocol: poolData.protocol || "Unknown",
+      protocol: poolData.protocol || "Biatec",
       timestamp: poolData.timestamp || new Date().toISOString(),
       isReversed: assetService.needToReverseAssets(
         poolData.assetIdA != null ? BigInt(poolData.assetIdA) : 0n,

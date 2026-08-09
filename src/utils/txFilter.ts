@@ -1,7 +1,13 @@
+import type { LocationQuery } from "vue-router";
 import { assetService } from "../services/assetService";
 
 // Loose indexer transaction shape (dash-cased fields, as returned by the
 // Algorand indexer REST API and used on AddressDetails/TransactionDetails).
+// The index signature is `unknown` (not `any`) because callers only ever
+// hold this as a `FilterableTransaction` view onto a much larger indexer
+// transaction object (see AlgorandTransaction) — fields beyond the ones
+// named above are intentionally untyped here since this module never reads
+// them, but the underlying value is never actually "any".
 export interface FilterableTransaction {
   id?: string;
   sender?: string;
@@ -36,9 +42,7 @@ const QUERY_KEYS = {
   minAmount: "txMin",
 } as const;
 
-export function txFilterFromQuery(
-  query: Record<string, unknown>,
-): TxFilterState {
+export function txFilterFromQuery(query: LocationQuery): TxFilterState {
   const type = typeof query[QUERY_KEYS.type] === "string" ? (query[QUERY_KEYS.type] as string) : "";
   const assetIdRaw = query[QUERY_KEYS.assetId];
   const assetId =

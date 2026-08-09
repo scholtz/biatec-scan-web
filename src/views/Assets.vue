@@ -444,12 +444,10 @@ async function fetchAssets() {
       offset,
       size: fetchSize,
     });
-    const data = res as unknown as BiatecAsset[] | { data: BiatecAsset[] };
-    const list = Array.isArray(data) ? data : (data as any).data;
-    state.assets = list || [];
+    state.assets = res.data || [];
     resubscribeToVisibleAssets();
-  } catch (e: any) {
-    state.error = e?.message || "Failed to load assets";
+  } catch (e: unknown) {
+    state.error = e instanceof Error ? e.message : "Failed to load assets";
     // Load demo assets when API fails for testing purposes
     loadDemoAssets();
   } finally {

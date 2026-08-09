@@ -93,11 +93,14 @@ class SignalRService {
         this.scheduleReconnect();
       });
 
+      // SignalR's .on() callback args are untyped at the wire level (the hub
+      // sends arbitrary JSON), so each payload is typed `unknown` here and
+      // asserted to its known DTO shape before use.
       // Handle subscription confirmation
-      this.connection.on("Info", (filter: any) => {
+      this.connection.on("Info", (filter: unknown) => {
         debugLog(`Info received: "${JSON.stringify(filter)}"`);
       });
-      this.connection.on("TestConnectionResult", (result: any) => {
+      this.connection.on("TestConnectionResult", (result: unknown) => {
         debugLog(`Test connection result: `, result);
       });
 
@@ -107,32 +110,32 @@ class SignalRService {
       });
 
       // Handle subscription errors
-      this.connection.on("Block", (block: any) => {
+      this.connection.on("Block", (block: unknown) => {
         debugLog("Block received:", block);
         callbacksBlocks.forEach((callback) => callback(block as BiatecBlock));
       });
-      this.connection.on("Asset", (asset: any) => {
+      this.connection.on("Asset", (asset: unknown) => {
         debugLog("asset received:", asset);
         callbacksAssets.forEach((callback) => callback(asset as BiatecAsset));
       });
       // Handle subscription errors
-      this.connection.on("Trade", (trade: any) => {
+      this.connection.on("Trade", (trade: unknown) => {
         //console.log("FilteredTradeUpdated received:", trade);
         callbacksTrades.forEach((callback) => callback(trade as AMMTrade));
       });
-      this.connection.on("Pool", (pool: any) => {
+      this.connection.on("Pool", (pool: unknown) => {
         //console.log("PoolUpdated received:", pool);
         callbacksPools.forEach((callback) => callback(pool as Pool));
       });
       // Handle subscription errors
-      this.connection.on("Liquidity", (liquidity: any) => {
+      this.connection.on("Liquidity", (liquidity: unknown) => {
         //console.log("FilteredLiquidityUpdated received:", liquidity);
         callbacksLiquidity.forEach((callback) =>
           callback(liquidity as AMMLiquidity)
         );
       });
       // Handle subscription errors
-      this.connection.on("AggregatedPool", (pool: any) => {
+      this.connection.on("AggregatedPool", (pool: unknown) => {
         const poolObj = pool as AMMAggregatedPool;
         // console.log(
         //   "AggregatedPoolUpdated received:",
@@ -353,6 +356,10 @@ class SignalRService {
       clearTimeout(this.reconnectInterval);
     }
 
+    // Browser setTimeout returns a number, but TS resolves this call against
+    // @types/node's overload (NodeJS.Timeout) unless cast — this is a DOM vs.
+    // Node lib ambiguity, not an avoidable type, since the class field is
+    // typed `number` to match every other browser timer handle in this file.
     this.reconnectInterval = setTimeout(() => {
       this.connect();
     }, 5000) as unknown as number; // Retry every 5 seconds

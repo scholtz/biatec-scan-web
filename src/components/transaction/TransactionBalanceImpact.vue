@@ -132,7 +132,7 @@ interface AddressImpact {
 const assetVersion = ref(0);
 
 const collectImpacts = (
-  tx: any,
+  tx: algosdk.indexerModels.Transaction,
   balances: Map<string, Map<string, bigint>>,
   fees: Map<string, bigint>
 ) => {

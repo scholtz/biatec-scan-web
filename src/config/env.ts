@@ -3,8 +3,7 @@
 // than hardcoded, so a single Docker image build produces a network-specific
 // bundle (mainnet, testnet, and later voi/aramid) purely by varying these
 // env vars at build time - see docker/Dockerfile and .github/workflows.
-const viteEnv =
-  (import.meta as unknown as { env?: Record<string, string> })?.env ?? {};
+const viteEnv = import.meta.env;
 
 /** Base URL of the Biatec Scan trade/aggregation REST + SignalR API. */
 export const apiBaseUrl: string =
@@ -40,9 +39,7 @@ export const arc56RegistryUrl: string =
  */
 export const chartsBaseUrl: string =
   viteEnv.VITE_CHARTS_BASE_URL ||
-  ((viteEnv as Record<string, unknown>).DEV
-    ? "https://algorand.scan.biatec.io/charts"
-    : "/charts");
+  (viteEnv.DEV ? "https://algorand.scan.biatec.io/charts" : "/charts");
 
 /** Builds the chart page URL for a given ASA id. */
 export function assetChartUrl(assetId: number | string | bigint): string {

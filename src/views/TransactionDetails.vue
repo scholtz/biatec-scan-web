@@ -212,7 +212,7 @@ const isInnerTransaction = computed(() => {
 // Address filter context: when arriving from an address's (filtered)
 // transaction list, keep that address + filter visible and usable here too.
 const contextAddress = computed(() => (route.query.address as string) || "");
-const txFilter = ref<TxFilterState>(txFilterFromQuery(route.query as Record<string, unknown>));
+const txFilter = ref<TxFilterState>(txFilterFromQuery(route.query));
 const addressTx = useAddressTransactions(contextAddress, txFilter);
 
 const txLinkQuery = computed(() => ({
@@ -246,7 +246,7 @@ const loadTransaction = async (txId: string, innerPath?: string) => {
     if (innerPath) {
       // Navigate to the inner transaction
       const indices = innerPath.split("/").map(Number);
-      let currentTx: any = txData;
+      let currentTx: algosdk.indexerModels.Transaction | null = txData;
 
       for (const index of indices) {
         if (currentTx && currentTx.innerTxns && currentTx.innerTxns[index]) {

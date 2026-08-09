@@ -683,6 +683,14 @@ interface AccountInfo {
   assets?: AccountAsset[];
 }
 
+interface EnrichedAsset extends AccountAsset {
+  name: string;
+  unitName: string;
+  decimals: number;
+  priceUSD: number;
+  valueUSD: number;
+}
+
 const route = useRoute();
 const router = useRouter();
 const address = computed(() => route.params.address as string);
@@ -695,7 +703,7 @@ const assetPrices = ref<Record<number, number>>({});
 const identifiedPool = ref<Pool | null>(null);
 
 // Transaction filter + fetch/pagination (shared with TransactionDetails' address panel)
-const txFilter = ref<TxFilterState>(txFilterFromQuery(route.query as Record<string, unknown>));
+const txFilter = ref<TxFilterState>(txFilterFromQuery(route.query));
 const {
   loading: loadingTransactions,
   pagedTransactions,
@@ -746,7 +754,7 @@ const enrichedAssets = computed(() => {
   void forceUpdate.value; // re-run when asset metadata loads
   if (!accountInfo.value) return [];
 
-  const assets: any[] = [];
+  const assets: EnrichedAsset[] = [];
 
   // Add Algo
   assets.push({
@@ -875,7 +883,7 @@ watch(
 
 // Re-derive the filter from the URL when navigating directly between addresses
 watch(address, () => {
-  txFilter.value = txFilterFromQuery(route.query as Record<string, unknown>);
+  txFilter.value = txFilterFromQuery(route.query);
 });
 
 // ---- Functions ----
@@ -999,8 +1007,7 @@ async function fetchAddressTrades() {
       sortBy: "timestamp",
       sortDirection: "desc",
     });
-    const page = (response.data as any) ?? {};
-    addressTrades.value = Array.isArray(page.items) ? page.items : [];
+    addressTrades.value = response.data?.items ?? [];
   } catch (e) {
     console.error("Error fetching address trades:", e);
   } finally {
@@ -1056,7 +1063,9 @@ const loadAddressInfo = async () => {
       throw new Error(t("addressDetails.notFound"));
     }
 
-    const accountData = await accountResponse.json();
+    const accountData = (await accountResponse.json()) as {
+      account: AccountInfo;
+    };
     accountInfo.value = accountData.account;
 
     fetchAssetPrices();

@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosHeaders } from "axios";
 import { getAuthToken } from "../services/authService";
 import { apiBaseUrl } from "../config/env";
 
@@ -12,10 +12,10 @@ const instance: AxiosInstance = axios.create({
 instance.interceptors.request.use(async (cfg) => {
   try {
     const token = await getAuthToken();
-    cfg.headers = cfg.headers ?? {};
+    cfg.headers = cfg.headers ?? new AxiosHeaders();
     // Don't override if caller explicitly set Authorization
-    if (!("Authorization" in cfg.headers)) {
-      (cfg.headers as any)["Authorization"] = token;
+    if (!cfg.headers.has("Authorization")) {
+      cfg.headers.set("Authorization", token);
     }
   } catch {
     // ignore token failures; request proceeds unauthenticated

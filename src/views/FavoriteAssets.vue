@@ -337,15 +337,11 @@ async function fetchFavoriteAssets() {
     // Fetch favorite assets using the API with comma-separated IDs
     const idsParam = favoriteIds.join(",");
     const res = await api.getApiAsset({ ids: idsParam });
-    const data = res as unknown as BiatecAsset[] | { data: BiatecAsset[] };
-    const list = Array.isArray(data)
-      ? data
-      : (data as { data: BiatecAsset[] }).data;
-    state.favoriteAssets = list || [];
+    state.favoriteAssets = res.data || [];
     resubscribeToVisibleAssets();
   } catch (e: unknown) {
-    const error = e as { message?: string };
-    state.error = error?.message || "Failed to load favorite assets";
+    state.error =
+      e instanceof Error ? e.message : "Failed to load favorite assets";
     // Load demo assets for the favorites when API fails
     loadDemoFavoriteAssets(favoriteIds);
   } finally {

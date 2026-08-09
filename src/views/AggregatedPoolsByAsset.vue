@@ -344,8 +344,9 @@ async function fetchAggregatedPools() {
 
     // Initial subscription (asset scoped) – we'll refine to visible shortly
     scheduleSubscriptionUpdate();
-  } catch (e: any) {
-    state.error = e?.message || "Failed to load aggregated pools";
+  } catch (e: unknown) {
+    state.error =
+      e instanceof Error ? e.message : "Failed to load aggregated pools";
   } finally {
     state.loading = false;
   }

@@ -606,8 +606,8 @@ async function fetchPools() {
       return bval - aval;
     });
     state.pools = pools;
-  } catch (e: any) {
-    state.error = e?.message ?? "Failed to load pools";
+  } catch (e: unknown) {
+    state.error = e instanceof Error ? e.message : "Failed to load pools";
   } finally {
     state.loading = false;
   }

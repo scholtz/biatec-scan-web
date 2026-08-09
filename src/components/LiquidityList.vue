@@ -172,13 +172,13 @@ function handleLiquidityUpdate(liquidityUpdate: AMMLiquidity) {
       blockId: liquidityUpdate.blockId,
       txGroup: liquidityUpdate.txGroup,
       timestamp: liquidityUpdate.timestamp,
-      protocol: liquidityUpdate.protocol as any, // Type assertion needed for compatibility
+      protocol: liquidityUpdate.protocol,
       liquidityProvider: liquidityUpdate.liquidityProvider,
       poolAddress: liquidityUpdate.poolAddress,
       poolAppId: liquidityUpdate.poolAppId,
       topTxId: liquidityUpdate.topTxId,
-      txState: liquidityUpdate.txState as any, // Type assertion needed for compatibility
-      direction: liquidityUpdate.direction as any, // Type assertion needed for compatibility
+      txState: liquidityUpdate.txState,
+      direction: liquidityUpdate.direction,
       a: liquidityUpdate.a,
       b: liquidityUpdate.b,
       l: liquidityUpdate.l,

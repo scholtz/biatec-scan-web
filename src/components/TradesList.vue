@@ -158,12 +158,12 @@ function handleTradeUpdate(trade: AMMTrade) {
       blockId: Number(trade.blockId),
       txGroup: trade.txGroup,
       timestamp: trade.timestamp,
-      protocol: trade.protocol as any, // Type assertion needed for compatibility
+      protocol: trade.protocol,
       trader: trade.trader,
       poolAddress: trade.poolAddress,
       poolAppId: Number(trade.poolAppId),
       topTxId: trade.topTxId,
-      tradeState: trade.tradeState as any, // Type assertion needed for compatibility
+      tradeState: trade.tradeState,
     };
 
     // Check if trade with same txId already exists

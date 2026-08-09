@@ -119,6 +119,9 @@ export interface DecodedAbiArg {
   error?: string;
 }
 
+// `unknown` is required: this formats a decoded ABI value whose runtime
+// shape depends on the ARC-56 type being decoded (uint/bool/string/byte
+// array/tuple/struct), so no single concrete type describes it up front.
 function formatAbiValue(value: unknown): string {
   if (typeof value === "bigint") return value.toString();
   if (typeof value === "boolean") return value ? "true" : "false";
@@ -163,6 +166,9 @@ export function decodeMethodArgs(
 
   // ARC-4: >15 value args -> first 14 individually (slots 1-14), the rest packed as a tuple in slot 15.
   const packedFromSlot = valueArgs.length >= 16 ? 14 : valueArgs.length;
+  // `unknown[]`: algosdk.ABIType.decode()'s return type depends on the
+  // dynamically-built tuple type string above, which isn't known until
+  // runtime, so the decoded element types can't be named statically.
   let packedTuple: unknown[] | null = null;
   if (valueArgs.length >= 16) {
     try {
@@ -198,6 +204,8 @@ export function decodeMethodArgs(
       (v) => v.index === methodArgIndex
     );
 
+    // `unknown`: the decoded value's shape depends on `arg.type` (an ARC-56
+    // type name known only at runtime), narrowed below per reference/value kind.
     let rawValue: unknown;
     let rawBytes: Uint8Array | undefined;
     try {

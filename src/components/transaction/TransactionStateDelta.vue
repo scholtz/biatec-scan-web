@@ -62,6 +62,7 @@
 </template>
 
 <script setup lang="ts">
+import type algosdk from "algosdk";
 import { PropType } from "vue";
 import { useI18n } from "vue-i18n";
 import BufferDisplay from "../BufferDisplay.vue";
@@ -74,7 +75,7 @@ defineProps({
     required: true,
   },
   delta: {
-    type: Array as PropType<any[]>,
+    type: Array as PropType<algosdk.indexerModels.EvalDeltaKeyValue[]>,
     required: true,
   },
 });

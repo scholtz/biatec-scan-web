@@ -1,3 +1,40 @@
+import type { DEXProtocol } from "../api/models/dEXProtocol";
+import type { TxState } from "../api/models/txState";
+import type { LiquidityDirection } from "../api/models/liquidityDirection";
+
+/** A raw base64-encoded Ed25519/multisig/logicsig signature blob. */
+export type AlgorandTransactionSignature = {
+  sig?: string;
+  logicsig?: { logic: string; args?: string[]; signature?: string };
+  multisig?: {
+    version: number;
+    threshold: number;
+    subsignature: { "public-key": string; signature?: string }[];
+  };
+};
+
+/** Decoded state-proof message/proof payload attached to a state-proof transaction. */
+export type AlgorandStateProofMessage = {
+  "block-headers-commitment"?: string;
+  "first-attested-round"?: number;
+  "last-attested-round"?: number;
+  "ln-proven-weight"?: number;
+  "voters-commitment"?: string;
+};
+export type AlgorandStateProof = {
+  // These three are opaque Merkle-proof structures (nested vectors of
+  // hashes/reveals) that this app never inspects — it only ever displays
+  // that a state-proof transaction occurred, so `unknown` avoids pretending
+  // to a shape nothing here reads.
+  "part-proofs"?: unknown;
+  "positions-to-reveal"?: number[];
+  "reveals"?: unknown;
+  "salt-version"?: number;
+  "sig-commit"?: string;
+  "sig-proofs"?: unknown;
+  "signed-weight"?: number;
+};
+
 export interface AlgorandTransaction {
   id: string;
   "confirmed-round": number;
@@ -10,7 +47,7 @@ export interface AlgorandTransaction {
   "round-time": number;
   sender: string;
   "tx-type": string;
-  signature: any;
+  signature: AlgorandTransactionSignature;
   note?: string;
   "payment-transaction"?: {
     amount: number;
@@ -75,8 +112,8 @@ export interface AlgorandTransaction {
     "state-proof-key"?: string;
   };
   "state-proof-transaction"?: {
-    message?: any;
-    "state-proof"?: any;
+    message?: AlgorandStateProofMessage;
+    "state-proof"?: AlgorandStateProof;
     "state-proof-type"?: number;
   };
   "close-rewards"?: number;
@@ -100,7 +137,7 @@ export interface AMMPool {
   a?: bigint;
   b?: bigint;
   l?: bigint;
-  protocol: string; // Replace with enum if DEXProtocol is defined
+  protocol: DEXProtocol;
   timestamp?: string; // ISO string, or Date if you prefer
   isReversed: boolean;
 }
@@ -120,12 +157,12 @@ export interface AMMTrade {
   blockId: bigint;
   txGroup: string;
   timestamp: string;
-  protocol: string;
+  protocol: DEXProtocol;
   trader: string;
   poolAddress: string;
   poolAppId: bigint;
   topTxId: string;
-  tradeState: string;
+  tradeState: TxState;
 }
 
 export interface AMMLiquidity {
@@ -139,13 +176,13 @@ export interface AMMLiquidity {
   blockId: number;
   txGroup: string;
   timestamp: string;
-  protocol: string;
+  protocol: DEXProtocol;
   liquidityProvider: string;
   poolAddress: string;
   poolAppId: number;
   topTxId: string;
-  txState: string;
-  direction: string;
+  txState: TxState;
+  direction: LiquidityDirection;
   a: number;
   b: number;
   l: number;
