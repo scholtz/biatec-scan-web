@@ -182,7 +182,13 @@
         </div>
 
         <!-- Asset Balance Change -->
-        <AssetBalanceDelta :address="address" />
+        <AssetBalanceDelta
+          :address="address"
+          :transactions="addressHistory.transactions.value"
+          :loading="addressHistory.loading.value"
+          :truncated="addressHistory.truncated.value"
+          :earliest-time="addressHistory.earliestTime.value"
+        />
 
         <!-- 3-Column Grid: Assets | Transactions | Trades -->
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
@@ -656,7 +662,8 @@ import FormattedNumber from "../components/FormattedNumber.vue";
 import TransactionFilterBar from "../components/address/TransactionFilterBar.vue";
 import AddressTransactionRow from "../components/address/AddressTransactionRow.vue";
 import AssetBalanceDelta from "../components/address/AssetBalanceDelta.vue";
-import { useAddressTransactions } from "../composables/useAddressTransactions";
+import { useAddressBalanceHistory } from "../composables/useAddressBalanceHistory";
+import { usePagedFilteredTransactions } from "../composables/usePagedFilteredTransactions";
 import {
   txFilterFromQuery,
   txFilterToQuery,
@@ -702,17 +709,19 @@ const accountInfo = ref<AccountInfo | null>(null);
 const assetPrices = ref<Record<number, number>>({});
 const identifiedPool = ref<Pool | null>(null);
 
-// Transaction filter + fetch/pagination (shared with TransactionDetails' address panel)
+// Single 1000-transaction fetch shared by the Recent Transactions list and
+// the Asset Balance Change section below — no separate paginated fetching.
+const addressHistory = useAddressBalanceHistory(address);
+const loadingTransactions = addressHistory.loading;
+
 const txFilter = ref<TxFilterState>(txFilterFromQuery(route.query));
 const {
-  loading: loadingTransactions,
   pagedTransactions,
   page: txPage,
   canGoNext: canGoToNextTxPage,
-  reset: resetTransactions,
   next: nextTxPage,
   prev: prevTxPage,
-} = useAddressTransactions(address, txFilter);
+} = usePagedFilteredTransactions(addressHistory.transactions, txFilter);
 
 // Query params for linking to a transaction while preserving the address + filter context
 const txLinkQuery = computed(() => ({
@@ -1070,7 +1079,6 @@ const loadAddressInfo = async () => {
 
     fetchAssetPrices();
     fetchIdentifiedPool();
-    await resetTransactions();
   } catch (err: unknown) {
     error.value =
       err instanceof Error ? err.message : t("addressDetails.loadError");

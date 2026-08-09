@@ -36,7 +36,7 @@
         <TransactionFilterBar v-model="txFilter" />
 
         <div
-          v-if="addressTx.loading.value && addressTx.pagedTransactions.value.length === 0"
+          v-if="addressHistory.loading.value && addressTx.pagedTransactions.value.length === 0"
           class="text-center py-4 text-gray-400 text-sm"
         >
           <div
@@ -74,12 +74,12 @@
             {{ $t("common.page") }} {{ addressTx.page.value + 1 }}
           </span>
           <button
-            :disabled="!addressTx.canGoNext.value || addressTx.loading.value"
+            :disabled="!addressTx.canGoNext.value || addressHistory.loading.value"
             @click="addressTx.next"
             class="btn-secondary text-sm"
           >
             {{
-              addressTx.loading.value ? $t("common.loading") : $t("common.next")
+              addressHistory.loading.value ? $t("common.loading") : $t("common.next")
             }}
           </button>
         </div>
@@ -176,7 +176,8 @@ import { algorandService } from "../services/algorandService";
 import algosdk from "algosdk";
 import TransactionFilterBar from "../components/address/TransactionFilterBar.vue";
 import AddressTransactionRow from "../components/address/AddressTransactionRow.vue";
-import { useAddressTransactions } from "../composables/useAddressTransactions";
+import { useAddressBalanceHistory } from "../composables/useAddressBalanceHistory";
+import { usePagedFilteredTransactions } from "../composables/usePagedFilteredTransactions";
 import {
   txFilterFromQuery,
   txFilterToQuery,
@@ -213,7 +214,10 @@ const isInnerTransaction = computed(() => {
 // transaction list, keep that address + filter visible and usable here too.
 const contextAddress = computed(() => (route.query.address as string) || "");
 const txFilter = ref<TxFilterState>(txFilterFromQuery(route.query));
-const addressTx = useAddressTransactions(contextAddress, txFilter);
+// Single 1000-transaction fetch (auto-loads/reloads on address change), then
+// filtered + paginated entirely in memory — no per-page network calls.
+const addressHistory = useAddressBalanceHistory(contextAddress);
+const addressTx = usePagedFilteredTransactions(addressHistory.transactions, txFilter);
 
 const txLinkQuery = computed(() => ({
   address: contextAddress.value,
@@ -226,14 +230,6 @@ watch(
     router.replace({ query: { ...route.query, ...txFilterToQuery(filter) } });
   },
   { deep: true },
-);
-
-watch(
-  contextAddress,
-  (addr) => {
-    if (addr) void addressTx.reset();
-  },
-  { immediate: true },
 );
 
 const loadTransaction = async (txId: string, innerPath?: string) => {

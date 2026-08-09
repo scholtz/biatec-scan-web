@@ -1,6 +1,7 @@
 import { ref, computed, watch, type Ref } from "vue";
 import { indexerUrl } from "../config/env";
 import type { FilterableTransaction } from "../utils/txFilter";
+import { historyCoversTime } from "../utils/balanceDelta";
 
 // The Algorand indexer caps `limit` at 1000 per request, so this is a single
 // fetch (not a paginated crawl) covering the address's most recent history.
@@ -51,8 +52,7 @@ export function useAddressBalanceHistory(address: Ref<string>) {
   // Data only covers back to `earliestTime` when the batch was truncated by
   // the fetch cap; otherwise it is the address's entire history.
   function coversTime(sinceSeconds: number): boolean {
-    if (!truncated.value) return true;
-    return earliestTime.value === null || earliestTime.value <= sinceSeconds;
+    return historyCoversTime(truncated.value, earliestTime.value, sinceSeconds);
   }
 
   watch(address, load, { immediate: true });

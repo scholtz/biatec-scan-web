@@ -12,7 +12,7 @@
     </div>
 
     <div
-      v-if="loading"
+      v-if="props.loading"
       class="text-center py-4 text-gray-400 text-sm"
     >
       <div
@@ -63,17 +63,18 @@
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../../services/assetService";
-import { useAddressBalanceHistory } from "../../composables/useAddressBalanceHistory";
-import { computeBalanceDeltas } from "../../utils/balanceDelta";
-import { assetDecimals } from "../../utils/txFilter";
+import { computeBalanceDeltas, historyCoversTime } from "../../utils/balanceDelta";
+import { assetDecimals, type FilterableTransaction } from "../../utils/txFilter";
 
-const props = defineProps<{ address: string }>();
+const props = defineProps<{
+  address: string;
+  transactions: FilterableTransaction[];
+  loading: boolean;
+  truncated: boolean;
+  earliestTime: number | null;
+}>();
 
 const { t, locale } = useI18n();
-
-const address = computed(() => props.address);
-const { transactions, loading, earliestTime, coversTime } =
-  useAddressBalanceHistory(address);
 
 const durationOptions = [
   { key: "1h", labelKey: "addressDetails.duration1h", seconds: 60 * 60 },
@@ -94,15 +95,17 @@ const sinceSeconds = computed(() => {
 });
 
 const showCoverageWarning = computed(
-  () => !loading.value && !coversTime(sinceSeconds.value),
+  () =>
+    !props.loading &&
+    !historyCoversTime(props.truncated, props.earliestTime, sinceSeconds.value),
 );
 
 const earliestDateLabel = computed(() => {
-  if (earliestTime.value === null) return "";
+  if (props.earliestTime === null) return "";
   return new Intl.DateTimeFormat(locale.value, {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(new Date(earliestTime.value * 1000));
+  }).format(new Date(props.earliestTime * 1000));
 });
 
 function assetLabel(assetId: number): string {
@@ -124,8 +127,8 @@ function assetLabel(assetId: number): string {
 const deltaRows = computed(() => {
   void forceUpdate.value; // re-run when async asset metadata loads
   const deltas = computeBalanceDeltas(
-    transactions.value,
-    address.value,
+    props.transactions,
+    props.address,
     sinceSeconds.value,
   );
   return Array.from(deltas.entries())
