@@ -22,7 +22,7 @@
 
     <div
       v-if="visible"
-      class="absolute z-50 top-full mt-1.5 w-64 max-w-[80vw] bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-3 text-xs text-gray-200"
+      class="absolute z-50 top-full mt-1.5 w-64 max-w-[80vw] bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-3 text-xs text-gray-200 whitespace-pre-line"
       :class="align === 'right' ? 'right-0' : 'left-1/2 -translate-x-1/2'"
     >
       {{ text }}

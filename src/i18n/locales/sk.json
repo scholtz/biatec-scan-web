@@ -125,8 +125,8 @@
       "valueLosers": "Najväčší pokles likvidity"
     },
     "topListsHelp": {
-      "popular": "Najobchodovanejšie aktíva podľa objemu v USD za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL. Percento ukazuje zmenu objemu oproti predchádzajúcemu 24-hodinovému oknu.",
-      "trending": "Najobchodovanejšie aktíva podľa objemu v USD za poslednú hodinu. Zohľadňuje sa len top 150 aktív podľa reálneho TVL. Percento ukazuje zmenu objemu oproti predchádzajúcej hodine.",
+      "popular": "Najobchodovanejšie aktíva podľa objemu v USD za posledných 24 hodín, bez stabilných a bázových aktív. Zohľadňuje sa len top 150 aktív podľa reálneho TVL. Percento ukazuje zmenu ceny aktíva za posledných 24 hodín.",
+      "trending": "Najobchodovanejšie aktíva podľa objemu v USD za poslednú hodinu, bez stabilných a bázových aktív. Zohľadňuje sa len top 150 aktív podľa reálneho TVL. Percento ukazuje zmenu objemu oproti predchádzajúcej hodine.",
       "gainers": "Aktíva s najvyšším percentuálnym rastom ceny za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
       "losers": "Aktíva s najväčším percentuálnym poklesom ceny za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
       "valueGainers": "Aktíva s najvyšším percentuálnym rastom reálnej likvidity (TVL) za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",

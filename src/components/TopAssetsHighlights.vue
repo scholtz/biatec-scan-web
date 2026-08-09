@@ -59,10 +59,12 @@ const data = ref<TopAssetsResponse | null>(null);
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 let refreshTimer: ReturnType<typeof setInterval> | undefined;
 
-// Popular/trending are *ranked* by 24h/1h trade volume server-side and *display*
-// the volume change of that window vs the previous window; the other boxes
-// display price / real-TVL change percentages.
-type Metric = "volume24H" | "volume1H" | "priceChange" | "tvlChange";
+// Popular/trending are *ranked* by 24h/1h trade volume server-side. Trending
+// *displays* the volume change of its window vs the previous window; popular
+// displays the 24h price change instead (its tooltip carries both the volume
+// and the price raw data); the other boxes display price / real-TVL change
+// percentages.
+type Metric = "volume24HWithPrice" | "volume1H" | "priceChange" | "tvlChange";
 
 interface Card {
   key: string;
@@ -76,7 +78,7 @@ const cards = computed<Card[]>(() => {
   const d = data.value;
   if (!d) return [];
   const defs: Array<[string, Metric, TopAssetItem[] | undefined]> = [
-    ["popular", "volume24H", d.popular ?? undefined],
+    ["popular", "volume24HWithPrice", d.popular ?? undefined],
     ["trending", "volume1H", d.trending ?? undefined],
     ["gainers", "priceChange", d.topGainers ?? undefined],
     ["losers", "priceChange", d.topLosers ?? undefined],
@@ -107,12 +109,11 @@ function formatPercent(value: number | null | undefined): string {
 
 function changePercent(metric: Metric, item: TopAssetItem): number | null | undefined {
   switch (metric) {
-    case "volume24H":
-      return item.volume24HChangePercent;
-    case "volume1H":
-      return item.volume1HChangePercent;
+    case "volume24HWithPrice":
     case "priceChange":
       return item.priceChange24HPercent;
+    case "volume1H":
+      return item.volume1HChangePercent;
     case "tvlChange":
       return item.tvlChange24HPercent;
   }
@@ -157,6 +158,22 @@ function changeTooltip(metric: Metric, item: TopAssetItem): string {
     from: fmtTime(from, withDate),
     to: fmtTime(generatedAt, withDate),
   };
+  const volume24hText = () =>
+    item.volume24HUSDPrev === null || item.volume24HUSDPrev === undefined
+      ? ""
+      : t("assets.topListsTooltip.volumeChange", {
+          ...params,
+          prev: fmtUsdCompact(item.volume24HUSDPrev),
+          curr: fmtUsdCompact(item.volume24HUSD ?? 0),
+        });
+  const priceText = () =>
+    item.priceUSD24H === null || item.priceUSD24H === undefined
+      ? ""
+      : t("assets.topListsTooltip.priceChange", {
+          ...params,
+          prev: fmtPrice(item.priceUSD24H),
+          curr: fmtPrice(item.priceUSD ?? 0),
+        });
   switch (metric) {
     case "volume1H":
       if (item.volume1HUSDPrev === null || item.volume1HUSDPrev === undefined) return "";
@@ -165,20 +182,11 @@ function changeTooltip(metric: Metric, item: TopAssetItem): string {
         prev: fmtUsdCompact(item.volume1HUSDPrev),
         curr: fmtUsdCompact(item.volume1HUSD ?? 0),
       });
-    case "volume24H":
-      if (item.volume24HUSDPrev === null || item.volume24HUSDPrev === undefined) return "";
-      return t("assets.topListsTooltip.volumeChange", {
-        ...params,
-        prev: fmtUsdCompact(item.volume24HUSDPrev),
-        curr: fmtUsdCompact(item.volume24HUSD ?? 0),
-      });
+    case "volume24HWithPrice":
+      // Popular: ranked by 24h volume but showing the 24h price change — surface both raw datasets.
+      return [volume24hText(), priceText()].filter((s) => s !== "").join("\n");
     case "priceChange":
-      if (item.priceUSD24H === null || item.priceUSD24H === undefined) return "";
-      return t("assets.topListsTooltip.priceChange", {
-        ...params,
-        prev: fmtPrice(item.priceUSD24H),
-        curr: fmtPrice(item.priceUSD ?? 0),
-      });
+      return priceText();
     case "tvlChange":
       if (item.realTVLUSD24H === null || item.realTVLUSD24H === undefined) return "";
       return t("assets.topListsTooltip.tvlChange", {
