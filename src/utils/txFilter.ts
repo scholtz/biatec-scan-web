@@ -4,12 +4,13 @@ import { assetService } from "../services/assetService";
 // Algorand indexer REST API and used on AddressDetails/TransactionDetails).
 export interface FilterableTransaction {
   id?: string;
+  sender?: string;
   fee?: number;
   "round-time"?: number;
   "tx-type"?: string;
   "confirmed-round"?: number;
-  "payment-transaction"?: { amount?: number };
-  "asset-transfer-transaction"?: { amount?: number; "asset-id"?: number };
+  "payment-transaction"?: { amount?: number; receiver?: string };
+  "asset-transfer-transaction"?: { amount?: number; "asset-id"?: number; receiver?: string };
   [key: string]: any;
 }
 
@@ -78,7 +79,7 @@ export function getTxAmountInfo(tx: FilterableTransaction): TxAmountInfo | null 
   return null;
 }
 
-function assetDecimals(assetId: number): number {
+export function assetDecimals(assetId: number): number {
   if (assetId === 0) return 6;
   return assetService.getAssetInfo(BigInt(assetId))?.decimals ?? 0;
 }

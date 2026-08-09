@@ -181,6 +181,9 @@
           </div>
         </div>
 
+        <!-- Asset Balance Change -->
+        <AssetBalanceDelta :address="address" />
+
         <!-- 3-Column Grid: Assets | Transactions | Trades -->
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
           <!-- Column 1: Assets -->
@@ -652,6 +655,7 @@ import CopyToClipboard from "../components/CopyToClipboard.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import TransactionFilterBar from "../components/address/TransactionFilterBar.vue";
 import AddressTransactionRow from "../components/address/AddressTransactionRow.vue";
+import AssetBalanceDelta from "../components/address/AssetBalanceDelta.vue";
 import { useAddressTransactions } from "../composables/useAddressTransactions";
 import {
   txFilterFromQuery,
