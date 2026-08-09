@@ -194,4 +194,5 @@ export interface BiatecAsset {
   priceUSD24H?: number | null;
   /** @nullable */
   priceUSD7D?: number | null;
+  poolsCount?: number;
 }
