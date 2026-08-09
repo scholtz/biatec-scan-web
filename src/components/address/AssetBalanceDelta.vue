@@ -41,33 +41,40 @@
       </div>
 
       <div v-else class="space-y-2">
-        <div class="flex justify-between items-center px-3 text-xs text-gray-500">
-          <span>{{ t("addressDetails.balanceChangeAsset") }}</span>
-          <div class="text-right">
-            <div>{{ t("addressDetails.balanceChangeAmount") }}</div>
-            <div>{{ t("addressDetails.balanceChangeValuationUSD") }}</div>
-          </div>
+        <div
+          class="grid grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))] gap-2 items-center px-3 text-xs text-gray-500"
+        >
+          <span class="min-w-0 truncate">{{ t("addressDetails.balanceChangeAsset") }}</span>
+          <span class="min-w-0 text-right truncate">{{ t("addressDetails.balanceChangeAmount") }}</span>
+          <span class="min-w-0 text-right truncate">{{ t("addressDetails.balanceChangeReceived") }}</span>
+          <span class="min-w-0 text-right truncate">{{ t("addressDetails.balanceChangeSpent") }}</span>
         </div>
         <div
           v-for="row in pagedDeltaRows"
           :key="row.assetId"
-          class="flex justify-between items-center p-3 bg-gray-800 rounded"
+          class="grid grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))] gap-2 items-center p-3 bg-gray-800 rounded"
         >
-          <span class="text-white text-sm truncate mr-2">{{ row.label }}</span>
-          <div class="text-right flex-shrink-0">
+          <span class="text-white text-sm truncate min-w-0">{{ row.label }}</span>
+          <div class="text-right min-w-0">
             <div
-              class="font-mono text-sm"
-              :class="row.amount > 0 ? 'text-green-400' : 'text-red-400'"
+              class="font-mono text-sm truncate"
+              :class="row.amount > 0 ? 'text-green-400' : row.amount < 0 ? 'text-red-400' : 'text-gray-400'"
             >
-              {{ row.amount > 0 ? "+" : "-" }}{{ row.formatted }}
+              {{ row.amount > 0 ? "+" : row.amount < 0 ? "-" : "" }}{{ row.formatted }}
             </div>
             <div
               v-if="row.formattedUSD"
-              class="font-mono text-xs"
+              class="font-mono text-xs truncate"
               :class="row.amount > 0 ? 'text-green-400/70' : 'text-red-400/70'"
             >
               {{ row.amount > 0 ? "+" : "-" }}{{ row.formattedUSD }}
             </div>
+          </div>
+          <div class="text-right min-w-0">
+            <span class="font-mono text-sm text-green-400 truncate">{{ row.formattedReceived }}</span>
+          </div>
+          <div class="text-right min-w-0">
+            <span class="font-mono text-sm text-red-400 truncate">{{ row.formattedSpent }}</span>
           </div>
         </div>
 
@@ -103,7 +110,7 @@
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../../services/assetService";
-import { computeBalanceDeltas, historyCoversTime } from "../../utils/balanceDelta";
+import { computeBalanceFlows, historyCoversTime } from "../../utils/balanceDelta";
 import { assetDecimals, type FilterableTransaction } from "../../utils/txFilter";
 
 const props = defineProps<{
@@ -117,6 +124,10 @@ const props = defineProps<{
 
 const { t, locale } = useI18n();
 
+// Bound to the parent's URL query param so the selected duration (e.g. "1
+// year") is shareable via link.
+const durationKey = defineModel<string>("duration", { required: true });
+
 const PAGE_SIZE = 5;
 const page = ref(0);
 
@@ -129,7 +140,6 @@ const durationOptions = [
   { key: "1y", labelKey: "addressDetails.duration1y", seconds: 365 * 24 * 60 * 60 },
 ];
 
-const durationKey = ref("24h");
 const forceUpdate = ref(0);
 
 const sinceSeconds = computed(() => {
@@ -168,21 +178,28 @@ function assetLabel(assetId: number): string {
   return `${name} · ID ${assetId}`;
 }
 
+function formatTokenAmount(rawAmount: number, decimals: number): string {
+  return new Intl.NumberFormat(locale.value, {
+    maximumFractionDigits: Math.min(Math.max(decimals, 2), 8),
+  }).format(Math.abs(rawAmount) / Math.pow(10, decimals));
+}
+
 const deltaRows = computed(() => {
   void forceUpdate.value; // re-run when async asset metadata loads
-  const deltas = computeBalanceDeltas(
+  const flows = computeBalanceFlows(
     props.transactions,
     props.address,
     sinceSeconds.value,
   );
-  return Array.from(deltas.entries())
-    .filter(([, raw]) => raw !== 0)
-    .map(([assetId, raw]) => {
+  return Array.from(flows.entries())
+    .filter(([, flow]) => flow.received !== 0 || flow.spent !== 0)
+    .map(([assetId, flow]) => {
       const decimals = assetDecimals(assetId);
-      const amount = raw / Math.pow(10, decimals);
-      const formatted = new Intl.NumberFormat(locale.value, {
-        maximumFractionDigits: Math.min(Math.max(decimals, 2), 8),
-      }).format(Math.abs(amount));
+      const netRaw = flow.received - flow.spent;
+      const amount = netRaw / Math.pow(10, decimals);
+      const formatted = formatTokenAmount(netRaw, decimals);
+      const formattedReceived = formatTokenAmount(flow.received, decimals);
+      const formattedSpent = formatTokenAmount(flow.spent, decimals);
       const price = props.assetPrices[assetId] ?? 0;
       const valuationUSD = amount * price;
       const formattedUSD =
@@ -197,6 +214,8 @@ const deltaRows = computed(() => {
         assetId,
         amount,
         formatted,
+        formattedReceived,
+        formattedSpent,
         label: assetLabel(assetId),
         valuationUSD,
         formattedUSD,

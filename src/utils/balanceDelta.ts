@@ -1,22 +1,33 @@
 import type { FilterableTransaction } from "./txFilter";
 
+export interface AssetFlow {
+  received: number; // raw units gained
+  spent: number; // raw units lost (including fees, for asset 0)
+}
+
 /**
- * Net raw-unit balance change per asset (0 = ALGO) for `address`, considering
- * pay/axfer transactions (including inner transactions produced by app
- * calls) with round-time >= sinceSeconds. Inner transactions inherit their
- * parent's round-time, since the indexer does not stamp one on them
+ * Gross received/spent raw units per asset (0 = ALGO) for `address`,
+ * considering pay/axfer transactions (including inner transactions produced
+ * by app calls) with round-time >= sinceSeconds. Inner transactions inherit
+ * their parent's round-time, since the indexer does not stamp one on them
  * individually. Fees are only charged to the top-level transaction's
  * `sender` (the fee payer) — fee pooling means inner transactions don't pay
- * their own fee. Does not account for rewards or asset close-to.
+ * their own fee. Net change is `received - spent`. Does not account for
+ * rewards or asset close-to.
  */
-export function computeBalanceDeltas(
+export function computeBalanceFlows(
   transactions: FilterableTransaction[],
   address: string,
   sinceSeconds: number,
-): Map<number, number> {
-  const deltas = new Map<number, number>();
-  const add = (assetId: number, amount: number) => {
-    deltas.set(assetId, (deltas.get(assetId) ?? 0) + amount);
+): Map<number, AssetFlow> {
+  const flows = new Map<number, AssetFlow>();
+  const flow = (assetId: number): AssetFlow => {
+    let f = flows.get(assetId);
+    if (!f) {
+      f = { received: 0, spent: 0 };
+      flows.set(assetId, f);
+    }
+    return f;
   };
 
   const visit = (
@@ -27,22 +38,22 @@ export function computeBalanceDeltas(
     if (roundTime === undefined || roundTime < sinceSeconds) return;
 
     const isSender = tx.sender === address;
-    if (isTopLevel && isSender && tx.fee) add(0, -tx.fee);
+    if (isTopLevel && isSender && tx.fee) flow(0).spent += tx.fee;
 
     if (tx["tx-type"] === "pay") {
       const pay = tx["payment-transaction"];
       if (pay) {
         const amount = pay.amount ?? 0;
-        if (isSender) add(0, -amount);
-        if (pay.receiver === address) add(0, amount);
+        if (isSender) flow(0).spent += amount;
+        if (pay.receiver === address) flow(0).received += amount;
       }
     } else if (tx["tx-type"] === "axfer") {
       const axfer = tx["asset-transfer-transaction"];
       if (axfer) {
         const assetId = axfer["asset-id"] ?? 0;
         const amount = axfer.amount ?? 0;
-        if (isSender) add(assetId, -amount);
-        if (axfer.receiver === address) add(assetId, amount);
+        if (isSender) flow(assetId).spent += amount;
+        if (axfer.receiver === address) flow(assetId).received += amount;
       }
     }
 
@@ -58,7 +69,7 @@ export function computeBalanceDeltas(
     visit(tx, tx["round-time"], true);
   }
 
-  return deltas;
+  return flows;
 }
 
 /**

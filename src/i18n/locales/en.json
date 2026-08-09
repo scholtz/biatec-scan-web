@@ -479,7 +479,9 @@
     "duration90d": "Last 90 days",
     "duration1y": "Last year",
     "balanceChangeAsset": "Asset",
-    "balanceChangeAmount": "Change",
+    "balanceChangeAmount": "Net Change",
+    "balanceChangeReceived": "Net Received",
+    "balanceChangeSpent": "Net Spent",
     "balanceChangeValuationUSD": "Current USD valuation"
   },
   "status": {

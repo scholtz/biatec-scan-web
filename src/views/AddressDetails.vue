@@ -183,6 +183,7 @@
 
         <!-- Asset Balance Change -->
         <AssetBalanceDelta
+          v-model:duration="balanceDuration"
           :address="address"
           :transactions="addressHistory.transactions.value"
           :loading="addressHistory.loading.value"
@@ -730,6 +731,15 @@ const txLinkQuery = computed(() => ({
   ...txFilterToQuery(txFilter.value),
 }));
 
+// Asset Balance Change duration, synced to the URL so a link (e.g. "1 year")
+// reproduces the same view for someone else.
+const BALANCE_DURATION_QUERY_KEY = "balanceDuration";
+const balanceDuration = ref(
+  typeof route.query[BALANCE_DURATION_QUERY_KEY] === "string"
+    ? (route.query[BALANCE_DURATION_QUERY_KEY] as string)
+    : "24h",
+);
+
 // Assets pagination
 const assetsPage = ref(0);
 
@@ -894,6 +904,18 @@ watch(
 // Re-derive the filter from the URL when navigating directly between addresses
 watch(address, () => {
   txFilter.value = txFilterFromQuery(route.query);
+});
+
+// Keep the balance-change duration in the URL too, so it can be shared
+watch(balanceDuration, (duration) => {
+  router.replace({ query: { ...route.query, [BALANCE_DURATION_QUERY_KEY]: duration } });
+});
+
+watch(address, () => {
+  balanceDuration.value =
+    typeof route.query[BALANCE_DURATION_QUERY_KEY] === "string"
+      ? (route.query[BALANCE_DURATION_QUERY_KEY] as string)
+      : "24h";
 });
 
 // ---- Functions ----
