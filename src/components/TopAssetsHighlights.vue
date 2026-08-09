@@ -27,11 +27,15 @@
           <span class="text-xs text-white truncate min-w-0 flex-1">
             {{ item.unitName || item.name || "#" + item.assetId }}
           </span>
-          <span class="text-xs shrink-0" :title="changeTooltip(card.metric, item)">
-            <span :class="signClass(changePercent(card.metric, item))">
+          <HelpTooltip
+            :text="changeTooltip(card.metric, item)"
+            align="right"
+            class="shrink-0"
+          >
+            <span class="text-xs" :class="signClass(changePercent(card.metric, item))">
               {{ formatPercent(changePercent(card.metric, item)) }}
             </span>
-          </span>
+          </HelpTooltip>
         </RouterLink>
       </div>
     </div>
