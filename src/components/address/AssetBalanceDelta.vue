@@ -49,7 +49,7 @@
           </div>
         </div>
         <div
-          v-for="row in deltaRows"
+          v-for="row in pagedDeltaRows"
           :key="row.assetId"
           class="flex justify-between items-center p-3 bg-gray-800 rounded"
         >
@@ -70,13 +70,37 @@
             </div>
           </div>
         </div>
+
+        <!-- Pagination -->
+        <div
+          v-if="deltaRows.length > PAGE_SIZE"
+          class="flex justify-between items-center pt-1"
+        >
+          <button
+            :disabled="page === 0"
+            @click="page--"
+            class="btn-secondary text-sm"
+          >
+            {{ t("common.prev") }}
+          </button>
+          <span class="text-xs text-gray-400">
+            {{ t("common.page") }} {{ page + 1 }} / {{ totalPages }}
+          </span>
+          <button
+            :disabled="page + 1 >= totalPages"
+            @click="page++"
+            class="btn-secondary text-sm"
+          >
+            {{ t("common.next") }}
+          </button>
+        </div>
       </div>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../../services/assetService";
 import { computeBalanceDeltas, historyCoversTime } from "../../utils/balanceDelta";
@@ -92,6 +116,9 @@ const props = defineProps<{
 }>();
 
 const { t, locale } = useI18n();
+
+const PAGE_SIZE = 5;
+const page = ref(0);
 
 const durationOptions = [
   { key: "1h", labelKey: "addressDetails.duration1h", seconds: 60 * 60 },
@@ -176,6 +203,18 @@ const deltaRows = computed(() => {
       };
     })
     .sort((a, b) => Math.abs(b.valuationUSD) - Math.abs(a.valuationUSD));
+});
+
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(deltaRows.value.length / PAGE_SIZE)),
+);
+
+const pagedDeltaRows = computed(() =>
+  deltaRows.value.slice(page.value * PAGE_SIZE, (page.value + 1) * PAGE_SIZE),
+);
+
+watch(deltaRows, () => {
+  page.value = 0;
 });
 </script>
 
