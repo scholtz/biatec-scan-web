@@ -122,8 +122,7 @@
       "gainers": "Top gainers",
       "losers": "Top losers",
       "valueGainers": "Top liquidity gainers",
-      "valueLosers": "Top liquidity losers",
-      "stable": "Stable & base assets"
+      "valueLosers": "Top liquidity losers"
     },
     "topListsHelp": {
       "popular": "The most traded assets by USD volume over the last 24 hours. Only the top 150 assets by real TVL are considered. The percentage shows the volume change compared to the previous 24-hour window.",
@@ -131,8 +130,7 @@
       "gainers": "Assets with the highest price gain in percent over the last 24 hours. Only the top 150 assets by real TVL are considered.",
       "losers": "Assets with the biggest price drop in percent over the last 24 hours. Only the top 150 assets by real TVL are considered.",
       "valueGainers": "Assets with the highest growth of real liquidity (TVL) in percent over the last 24 hours. Only the top 150 assets by real TVL are considered.",
-      "valueLosers": "Assets with the biggest decline of real liquidity (TVL) in percent over the last 24 hours. Only the top 150 assets by real TVL are considered.",
-      "stable": "The native token and USD-pegged stablecoins used as trusted base assets for pricing, ranked by real TVL. The percentage shows the price change over the last 24 hours."
+      "valueLosers": "Assets with the biggest decline of real liquidity (TVL) in percent over the last 24 hours. Only the top 150 assets by real TVL are considered."
     },
     "topListsTooltip": {
       "volumeChange": "From {from} to {to} the trading volume changed from {prev} to {curr}.",

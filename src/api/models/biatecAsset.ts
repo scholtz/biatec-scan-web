@@ -195,4 +195,5 @@ export interface BiatecAsset {
   /** @nullable */
   priceUSD7D?: number | null;
   poolsCount?: number;
+  deleted?: boolean;
 }

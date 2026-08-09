@@ -122,8 +122,7 @@
       "gainers": "Najväčšie rasty",
       "losers": "Najväčšie poklesy",
       "valueGainers": "Najväčší nárast likvidity",
-      "valueLosers": "Najväčší pokles likvidity",
-      "stable": "Stabilné a bázové aktíva"
+      "valueLosers": "Najväčší pokles likvidity"
     },
     "topListsHelp": {
       "popular": "Najobchodovanejšie aktíva podľa objemu v USD za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL. Percento ukazuje zmenu objemu oproti predchádzajúcemu 24-hodinovému oknu.",
@@ -131,8 +130,7 @@
       "gainers": "Aktíva s najvyšším percentuálnym rastom ceny za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
       "losers": "Aktíva s najväčším percentuálnym poklesom ceny za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
       "valueGainers": "Aktíva s najvyšším percentuálnym rastom reálnej likvidity (TVL) za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
-      "valueLosers": "Aktíva s najväčším percentuálnym poklesom reálnej likvidity (TVL) za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL.",
-      "stable": "Natívny token a stablecoiny naviazané na USD používané ako dôveryhodné bázové aktíva pre oceňovanie, zoradené podľa reálneho TVL. Percento ukazuje zmenu ceny za posledných 24 hodín."
+      "valueLosers": "Aktíva s najväčším percentuálnym poklesom reálnej likvidity (TVL) za posledných 24 hodín. Zohľadňuje sa len top 150 aktív podľa reálneho TVL."
     },
     "topListsTooltip": {
       "volumeChange": "Od {from} do {to} sa objem obchodov zmenil z {prev} na {curr}.",

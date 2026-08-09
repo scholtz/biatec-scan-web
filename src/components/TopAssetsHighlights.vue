@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="cards.length > 0"
-    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-3"
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-3"
   >
     <div
       v-for="card in cards"
@@ -78,9 +78,8 @@ const cards = computed<Card[]>(() => {
     ["losers", "priceChange", d.topLosers ?? undefined],
     ["valueGainers", "tvlChange", d.topValueGainers ?? undefined],
     ["valueLosers", "tvlChange", d.topValueLosers ?? undefined],
-    ["stable", "priceChange", d.topStable ?? undefined],
   ];
-  // Always render all seven boxes so the layout is stable — a list that happens
+  // Always render all six boxes so the layout is stable — a list that happens
   // to be empty (e.g. no losers right now) shows a placeholder instead of
   // disappearing.
   return defs.map(([key, metric, items]) => ({

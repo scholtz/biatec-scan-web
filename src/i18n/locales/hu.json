@@ -122,8 +122,7 @@
       "gainers": "Legnagyobb nyertesek",
       "losers": "Legnagyobb vesztesek",
       "valueGainers": "Legnagyobb likviditásnövekedés",
-      "valueLosers": "Legnagyobb likviditáscsökkenés",
-      "stable": "Stabil és bázis eszközök"
+      "valueLosers": "Legnagyobb likviditáscsökkenés"
     },
     "topListsHelp": {
       "popular": "A legnagyobb USD forgalmú eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre. A százalék a forgalom változását mutatja az előző 24 órás időszakhoz képest.",
@@ -131,8 +130,7 @@
       "gainers": "A legnagyobb százalékos áremelkedést mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
       "losers": "A legnagyobb százalékos árcsökkenést mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
       "valueGainers": "A valós likviditás (TVL) legnagyobb százalékos növekedését mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
-      "valueLosers": "A valós likviditás (TVL) legnagyobb százalékos csökkenését mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
-      "stable": "A natív token és az USD-hez kötött stabilcoinok, amelyeket megbízható bázis eszközként használnak az árazáshoz, valós TVL szerint rendezve. A százalék az elmúlt 24 óra árváltozását mutatja."
+      "valueLosers": "A valós likviditás (TVL) legnagyobb százalékos csökkenését mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre."
     },
     "topListsTooltip": {
       "volumeChange": "{from} és {to} között a kereskedési forgalom {prev} értékről {curr} értékre változott.",

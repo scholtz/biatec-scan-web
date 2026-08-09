@@ -183,7 +183,5 @@ export interface TopAssetsResponse {
   topValueGainers?: TopAssetItem[] | null;
   /** @nullable */
   topValueLosers?: TopAssetItem[] | null;
-  /** @nullable */
-  topStable?: TopAssetItem[] | null;
   generatedAt?: string;
 }
