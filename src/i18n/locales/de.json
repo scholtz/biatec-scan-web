@@ -122,7 +122,8 @@
       "gainers": "Top-Gewinner",
       "losers": "Top-Verlierer",
       "valueGainers": "Top-Liquiditätsgewinner",
-      "valueLosers": "Top-Liquiditätsverlierer"
+      "valueLosers": "Top-Liquiditätsverlierer",
+      "stable": "Stabile & Basis-Assets"
     },
     "topListsHelp": {
       "popular": "Die meistgehandelten Assets nach USD-Volumen in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL. Der Prozentwert zeigt die Volumenänderung gegenüber dem vorherigen 24-Stunden-Fenster.",
@@ -130,7 +131,8 @@
       "gainers": "Assets mit dem höchsten prozentualen Kursanstieg in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
       "losers": "Assets mit dem stärksten prozentualen Kursrückgang in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
       "valueGainers": "Assets mit dem höchsten prozentualen Zuwachs an realer Liquidität (TVL) in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
-      "valueLosers": "Assets mit dem stärksten prozentualen Rückgang an realer Liquidität (TVL) in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL."
+      "valueLosers": "Assets mit dem stärksten prozentualen Rückgang an realer Liquidität (TVL) in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
+      "stable": "Der native Token und an den USD gekoppelte Stablecoins, die als vertrauenswürdige Basis-Assets für die Preisbildung dienen, sortiert nach realem TVL. Der Prozentwert zeigt die Preisänderung der letzten 24 Stunden."
     },
     "topListsTooltip": {
       "volumeChange": "Von {from} bis {to} änderte sich das Handelsvolumen von {prev} auf {curr}.",

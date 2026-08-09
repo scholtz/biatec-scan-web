@@ -18,7 +18,7 @@ COPY . .
 # mainnet values; CI passes different --build-arg values per environment -
 # see .github/workflows/build-fe.yml and k8s/*/deployment-fe.yaml, whose
 # CSP_CONNECT_SRC container env must be kept in sync with these.
-ARG VITE_API_BASE_URL=https://algorand-trades.de-4.biatec.io
+ARG VITE_API_BASE_URL=https://api.algorand.scan.biatec.io
 ARG VITE_ALGORAND_ALGOD_URL=https://algorand-algod-public.de-4.biatec.io
 ARG VITE_ALGORAND_INDEXER_URL=https://mainnet-idx.4160.nodely.dev
 ARG VITE_ARC56_REGISTRY_URL=https://algorand.scan.biatec.io/arc56-registry
@@ -45,7 +45,7 @@ RUN mkdir /app
 # environment in the k8s manifests) - this is what lets one image serve any
 # network's CSP without a rebuild.
 COPY docker/default.conf.template /etc/nginx/templates/default.conf.template
-ENV CSP_CONNECT_SRC="https://algorand-trades.de-4.biatec.io wss://algorand-trades.de-4.biatec.io https://algorand-algod-public.de-4.biatec.io https://mainnet-idx.4160.nodely.dev https://algorand.scan.biatec.io"
+ENV CSP_CONNECT_SRC="https://api.algorand.scan.biatec.io wss://api.algorand.scan.biatec.io https://algorand-algod-public.de-4.biatec.io https://mainnet-idx.4160.nodely.dev https://algorand.scan.biatec.io"
 RUN chown nginx:nginx /etc/nginx/conf.d /etc/nginx/templates -R
 RUN chmod 0600 /etc/nginx/conf.d /etc/nginx/templates -R
 RUN chmod 0700 /etc/nginx/conf.d /etc/nginx/templates

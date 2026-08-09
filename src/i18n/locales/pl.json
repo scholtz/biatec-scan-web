@@ -122,7 +122,8 @@
       "gainers": "Największe wzrosty",
       "losers": "Największe spadki",
       "valueGainers": "Największy wzrost płynności",
-      "valueLosers": "Największy spadek płynności"
+      "valueLosers": "Największy spadek płynności",
+      "stable": "Aktywa stabilne i bazowe"
     },
     "topListsHelp": {
       "popular": "Najczęściej handlowane aktywa według wolumenu w USD w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL. Procent pokazuje zmianę wolumenu względem poprzedniego okna 24-godzinnego.",
@@ -130,7 +131,8 @@
       "gainers": "Aktywa z najwyższym procentowym wzrostem ceny w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
       "losers": "Aktywa z największym procentowym spadkiem ceny w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
       "valueGainers": "Aktywa z najwyższym procentowym wzrostem realnej płynności (TVL) w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
-      "valueLosers": "Aktywa z największym procentowym spadkiem realnej płynności (TVL) w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL."
+      "valueLosers": "Aktywa z największym procentowym spadkiem realnej płynności (TVL) w ciągu ostatnich 24 godzin. Uwzględnianych jest tylko 150 najlepszych aktywów według realnego TVL.",
+      "stable": "Token natywny i stablecoiny powiązane z USD, używane jako zaufane aktywa bazowe do wyceny, posortowane według realnego TVL. Procent pokazuje zmianę ceny w ciągu ostatnich 24 godzin."
     },
     "topListsTooltip": {
       "volumeChange": "Od {from} do {to} wolumen obrotu zmienił się z {prev} na {curr}.",

@@ -8,7 +8,7 @@ const viteEnv =
 
 /** Base URL of the Biatec Scan trade/aggregation REST + SignalR API. */
 export const apiBaseUrl: string =
-  viteEnv.VITE_API_BASE_URL || "https://algorand-trades.de-4.biatec.io";
+  viteEnv.VITE_API_BASE_URL || "https://api.algorand.scan.biatec.io";
 
 /** Algorand algod (node) REST endpoint. */
 export const algodUrl: string =

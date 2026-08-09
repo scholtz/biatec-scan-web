@@ -110,7 +110,7 @@ src/
 
 ### API Integration
 
-- Generated TypeScript client connects to `https://algorand-trades.de-4.biatec.io`
+- Generated TypeScript client connects to `https://api.algorand.scan.biatec.io`
 - Uses Orval for type-safe API client generation from OpenAPI spec
 - SignalR for real-time blockchain updates via `/biatecScanHub`
 - **NOTE**: API generation fails in restricted environments but generated code already exists

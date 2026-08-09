@@ -8,7 +8,7 @@ two folders:
 - **Biatec Scan Frontend** (`.`, this repo) — Vue 3 + Tailwind DEX explorer.
 - **AVM Trade Reporter** (`../AVMTradeReporter`) — the backend API this
   frontend consumes (indexes Algorand DEX activity, serves ARC-14-authed
-  endpoints like `algorand-trades.de-4.biatec.io`).
+  endpoints like `api.algorand.scan.biatec.io`).
 
 When a task involves data that looks wrong, missing, or shaped differently
 than expected (prices, pool aggregates, balances, etc.), don't assume the bug

@@ -122,7 +122,8 @@
       "gainers": "Mayores subidas",
       "losers": "Mayores caídas",
       "valueGainers": "Mayores ganancias de liquidez",
-      "valueLosers": "Mayores pérdidas de liquidez"
+      "valueLosers": "Mayores pérdidas de liquidez",
+      "stable": "Activos estables y base"
     },
     "topListsHelp": {
       "popular": "Los activos más negociados por volumen en USD en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real. El porcentaje muestra el cambio de volumen respecto a la ventana anterior de 24 horas.",
@@ -130,7 +131,8 @@
       "gainers": "Activos con la mayor subida porcentual de precio en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",
       "losers": "Activos con la mayor caída porcentual de precio en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",
       "valueGainers": "Activos con el mayor aumento porcentual de liquidez real (TVL) en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",
-      "valueLosers": "Activos con la mayor disminución porcentual de liquidez real (TVL) en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real."
+      "valueLosers": "Activos con la mayor disminución porcentual de liquidez real (TVL) en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",
+      "stable": "El token nativo y las stablecoins ancladas al USD utilizadas como activos base de confianza para la fijación de precios, ordenados por TVL real. El porcentaje muestra el cambio de precio en las últimas 24 horas."
     },
     "topListsTooltip": {
       "volumeChange": "De {from} a {to} el volumen de negociación cambió de {prev} a {curr}.",
