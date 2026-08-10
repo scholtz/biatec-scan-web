@@ -2,8 +2,10 @@ name: Promote to Production
 
 # Manual-only pipeline. Run this once a version has been built by "CI/CD -
 # Biatec Scan" (build-fe.yml) and verified on Stage. It re-tags that
-# version's already-pushed mainnet image as "latest" in both registries and
-# deploys it to production - it never builds a new image itself.
+# version's already-pushed image for the selected production network
+# (mainnet -> algorand.scan.biatec.io, voi -> voi.scan.biatec.io) as
+# <network>-latest in both registries and deploys it to that production -
+# it never builds a new image itself.
 on:
   workflow_dispatch:
     inputs:
@@ -17,6 +19,14 @@ on:
         required: false
         default: ""
         type: string
+      network:
+        description: Production network to deploy to.
+        required: true
+        default: mainnet
+        type: choice
+        options:
+          - mainnet
+          - voi
 
 env:
   DOCKERHUB_IMAGE: scholtz2/biatec-scan-fe
@@ -27,9 +37,10 @@ jobs:
   # ---------------------------------------------------------------------
   # Stage 0: resolve-version - uses the supplied version as-is, or, when
   # none was given, finds the newest versioned image in Docker Hub. Every
-  # build-fe.yml run pushes mainnet-<version> and testnet-<version> (the
-  # Stage image) with the same version string, so the newest mainnet-*
-  # versioned tag is exactly the version currently on Stage.
+  # build-fe.yml run pushes mainnet-<version>, testnet-<version> (the
+  # Stage image) and voi-<version> with the same version string, so the
+  # newest <network>-* versioned tag is exactly the version currently on
+  # Stage.
   # ---------------------------------------------------------------------
   resolve-version:
     runs-on: ubuntu-latest
@@ -39,18 +50,19 @@ jobs:
       - name: Resolve version to promote
         id: resolve
         run: |
+          net="${{ inputs.network }}"
           version="${{ inputs.version }}"
           if [ -z "$version" ]; then
-            echo "No version supplied - looking up the newest stage build in Docker Hub"
+            echo "No version supplied - looking up the newest ${net} build in Docker Hub"
             version=$(curl -fsSL "https://hub.docker.com/v2/repositories/${DOCKERHUB_IMAGE}/tags?page_size=100&ordering=last_updated" \
               | jq -r '.results[].name' \
-              | grep -E '^mainnet-1\.' \
-              | grep -vx 'mainnet-latest' \
+              | grep -E "^${net}-1\." \
+              | grep -vx "${net}-latest" \
               | head -n 1 \
-              | sed 's/^mainnet-//')
+              | sed "s/^${net}-//")
           fi
           if [ -z "$version" ]; then
-            echo "::error::Could not resolve a version to promote (no versioned mainnet-* tag found in Docker Hub)"
+            echo "::error::Could not resolve a version to promote (no versioned ${net}-* tag found in Docker Hub)"
             exit 1
           fi
           echo "Promoting version: $version"
@@ -58,8 +70,8 @@ jobs:
 
   # ---------------------------------------------------------------------
   # Stage 1: promote-tag - re-tags the already-built & pushed
-  # mainnet-<version> image as mainnet-latest in both registries. Doesn't
-  # rebuild anything - just moves the "latest" pointer.
+  # <network>-<version> image as <network>-latest in both registries.
+  # Doesn't rebuild anything - just moves the "latest" pointer.
   # ---------------------------------------------------------------------
   promote-tag:
     needs: resolve-version
@@ -82,17 +94,17 @@ jobs:
           password: ${{ secrets.PRIVATE_REGISTRY_TOKEN }}
 
       - name: Pull versioned image
-        run: docker pull ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ needs.resolve-version.outputs.version }}
+        run: docker pull ${{ env.DOCKERHUB_IMAGE }}:${{ inputs.network }}-${{ needs.resolve-version.outputs.version }}
 
-      - name: Tag & push mainnet-latest (Docker Hub)
+      - name: Tag & push ${{ inputs.network }}-latest (Docker Hub)
         run: |
-          docker tag ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ needs.resolve-version.outputs.version }} ${{ env.DOCKERHUB_IMAGE }}:mainnet-latest
-          docker push ${{ env.DOCKERHUB_IMAGE }}:mainnet-latest
+          docker tag ${{ env.DOCKERHUB_IMAGE }}:${{ inputs.network }}-${{ needs.resolve-version.outputs.version }} ${{ env.DOCKERHUB_IMAGE }}:${{ inputs.network }}-latest
+          docker push ${{ env.DOCKERHUB_IMAGE }}:${{ inputs.network }}-latest
 
-      - name: Tag & push mainnet-latest (Private Registry)
+      - name: Tag & push ${{ inputs.network }}-latest (Private Registry)
         run: |
-          docker tag ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ needs.resolve-version.outputs.version }} ${{ env.PRIVATE_IMAGE }}:mainnet-latest
-          docker push ${{ env.PRIVATE_IMAGE }}:mainnet-latest
+          docker tag ${{ env.DOCKERHUB_IMAGE }}:${{ inputs.network }}-${{ needs.resolve-version.outputs.version }} ${{ env.PRIVATE_IMAGE }}:${{ inputs.network }}-latest
+          docker push ${{ env.PRIVATE_IMAGE }}:${{ inputs.network }}-latest
 
   # ---------------------------------------------------------------------
   # Stage 2: deploy-production - only runs once the "Production"
@@ -106,10 +118,34 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: Production
-      url: https://algorand.scan.biatec.io
+      url: ${{ inputs.network == 'voi' && 'https://voi.scan.biatec.io' || 'https://algorand.scan.biatec.io' }}
+    env:
+      # Per-network deploy targets. Everything below the vars step uses only
+      # these, so adding another production network is a new case here plus
+      # its k8s/<network> manifests.
+      NETWORK: ${{ inputs.network }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Resolve per-network deploy targets
+        run: |
+          case "$NETWORK" in
+            mainnet)
+              echo "MANIFEST_DIR=k8s/main" >> "$GITHUB_ENV"
+              echo "NAMESPACE=biatec-scan" >> "$GITHUB_ENV"
+              echo "FE_DEPLOYMENT=biatec-scan-fe-app-deployment" >> "$GITHUB_ENV"
+              echo "CHARTS_DEPLOYMENT=biatec-charts-deployment" >> "$GITHUB_ENV"
+              ;;
+            voi)
+              echo "MANIFEST_DIR=k8s/voi" >> "$GITHUB_ENV"
+              echo "NAMESPACE=biatec-scan-voi" >> "$GITHUB_ENV"
+              echo "FE_DEPLOYMENT=biatec-scan-fe-voi-app-deployment" >> "$GITHUB_ENV"
+              echo "CHARTS_DEPLOYMENT=biatec-charts-voi-deployment" >> "$GITHUB_ENV"
+              ;;
+            *)
+              echo "::error::Unknown network '$NETWORK'"; exit 1 ;;
+          esac
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v4
@@ -123,25 +159,27 @@ jobs:
 
       - name: Update manifest image tag
         run: |
-          sed -i "s#image: \\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:mainnet-${{ needs.resolve-version.outputs.version }}#" k8s/main/deployment-fe.yaml
+          sed -i "s#image: scholtz2/biatec-scan-fe:\\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:${NETWORK}-${{ needs.resolve-version.outputs.version }}#" "$MANIFEST_DIR/deployment-fe.yaml"
           echo '----- Modified manifest (image lines) -----'
-          grep -n 'image:' k8s/main/deployment-fe.yaml
+          grep -n 'image:' "$MANIFEST_DIR/deployment-fe.yaml"
 
       - name: Apply Kubernetes manifests
         run: |
-          kubectl apply -f k8s/main/deployment-fe.yaml
+          kubectl apply -f "$MANIFEST_DIR/deployment-fe.yaml"
 
       - name: Restart & Verify rollout
         run: |
-          kubectl rollout restart deployment/biatec-scan-fe-app-deployment -n biatec-scan
-          kubectl rollout status deployment/biatec-scan-fe-app-deployment -n biatec-scan
+          kubectl rollout restart "deployment/$FE_DEPLOYMENT" -n "$NAMESPACE"
+          kubectl rollout status "deployment/$FE_DEPLOYMENT" -n "$NAMESPACE"
 
       # deployment-arc56-registry.yaml isn't built by this pipeline (its image comes
       # from the separate ARC56Registry repo) but still needs to be kept in sync -
       # update-config.sh is manual-only and nothing else applies this manifest, so
       # changes to it (e.g. the refresh CronJob) would otherwise never reach the
-      # cluster.
+      # cluster. The registry is chain-agnostic and only deployed on Algorand
+      # mainnet (all networks' builds point at algorand.scan.biatec.io/arc56-registry).
       - name: Apply arc56-registry manifest
+        if: inputs.network == 'mainnet'
         run: |
           kubectl apply -f k8s/main/deployment-arc56-registry.yaml
 
@@ -155,23 +193,25 @@ jobs:
           # harbor.de-4.biatec.io is private - make sure the pull secret the
           # charts Deployment references exists/is current in the namespace.
           kubectl create secret docker-registry regcred \
-            --namespace biatec-scan \
+            --namespace "$NAMESPACE" \
             --docker-server=harbor.de-4.biatec.io \
             --docker-username='${{ secrets.PRIVATE_REGISTRY_USER }}' \
             --docker-password='${{ secrets.PRIVATE_REGISTRY_TOKEN }}' \
             --dry-run=client -o yaml | kubectl apply -f -
-          # One-time migration: an older (manually created) charts Deployment
-          # in this namespace has a different spec.selector than the manifest,
-          # and spec.selector is immutable - kubectl apply fails with
-          # "field is immutable". Delete the old Deployment first so apply can
-          # recreate it with the manifest's selector. (Brief downtime for
-          # /charts only, and only when the selector actually differs.)
-          existing_selector=$(kubectl get deployment biatec-charts-deployment -n biatec-scan \
-            -o jsonpath='{.spec.selector.matchLabels}' --ignore-not-found)
-          if [ -n "$existing_selector" ] && [ "$existing_selector" != '{"app":"biatec-charts"}' ]; then
-            echo "Existing selector $existing_selector differs from manifest - recreating Deployment"
-            kubectl delete deployment biatec-charts-deployment -n biatec-scan
+          # One-time migration (mainnet): an older (manually created) charts
+          # Deployment in this namespace has a different spec.selector than
+          # the manifest, and spec.selector is immutable - kubectl apply
+          # fails with "field is immutable". Delete the old Deployment first
+          # so apply can recreate it with the manifest's selector. (Brief
+          # downtime for /charts only, and only when the selector differs.)
+          if [ "$NETWORK" = "mainnet" ]; then
+            existing_selector=$(kubectl get deployment "$CHARTS_DEPLOYMENT" -n "$NAMESPACE" \
+              -o jsonpath='{.spec.selector.matchLabels}' --ignore-not-found)
+            if [ -n "$existing_selector" ] && [ "$existing_selector" != '{"app":"biatec-charts"}' ]; then
+              echo "Existing selector $existing_selector differs from manifest - recreating Deployment"
+              kubectl delete deployment "$CHARTS_DEPLOYMENT" -n "$NAMESPACE"
+            fi
           fi
-          kubectl apply -f k8s/main/deployment-charts.yaml
-          kubectl rollout restart deployment/biatec-charts-deployment -n biatec-scan
-          kubectl rollout status deployment/biatec-charts-deployment -n biatec-scan
+          kubectl apply -f "$MANIFEST_DIR/deployment-charts.yaml"
+          kubectl rollout restart "deployment/$CHARTS_DEPLOYMENT" -n "$NAMESPACE"
+          kubectl rollout status "deployment/$CHARTS_DEPLOYMENT" -n "$NAMESPACE"

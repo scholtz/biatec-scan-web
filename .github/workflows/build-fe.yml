@@ -102,12 +102,35 @@ jobs:
             vite_algorand_indexer_url: https://mainnet-idx.4160.nodely.dev
             vite_arc56_registry_url: https://algorand.scan.biatec.io/arc56-registry
             vite_usdc_asset_id: 31566704
+            vite_genesis_id: mainnet-v1.0
+            vite_genesis_hash: wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=
+            vite_native_token_name: Algorand
+            vite_native_token_unit: ALGO
+            vite_network_label: Algorand
           - network: testnet
             vite_api_base_url: https://api.testnet.scan.biatec.io
             vite_algorand_algod_url: https://testnet-api.4160.nodely.dev
             vite_algorand_indexer_url: https://testnet-idx.4160.nodely.dev
             vite_arc56_registry_url: https://algorand.scan.biatec.io/arc56-registry
             vite_usdc_asset_id: 10458941
+            vite_genesis_id: testnet-v1.0
+            vite_genesis_hash: SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=
+            vite_native_token_name: Testnet Algorand
+            vite_native_token_unit: ALGO
+            vite_network_label: Algorand Testnet
+          # Voi mainnet production build - deployed manually via
+          # promote-production.yml with network=voi to voi.scan.biatec.io.
+          - network: voi
+            vite_api_base_url: https://api.voi.scan.biatec.io
+            vite_algorand_algod_url: https://voimain-algod-public.de.nodes.biatec.io
+            vite_algorand_indexer_url: https://voimain-indexer-public.de.nodes.biatec.io
+            vite_arc56_registry_url: https://algorand.scan.biatec.io/arc56-registry
+            vite_usdc_asset_id: 302190
+            vite_genesis_id: voimain-v1.0
+            vite_genesis_hash: r20fSQI8gWe/kFZziNonSPCXLwcQmH/nxROvnnueWOk=
+            vite_native_token_name: Voi
+            vite_native_token_unit: VOI
+            vite_network_label: Voi
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -142,6 +165,11 @@ jobs:
             VITE_ALGORAND_INDEXER_URL=${{ matrix.vite_algorand_indexer_url }}
             VITE_ARC56_REGISTRY_URL=${{ matrix.vite_arc56_registry_url }}
             VITE_USDC_ASSET_ID=${{ matrix.vite_usdc_asset_id }}
+            VITE_GENESIS_ID=${{ matrix.vite_genesis_id }}
+            VITE_GENESIS_HASH=${{ matrix.vite_genesis_hash }}
+            VITE_NATIVE_TOKEN_NAME=${{ matrix.vite_native_token_name }}
+            VITE_NATIVE_TOKEN_UNIT=${{ matrix.vite_native_token_unit }}
+            VITE_NETWORK_LABEL=${{ matrix.vite_network_label }}
           tags: |
             ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-${{ needs.version.outputs.version }}
             ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-latest

@@ -1,0 +1,80 @@
+# Voi production deployment of the TradingView charting widget, serving
+# https://voi.scan.biatec.io/charts/ (the /charts Ingress path in
+# deployment-fe.yaml routes to the Service below).
+#
+# The image is the same moving `production` tag as the Algorand production
+# charts deployment (the widget is network-agnostic; everything
+# network-specific is injected at container start via the env vars below).
+# Applied + restarted by this repo's promote-production job for network=voi.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biatec-charts-voi-deployment
+  namespace: biatec-scan-voi
+spec:
+  selector:
+    matchLabels:
+      app: biatec-charts-voi
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: biatec-charts-voi
+    spec:
+      # regcred is created/refreshed by the promote-production job in
+      # .github/workflows/promote-production.yml from the PRIVATE_REGISTRY_*
+      # secrets - harbor.de-4.biatec.io is a private registry.
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: biatec-charts
+          image: harbor.de-4.biatec.io/biatec/biatec-charting-widget:production
+          imagePullPolicy: Always
+          env:
+            # Injected into index.html at container start
+            # (docker/40-inject-runtime-config.sh in the
+            # biatec-charting-widget repo). The API host must match this
+            # frontend's origin: each AVM Trade Reporter instance allows
+            # CORS only from its own frontend.
+            - name: CHARTS_BASE_HREF
+              value: https://voi.scan.biatec.io/charts/
+            - name: CHARTS_API_BASE_URL
+              value: https://api.voi.scan.biatec.io
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: "50Mi"
+            limits:
+              cpu: 500m
+              memory: "200Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: biatec-charts-service
+  namespace: biatec-scan-voi
+spec:
+  type: ClusterIP
+  selector:
+    app: biatec-charts-voi
+  ports:
+    - name: http
+      protocol: TCP
+      appProtocol: http
+      port: 80
+      targetPort: 80

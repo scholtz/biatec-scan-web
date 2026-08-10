@@ -110,6 +110,7 @@
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../../services/assetService";
+import { nativeTokenName, nativeTokenUnit } from "../../config/env";
 import { computeBalanceFlows, historyCoversTime } from "../../utils/balanceDelta";
 import { assetDecimals, type FilterableTransaction } from "../../utils/txFilter";
 
@@ -163,7 +164,7 @@ const earliestDateLabel = computed(() => {
 });
 
 function assetLabel(assetId: number): string {
-  if (assetId === 0) return "Algorand (ALGO)";
+  if (assetId === 0) return `${nativeTokenName} (${nativeTokenUnit})`;
   const info = assetService.getAssetInfo(BigInt(assetId));
   if (!info) {
     assetService.requestAsset(BigInt(assetId), () => {

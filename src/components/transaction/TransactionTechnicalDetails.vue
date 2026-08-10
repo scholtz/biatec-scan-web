@@ -37,7 +37,7 @@
         <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
           <p class="text-white font-medium">
             {{ algorandService.formatAlgoAmount(transaction.senderRewards) }}
-            ALGO
+            {{ nativeTokenUnit }}
           </p>
         </div>
       </div>
@@ -48,7 +48,7 @@
         <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
           <p class="text-white font-medium">
             {{ algorandService.formatAlgoAmount(transaction.receiverRewards) }}
-            ALGO
+            {{ nativeTokenUnit }}
           </p>
         </div>
       </div>
@@ -59,7 +59,7 @@
         <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
           <p class="text-white font-medium">
             {{ algorandService.formatAlgoAmount(transaction.closeRewards) }}
-            ALGO
+            {{ nativeTokenUnit }}
           </p>
         </div>
       </div>
@@ -70,7 +70,7 @@
         <div class="bg-dark-900 p-3 rounded-lg border border-gray-700">
           <p class="text-white font-medium">
             {{ algorandService.formatAlgoAmount(transaction.closingAmount) }}
-            ALGO
+            {{ nativeTokenUnit }}
           </p>
         </div>
       </div>
@@ -98,6 +98,7 @@
 import { PropType } from "vue";
 import algosdk from "algosdk";
 import { algorandService } from "../../services/algorandService";
+import { nativeTokenUnit } from "../../config/env";
 import BufferDisplay from "../BufferDisplay.vue";
 
 defineProps({

@@ -50,7 +50,7 @@
                 transaction.paymentTransaction.amount
               )
             }}
-            ALGO
+            {{ nativeTokenUnit }}
           </p>
         </div>
       </div>
@@ -85,6 +85,7 @@
 import { PropType } from "vue";
 import algosdk from "algosdk";
 import { algorandService } from "../../services/algorandService";
+import { nativeTokenUnit } from "../../config/env";
 
 defineProps({
   transaction: {

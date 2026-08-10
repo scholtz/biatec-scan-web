@@ -8,6 +8,11 @@ interface ImportMetaEnv {
   readonly VITE_ALGORAND_ALGOD_URL?: string;
   readonly VITE_ALGORAND_INDEXER_URL?: string;
   readonly VITE_USDC_ASSET_ID?: string;
+  readonly VITE_GENESIS_ID?: string;
+  readonly VITE_GENESIS_HASH?: string;
+  readonly VITE_NATIVE_TOKEN_NAME?: string;
+  readonly VITE_NATIVE_TOKEN_UNIT?: string;
+  readonly VITE_NETWORK_LABEL?: string;
   readonly VITE_ARC56_REGISTRY_URL?: string;
   readonly VITE_CHARTS_BASE_URL?: string;
   readonly VITE_ENABLE_VERBOSE_LOGGING?: string;

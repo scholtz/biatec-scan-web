@@ -74,6 +74,7 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import algosdk from "algosdk";
 import { assetService } from "../../services/assetService";
+import { nativeTokenName, nativeTokenUnit } from "../../config/env";
 import { getAVMTradeReporterAPI } from "../../api";
 import {
   computeAddressImpacts,
@@ -106,7 +107,7 @@ const totalFee = computed(() => {
 });
 
 function assetLabel(assetId: string): string {
-  if (assetId === "0") return "Algorand (ALGO)";
+  if (assetId === "0") return `${nativeTokenName} (${nativeTokenUnit})`;
   const info = assetService.getAssetInfo(BigInt(assetId));
   if (!info) return `${t("common.asset")} ${assetId}`;
   const name =

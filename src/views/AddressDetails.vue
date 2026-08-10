@@ -66,7 +66,8 @@
                 $t("addressDetails.minBalance")
               }}</span>
               <span class="text-white font-mono">
-                {{ formatAlgoAmount(accountInfo?.["min-balance"] || 0) }} ALGO
+                {{ formatAlgoAmount(accountInfo?.["min-balance"] || 0) }}
+                {{ nativeTokenUnit }}
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -84,8 +85,11 @@
               }}</span>
             </div>
           </div>
-          <!-- External Links -->
-          <div class="flex flex-wrap gap-x-4 gap-y-2 mt-4 pt-4 border-t border-gray-700">
+          <!-- External Links (Algorand-mainnet-only explorers) -->
+          <div
+            v-if="isAlgorandMainnet"
+            class="flex flex-wrap gap-x-4 gap-y-2 mt-4 pt-4 border-t border-gray-700"
+          >
             <a
               :href="`https://allo.info/account/${address}`"
               target="_blank"
@@ -657,7 +661,13 @@ import { getAVMTradeReporterAPI } from "../api";
 import type { Pool, Trade } from "../api/models";
 import type { AMMTrade } from "../types/algorand";
 import type { SubscriptionFilter } from "../types/SubscriptionFilter";
-import { assetImageUrl as sharedAssetImageUrl, indexerUrl } from "../config/env";
+import {
+  assetImageUrl as sharedAssetImageUrl,
+  indexerUrl,
+  isAlgorandMainnet,
+  nativeTokenName,
+  nativeTokenUnit,
+} from "../config/env";
 import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
@@ -781,8 +791,8 @@ const enrichedAssets = computed(() => {
     "asset-id": 0,
     amount: accountInfo.value.amount,
     "is-frozen": false,
-    name: "Algorand",
-    unitName: "ALGO",
+    name: nativeTokenName,
+    unitName: nativeTokenUnit,
     decimals: 6,
     priceUSD: assetPrices.value[0] || 0,
     valueUSD:

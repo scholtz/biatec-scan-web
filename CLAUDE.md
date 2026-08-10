@@ -80,6 +80,29 @@ so the backend must be released before the client can be regenerated:
    frontend on mainnet must tolerate the missing fields until then (new
    generated fields are optional/nullable, so this is usually automatic).
 
+## Voi production environment
+
+Besides Algorand mainnet (production) and testnet (stage), there is a second
+production network: **Voi mainnet** (`voi.scan.biatec.io`, API at
+`api.voi.scan.biatec.io`, genesis `voimain-v1.0`, native token VOI, USD
+reference asset = Aramid USDC 302190). Key facts:
+
+- The frontend is network-generic: everything network-specific comes from
+  the `VITE_*` vars in `src/config/env.ts` (genesis id/hash for ARC-14 auth,
+  native token name/unit, network label used in branding/i18n `{network}`
+  interpolation, USD asset id, API/algod/indexer URLs). Never hardcode
+  "ALGO"/"Algorand" or asset ids in components — read from `config/env`.
+  Algorand-mainnet-only UI (allo/Pera/Lora/Vestige explorer links) is gated
+  by `isAlgorandMainnet`.
+- `build-fe.yml` builds a `voi-<version>` image on every push (matrix entry)
+  but nothing auto-deploys it; deployment is manual via
+  `promote-production.yml` with the `network=voi` input (mainnet is the
+  default). Voi manifests live in `k8s/voi/` (namespace `biatec-scan-voi`).
+- Backend counterpart: `../AVMTradeReporter` `k8s/voi/` +
+  `promote-production.yml` with `network=voi`, gated by the `production-voi`
+  GitHub environment whose secrets must point at Voi's own Elasticsearch
+  cluster (ES index names are not per-env namespaced).
+
 ## CSS grid / table layout gotchas
 
 This app renders "table" rows as repeated `display:grid` containers (one grid

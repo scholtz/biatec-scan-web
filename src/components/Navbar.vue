@@ -14,7 +14,7 @@
             <span
               class="text-xl font-bold bg-linear-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent"
             >
-              Biatec Algorand Scan
+              Biatec {{ networkLabel }} Scan
             </span>
           </router-link>
 
@@ -240,6 +240,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { networkLabel } from "../config/env";
 
 const router = useRouter();
 const route = useRoute();

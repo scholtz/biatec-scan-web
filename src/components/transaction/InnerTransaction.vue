@@ -21,7 +21,7 @@
                 transaction.paymentTransaction.amount
               )
             }}
-            Algo ->
+            {{ nativeTokenUnit }} ->
             {{ formatAddress(transaction.paymentTransaction.receiver) }}
           </span>
           <span v-if="transaction.assetTransferTransaction">
@@ -100,6 +100,7 @@ import { useI18n } from "vue-i18n";
 import TransactionStateDelta from "./TransactionStateDelta.vue";
 import { algorandService } from "../../services/algorandService";
 import { assetService } from "../../services/assetService";
+import { nativeTokenUnit } from "../../config/env";
 import { getTokenFromLocalStorage } from "../../scripts/algo/getTokenFromLocalStorage";
 
 const { locale } = useI18n();

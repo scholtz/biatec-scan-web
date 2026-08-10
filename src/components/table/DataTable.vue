@@ -45,7 +45,7 @@
             }}</span>
           </button>
           <span v-else class="truncate">{{ labelFor(c) }}</span>
-          <HelpTooltip v-if="c.descriptionKey" :text="t(c.descriptionKey)" class="shrink-0" />
+          <HelpTooltip v-if="c.descriptionKey" :text="t(c.descriptionKey, { network: networkLabel })" class="shrink-0" />
         </div>
       </div>
     </div>
@@ -99,6 +99,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { sortRows, type ColumnDef, type UseTableColumnsReturn } from "../../composables/useTableColumns";
 import HelpTooltip from "../HelpTooltip.vue";
+import { networkLabel } from "../../config/env";
 
 const props = defineProps<{
   tableColumns: UseTableColumnsReturn;

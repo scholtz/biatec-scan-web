@@ -25,7 +25,7 @@
           {{ t("addressDetails.round") }} {{ tx["confirmed-round"] || "N/A" }}
         </div>
         <div class="text-gray-400 text-xs">
-          {{ t("addressDetails.fee") }} {{ algorandService.formatAlgoAmount(tx.fee ?? 0) }} ALGO
+          {{ t("addressDetails.fee") }} {{ algorandService.formatAlgoAmount(tx.fee ?? 0) }} {{ nativeTokenUnit }}
         </div>
       </div>
     </div>
@@ -37,6 +37,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { algorandService } from "../../services/algorandService";
 import { assetService } from "../../services/assetService";
+import { nativeTokenUnit } from "../../config/env";
 import type { FilterableTransaction } from "../../utils/txFilter";
 import FormattedTime from "../FormattedTime.vue";
 
@@ -64,7 +65,7 @@ const amountDisplay = computed(() => {
   const txType = props.tx["tx-type"];
   if (txType === "pay") {
     const amount = props.tx["payment-transaction"]?.amount ?? 0;
-    return `${algorandService.formatAlgoAmount(amount)} ALGO`;
+    return `${algorandService.formatAlgoAmount(amount)} ${nativeTokenUnit}`;
   }
   if (txType === "axfer") {
     const axfer = props.tx["asset-transfer-transaction"];

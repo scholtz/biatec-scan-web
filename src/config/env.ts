@@ -19,11 +19,38 @@ export const indexerUrl: string =
   viteEnv.VITE_ALGORAND_INDEXER_URL || "https://mainnet-idx.4160.nodely.dev";
 
 /**
- * ASA id of the network's native USDC token, used as the USD quote asset for
- * the ALGO/USD price (31566704 on mainnet, 10458941 on testnet).
+ * ASA id of the network's primary USD stable token, used as the USD quote
+ * asset for the native-token/USD price (USDC 31566704 on Algorand mainnet,
+ * 10458941 on testnet, Aramid USDC 302190 on Voi mainnet).
  */
 export const usdcAssetId: number =
   Number(viteEnv.VITE_USDC_ASSET_ID) || 31566704;
+
+/** Genesis id of the network this build targets (e.g. "mainnet-v1.0", "voimain-v1.0"). */
+export const genesisId: string =
+  viteEnv.VITE_GENESIS_ID || "mainnet-v1.0";
+
+/** Base64 genesis hash of the network this build targets, used for ARC-14 auth. */
+export const genesisHash: string =
+  viteEnv.VITE_GENESIS_HASH || "wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=";
+
+/** Display name of the network's native token (asset 0), e.g. "Algorand" / "Voi". */
+export const nativeTokenName: string =
+  viteEnv.VITE_NATIVE_TOKEN_NAME || "Algorand";
+
+/** Ticker of the network's native token, e.g. "ALGO" / "VOI". */
+export const nativeTokenUnit: string =
+  viteEnv.VITE_NATIVE_TOKEN_UNIT || "ALGO";
+
+/** Human-readable network label used in branding/titles, e.g. "Algorand" / "Voi". */
+export const networkLabel: string =
+  viteEnv.VITE_NETWORK_LABEL || "Algorand";
+
+/**
+ * Whether this build targets Algorand mainnet. Gates UI that only makes sense
+ * there (allo.info/Pera/Lora/Vestige explorer deep links etc.).
+ */
+export const isAlgorandMainnet: boolean = genesisId === "mainnet-v1.0";
 
 /** ARC-56 ABI registry (chain-agnostic, shared across networks). */
 export const arc56RegistryUrl: string =

@@ -1,14 +1,14 @@
 <template>
   <div class="p-6 space-y-6">
-    <h1 class="text-2xl font-bold text-white">{{ $t('about.title') }}</h1>
+    <h1 class="text-2xl font-bold text-white">{{ $t('about.title', { network: networkLabel }) }}</h1>
     <p class="text-gray-300 text-sm leading-relaxed">
-      {{ $t('about.description') }}
+      {{ $t('about.description', { network: networkLabel }) }}
     </p>
     <p class="text-gray-300 text-sm leading-relaxed">
       {{ $t('about.company') }}
     </p>
     <p class="text-gray-300 text-sm leading-relaxed">
-      {{ $t('about.disclaimer') }}
+      {{ $t('about.disclaimer', { network: networkLabel }) }}
     </p>
     <div class="grid md:grid-cols-2 gap-6">
       <div class="card space-y-3">
@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-// Static informational page – no script logic required for now.
+import { networkLabel } from "../config/env";
 </script>
 
 <style scoped></style>

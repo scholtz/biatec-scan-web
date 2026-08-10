@@ -231,6 +231,7 @@ import { useI18n } from "vue-i18n";
 import algosdk from "algosdk";
 import { algorandService } from "../../services/algorandService";
 import { assetService } from "../../services/assetService";
+import { nativeTokenUnit } from "../../config/env";
 import { rowTxRoute, type GroupTxRow } from "../../utils/groupUtils";
 
 const props = defineProps<{
@@ -351,7 +352,7 @@ const laneModel = computed(() => {
       typeText = t("group.payment");
       amountText = `${algorandService.formatAlgoAmount(
         tx.paymentTransaction.amount
-      )} ALGO`;
+      )} ${nativeTokenUnit}`;
     } else if (tx.assetTransferTransaction) {
       toIndex = laneForAddress(
         tx.assetTransferTransaction.receiver.toString()

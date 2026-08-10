@@ -1,0 +1,122 @@
+# Voi mainnet production frontend, serving https://voi.scan.biatec.io.
+# Deployed manually by .github/workflows/promote-production.yml with
+# network=voi (never automatically) - the voi-<version> image is built on
+# every push by build-fe.yml with Voi-specific VITE_* build args.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: biatec-scan-voi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biatec-scan-fe-voi-app-deployment
+  namespace: biatec-scan-voi
+spec:
+  selector:
+    matchLabels:
+      app: biatec-scan-fe-voi-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: biatec-scan-fe-voi-app
+    spec:
+      containers:
+        - name: biatec-scan-fe-voi-app
+          image: scholtz2/biatec-scan-fe:voi-1.2026.08.10-main
+          imagePullPolicy: Always
+          env:
+            # Only the CSP header is set at runtime (the API/algod/indexer
+            # URLs themselves are VITE_* build-time values baked into this
+            # image's JS bundle by the voi build - see
+            # .github/workflows/build-fe.yml). Keep this in sync with those
+            # build args whenever either changes. algorand.scan.biatec.io is
+            # the shared chain-agnostic ARC-56 registry.
+            - name: CSP_CONNECT_SRC
+              value: >-
+                https://api.voi.scan.biatec.io
+                wss://api.voi.scan.biatec.io
+                https://voimain-algod-public.de.nodes.biatec.io
+                https://voimain-indexer-public.de.nodes.biatec.io
+                https://algorand.scan.biatec.io
+          resources:
+            requests:
+              cpu: 100m
+              memory: "150Mi"
+            limits:
+              cpu: 1000m
+              memory: "500Mi"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 2
+            terminationGracePeriodSeconds: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: biatec-scan-fe-voi-service
+  namespace: biatec-scan-voi
+spec:
+  type: ClusterIP
+  selector:
+    app: biatec-scan-fe-voi-app
+  ports:
+    - name: http
+      protocol: TCP
+      appProtocol: http
+      port: 8080
+      targetPort: 8080
+
+---
+# The TradingView chart microservice (biatec-charts-service) referenced by
+# the /charts Ingress path below is defined in deployment-charts.yaml in this
+# directory (image: the moving `production` tag promoted in the
+# biatec-charting-widget repo) and is applied + restarted by this repo's
+# promote-production job for network=voi.
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: biatec-scan-voi-ingress-main
+  namespace: biatec-scan-voi
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: "nginx"
+  tls:
+    - hosts:
+        - voi.scan.biatec.io
+      secretName: tls-voi.scan.biatec.io
+  rules:
+    - host: voi.scan.biatec.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: biatec-scan-fe-voi-service
+                port:
+                  number: 8080
+
+          - path: /charts
+            pathType: Prefix
+            backend:
+              service:
+                name: biatec-charts-service
+                port:
+                  number: 80

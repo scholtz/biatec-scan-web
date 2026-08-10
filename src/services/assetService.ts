@@ -2,6 +2,7 @@ import { algorandService } from "./algorandService";
 import { getTokenFromLocalStorage } from "../scripts/algo/getTokenFromLocalStorage";
 import { getTokenFromAlgod } from "../scripts/algo/getTokenFromAlgod";
 import { AggregatedPool, Pool } from "../api/models";
+import { usdcAssetId } from "../config/env";
 
 interface AssetLoadRequest {
   assetId: bigint;
@@ -214,11 +215,13 @@ class AssetService {
   ): boolean => {
     const a = BigInt(assetA);
     const b = BigInt(assetB);
-    if (a === 31566704n || a === 10458941n) {
-      // usdc (31566704 mainnet, 10458941 testnet)
+    // this network's configured USD stable asset (e.g. Voi's aUSDC 302190),
+    // plus the well-known Algorand USDC ids (31566704 mainnet, 10458941 testnet)
+    const usdQuote = BigInt(usdcAssetId);
+    if (a === usdQuote || a === 31566704n || a === 10458941n) {
       return true;
     }
-    if (b === 31566704n || b === 10458941n) {
+    if (b === usdQuote || b === 31566704n || b === 10458941n) {
       return false;
     }
     if (a === 760037151n) {

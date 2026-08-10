@@ -99,7 +99,8 @@
       class="flex justify-between items-center pt-3 border-t border-gray-700"
     >
       <div class="text-xs text-gray-400">
-        Fee: {{ algorandService.formatAlgoAmount(transaction.fee) }} ALGO
+        Fee: {{ algorandService.formatAlgoAmount(transaction.fee) }}
+        {{ nativeTokenUnit }}
       </div>
       <router-link
         :to="{ name: 'TransactionDetails', params: { txId: transaction.id } }"
@@ -114,6 +115,7 @@
 <script setup lang="ts">
 import algosdk from "algosdk";
 import { algorandService } from "../services/algorandService";
+import { nativeTokenUnit } from "../config/env";
 
 defineProps<{
   transaction: algosdk.indexerModels.Transaction;
@@ -170,7 +172,7 @@ const getReceiver = (tx: algosdk.indexerModels.Transaction) => {
 
 const getAmount = (tx: algosdk.indexerModels.Transaction) => {
   if (tx.paymentTransaction) {
-    return `${algorandService.formatAlgoAmount(tx.paymentTransaction.amount)} ALGO`;
+    return `${algorandService.formatAlgoAmount(tx.paymentTransaction.amount)} ${nativeTokenUnit}`;
   }
   if (tx.assetTransferTransaction) {
     return `${tx.assetTransferTransaction.amount.toLocaleString()} units`;

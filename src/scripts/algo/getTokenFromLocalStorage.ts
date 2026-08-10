@@ -1,4 +1,5 @@
 import { AssetParams } from "../../types/algorand";
+import { nativeTokenName, nativeTokenUnit } from "../../config/env";
 
 const cache = new Map<string, AssetParams>();
 export const getTokenFromLocalStorage = (
@@ -10,8 +11,8 @@ export const getTokenFromLocalStorage = (
   const assetId = BigInt(assetIdInput);
   if (assetId === 0n || !assetId) {
     const defaultToken: AssetParams = {
-      name: "Algorand",
-      unitName: "ALGO",
+      name: nativeTokenName,
+      unitName: nativeTokenUnit,
       total: 10_000_000_000,
       decimals: 6,
     };

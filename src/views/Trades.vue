@@ -621,7 +621,10 @@ import { assetService } from "../services/assetService";
 import { signalrService } from "../services/signalrService";
 import type { AMMTrade } from "../types/algorand";
 import type { SubscriptionFilter } from "../types/SubscriptionFilter";
-import { assetImageUrl as sharedAssetImageUrl } from "../config/env";
+import {
+  assetImageUrl as sharedAssetImageUrl,
+  networkLabel,
+} from "../config/env";
 
 type DirectionFilter =
   | "all"
@@ -728,7 +731,7 @@ const routeDescription = computed(() => {
   if (hasSingleAssetFilter.value && assetId1.value !== null) {
     return t("trades.descriptionAsset", { asset: assetName(assetId1.value) });
   }
-  return t("trades.descriptionAll");
+  return t("trades.descriptionAll", { network: networkLabel });
 });
 
 const routeLabel = computed(() => {

@@ -124,8 +124,8 @@
       <!-- Application Call Details -->
       <TransactionApplication :transaction="transaction" />
 
-      <!-- External Links -->
-      <div class="card mt-6">
+      <!-- External Links (Algorand-mainnet-only explorers) -->
+      <div v-if="isAlgorandMainnet" class="card mt-6">
         <h2 class="text-xl font-semibold mb-4 text-white">
           {{ $t("common.externalLinks") }}
         </h2>
@@ -176,6 +176,7 @@
 import { ref, onMounted, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { algorandService } from "../services/algorandService";
+import { isAlgorandMainnet } from "../config/env";
 import algosdk from "algosdk";
 import TransactionFilterBar from "../components/address/TransactionFilterBar.vue";
 import AddressTransactionRow from "../components/address/AddressTransactionRow.vue";

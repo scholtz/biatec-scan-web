@@ -192,6 +192,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import type { AMMPool } from "../types/algorand";
 import { assetService } from "../services/assetService";
+import { nativeTokenUnit } from "../config/env";
 import { getAVMTradeReporterAPI } from "../api";
 import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
@@ -260,7 +261,7 @@ const formatAddress = (address: string): string => {
 };
 
 const getAssetName = (assetId: bigint): string => {
-  if (assetId === BigInt(0)) return "ALGO";
+  if (assetId === BigInt(0)) return nativeTokenUnit;
 
   const assetInfo = assetService.getAssetInfo(assetId);
   if (!assetInfo) {

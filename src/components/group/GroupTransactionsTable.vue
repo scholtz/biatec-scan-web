@@ -104,7 +104,7 @@
       <div class="min-w-0 text-right font-mono text-xs text-white">
         <template v-if="row.tx.paymentTransaction">
           {{ algorandService.formatAlgoAmount(row.tx.paymentTransaction.amount) }}
-          ALGO
+          {{ nativeTokenUnit }}
         </template>
         <template v-else-if="row.tx.assetTransferTransaction">
           {{ formatAssetAmount(row.tx.assetTransferTransaction) }}
@@ -124,7 +124,8 @@
 
       <!-- Fee -->
       <div class="min-w-0 text-right font-mono text-xs text-white">
-        {{ algorandService.formatAlgoAmount(row.tx.fee ?? 0) }} ALGO
+        {{ algorandService.formatAlgoAmount(row.tx.fee ?? 0) }}
+        {{ nativeTokenUnit }}
       </div>
     </div>
 
@@ -184,6 +185,7 @@ import { useI18n } from "vue-i18n";
 import algosdk from "algosdk";
 import { algorandService } from "../../services/algorandService";
 import { assetService } from "../../services/assetService";
+import { nativeTokenUnit } from "../../config/env";
 import { getTypeIcon } from "../../utils/transactionUtils";
 import {
   groupRoute,

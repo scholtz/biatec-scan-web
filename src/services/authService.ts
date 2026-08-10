@@ -3,6 +3,7 @@ import { generateAlgorandAccount } from "arc76";
 import { makeArc14AuthHeader, makeArc14TxWithSuggestedParams } from "arc14";
 import { Buffer } from "buffer";
 import { uuidv7 } from "uuidv7";
+import { genesisHash, genesisId } from "../config/env";
 
 // SECURITY (AUDIT-2026-07-20-03): this value is signing-key seed material, not an inert
 // identifier. generateAlgorandAccount() below derives an Algorand keypair from it
@@ -38,10 +39,8 @@ export async function getAuthToken(): Promise<string> {
   const account: algosdk.Account = await generateAlgorandAccount(session);
   const params: SuggestedParams = {
     fee: 1000n,
-    genesisHash: new Uint8Array(
-      Buffer.from("wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=", "base64")
-    ),
-    genesisID: "mainnet-v1.0",
+    genesisHash: new Uint8Array(Buffer.from(genesisHash, "base64")),
+    genesisID: genesisId,
     lastValid: 46916880n,
     minFee: 1000n,
     flatFee: false,

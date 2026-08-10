@@ -39,7 +39,7 @@
 
       <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
         <p class="text-gray-400 text-sm">
-          {{ $t("transaction.stateProofDesc") }}
+          {{ $t("transaction.stateProofDesc", { network: networkLabel }) }}
         </p>
       </div>
     </div>
@@ -49,6 +49,7 @@
 <script setup lang="ts">
 import { PropType } from "vue";
 import algosdk from "algosdk";
+import { networkLabel } from "../../config/env";
 
 defineProps({
   transaction: {

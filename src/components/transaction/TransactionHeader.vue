@@ -41,7 +41,8 @@
       <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
         <p class="text-sm text-gray-400 mb-1">{{ $t("transaction.fee") }}</p>
         <p class="text-white font-medium text-lg">
-          {{ algorandService.formatAlgoAmount(transaction.fee) }} ALGO
+          {{ algorandService.formatAlgoAmount(transaction.fee) }}
+          {{ nativeTokenUnit }}
         </p>
       </div>
       <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
@@ -71,6 +72,7 @@ import { PropType } from "vue";
 import algosdk from "algosdk";
 import { algorandService } from "../../services/algorandService";
 import { getTypeIcon, getTypeColor } from "../../utils/transactionUtils";
+import { nativeTokenUnit } from "../../config/env";
 
 defineProps({
   transaction: {

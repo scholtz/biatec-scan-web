@@ -34,7 +34,7 @@
                 v-if="change.assetId === '0'"
                 class="text-white font-medium truncate"
               >
-                ALGO
+                {{ nativeTokenUnit }}
               </span>
               <router-link
                 v-else
@@ -105,6 +105,7 @@ import { PropType, computed, ref, watch } from "vue";
 import algosdk from "algosdk";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../../services/assetService";
+import { nativeTokenUnit } from "../../config/env";
 import { getTokenFromLocalStorage } from "../../scripts/algo/getTokenFromLocalStorage";
 import {
   computeAddressImpacts,
