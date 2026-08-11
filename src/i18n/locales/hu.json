@@ -126,7 +126,7 @@
     },
     "topListsHelp": {
       "popular": "A legnagyobb USD forgalmú eszközök az elmúlt 24 órában, a stabil és bázis eszközök nélkül. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre. A százalék az eszköz árváltozását mutatja az elmúlt 24 órában.",
-      "trending": "A legnagyobb USD forgalmú eszközök az elmúlt egy órában, a stabil és bázis eszközök nélkül. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre. Minden sor az eszköz aktuális USD-árát mutatja; a százalék a forgalom változását mutatja az előző órához képest.",
+      "trending": "A legnagyobb USD forgalmú eszközök az elmúlt egy órában, a stabil és bázis eszközök nélkül. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre. A százalék az eszköz árváltozását mutatja az elmúlt 24 órában.",
       "gainers": "A legnagyobb százalékos áremelkedést mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
       "losers": "A legnagyobb százalékos árcsökkenést mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",
       "valueGainers": "A valós likviditás (TVL) legnagyobb százalékos növekedését mutató eszközök az elmúlt 24 órában. Csak a valós TVL szerinti top 150 eszköz kerül figyelembevételre.",

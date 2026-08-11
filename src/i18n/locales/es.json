@@ -126,7 +126,7 @@
     },
     "topListsHelp": {
       "popular": "Los activos más negociados por volumen en USD en las últimas 24 horas, excluyendo los activos estables y base. Solo se consideran los 150 principales activos por TVL real. El porcentaje muestra el cambio de precio del activo en las últimas 24 horas.",
-      "trending": "Los activos más negociados por volumen en USD en la última hora, excluyendo los activos estables y base. Solo se consideran los 150 principales activos por TVL real. Cada fila muestra el precio actual del activo en USD; el porcentaje muestra el cambio de volumen respecto a la hora anterior.",
+      "trending": "Los activos más negociados por volumen en USD en la última hora, excluyendo los activos estables y base. Solo se consideran los 150 principales activos por TVL real. El porcentaje muestra el cambio de precio del activo en las últimas 24 horas.",
       "gainers": "Activos con la mayor subida porcentual de precio en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",
       "losers": "Activos con la mayor caída porcentual de precio en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",
       "valueGainers": "Activos con el mayor aumento porcentual de liquidez real (TVL) en las últimas 24 horas. Solo se consideran los 150 principales activos por TVL real.",

@@ -25,13 +25,7 @@
           <span class="text-[10px] text-gray-500 font-mono shrink-0 w-3">{{ i + 1 }}</span>
           <img :src="assetImageUrl(item.assetId ?? 0)" class="w-5 h-5 rounded shrink-0" />
           <span class="text-xs text-white truncate min-w-0 flex-1">
-            {{ item.unitName || item.name || "#" + item.assetId }}
-          </span>
-          <span
-            v-if="card.metric === 'volume1HWithPrice'"
-            class="text-[10px] text-gray-400 font-mono shrink-0"
-          >
-            {{ fmtPrice(item.priceUSD ?? 0) }}
+            {{ item.name || item.unitName || "#" + item.assetId }}
           </span>
           <HelpTooltip
             :text="changeTooltip(card.metric, item)"
@@ -65,12 +59,11 @@ const data = ref<TopAssetsResponse | null>(null);
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 let refreshTimer: ReturnType<typeof setInterval> | undefined;
 
-// Popular/trending are *ranked* by 24h/1h trade volume server-side. Trending
-// displays the volume change of its window vs the previous window plus the
-// asset's current USD price; popular displays the 24h price change instead.
-// Both carry the volume and the price raw data in their tooltip; the other
-// boxes display price / real-TVL change percentages.
-type Metric = "volume24HWithPrice" | "volume1HWithPrice" | "priceChange" | "tvlChange";
+// Popular/trending are *ranked* by 24h/1h trade volume server-side, but both
+// display the asset's 24h price change percentage. The raw volume and price
+// data are surfaced in their tooltip; the other boxes display price /
+// real-TVL change percentages.
+type Metric = "volume24H" | "volume1H" | "priceChange" | "tvlChange";
 
 interface Card {
   key: string;
@@ -84,8 +77,8 @@ const cards = computed<Card[]>(() => {
   const d = data.value;
   if (!d) return [];
   const defs: Array<[string, Metric, TopAssetItem[] | undefined]> = [
-    ["popular", "volume24HWithPrice", d.popular ?? undefined],
-    ["trending", "volume1HWithPrice", d.trending ?? undefined],
+    ["popular", "volume24H", d.popular ?? undefined],
+    ["trending", "volume1H", d.trending ?? undefined],
     ["gainers", "priceChange", d.topGainers ?? undefined],
     ["losers", "priceChange", d.topLosers ?? undefined],
     ["valueGainers", "tvlChange", d.topValueGainers ?? undefined],
@@ -115,11 +108,10 @@ function formatPercent(value: number | null | undefined): string {
 
 function changePercent(metric: Metric, item: TopAssetItem): number | null | undefined {
   switch (metric) {
-    case "volume24HWithPrice":
+    case "volume24H":
+    case "volume1H":
     case "priceChange":
       return item.priceChange24HPercent;
-    case "volume1HWithPrice":
-      return item.volume1HChangePercent;
     case "tvlChange":
       return item.tvlChange24HPercent;
   }
@@ -192,10 +184,10 @@ function changeTooltip(metric: Metric, item: TopAssetItem): string {
           curr: fmtPrice(item.priceUSD ?? 0),
         });
   switch (metric) {
-    case "volume1HWithPrice":
-      // Trending: ranked by 1h volume, also showing the current price — surface both raw datasets.
+    case "volume1H":
+      // Trending: ranked by 1h volume but showing the 24h price change — surface both raw datasets.
       return [volume1hText(), priceText()].filter((s) => s !== "").join("\n");
-    case "volume24HWithPrice":
+    case "volume24H":
       // Popular: ranked by 24h volume but showing the 24h price change — surface both raw datasets.
       return [volume24hText(), priceText()].filter((s) => s !== "").join("\n");
     case "priceChange":

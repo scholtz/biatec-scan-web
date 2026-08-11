@@ -126,7 +126,7 @@
     },
     "topListsHelp": {
       "popular": "Die meistgehandelten Assets nach USD-Volumen in den letzten 24 Stunden, ohne stabile und Basis-Assets. Berücksichtigt werden nur die Top 150 Assets nach realem TVL. Der Prozentwert zeigt die Preisänderung des Assets in den letzten 24 Stunden.",
-      "trending": "Die meistgehandelten Assets nach USD-Volumen in der letzten Stunde, ohne stabile und Basis-Assets. Berücksichtigt werden nur die Top 150 Assets nach realem TVL. Jede Zeile zeigt den aktuellen USD-Preis des Assets; der Prozentwert zeigt die Volumenänderung gegenüber der vorherigen Stunde.",
+      "trending": "Die meistgehandelten Assets nach USD-Volumen in der letzten Stunde, ohne stabile und Basis-Assets. Berücksichtigt werden nur die Top 150 Assets nach realem TVL. Der Prozentwert zeigt die Preisänderung des Assets in den letzten 24 Stunden.",
       "gainers": "Assets mit dem höchsten prozentualen Kursanstieg in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
       "losers": "Assets mit dem stärksten prozentualen Kursrückgang in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
       "valueGainers": "Assets mit dem höchsten prozentualen Zuwachs an realer Liquidität (TVL) in den letzten 24 Stunden. Berücksichtigt werden nur die Top 150 Assets nach realem TVL.",
