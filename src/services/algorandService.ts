@@ -1,6 +1,7 @@
 import algosdk from "algosdk";
 import i18n from "../i18n";
 import { algodUrl, indexerUrl, apiBaseUrl } from "../config/env";
+import { getAuthToken } from "./authService";
 
 class AlgorandService {
   private algodUrl = algodUrl;
@@ -108,7 +109,10 @@ class AlgorandService {
       // Fallback to API
       try {
         const apiUrl = `${apiBaseUrl}/api/trade?txId=${txId}&size=1`;
-        const apiResponse = await fetch(apiUrl);
+        const authToken = await getAuthToken();
+        const apiResponse = await fetch(apiUrl, {
+          headers: { Authorization: authToken },
+        });
 
         if (!apiResponse.ok) {
           console.error(

@@ -4,8 +4,50 @@
  * AVM Trade Reporter API
  * # AVM Trade Reporter – Developer Guide
  *
+ * ## Authentication (ARC-0014)
+ *
+ * Most endpoints in this API require **[ARC-0014](https://github.com/algorandfoundation/ARCs/issues/42)**
+ * authentication ("Algorand transaction signature as authentication"). Instead of a username/password or
+ * long-lived API key, the client signs a zero-fee, unbroadcast `NoOp`/payment-shaped Algorand transaction
+ * whose `Note` field encodes a realm and expiry, then sends the signed transaction as the `Authorization`
+ * header. The server verifies the signature and transaction validity window against Algorand node
+ * transaction params — no signed transaction is ever submitted to the chain, it is purely a proof of key
+ * ownership.
+ *
+ * - Realm for this API: `BiatecScan#ARC14`
+ * - Header: `Authorization: SigTx <base64-encoded-signed-transaction>` (produced by the libraries below)
+ * - The signed transaction's validity window (`firstValid`/`lastValid`) doubles as the token's expiry —
+ *   there is no separate refresh step; the client just signs a new transaction with a fresh validity
+ *   window when the old one expires
+ * - Endpoints marked **"no authentication required"** below are intentionally public and accept
+ *   unauthenticated requests
+ *
+ * ### Recommended client libraries
+ *
+ * - **JavaScript/TypeScript**: [`arc14`](https://www.npmjs.com/package/arc14) (builds and signs the
+ *   ARC-14 transaction, produces the `Authorization` header value) together with
+ *   [`arc76`](https://www.npmjs.com/package/arc76) (deterministic Algorand keypair derivation, if the
+ *   client needs a stable identity without a wallet) and [`algosdk`](https://www.npmjs.com/package/algosdk)
+ *   for transaction params/signing primitives. Example:
+ *   ```ts
+ *   import algosdk from "algosdk";
+ *   import { makeArc14AuthHeader, makeArc14TxWithSuggestedParams } from "arc14";
+ *
+ *   const tx = await makeArc14TxWithSuggestedParams("BiatecScan#ARC14", account.addr.toString(), suggestedParams);
+ *   const signed = tx.signTxn(account.sk);
+ *   const authorizationHeader = makeArc14AuthHeader(signed);
+ *   // send as: Authorization: <authorizationHeader>
+ *   ```
+ * - **.NET**: server-side verification here uses the
+ *   [`AlgorandAuthentication`](https://www.nuget.org/packages/AlgorandAuthentication) NuGet package
+ *   (see `AlgorandAuthenticationHandlerV2` in `Program.cs`); .NET clients can build the equivalent
+ *   ARC-14 signed transaction directly with the [`Algorand4`](https://www.nuget.org/packages/Algorand4)
+ *   SDK (construct a transaction with `Note` set to the realm, sign it with the account's private key,
+ *   base64-encode it into the `Authorization` header) — there is no separate client-only package needed
+ *   since the same SDK used to sign is already an `AVMTradeReporter` dependency.
+ *
  * Short overview
- * - ASP.NET Core (.NET 8) Web API + SignalR service for streaming Algorand DEX activity (trades, liquidity, pools, blocks)
+ * - ASP.NET Core (.NET 10) Web API + SignalR service for streaming Algorand DEX activity (trades, liquidity, pools, blocks)
  * - Ingests data from Algod/Gossip, enriches via protocol-specific processors (Pact, Tiny, Biatec)
  * - Indexes documents in Elasticsearch and broadcasts live updates to clients via SignalR
  * - Optional Redis cache for assets and pools, plus background services for continuous operation
@@ -72,9 +114,14 @@
  * - Configure allowed origins under the Cors section; the app will fail startup if not provided
  *
  * Authentication
- * - Uses AlgorandAuthenticationV2 per Program.cs
- * - Swagger defines an API key scheme named oauth2 (ARC-0014 Algorand authentication transaction transmitted in Authorization header)
+ * - Uses AlgorandAuthenticationV2 per Program.cs; see the "Authentication (ARC-0014)" section at the top of this document for how to generate a token as a client
+ * - Swagger defines an API key scheme named arc14 (ARC-0014 Algorand authentication transaction transmitted in Authorization header)
  * - The SignalR pipeline moves access_token from query string to Authorization header for compatibility
+ * - All REST endpoints require authentication ([Authorize]) except the following, which are intentionally public:
+ *   - GET /api/asset/image/{assetId} (asset image, embedded directly as an <img> src)
+ *   - GET /api/Gossip/status (relay connectivity health check)
+ *   - GET /api/Stats/dex (DefiLlama DEX stats adapter integration)
+ *   - GET /api/OHLC/* (TradingView UDF charting datafeed: config, time, symbols, symbol_info, search, marks, timescale_marks, quotes, history)
  *
  * Elasticsearch
  * - Client configured with ApiKey authentication and default mappings
@@ -144,7 +191,7 @@
  *
  * Running locally
  * Prerequisites
- * - .NET 8 SDK
+ * - .NET 10 SDK
  * - Elasticsearch endpoint and API key
  * - Algod endpoint(s) and API key(s)
  * - Redis (optional but recommended)
@@ -155,7 +202,10 @@
  * - Open /swagger to explore the API; this document appears as the description
  *
  * Notes
- * - Program.cs includes doc/documentation.xml for Swagger XML comments; enable XML docs in project if desired
+ * - GenerateDocumentationFile is enabled in AVMTradeReporter.csproj and Program.cs wires the generated
+ *   AVMTradeReporter.xml into Swagger via IncludeXmlComments, so /// XML doc comments on controllers and
+ *   actions are surfaced as operation summaries/descriptions in Swagger UI
+ * - Swagger is served as OpenAPI 3.1 (app.UseSwagger sets OpenApiVersion = OpenApi3_1 in Program.cs)
  * - DockerDefaultTargetOS is Linux; containerization supported via standard ASP.NET Core tooling
  * - Tests live in AVMTradeReporterTests (NUnit)
  *
@@ -203,6 +253,9 @@ import type {
 
 import { axiosInstance } from './axios-instance';
 export const getAVMTradeReporterAPI = () => {
+/**
+ * @summary Get all aggregated pools or filter by asset ids. An asset id filter matches the asset on either side of the pair.
+ */
 const getApiAggregatedPool = (
     params?: GetApiAggregatedPoolParams,
  ) => {
@@ -213,6 +266,9 @@ const getApiAggregatedPool = (
       );
     }
 
+/**
+ * @summary Update and retrieve aggregated pool
+ */
 const getApiAggregatedPoolReload = (
     params?: GetApiAggregatedPoolReloadParams,
  ) => {
@@ -223,6 +279,9 @@ const getApiAggregatedPoolReload = (
       );
     }
 
+/**
+ * @summary List assets from the in-memory cache (prefilled from Redis) or filter by IDs / search term.
+ */
 const getApiAsset = (
     params?: GetApiAssetParams,
  ) => {
@@ -233,15 +292,24 @@ const getApiAsset = (
       );
     }
 
+/**
+ * @summary Returns the cached PNG image for the given asset id. Intentionally public (no authentication
+required) so it can be embedded directly as an <img> src in browsers/clients without an
+ARC-14 signed transaction.
+ */
 const getApiAssetImageAssetId = (
     assetId: number,
  ) => {
-      return axiosInstance<void>(
-      {url: `/api/asset/image/${assetId}`, method: 'GET'
+      return axiosInstance<Blob>(
+      {url: `/api/asset/image/${assetId}`, method: 'GET',
+        responseType: 'blob'
     },
       );
     }
 
+/**
+ * @summary Get backend-computed per-asset TVL/volume/fees/APR stats, optionally filtered by protocol.
+ */
 const getApiAssetStat = (
     params?: GetApiAssetStatParams,
  ) => {
@@ -252,6 +320,9 @@ const getApiAssetStat = (
       );
     }
 
+/**
+ * @summary Get the stat row for a single asset, optionally scoped to a protocol.
+ */
 const getApiAssetStatAssetId = (
     assetId: number,
     params?: GetApiAssetStatAssetIdParams,
@@ -263,6 +334,12 @@ const getApiAssetStatAssetId = (
       );
     }
 
+/**
+ * @summary Get the 7 day hourly timeseries (USD price OHLC and real TVL OHLC candles) for up to 100
+assets at once, for the sparkline/candle columns on the asset and pool list pages. Series
+are recomputed on a 1 hour cadence and served from the Redis cache in between, so this
+endpoint is cheap to call for a whole page of assets.
+ */
 const getApiAssetTimeseries7d = (
     params?: GetApiAssetTimeseries7dParams,
  ) => {
@@ -273,6 +350,10 @@ const getApiAssetTimeseries7d = (
       );
     }
 
+/**
+ * @summary Returns the set of gossip relays currently connected (or being connected to), along with how many
+mempool messages each has delivered and when it last delivered one.
+ */
 const getApiGossipStatus = (
 
  ) => {
@@ -282,6 +363,9 @@ const getApiGossipStatus = (
       );
     }
 
+/**
+ * @summary Gets the current indexer status
+ */
 const getApiIndexerStatus = (
 
  ) => {
@@ -291,6 +375,9 @@ const getApiIndexerStatus = (
       );
     }
 
+/**
+ * @summary Get liquidity updates with optional filtering and pagination.
+ */
 const getApiLiquidity = (
     params?: GetApiLiquidityParams,
  ) => {
@@ -301,6 +388,9 @@ const getApiLiquidity = (
       );
     }
 
+/**
+ * @summary Returns the TradingView UDF datafeed configuration (supported resolutions, exchanges, symbol types).
+ */
 const getApiOHLCConfig = (
 
  ) => {
@@ -310,6 +400,9 @@ const getApiOHLCConfig = (
       );
     }
 
+/**
+ * @summary Returns the current server time as a Unix timestamp, used by TradingView for datafeed sync.
+ */
 const getApiOHLCTime = (
 
  ) => {
@@ -319,6 +412,9 @@ const getApiOHLCTime = (
       );
     }
 
+/**
+ * @summary Resolves a single symbol (e.g. "31566704_0") to its TradingView symbol info.
+ */
 const getApiOHLCSymbols = (
     params?: GetApiOHLCSymbolsParams,
  ) => {
@@ -329,6 +425,9 @@ const getApiOHLCSymbols = (
       );
     }
 
+/**
+ * @summary Resolves a comma separated group of symbols to their TradingView symbol info in bulk.
+ */
 const getApiOHLCSymbolInfo = (
     params?: GetApiOHLCSymbolInfoParams,
  ) => {
@@ -339,6 +438,9 @@ const getApiOHLCSymbolInfo = (
       );
     }
 
+/**
+ * @summary Searches for tradable symbols (asset pairs) matching a free-text query, for the TradingView symbol search box.
+ */
 const getApiOHLCSearch = (
     params?: GetApiOHLCSearchParams,
  ) => {
@@ -349,6 +451,9 @@ const getApiOHLCSearch = (
       );
     }
 
+/**
+ * @summary Returns chart marks (annotations) for the TradingView datafeed. Currently always empty.
+ */
 const getApiOHLCMarks = (
 
  ) => {
@@ -358,6 +463,9 @@ const getApiOHLCMarks = (
       );
     }
 
+/**
+ * @summary Returns timescale marks for the TradingView datafeed. Currently always empty.
+ */
 const getApiOHLCTimescaleMarks = (
 
  ) => {
@@ -367,6 +475,9 @@ const getApiOHLCTimescaleMarks = (
       );
     }
 
+/**
+ * @summary Returns last-quote snapshots for the given symbols, for the TradingView quotes API.
+ */
 const getApiOHLCQuotes = (
     params?: GetApiOHLCQuotesParams,
  ) => {
@@ -377,6 +488,9 @@ const getApiOHLCQuotes = (
       );
     }
 
+/**
+ * @summary Returns OHLCV bars for an asset pair over a time range, for the TradingView history API.
+ */
 const getApiOHLCHistory = (
     params?: GetApiOHLCHistoryParams,
  ) => {
@@ -387,6 +501,9 @@ const getApiOHLCHistory = (
       );
     }
 
+/**
+ * @summary Get all pools or filter by protocol
+ */
 const getApiPool = (
     params?: GetApiPoolParams,
  ) => {
@@ -397,6 +514,9 @@ const getApiPool = (
       );
     }
 
+/**
+ * @summary Get pool statistics
+ */
 const getApiPoolStats = (
     params?: GetApiPoolStatsParams,
  ) => {
@@ -407,6 +527,9 @@ const getApiPoolStats = (
       );
     }
 
+/**
+ * @summary Get pool statistics
+ */
 const getApiPoolReload = (
     params?: GetApiPoolReloadParams,
  ) => {
@@ -417,6 +540,9 @@ const getApiPoolReload = (
       );
     }
 
+/**
+ * @summary Searches assets and pools matching the given query term.
+ */
 const getApiSearch = (
     params?: GetApiSearchParams,
  ) => {
@@ -427,6 +553,9 @@ const getApiSearch = (
       );
     }
 
+/**
+ * @summary Returns the caller's current authentication state and claims, for debugging ARC-14 auth.
+ */
 const getApiSignalrAuthTest = (
 
  ) => {
@@ -436,6 +565,9 @@ const getApiSignalrAuthTest = (
       );
     }
 
+/**
+ * @summary Same as M:AVMTradeReporter.Controllers.SignalRTestController.AuthTest but forces authorization at the action level (redundant given the class-level [Authorize], kept explicit for clarity/testing).
+ */
 const getApiSignalrAuthTestAuthorized = (
 
  ) => {
@@ -445,6 +577,9 @@ const getApiSignalrAuthTestAuthorized = (
       );
     }
 
+/**
+ * @summary Broadcasts a test info message to all connected SignalR clients.
+ */
 const postApiSignalrTestBroadcast = (
     postApiSignalrTestBroadcastBody?: string,
  ) => {
@@ -456,6 +591,9 @@ const postApiSignalrTestBroadcast = (
       );
     }
 
+/**
+ * @summary Broadcasts a synthetic test trade to all connected SignalR clients, for verifying the trade event pipeline end to end.
+ */
 const postApiSignalrTestTrade = (
 
  ) => {
@@ -465,6 +603,9 @@ const postApiSignalrTestTrade = (
       );
     }
 
+/**
+ * @summary Returns the current count and list of active SignalR hub subscriptions.
+ */
 const getApiSignalrConnections = (
 
  ) => {
@@ -474,6 +615,11 @@ const getApiSignalrConnections = (
       );
     }
 
+/**
+ * @summary Returns aggregated 24-hour DEX statistics (volume, fees) for the given protocol starting at
+timestamp. The query window is [timestamp, timestamp + 1 day).
+Only confirmed trades are included. Suitable for DefiLlama adapter consumption.
+ */
 const getApiStatsDex = (
     params?: GetApiStatsDexParams,
  ) => {
@@ -484,6 +630,13 @@ const getApiStatsDex = (
       );
     }
 
+/**
+ * @summary Get the "top assets" highlight lists for the scan homepage header: Popular (24h volume),
+Trending (1h volume), Top gainers/losers (24h price change in percent) and Top liquidity
+gainers/losers (24h real TVL change in percent). Candidates are the top 150 assets by real TVL excluding stable assets;
+each list holds up to 3 entries. The response is recomputed every 5 minutes and served from
+the Redis cache in between.
+ */
 const getApiAssetTop = (
 
  ) => {
@@ -493,6 +646,9 @@ const getApiAssetTop = (
       );
     }
 
+/**
+ * @summary Get trades with optional filtering and pagination.
+ */
 const getApiTrade = (
     params?: GetApiTradeParams,
  ) => {
