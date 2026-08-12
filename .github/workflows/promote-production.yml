@@ -5,7 +5,8 @@ name: Promote to Production
 # version's already-pushed image for the selected production network
 # (mainnet -> algorand.scan.biatec.io, voi -> voi.scan.biatec.io) as
 # <network>-latest in both registries and deploys it to that production -
-# it never builds a new image itself.
+# it never builds a new image itself. Selecting "all" promotes and deploys
+# the same version to every production network (mainnet + voi) in one run.
 on:
   workflow_dispatch:
     inputs:
@@ -20,13 +21,16 @@ on:
         default: ""
         type: string
       network:
-        description: Production network to deploy to.
+        description: >-
+          Production network to deploy to. "all" deploys the same version to
+          every production network (mainnet + voi).
         required: true
         default: mainnet
         type: choice
         options:
           - mainnet
           - voi
+          - all
 
 env:
   DOCKERHUB_IMAGE: scholtz2/biatec-scan-fe
@@ -40,17 +44,27 @@ jobs:
   # build-fe.yml run pushes mainnet-<version>, testnet-<version> (the
   # Stage image) and voi-<version> with the same version string, so the
   # newest <network>-* versioned tag is exactly the version currently on
-  # Stage.
+  # Stage (which is also why a single resolved version is valid for
+  # network=all: the mainnet and voi tags of one build always share it).
+  # Also emits the JSON list of production networks the later jobs fan
+  # out over ("all" -> both).
   # ---------------------------------------------------------------------
   resolve-version:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.resolve.outputs.version }}
+      networks: ${{ steps.resolve.outputs.networks }}
     steps:
       - name: Resolve version to promote
         id: resolve
         run: |
-          net="${{ inputs.network }}"
+          if [ "${{ inputs.network }}" = "all" ]; then
+            net="mainnet"
+            echo 'networks=["mainnet","voi"]' >> "$GITHUB_OUTPUT"
+          else
+            net="${{ inputs.network }}"
+            echo 'networks=["${{ inputs.network }}"]' >> "$GITHUB_OUTPUT"
+          fi
           version="${{ inputs.version }}"
           if [ -z "$version" ]; then
             echo "No version supplied - looking up the newest ${net} build in Docker Hub"
@@ -71,11 +85,15 @@ jobs:
   # ---------------------------------------------------------------------
   # Stage 1: promote-tag - re-tags the already-built & pushed
   # <network>-<version> image as <network>-latest in both registries.
-  # Doesn't rebuild anything - just moves the "latest" pointer.
+  # Doesn't rebuild anything - just moves the "latest" pointer. Runs once
+  # per selected production network (matrix).
   # ---------------------------------------------------------------------
   promote-tag:
     needs: resolve-version
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        network: ${{ fromJson(needs.resolve-version.outputs.networks) }}
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -94,17 +112,17 @@ jobs:
           password: ${{ secrets.PRIVATE_REGISTRY_TOKEN }}
 
       - name: Pull versioned image
-        run: docker pull ${{ env.DOCKERHUB_IMAGE }}:${{ inputs.network }}-${{ needs.resolve-version.outputs.version }}
+        run: docker pull ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-${{ needs.resolve-version.outputs.version }}
 
-      - name: Tag & push ${{ inputs.network }}-latest (Docker Hub)
+      - name: Tag & push ${{ matrix.network }}-latest (Docker Hub)
         run: |
-          docker tag ${{ env.DOCKERHUB_IMAGE }}:${{ inputs.network }}-${{ needs.resolve-version.outputs.version }} ${{ env.DOCKERHUB_IMAGE }}:${{ inputs.network }}-latest
-          docker push ${{ env.DOCKERHUB_IMAGE }}:${{ inputs.network }}-latest
+          docker tag ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-${{ needs.resolve-version.outputs.version }} ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-latest
+          docker push ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-latest
 
-      - name: Tag & push ${{ inputs.network }}-latest (Private Registry)
+      - name: Tag & push ${{ matrix.network }}-latest (Private Registry)
         run: |
-          docker tag ${{ env.DOCKERHUB_IMAGE }}:${{ inputs.network }}-${{ needs.resolve-version.outputs.version }} ${{ env.PRIVATE_IMAGE }}:${{ inputs.network }}-latest
-          docker push ${{ env.PRIVATE_IMAGE }}:${{ inputs.network }}-latest
+          docker tag ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-${{ needs.resolve-version.outputs.version }} ${{ env.PRIVATE_IMAGE }}:${{ matrix.network }}-latest
+          docker push ${{ env.PRIVATE_IMAGE }}:${{ matrix.network }}-latest
 
   # ---------------------------------------------------------------------
   # Stage 2: deploy-production - only runs once the "Production"
@@ -116,14 +134,17 @@ jobs:
   deploy-production:
     needs: [resolve-version, promote-tag]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        network: ${{ fromJson(needs.resolve-version.outputs.networks) }}
     environment:
       name: Production
-      url: ${{ inputs.network == 'voi' && 'https://voi.scan.biatec.io' || 'https://algorand.scan.biatec.io' }}
+      url: ${{ matrix.network == 'voi' && 'https://voi.scan.biatec.io' || 'https://algorand.scan.biatec.io' }}
     env:
       # Per-network deploy targets. Everything below the vars step uses only
       # these, so adding another production network is a new case here plus
-      # its k8s/<network> manifests.
-      NETWORK: ${{ inputs.network }}
+      # its k8s/<network> manifests (and the "all" list in resolve-version).
+      NETWORK: ${{ matrix.network }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -179,7 +200,7 @@ jobs:
       # cluster. The registry is chain-agnostic and only deployed on Algorand
       # mainnet (all networks' builds point at algorand.scan.biatec.io/arc56-registry).
       - name: Apply arc56-registry manifest
-        if: inputs.network == 'mainnet'
+        if: matrix.network == 'mainnet'
         run: |
           kubectl apply -f k8s/main/deployment-arc56-registry.yaml
 
