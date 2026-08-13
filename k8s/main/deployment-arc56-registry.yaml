@@ -145,7 +145,10 @@ spec:
           restartPolicy: Never
           containers:
             - name: kubectl
-              image: bitnami/kubectl:1.30
+              # bitnami/kubectl was deprecated off Docker Hub (2025-08-28, moved to the
+              # unstable bitnamilegacy/ catalog); rancher/kubectl is actively maintained
+              # with pinned version tags and is a drop-in kubectl-only image.
+              image: rancher/kubectl:v1.30.9
               command:
                 - kubectl
                 - rollout
