@@ -80,6 +80,25 @@ so the backend must be released before the client can be regenerated:
    frontend on mainnet must tolerate the missing fields until then (new
    generated fields are optional/nullable, so this is usually automatic).
 
+## Backend HA deploys: new pod must be fully warm before it serves traffic
+
+`../AVMTradeReporter`'s API pods (all networks) use a bare TCP-socket
+readiness/liveness probe, so "the port is open" is the only signal
+Kubernetes has that a pod is safe to receive traffic — every static
+in-memory cache (assets, pools, aggregated pools, including derived
+PriceUSD/TVL/PoolsCount/Volume figures) must finish loading, fully awaited,
+before `Program.cs` reaches `app.Run()`. A 2026-08-13 incident let a
+freshly-rolled mainnet pod pass readiness and take traffic while an asset
+stat recompute was still running in the background (a fire-and-forget
+`Task.Run` that Program.cs's blocking startup didn't actually wait for),
+so the Assets page briefly served incomplete data right after a deploy —
+see `../AVMTradeReporter/CLAUDE.md` for the fix (awaited startup chain +
+`startupProbe`/`strategy.rollingUpdate`/`minReadySeconds` in every
+`k8s/*/deployment-api*.yaml`). If you add a new backend repository with a
+static cache, or touch its deploy manifests, read that section first — the
+same rule applies: never let startup-critical population work escape the
+awaited chain in `Program.cs`.
+
 ## Voi production environment
 
 Besides Algorand mainnet (production) and testnet (stage), there is a second
