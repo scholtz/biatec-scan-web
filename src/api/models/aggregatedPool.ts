@@ -234,6 +234,8 @@ export interface AggregatedPool {
   virtualSumBLevel2?: number;
   tvL_A?: number;
   tvL_B?: number;
+  tvL_A_ForPrice?: number;
+  tvL_B_ForPrice?: number;
   poolCount?: number;
   /** @nullable */
   level1Pools?: string[] | null;

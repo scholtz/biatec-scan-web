@@ -295,5 +295,6 @@ export interface Pool {
   readonly virtualAmountB?: number;
   readonly virtualAmountBForPrice?: number;
   readonly hasZeroWidthPriceRange?: boolean;
+  readonly isDepletedSingleSided?: boolean;
   readonly realAmountB?: number;
 }
