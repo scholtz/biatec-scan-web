@@ -41,14 +41,18 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
+          # /health is a static 200 served by nginx itself (docker/default.conf.template,
+          # access_log off) - also used by the external uptime monitor.
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 8080
             initialDelaySeconds: 10
             timeoutSeconds: 5
             failureThreshold: 2
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 8080
             initialDelaySeconds: 20
             timeoutSeconds: 5
