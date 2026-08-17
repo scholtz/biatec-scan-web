@@ -7,7 +7,7 @@
     <div v-else-if="block">
       <!-- Block Header -->
       <div class="card mb-8">
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-6">
           <h1 class="text-3xl font-bold text-white">
             {{
               $t("blockDetails.title", { round: block.round.toLocaleString() })

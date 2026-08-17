@@ -79,7 +79,7 @@
               <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
                 {{ $t("assetDetails.price") }}
               </div>
-              <div class="text-lg text-white font-mono">
+              <div class="text-lg text-white font-mono break-all">
                 <template v-if="priceUSD === undefined || priceUSD === null"
                   >-</template
                 >
@@ -99,7 +99,7 @@
               <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
                 {{ $t("assetDetails.volume24H") }}
               </div>
-              <div class="text-lg text-white font-mono">
+              <div class="text-lg text-white font-mono break-all">
                 <template v-if="volume24H === undefined || volume24H === null"
                   >-</template
                 >
@@ -124,7 +124,7 @@
               <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
                 {{ $t("assetDetails.totalSupply") }}
               </div>
-              <div class="text-lg text-white font-mono">
+              <div class="text-lg text-white font-mono break-all">
                 {{ formattedTotal }}
               </div>
             </div>

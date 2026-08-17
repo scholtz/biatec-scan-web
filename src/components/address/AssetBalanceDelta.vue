@@ -41,21 +41,30 @@
       </div>
 
       <div v-else class="space-y-2">
+        <!-- Column headers: desktop layout only; the mobile layout repeats
+             per-cell mini labels instead. -->
         <div
-          class="grid grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))] gap-2 items-center px-3 text-xs text-gray-500"
+          class="hidden sm:grid grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))] gap-2 items-center px-3 text-xs text-gray-500"
         >
           <span class="min-w-0 truncate">{{ t("addressDetails.balanceChangeAsset") }}</span>
           <span class="min-w-0 text-right truncate">{{ t("addressDetails.balanceChangeAmount") }}</span>
           <span class="min-w-0 text-right truncate">{{ t("addressDetails.balanceChangeReceived") }}</span>
           <span class="min-w-0 text-right truncate">{{ t("addressDetails.balanceChangeSpent") }}</span>
         </div>
+        <!-- On <sm the asset name gets its own full-width line and the three
+             numeric cells share a labelled 3-column row below it; truncation
+             must live on block elements (an inline span ignores `truncate`,
+             which is how the columns used to overlap on phones). -->
         <div
           v-for="row in pagedDeltaRows"
           :key="row.assetId"
-          class="grid grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))] gap-2 items-center p-3 bg-gray-800 rounded"
+          class="grid grid-cols-3 sm:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))] gap-x-2 gap-y-1 sm:items-center p-3 bg-gray-800 rounded"
         >
-          <span class="text-white text-sm truncate min-w-0">{{ row.label }}</span>
+          <span class="col-span-3 sm:col-span-1 text-white text-sm truncate min-w-0">{{ row.label }}</span>
           <div class="text-right min-w-0">
+            <div class="sm:hidden text-[10px] text-gray-500 truncate">
+              {{ t("addressDetails.balanceChangeAmount") }}
+            </div>
             <div
               class="font-mono text-sm truncate"
               :class="row.amount > 0 ? 'text-green-400' : row.amount < 0 ? 'text-red-400' : 'text-gray-400'"
@@ -71,10 +80,16 @@
             </div>
           </div>
           <div class="text-right min-w-0">
-            <span class="font-mono text-sm text-green-400 truncate">{{ row.formattedReceived }}</span>
+            <div class="sm:hidden text-[10px] text-gray-500 truncate">
+              {{ t("addressDetails.balanceChangeReceived") }}
+            </div>
+            <div class="font-mono text-sm text-green-400 truncate">{{ row.formattedReceived }}</div>
           </div>
           <div class="text-right min-w-0">
-            <span class="font-mono text-sm text-red-400 truncate">{{ row.formattedSpent }}</span>
+            <div class="sm:hidden text-[10px] text-gray-500 truncate">
+              {{ t("addressDetails.balanceChangeSpent") }}
+            </div>
+            <div class="font-mono text-sm text-red-400 truncate">{{ row.formattedSpent }}</div>
           </div>
         </div>
 

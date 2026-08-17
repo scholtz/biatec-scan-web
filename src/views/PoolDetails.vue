@@ -3,11 +3,11 @@
     <div class="container mx-auto px-4 py-8">
       <div class="mb-8">
         <h1 class="text-3xl font-bold mb-4">{{ $t("poolDetails.title") }}</h1>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 flex-wrap">
           <span class="text-gray-400"
             >{{ $t("poolDetails.poolAddress") }}:</span
           >
-          <span class="font-mono text-blue-400">{{ poolAddress }}</span>
+          <span class="font-mono text-blue-400 break-all">{{ poolAddress }}</span>
           <CopyToClipboard
             :text="poolAddress"
             :toast-message="$t('poolDetails.poolAddressCopied')"

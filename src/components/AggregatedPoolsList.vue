@@ -35,7 +35,7 @@
         class="bg-gray-800/40 hover:bg-gray-800/60 rounded px-2 py-1.5 transition-colors"
       >
         <!-- Single Row with 3 Columns -->
-        <div class="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-xs">
+        <div class="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 items-center text-xs">
           <!-- Column 1: Icons, Name and Pool Count -->
           <div class="flex items-center gap-1.5 min-w-0">
             <div class="flex -space-x-1 flex-shrink-0">
