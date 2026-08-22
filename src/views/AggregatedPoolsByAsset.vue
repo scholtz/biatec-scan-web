@@ -2,7 +2,16 @@
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
       <h1 class="text-xl font-semibold text-white">
-        {{ $t("aggregatedPools.title", { assetName }) }}
+        <i18n-t keypath="aggregatedPools.title" tag="span" scope="global">
+          <template #assetName>
+            <router-link
+              :to="`/asset/${state.assetId.toString()}`"
+              class="text-white hover:text-blue-300 transition-colors underline decoration-dotted"
+            >
+              {{ assetName }}
+            </router-link>
+          </template>
+        </i18n-t>
       </h1>
       <div class="flex items-center gap-2 text-sm">
         <button
