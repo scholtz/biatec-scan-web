@@ -4,33 +4,35 @@
       <div class="loading-spinner"></div>
     </div>
 
-    <div v-else-if="application">
+    <div v-else-if="application" class="space-y-6">
       <!-- Application Header -->
-      <div class="card mb-6">
-        <div class="flex items-center justify-between mb-6">
+      <div class="card">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div class="flex items-center space-x-4">
             <div
-              class="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center shadow-lg"
+              class="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center shadow-lg flex-shrink-0"
             >
               <span class="font-bold text-2xl">⚙️</span>
             </div>
             <div>
-              <h1 class="text-3xl font-bold text-white">Application Details</h1>
-              <p class="text-gray-400">App ID: {{ appId }}</p>
+              <h1 class="text-3xl font-bold text-white">
+                {{ $t("applicationDetails.title") }}
+              </h1>
+              <p class="text-gray-400 font-mono">{{ $t("applicationDetails.appIdLabel") }}: {{ appId }}</p>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
-            <p class="text-sm text-gray-400 mb-1">Application ID</p>
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.appIdLabel") }}</p>
             <p class="text-white font-medium text-lg">{{ appId }}</p>
           </div>
           <div
             v-if="application.params?.creator"
             class="bg-dark-900 p-4 rounded-lg border border-gray-700"
           >
-            <p class="text-sm text-gray-400 mb-1">Creator</p>
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.creator") }}</p>
             <router-link
               :to="{
                 name: 'AddressDetails',
@@ -41,28 +43,74 @@
               {{ formatAddress(application.params.creator.toString()) }}
             </router-link>
           </div>
+          <div
+            v-if="application.params?.version !== undefined"
+            class="bg-dark-900 p-4 rounded-lg border border-gray-700"
+          >
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.version") }}</p>
+            <p class="text-white font-medium text-lg">{{ application.params.version }}</p>
+          </div>
+          <div
+            v-if="application.params?.extraProgramPages"
+            class="bg-dark-900 p-4 rounded-lg border border-gray-700"
+          >
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.extraProgramPages") }}</p>
+            <p class="text-white font-medium text-lg">{{ application.params.extraProgramPages }}</p>
+          </div>
+        </div>
+
+        <!-- External Links (Algorand-mainnet-only explorers) -->
+        <div
+          v-if="isAlgorandMainnet"
+          class="flex flex-wrap gap-x-4 gap-y-2 mt-6 pt-6 border-t border-gray-700"
+        >
+          <span class="text-sm text-gray-500">{{ $t("common.externalLinks") }}:</span>
+          <a
+            :href="`https://allo.info/application/${appId}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
+          >
+            Allo <span class="text-xs">↗</span>
+          </a>
+          <a
+            :href="`https://lora.algokit.io/mainnet/application/${appId}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
+          >
+            Lora <span class="text-xs">↗</span>
+          </a>
+          <a
+            :href="`https://explorer.perawallet.app/application/${appId}/`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
+          >
+            Pera <span class="text-xs">↗</span>
+          </a>
         </div>
       </div>
 
       <!-- State Schemas -->
-      <div v-if="application.params" class="card mb-6">
-        <h2 class="text-xl font-semibold text-white mb-4">State Schemas</h2>
+      <div v-if="application.params" class="card">
+        <h2 class="text-xl font-semibold text-white mb-4">
+          {{ $t("applicationDetails.stateSchema") }}
+        </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div v-if="application.params.globalStateSchema">
             <h3 class="text-lg font-semibold text-purple-400 mb-3">
-              Global State
+              {{ $t("applicationDetails.globalStateSchemaLabel") }}
             </h3>
-            <div
-              class="bg-dark-900 p-4 rounded-lg border border-gray-700 space-y-2"
-            >
+            <div class="bg-dark-900 p-4 rounded-lg border border-gray-700 space-y-2">
               <div class="flex justify-between">
-                <span class="text-gray-400">Integers (uint):</span>
+                <span class="text-gray-400">{{ $t("applicationDetails.integers") }}:</span>
                 <span class="text-white font-medium">{{
                   application.params.globalStateSchema.numUint || 0
                 }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-400">Byte Slices:</span>
+                <span class="text-gray-400">{{ $t("applicationDetails.byteSlices") }}:</span>
                 <span class="text-white font-medium">{{
                   application.params.globalStateSchema.numByteSlice || 0
                 }}</span>
@@ -71,19 +119,17 @@
           </div>
           <div v-if="application.params.localStateSchema">
             <h3 class="text-lg font-semibold text-purple-400 mb-3">
-              Local State
+              {{ $t("applicationDetails.localStateSchemaLabel") }}
             </h3>
-            <div
-              class="bg-dark-900 p-4 rounded-lg border border-gray-700 space-y-2"
-            >
+            <div class="bg-dark-900 p-4 rounded-lg border border-gray-700 space-y-2">
               <div class="flex justify-between">
-                <span class="text-gray-400">Integers (uint):</span>
+                <span class="text-gray-400">{{ $t("applicationDetails.integers") }}:</span>
                 <span class="text-white font-medium">{{
                   application.params.localStateSchema.numUint || 0
                 }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-400">Byte Slices:</span>
+                <span class="text-gray-400">{{ $t("applicationDetails.byteSlices") }}:</span>
                 <span class="text-white font-medium">{{
                   application.params.localStateSchema.numByteSlice || 0
                 }}</span>
@@ -93,18 +139,40 @@
         </div>
       </div>
 
+      <!-- Global State -->
+      <div class="card">
+        <h2 class="text-xl font-semibold text-white mb-1">
+          {{ $t("applicationDetails.globalState") }}
+        </h2>
+        <p class="text-sm text-gray-400 mb-4">
+          {{ $t("applicationDetails.globalStateHint") }}
+        </p>
+        <ApplicationKeyValueTable
+          :items="application.params?.globalState"
+          :empty-text="$t('applicationDetails.globalStateEmpty')"
+        />
+      </div>
+
+      <!-- Local State (per-address lookup) -->
+      <ApplicationLocalState :app-id="appId" />
+
+      <!-- Boxes -->
+      <ApplicationBoxes :app-id="appId" />
+
       <!-- Smart Contract Programs -->
       <div v-if="application.params" class="space-y-6">
         <!-- Approval Program -->
         <div v-if="application.params.approvalProgram" class="card">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold text-white">Approval Program</h2>
+            <h2 class="text-xl font-semibold text-white">
+              {{ $t("applicationDetails.approvalProgram") }}
+            </h2>
             <button
               @click="decompileProgram('approval')"
               :disabled="isDecompiling"
-              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white rounded transition-colors"
+              class="btn-primary text-sm"
             >
-              {{ isDecompiling ? "Decompiling..." : "Decompile" }}
+              {{ isDecompiling ? $t("applicationDetails.decompiling") : $t("applicationDetails.decompile") }}
             </button>
           </div>
 
@@ -119,13 +187,13 @@
           </div>
           <div v-else class="bg-dark-900 p-4 rounded-lg border border-gray-700">
             <p class="text-gray-400 text-sm">
-              Click 'Decompile' to view the TEAL code
+              {{ $t("applicationDetails.decompileHint") }}
             </p>
             <p
-              class="text-gray-500 text-xs mt-2"
+              class="text-gray-500 text-xs mt-2 break-all"
               v-if="application.params.approvalProgram"
             >
-              Base64 encoded:
+              {{ $t("applicationDetails.base64Encoded") }}:
               {{
                 Buffer.from(application.params.approvalProgram)
                   .toString("base64")
@@ -139,14 +207,14 @@
         <div v-if="application.params.clearStateProgram" class="card">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-white">
-              Clear State Program
+              {{ $t("applicationDetails.clearStateProgram") }}
             </h2>
             <button
               @click="decompileProgram('clear')"
               :disabled="isDecompiling"
-              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white rounded transition-colors"
+              class="btn-primary text-sm"
             >
-              {{ isDecompiling ? "Decompiling..." : "Decompile" }}
+              {{ isDecompiling ? $t("applicationDetails.decompiling") : $t("applicationDetails.decompile") }}
             </button>
           </div>
 
@@ -161,26 +229,11 @@
           </div>
           <div v-else class="bg-dark-900 p-4 rounded-lg border border-gray-700">
             <p class="text-gray-400 text-sm">
-              Click 'Decompile' to view the TEAL code
+              {{ $t("applicationDetails.decompileHint") }}
             </p>
-            <p class="text-gray-500 text-xs mt-2">
-              Base64 encoded:
-              {{ Buffer.from(application.params.clearStateProgram) }}...
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Additional Info -->
-      <div v-if="application.params" class="card mt-6">
-        <h2 class="text-xl font-semibold text-white mb-4">
-          Additional Information
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div v-if="application.params.extraProgramPages">
-            <p class="text-sm text-gray-400 mb-1">Extra Program Pages</p>
-            <p class="text-white font-medium">
-              {{ application.params.extraProgramPages }}
+            <p class="text-gray-500 text-xs mt-2 break-all">
+              {{ $t("applicationDetails.base64Encoded") }}:
+              {{ Buffer.from(application.params.clearStateProgram).toString("base64").substring(0, 100) }}...
             </p>
           </div>
         </div>
@@ -189,12 +242,12 @@
 
     <div v-else class="card text-center py-12">
       <h2 class="text-xl font-semibold text-white mb-2">
-        Application Not Found
+        {{ $t("applicationDetails.notFoundTitle") }}
       </h2>
       <p class="text-gray-400 mb-4">
-        The requested application could not be found or may not exist.
+        {{ $t("applicationDetails.notFoundBody") }}
       </p>
-      <router-link to="/" class="btn-primary">Back to Dashboard</router-link>
+      <router-link to="/" class="btn-primary">{{ $t("common.backToDashboard") }}</router-link>
     </div>
   </div>
 </template>
@@ -203,8 +256,12 @@
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { algorandService } from "../services/algorandService";
+import { isAlgorandMainnet } from "../config/env";
 import algosdk, { ProgramSourceMap } from "algosdk";
 import { Buffer } from "buffer";
+import ApplicationKeyValueTable from "../components/application/ApplicationKeyValueTable.vue";
+import ApplicationLocalState from "../components/application/ApplicationLocalState.vue";
+import ApplicationBoxes from "../components/application/ApplicationBoxes.vue";
 
 const route = useRoute();
 const appId = ref<string>("");
