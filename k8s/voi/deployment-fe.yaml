@@ -2,11 +2,10 @@
 # Deployed manually by .github/workflows/promote-production.yml with
 # network=voi (never automatically) - the voi-<version> image is built on
 # every push by build-fe.yml with Voi-specific VITE_* build args.
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: biatec-scan-voi
----
+# Namespace biatec-scan-voi is provisioned out-of-band by a cluster admin,
+# not by this manifest - the CI deploy credential (KUBE_CONFIG in the "voi"
+# GitHub environment) is a namespace-scoped service account and cannot
+# get/create cluster-scoped Namespace objects.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

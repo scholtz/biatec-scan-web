@@ -1,8 +1,7 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: biatec-scan-testnet
----
+# Namespace biatec-scan-testnet is provisioned out-of-band by a cluster
+# admin, not by this manifest - the CI deploy credential (KUBE_CONFIG in the
+# "testnet" GitHub environment) is a namespace-scoped service account and
+# cannot get/create cluster-scoped Namespace objects.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
