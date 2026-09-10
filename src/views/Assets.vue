@@ -333,7 +333,7 @@ const state = reactive<State>({
   availablePageSizes: [15, 25, 50, 100],
 });
 
-const showStable = ref(false);
+const showStable = ref(true);
 const showUtility = ref(true);
 
 // Minimum number of rows to prefetch per page so the frontend has enough data
