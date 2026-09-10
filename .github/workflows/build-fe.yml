@@ -178,15 +178,17 @@ jobs:
 
   # -----------------------------------------------------------------------
   # Stage 4: deploy-stage - deploys the testnet image to testnet.scan.biatec.io.
-  # Uses the GitHub "Stage" environment so its secrets/protection rules can
-  # differ from Production (Settings > Environments > Stage in the repo).
+  # Uses the GitHub "testnet" environment so its KUBE_CONFIG secret and
+  # protection rules can differ per network (Settings > Environments >
+  # testnet in the repo). KUBE_CONFIG holds the cluster's kubeconfig,
+  # base64-encoded.
   # -----------------------------------------------------------------------
   deploy-stage:
     needs: [version, build]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
-      name: Stage
+      name: testnet
       url: https://testnet.scan.biatec.io
     steps:
       - name: Checkout repo
@@ -200,7 +202,7 @@ jobs:
       - name: Configure kubeconfig
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
 
       - name: Update manifest image tag
         run: |

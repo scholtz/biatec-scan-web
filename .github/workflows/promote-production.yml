@@ -125,11 +125,13 @@ jobs:
           docker push ${{ env.PRIVATE_IMAGE }}:${{ matrix.network }}-latest
 
   # ---------------------------------------------------------------------
-  # Stage 2: deploy-production - only runs once the "Production"
-  # environment's protection rules (e.g. required reviewers, configured in
-  # the GitHub UI) are satisfied. Deploys the version pinned by the input,
-  # not the "latest" tag, so the manifest always records exactly which
-  # build is running.
+  # Stage 2: deploy-production - only runs once the target network's
+  # environment protection rules (e.g. required reviewers, configured in
+  # the GitHub UI under Settings > Environments > mainnet / voi) are
+  # satisfied. Each network is its own GitHub environment so its KUBE_CONFIG
+  # secret (base64-encoded kubeconfig) and reviewers can differ. Deploys the
+  # version pinned by the input, not the "latest" tag, so the manifest
+  # always records exactly which build is running.
   # ---------------------------------------------------------------------
   deploy-production:
     needs: [resolve-version, promote-tag]
@@ -138,7 +140,7 @@ jobs:
       matrix:
         network: ${{ fromJson(needs.resolve-version.outputs.networks) }}
     environment:
-      name: Production
+      name: ${{ matrix.network }}
       url: ${{ matrix.network == 'voi' && 'https://voi.scan.biatec.io' || 'https://algorand.scan.biatec.io' }}
     env:
       # Per-network deploy targets. Everything below the vars step uses only
@@ -176,7 +178,7 @@ jobs:
       - name: Configure kubeconfig
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
 
       - name: Update manifest image tag
         run: |
