@@ -337,7 +337,9 @@
     "scamWarningTitle": "Figyelmeztetés: gyanús pool",
     "scamWarningKnown": "Ez a pool ismert csaló (scam) telepítésként van megjelölve (scam-értékelés {rating}/100). Ne bízzon benne: egyenlegei 0-ként jelennek meg, és ki van zárva az árakból és a likviditásból.",
     "scamWarningSuspicious": "Ennek a poolnak a scam-értékelése {rating}/100. Okosszerződését nem sikerült ellenőrizni a nyilvános ARC-56 nyilvántartásban. Kereskedjen óvatosan.",
-    "scamRating": "Scam-értékelés"
+    "scamRating": "Scam-értékelés",
+    "noLpToken": "Ez a pool nem biztosít LP tokent",
+    "estimatedLpSupply": "Becsült (a tartalékokból számítva)"
   },
   "aggregatedPools": {
     "title": "{assetName} eszközt tartalmazó összesített poolok",

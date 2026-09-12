@@ -337,7 +337,9 @@
     "scamWarningTitle": "Upozornění: podezřelý pool",
     "scamWarningKnown": "Tento pool je označen jako známý podvodný (scam) pool (hodnocení {rating}/100). Nedůvěřujte mu: jeho zůstatky se zobrazují jako 0 a je vyloučen z výpočtu cen a likvidity.",
     "scamWarningSuspicious": "Tento pool má hodnocení podvodu {rating}/100. Jeho smart kontrakt se nepodařilo ověřit vůči veřejnému registru ARC-56. Obchodujte opatrně.",
-    "scamRating": "Hodnocení podvodu"
+    "scamRating": "Hodnocení podvodu",
+    "noLpToken": "Tento pool neposkytuje LP token",
+    "estimatedLpSupply": "Odhad (odvozeno z rezerv)"
   },
   "aggregatedPools": {
     "title": "Agregované pooly obsahující {assetName}",

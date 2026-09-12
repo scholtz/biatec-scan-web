@@ -337,7 +337,9 @@
     "scamWarningTitle": "Advertencia: pool sospechoso",
     "scamWarningKnown": "Este pool está marcado como una implementación fraudulenta conocida (puntuación de estafa {rating}/100). No confíe en él: sus saldos se muestran como 0 y está excluido de los precios y la liquidez.",
     "scamWarningSuspicious": "Este pool tiene una puntuación de estafa de {rating}/100. Su contrato inteligente no pudo verificarse contra el registro público ARC-56. Opere con precaución.",
-    "scamRating": "Puntuación de estafa"
+    "scamRating": "Puntuación de estafa",
+    "noLpToken": "Este pool no ofrece un token LP",
+    "estimatedLpSupply": "Estimado (derivado de las reservas)"
   },
   "aggregatedPools": {
     "title": "Pools agregados que contienen {assetName}",

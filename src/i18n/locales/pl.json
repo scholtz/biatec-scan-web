@@ -337,7 +337,9 @@
     "scamWarningTitle": "Ostrzeżenie: podejrzana pula",
     "scamWarningKnown": "Ta pula jest oznaczona jako znane oszustwo (ocena scam {rating}/100). Nie ufaj jej: jej salda są wyświetlane jako 0 i jest wykluczona z cen i płynności.",
     "scamWarningSuspicious": "Ta pula ma ocenę scam {rating}/100. Jej smart kontraktu nie udało się zweryfikować w publicznym rejestrze ARC-56. Handluj ostrożnie.",
-    "scamRating": "Ocena scam"
+    "scamRating": "Ocena scam",
+    "noLpToken": "Ta pula nie zapewnia tokenu LP",
+    "estimatedLpSupply": "Szacunkowe (na podstawie rezerw)"
   },
   "aggregatedPools": {
     "title": "Zagregowane pule zawierające {assetName}",

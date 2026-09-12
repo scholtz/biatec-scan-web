@@ -1,4 +1,5 @@
 import type { DEXProtocol } from "../api/models/dEXProtocol";
+import type { AMMType } from "../api/models/aMMType";
 import type { TxState } from "../api/models/txState";
 import type { LiquidityDirection } from "../api/models/liquidityDirection";
 
@@ -138,10 +139,13 @@ export interface AMMPool {
   b?: bigint;
   l?: bigint;
   protocol: DEXProtocol;
+  ammType?: AMMType;
   timestamp?: string; // ISO string, or Date if you prefer
   isReversed: boolean;
   /** 0..100 backend scam score; > 80 = known scam, balances are reported as 0 */
   scamRating?: number;
+  totalTVLAssetAInUSD?: number;
+  totalTVLAssetBInUSD?: number;
 }
 export interface AMMTrade {
   assetIdIn: bigint;

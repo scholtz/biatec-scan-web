@@ -337,7 +337,9 @@
     "scamWarningTitle": "Warnung: verdächtiger Pool",
     "scamWarningKnown": "Dieser Pool ist als bekannter Betrugs-Pool markiert (Scam-Bewertung {rating}/100). Vertrauen Sie ihm nicht: seine Guthaben werden als 0 angezeigt und er ist von Preisen und Liquidität ausgeschlossen.",
     "scamWarningSuspicious": "Dieser Pool hat eine Scam-Bewertung von {rating}/100. Sein Smart Contract konnte nicht gegen das öffentliche ARC-56-Register verifiziert werden. Handeln Sie mit Vorsicht.",
-    "scamRating": "Scam-Bewertung"
+    "scamRating": "Scam-Bewertung",
+    "noLpToken": "Dieser Pool stellt kein LP-Token bereit",
+    "estimatedLpSupply": "Geschätzt (aus Reserven abgeleitet)"
   },
   "aggregatedPools": {
     "title": "Aggregierte Pools mit {assetName}",

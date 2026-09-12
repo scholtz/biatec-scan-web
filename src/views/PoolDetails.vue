@@ -123,7 +123,12 @@
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">LP Token ID:</span>
-              <span class="text-white">{{ poolInfo.assetIdLP }}</span>
+              <span v-if="hasLpToken" class="text-white">{{
+                poolInfo.assetIdLP
+              }}</span>
+              <span v-else class="text-amber-400">{{
+                $t("poolDetails.noLpToken")
+              }}</span>
             </div>
             <div
               class="flex justify-between items-center"
@@ -190,7 +195,13 @@
                 {{ formatLPSupply }}
               </div>
               <div class="text-sm text-gray-400">
-                {{ getAssetName(poolInfo.assetIdLP || BigInt(0)) }}
+                <span v-if="hasLpToken">{{
+                  getAssetName(poolInfo.assetIdLP || BigInt(0))
+                }}</span>
+                <span v-else-if="estimatedLpSupply !== null">{{
+                  $t("poolDetails.estimatedLpSupply")
+                }}</span>
+                <span v-else>{{ $t("poolDetails.noLpToken") }}</span>
               </div>
             </div>
           </div>
@@ -210,7 +221,7 @@
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Total Value Locked:</span>
-              <span class="text-white">Calculating...</span>
+              <span class="text-white">{{ totalValueLockedUsd }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Pool Utilization:</span>
@@ -286,17 +297,21 @@ const loadPoolInfo = async () => {
         poolData.assetIdA != null ? BigInt(poolData.assetIdA) : undefined,
       assetIdB:
         poolData.assetIdB != null ? BigInt(poolData.assetIdB) : undefined,
-      assetIdLP: poolData.assetIdLP ? BigInt(poolData.assetIdLP) : undefined,
+      assetIdLP:
+        poolData.assetIdLP != null ? BigInt(poolData.assetIdLP) : undefined,
       a: poolData.a ? BigInt(poolData.a) : undefined,
       b: poolData.b ? BigInt(poolData.b) : undefined,
       l: poolData.l ? BigInt(poolData.l) : undefined,
       protocol: poolData.protocol || "Biatec",
+      ammType: poolData.ammType,
       timestamp: poolData.timestamp || new Date().toISOString(),
       scamRating: poolData.scamRating ?? 0,
       isReversed: assetService.needToReverseAssets(
         poolData.assetIdA != null ? BigInt(poolData.assetIdA) : 0n,
         poolData.assetIdB != null ? BigInt(poolData.assetIdB) : 0n
       ),
+      totalTVLAssetAInUSD: poolData.totalTVLAssetAInUSD ?? undefined,
+      totalTVLAssetBInUSD: poolData.totalTVLAssetBInUSD ?? undefined,
     };
   } catch (err: unknown) {
     error.value =
@@ -345,12 +360,55 @@ const formatReserveB = computed(() => {
   );
 });
 
+// A pool with no LP asset id (or id 0) mints no fungible LP token at all —
+// e.g. Pact's tick-based CLAMM tracks positions as boxes, not an ASA.
+const hasLpToken = computed(
+  () => !!poolInfo.value?.assetIdLP && poolInfo.value.assetIdLP !== 0n
+);
+
+const isPactTickClamm = computed(
+  () =>
+    poolInfo.value?.protocol === "Pact" &&
+    poolInfo.value?.ammType === "TickBasedCLAMM"
+);
+
+// Pact CLAMM has no LP token, so there is no on-chain supply to read. As a
+// stand-in, derive a constant-product-style geometric mean (sqrt(a*b)) from
+// the pool's current reserves in base units, matching the usual xy=k LP
+// share convention — the pool's own liquidity constant `l` is tick-range
+// specific and not directly comparable to that convention.
+const estimatedLpSupply = computed(() => {
+  if (
+    !isPactTickClamm.value ||
+    !poolInfo.value?.a ||
+    !poolInfo.value?.b ||
+    poolInfo.value.assetIdA === undefined ||
+    poolInfo.value.assetIdB === undefined
+  )
+    return null;
+
+  const assetInfoA = assetService.getAssetInfo(poolInfo.value.assetIdA);
+  const assetInfoB = assetService.getAssetInfo(poolInfo.value.assetIdB);
+  if (!assetInfoA || !assetInfoB) return null;
+
+  const baseA = Number(poolInfo.value.a) / Math.pow(10, assetInfoA.decimals || 0);
+  const baseB = Number(poolInfo.value.b) / Math.pow(10, assetInfoB.decimals || 0);
+  return Math.sqrt(baseA * baseB);
+});
+
 const formatLPSupply = computed(() => {
-  if (!poolInfo.value?.l || poolInfo.value?.assetIdLP === undefined) return "0";
-  return assetService.formatAssetBalance(
-    poolInfo.value.l,
-    poolInfo.value.assetIdLP
-  );
+  if (hasLpToken.value && poolInfo.value?.l && poolInfo.value?.assetIdLP !== undefined) {
+    return assetService.formatAssetBalance(
+      poolInfo.value.l,
+      poolInfo.value.assetIdLP
+    );
+  }
+  if (estimatedLpSupply.value !== null) {
+    return `~${estimatedLpSupply.value.toLocaleString(undefined, {
+      maximumFractionDigits: 6,
+    })}`;
+  }
+  return "0";
 });
 
 const currentPrice = computed(() => {
@@ -375,6 +433,19 @@ const inversePrice = computed(() => {
 
   const price = reserveB / reserveA;
   return price.toFixed(6);
+});
+
+const totalValueLockedUsd = computed(() => {
+  const tvlA = poolInfo.value?.totalTVLAssetAInUSD;
+  const tvlB = poolInfo.value?.totalTVLAssetBInUSD;
+  if (tvlA == null && tvlB == null) return "N/A";
+
+  const total = (tvlA ?? 0) + (tvlB ?? 0);
+  return total.toLocaleString(undefined, {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  });
 });
 
 const poolUtilization = computed(() => {
