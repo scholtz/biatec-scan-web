@@ -321,7 +321,11 @@
     "recentTrades": "Ostatnie transakcje",
     "noTrades": "Nie znaleziono ostatnich transakcji dla tej puli",
     "recentLiquidity": "Ostatnie zmiany płynności",
-    "noLiquidity": "Nie znaleziono ostatnich zmian płynności dla tej puli"
+    "noLiquidity": "Nie znaleziono ostatnich zmian płynności dla tej puli",
+    "scamWarningTitle": "Ostrzeżenie: podejrzana pula",
+    "scamWarningKnown": "Ta pula jest oznaczona jako znane oszustwo (ocena scam {rating}/100). Nie ufaj jej: jej salda są wyświetlane jako 0 i jest wykluczona z cen i płynności.",
+    "scamWarningSuspicious": "Ta pula ma ocenę scam {rating}/100. Jej smart kontraktu nie udało się zweryfikować w publicznym rejestrze ARC-56. Handluj ostrożnie.",
+    "scamRating": "Ocena scam"
   },
   "aggregatedPools": {
     "title": "Zagregowane pule zawierające {assetName}",

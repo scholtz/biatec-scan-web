@@ -321,7 +321,11 @@
     "recentTrades": "Recent Trades",
     "noTrades": "No recent trades found for this pool",
     "recentLiquidity": "Recent Liquidity Changes",
-    "noLiquidity": "No recent liquidity changes found for this pool"
+    "noLiquidity": "No recent liquidity changes found for this pool",
+    "scamWarningTitle": "Warning: suspicious pool",
+    "scamWarningKnown": "This pool is flagged as a known scam deployment (scam rating {rating}/100). Do not trust it: its reported balances are shown as 0 and it is excluded from prices and liquidity.",
+    "scamWarningSuspicious": "This pool has a scam rating of {rating}/100. Its smart contract could not be verified against the public ARC-56 registry. Trade with caution.",
+    "scamRating": "Scam rating"
   },
   "aggregatedPools": {
     "title": "Aggregated pools containing {assetName}",

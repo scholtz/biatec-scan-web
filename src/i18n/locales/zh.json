@@ -321,7 +321,11 @@
     "recentTrades": "最近交易",
     "noTrades": "未找到该池的最近交易",
     "recentLiquidity": "最近流动性变化",
-    "noLiquidity": "未找到该池的最近流动性变化"
+    "noLiquidity": "未找到该池的最近流动性变化",
+    "scamWarningTitle": "警告：可疑的流动性池",
+    "scamWarningKnown": "该流动性池已被标记为已知的诈骗部署（诈骗评分 {rating}/100）。请勿信任：其余额显示为 0，并已从价格和流动性计算中排除。",
+    "scamWarningSuspicious": "该流动性池的诈骗评分为 {rating}/100。其智能合约无法在公共 ARC-56 注册表中得到验证。请谨慎交易。",
+    "scamRating": "诈骗评分"
   },
   "aggregatedPools": {
     "title": "包含 {assetName} 的聚合池",
