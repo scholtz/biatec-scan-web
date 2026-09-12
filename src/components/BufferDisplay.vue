@@ -17,7 +17,7 @@
         </button>
         <button
           v-if="props.allowUTF8"
-          @click="encoding = 'utf8'"
+          @click="encoding = resolveTextEncoding()"
           :class="
             encoding === 'utf8'
               ? 'bg-primary-600 text-white'
@@ -26,6 +26,18 @@
           class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
         >
           UTF-8
+        </button>
+        <button
+          v-if="isAddressAvailable"
+          @click="encoding = 'address'"
+          :class="
+            encoding === 'address'
+              ? 'bg-primary-600 text-white'
+              : 'bg-dark-900 text-gray-400'
+          "
+          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
+        >
+          Address
         </button>
         <button
           @click="encoding = 'base64'"
@@ -62,12 +74,15 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { Buffer } from "buffer";
+import algosdk from "algosdk";
+
+type Encoding = "utf8" | "base64" | "hex" | "numeric" | "address";
 
 interface Props {
   value: string | Uint8Array | undefined;
   title?: string;
   allowUTF8?: boolean;
-  defaultEncoding?: "utf8" | "base64" | "hex" | "numeric";
+  defaultEncoding?: Encoding;
   autoDetectNumeric?: boolean;
 }
 
@@ -77,9 +92,7 @@ const props = withDefaults(defineProps<Props>(), {
   autoDetectNumeric: true,
 });
 
-const encoding = ref<"utf8" | "base64" | "hex" | "numeric">(
-  props.defaultEncoding,
-);
+const encoding = ref<Encoding>(props.defaultEncoding);
 
 // Convert value to Buffer
 const bufferValue = computed(() => {
@@ -102,6 +115,8 @@ const base64Value = computed(() => {
   return Buffer.from(props.value).toString("base64");
 });
 
+const hexValue = computed(() => bufferValue.value.toString("hex"));
+
 const numericValue = computed(() => {
   const buf = bufferValue.value;
   // Limit to 128 bytes (1024-bit integer) to support large numbers but avoid huge blobs
@@ -122,62 +137,79 @@ const isNumericAvailable = computed(() => {
   return numericValue.value !== null;
 });
 
-const decodedValue = computed(() => {
-  const val = base64Value.value;
-  if (!val) return "";
-
+// An AVM address is a 32-byte public key plus a derived checksum, so any
+// 32-byte buffer can be *re-encoded* as one - encodeAddress never validates
+// against an existing checksum, it just computes a fresh one. This doesn't
+// prove the bytes originated as an address, only that showing them as one is
+// meaningful, which is why it's offered as a selectable view rather than
+// asserted as fact.
+const addressValue = computed(() => {
+  const buf = bufferValue.value;
+  if (buf.length !== 32) return null;
   try {
-    if (encoding.value === "numeric") {
-      return numericValue.value?.toString() || "";
-    } else if (encoding.value === "base64") {
-      return val;
-    } else if (encoding.value === "hex") {
-      // Convert base64 to hex
-      const decoded = atob(val);
-      return Array.from(decoded)
-        .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
-        .join("");
-    } else {
-      // UTF-8 - try to decode base64 to string
-      try {
-        const decoded = atob(val);
-        // Check if it's valid UTF-8
-        const utf8String = decodeURIComponent(escape(decoded));
-        // Test if it contains mostly printable characters
-        const printableRatio =
-          utf8String.split("").filter((c) => {
-            const code = c.charCodeAt(0);
-            return (
-              (code >= 32 && code <= 126) ||
-              code === 10 ||
-              code === 13 ||
-              code === 9
-            );
-          }).length / utf8String.length;
-
-        if (printableRatio > 0.8) {
-          return utf8String;
-        } else {
-          // Not valid UTF-8, return hex instead
-          const decoded = atob(val);
-          return Array.from(decoded)
-            .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
-            .join("");
-        }
-      } catch {
-        // If UTF-8 decoding fails, return hex
-        const decoded = atob(val);
-        return Array.from(decoded)
-          .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
-          .join("");
-      }
-    }
+    return algosdk.encodeAddress(new Uint8Array(buf));
   } catch {
-    return val;
+    return null;
   }
 });
 
-// Auto-detect encoding on mount
+const isAddressAvailable = computed(() => addressValue.value !== null);
+
+// Best-effort UTF-8 decode of the current value - null when the bytes aren't
+// mostly printable text, so callers can fall through to another encoding.
+const utf8Value = computed(() => {
+  const val = base64Value.value;
+  if (!val) return null;
+  try {
+    const decoded = atob(val);
+    const utf8String = decodeURIComponent(escape(decoded));
+    const printableRatio =
+      utf8String.split("").filter((c) => {
+        const code = c.charCodeAt(0);
+        return (
+          (code >= 32 && code <= 126) ||
+          code === 10 ||
+          code === 13 ||
+          code === 9
+        );
+      }).length / utf8String.length;
+    return printableRatio > 0.8 ? utf8String : null;
+  } catch {
+    return null;
+  }
+});
+
+// What "view as text" should actually resolve to: valid UTF-8 first (even for
+// 32-byte values), then - only for exactly 32 bytes - the AVM address
+// encoding, and hex for everything else. Used both for the initial default
+// and whenever the UTF-8 button is (re)selected, so the highlighted button
+// always matches what's actually on screen instead of staying "UTF-8" while
+// silently displaying hex.
+function resolveTextEncoding(): Encoding {
+  if (utf8Value.value !== null) return "utf8";
+  if (isAddressAvailable.value) return "address";
+  return "hex";
+}
+
+const decodedValue = computed(() => {
+  if (!base64Value.value) return "";
+
+  switch (encoding.value) {
+    case "numeric":
+      return numericValue.value?.toString() || "";
+    case "base64":
+      return base64Value.value;
+    case "hex":
+      return hexValue.value;
+    case "address":
+      return addressValue.value ?? hexValue.value;
+    case "utf8":
+    default:
+      return utf8Value.value ?? hexValue.value;
+  }
+});
+
+// Auto-detect encoding on mount and whenever the value changes.
 watch(
   () => props.value,
   (newValue) => {
@@ -193,8 +225,11 @@ watch(
       return;
     }
 
-    // Reset to default encoding when value changes
-    encoding.value = props.defaultEncoding;
+    // Otherwise resolve the same way the UTF-8 button does, so an explicit
+    // defaultEncoding (e.g. "hex" for a block hash) still wins outright, and
+    // only the default "utf8" family gets auto-resolved to utf8/address/hex.
+    encoding.value =
+      props.defaultEncoding === "utf8" ? resolveTextEncoding() : props.defaultEncoding;
   },
   { immediate: true },
 );
