@@ -444,6 +444,7 @@
   "applicationDetails": {
     "title": "应用详情",
     "appIdLabel": "应用ID",
+    "applicationAddress": "应用地址",
     "creator": "创建者",
     "version": "版本",
     "extraProgramPages": "额外程序页数",

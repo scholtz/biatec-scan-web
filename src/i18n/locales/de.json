@@ -444,6 +444,7 @@
   "applicationDetails": {
     "title": "Anwendungsdetails",
     "appIdLabel": "Anwendungs-ID",
+    "applicationAddress": "Anwendungsadresse",
     "creator": "Ersteller",
     "version": "Version",
     "extraProgramPages": "Zusätzliche Programmseiten",

@@ -29,6 +29,21 @@
             <p class="text-white font-medium text-lg">{{ appId }}</p>
           </div>
           <div
+            v-if="applicationAddress"
+            class="bg-dark-900 p-4 rounded-lg border border-gray-700"
+          >
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.applicationAddress") }}</p>
+            <router-link
+              :to="{
+                name: 'AddressDetails',
+                params: { address: applicationAddress },
+              }"
+              class="text-purple-400 hover:text-purple-300 font-mono text-sm break-all"
+            >
+              {{ formatAddress(applicationAddress) }}
+            </router-link>
+          </div>
+          <div
             v-if="application.params?.creator"
             class="bg-dark-900 p-4 rounded-lg border border-gray-700"
           >
@@ -253,7 +268,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import { algorandService } from "../services/algorandService";
 import { isAlgorandMainnet } from "../config/env";
@@ -275,6 +290,18 @@ const formatAddress = (address: string): string => {
   if (!address) return "";
   return `${address.slice(0, 8)}...${address.slice(-8)}`;
 };
+
+// Every app has an escrow account address derived from its ID, independent
+// of the app's own params - it's meaningful (and shown) even before/while
+// application.value has loaded, as long as appId itself is valid.
+const applicationAddress = computed(() => {
+  if (!appId.value) return "";
+  try {
+    return algosdk.getApplicationAddress(BigInt(appId.value)).toString();
+  } catch {
+    return "";
+  }
+});
 
 const loadApplication = async (id: string) => {
   isLoading.value = true;
