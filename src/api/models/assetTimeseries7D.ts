@@ -229,7 +229,9 @@ import type { TimeseriesCandles } from './timeseriesCandles';
 export interface AssetTimeseries7D {
   /** ASA id (0 = ALGO). */
   assetId?: number;
+  /** Hourly USD price OHLC candles for the last 7 days. Empty when the asset had no priced trades. */
   price?: TimeseriesCandles;
+  /** Hourly real TVL (USD) OHLC candles for the last 7 days. Grows as snapshots accumulate. */
   tvl?: TimeseriesCandles;
   /** When this series was computed. */
   generatedAt?: string;
