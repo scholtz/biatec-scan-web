@@ -28,7 +28,12 @@
             </td>
             <td class="px-4 py-3 align-top text-sm text-white font-mono">
               <BufferDisplay v-if="item.value.type === 1" :value="item.value.bytes" />
-              <span v-else>{{ item.value.uint }}</span>
+              <BufferDisplay
+                v-else
+                :value="uintToBytes(item.value.uint)"
+                default-encoding="numeric"
+                :allowUTF8="false"
+              />
             </td>
           </tr>
         </tbody>
@@ -52,4 +57,19 @@ defineProps({
     required: true,
   },
 });
+
+// AVM global/local state uints are 64-bit; encode big-endian so BufferDisplay's
+// own big-endian numeric decoder round-trips it, and hex/base64 toggles show
+// the same bytes the chain actually stores.
+const UINT64_BYTE_LENGTH = 8;
+
+const uintToBytes = (value: bigint): Uint8Array => {
+  const bytes = new Uint8Array(UINT64_BYTE_LENGTH);
+  let remaining = value;
+  for (let i = UINT64_BYTE_LENGTH - 1; i >= 0; i--) {
+    bytes[i] = Number(remaining & 0xffn);
+    remaining >>= 8n;
+  }
+  return bytes;
+};
 </script>
