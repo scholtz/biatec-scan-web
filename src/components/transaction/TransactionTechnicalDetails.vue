@@ -79,6 +79,7 @@
           v-if="transaction.genesisHash"
           :value="transaction.genesisHash"
           :title="$t('transaction.genesisHash')"
+          :allowUTF8="false"
           default-encoding="hex"
         />
         <div v-else>

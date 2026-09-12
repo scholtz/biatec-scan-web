@@ -228,8 +228,12 @@ watch(
     // Otherwise resolve the same way the UTF-8 button does, so an explicit
     // defaultEncoding (e.g. "hex" for a block hash) still wins outright, and
     // only the default "utf8" family gets auto-resolved to utf8/address/hex.
+    // Skipped when allowUTF8 is false - callers that disable text-guessing
+    // shouldn't pay for the address checksum computation either.
     encoding.value =
-      props.defaultEncoding === "utf8" ? resolveTextEncoding() : props.defaultEncoding;
+      props.allowUTF8 && props.defaultEncoding === "utf8"
+        ? resolveTextEncoding()
+        : props.defaultEncoding;
   },
   { immediate: true },
 );
