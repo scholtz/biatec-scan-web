@@ -262,6 +262,15 @@
       <p class="text-gray-400 mb-4">
         {{ $t("applicationDetails.notFoundBody") }}
       </p>
+      <p v-if="applicationAddress" class="text-sm text-gray-500 mb-4">
+        {{ $t("applicationDetails.applicationAddress") }}:
+        <router-link
+          :to="{ name: 'AddressDetails', params: { address: applicationAddress } }"
+          class="text-purple-400 hover:text-purple-300 font-mono break-all"
+        >
+          {{ applicationAddress }}
+        </router-link>
+      </p>
       <router-link to="/" class="btn-primary">{{ $t("common.backToDashboard") }}</router-link>
     </div>
   </div>
