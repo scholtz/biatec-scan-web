@@ -17,6 +17,11 @@ class AlgorandService {
   getAlgodClient(): algosdk.Algodv2 {
     return this.algodClient;
   }
+
+  getIndexerClient(): algosdk.Indexer {
+    return this.indexerClient;
+  }
+
   async getLatestBlocks(limit: number = 20): Promise<algosdk.BlockHeader[]> {
     try {
       // Get current status to find the latest round
@@ -140,28 +145,6 @@ class AlgorandService {
 
       return null;
     }
-  }
-
-  async searchById(id: string): Promise<
-    | { type: "block"; data: algosdk.BlockHeader }
-    | { type: "transaction"; data: algosdk.indexerModels.Transaction }
-    | null
-  > {
-    // Try as block number first
-    if (!isNaN(Number(id))) {
-      const block = await this.getBlock(BigInt(id));
-      if (block) {
-        return { type: "block", data: block };
-      }
-    }
-
-    // Try as transaction ID
-    const transaction = await this.getTransaction(id);
-    if (transaction) {
-      return { type: "transaction", data: transaction };
-    }
-
-    return null;
   }
 
   formatAlgoAmount(microAlgos: number | bigint): string {

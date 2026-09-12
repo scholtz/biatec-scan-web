@@ -98,24 +98,19 @@
               {{ example.label }}
             </button>
             <span
-              v-if="isAssetQuery"
+              v-if="queryKind === 'numeric'"
               class="px-2 py-1 rounded bg-blue-500/20 text-blue-300"
-              >Asset ID Detected</span
+              >{{ $t("search.idDetected") }}</span
             >
             <span
-              v-else-if="isBlockQuery"
-              class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300"
-              >Block Detected</span
-            >
-            <span
-              v-else-if="isTxQuery"
+              v-else-if="queryKind === 'transaction'"
               class="px-2 py-1 rounded bg-indigo-500/20 text-indigo-300"
-              >Transaction Detected</span
+              >{{ $t("search.transactionDetected") }}</span
             >
             <span
-              v-else-if="isAddressQuery"
+              v-else-if="queryKind === 'address'"
               class="px-2 py-1 rounded bg-purple-500/20 text-purple-300"
-              >Address Detected</span
+              >{{ $t("search.addressDetected") }}</span
             >
           </div>
         </div>
@@ -141,6 +136,148 @@
         >
           New Search
         </button>
+      </div>
+
+      <!-- On-chain matches (direct algod / indexer lookups) -->
+      <div v-if="chainHitCount > 0" class="space-y-4 animate-slide-up">
+        <h3 class="text-lg font-medium text-white flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-primary-400"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
+          </svg>
+          {{ $t("search.onChainTitle") }} ({{ chainHitCount }})
+        </h3>
+        <p class="text-sm text-gray-400">
+          {{ $t("search.onChainDescription") }}
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Asset -->
+          <div
+            v-if="chainAsset"
+            data-testid="chain-hit-asset"
+            @click="navigateToAsset(chainAsset.id)"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <div class="text-xs uppercase tracking-wide text-blue-300 mb-1">
+              {{ $t("search.asset") }}
+            </div>
+            <div class="text-white font-medium truncate">
+              {{
+                chainAsset.name ||
+                chainAsset.unitName ||
+                `Asset ${chainAsset.id.toString()}`
+              }}
+            </div>
+            <div class="text-sm text-gray-400">
+              ID: {{ chainAsset.id.toString() }}
+              <span v-if="chainAsset.unitName" class="text-gray-500">
+                · {{ chainAsset.unitName }}</span
+              >
+            </div>
+            <div class="text-xs text-gray-500 font-mono truncate">
+              {{ $t("search.creator") }}: {{ formatAddress(chainAsset.creator) }}
+            </div>
+          </div>
+
+          <!-- Application -->
+          <div
+            v-if="chainApplication"
+            data-testid="chain-hit-application"
+            @click="navigateToApplication(chainApplication.id)"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <div class="text-xs uppercase tracking-wide text-cyan-300 mb-1">
+              {{ $t("search.application") }}
+            </div>
+            <div class="text-white font-medium">
+              ID: {{ chainApplication.id.toString() }}
+            </div>
+            <div class="text-xs text-gray-500 font-mono truncate">
+              {{ $t("search.creator") }}:
+              {{ formatAddress(chainApplication.creator) }}
+            </div>
+          </div>
+
+          <!-- Block -->
+          <div
+            v-if="chainBlock"
+            data-testid="chain-hit-block"
+            @click="navigateToBlock(chainBlock.round)"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <div class="text-xs uppercase tracking-wide text-emerald-300 mb-1">
+              {{ $t("search.block") }}
+            </div>
+            <div class="text-white font-medium">
+              {{ $t("search.round") }}: {{ chainBlock.round.toString() }}
+            </div>
+            <div class="text-sm text-gray-400">
+              <FormattedTime :timestamp="chainBlock.timestamp" format="both" />
+            </div>
+          </div>
+
+          <!-- Account -->
+          <div
+            v-if="chainAccount"
+            data-testid="chain-hit-account"
+            @click="navigateToAddress(chainAccount.address)"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <div class="text-xs uppercase tracking-wide text-purple-300 mb-1">
+              {{ $t("search.account") }}
+            </div>
+            <div class="text-white font-mono text-sm truncate">
+              {{ formatAddress(chainAccount.address) }}
+            </div>
+            <div class="text-sm text-gray-400">
+              {{ $t("search.balance") }}:
+              {{ formatNativeBalance(chainAccount.amount) }}
+            </div>
+            <div class="text-xs text-gray-500">
+              {{
+                $t("search.optedIn", {
+                  assets: chainAccount.totalAssetsOptedIn,
+                  apps: chainAccount.totalAppsOptedIn,
+                })
+              }}
+            </div>
+          </div>
+
+          <!-- Transaction -->
+          <div
+            v-if="chainTransaction"
+            data-testid="chain-hit-transaction"
+            @click="navigateToTransaction(chainTransaction.txId)"
+            class="card hover:bg-dark-800/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <div class="text-xs uppercase tracking-wide text-indigo-300 mb-1">
+              {{ $t("search.transaction") }}
+            </div>
+            <div class="text-white font-mono text-sm truncate">
+              {{ chainTransaction.txId }}
+            </div>
+            <div class="text-sm text-gray-400">
+              {{ chainTransaction.txType }}
+              <span v-if="chainTransaction.round !== null">
+                · {{ $t("search.round") }}:
+                {{ chainTransaction.round.toString() }}</span
+              >
+              <span v-else> · {{ $t("search.pending") }}</span>
+            </div>
+            <div class="text-xs text-gray-500 font-mono truncate">
+              {{ $t("search.sender") }}:
+              {{ formatAddress(chainTransaction.sender) }}
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Assets Section -->
@@ -604,14 +741,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getAVMTradeReporterAPI } from "../api";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
+import FormattedTime from "../components/FormattedTime.vue";
 import type { SearchResponse, BiatecAsset, Pool } from "../api/models";
 import algosdk from "algosdk";
+import { algorandService } from "../services/algorandService";
+import {
+  emptyChainHits,
+  probeChain,
+  type ChainSearchHits,
+} from "../services/chainSearchService";
+import { classifySearchQuery } from "../utils/searchQuery";
+import { nativeTokenUnit } from "../config/env";
+
+/** Upper bound on how long the best-effort node probes may take. */
+const CHAIN_PROBE_TIMEOUT_MS = 8000;
 
 const route = useRoute();
 const router = useRouter();
@@ -619,11 +768,58 @@ const { t, locale } = useI18n();
 const api = getAVMTradeReporterAPI();
 const searchQuery = ref("");
 const searchResult = ref<SearchResponse | null>(null);
+const chainHits = ref<ChainSearchHits>(emptyChainHits());
 const blockTransactions = ref<algosdk.indexerModels.Transaction[]>([]);
 const isSearching = ref(false);
 const hasSearched = ref(false);
 const lastSearchQuery = ref("");
 const currentPage = ref(1);
+// Incremented per search so late responses from a superseded or reset
+// search are dropped instead of overwriting the current view.
+let searchRequestId = 0;
+
+// On-chain hits are only shown when the backend index didn't already return
+// the same entity, so a result never appears twice on the page. Applications
+// have no backend counterpart, so they need no dedup.
+const chainAsset = computed(() => {
+  const hit = chainHits.value.asset;
+  if (!hit) return null;
+  const id = hit.id.toString();
+  return searchResult.value?.assets?.some((a) => String(a.index) === id)
+    ? null
+    : hit;
+});
+const chainApplication = computed(() => chainHits.value.application);
+const chainBlock = computed(() => {
+  const hit = chainHits.value.block;
+  if (!hit) return null;
+  const round = hit.round.toString();
+  return searchResult.value?.blocks?.some((b) => String(b) === round)
+    ? null
+    : hit;
+});
+const chainAccount = computed(() => {
+  const hit = chainHits.value.account;
+  if (!hit) return null;
+  return searchResult.value?.addresses?.includes(hit.address) ? null : hit;
+});
+const chainTransaction = computed(() => {
+  const hit = chainHits.value.transaction;
+  if (!hit) return null;
+  return searchResult.value?.trades?.some((tr) => tr.txId === hit.txId)
+    ? null
+    : hit;
+});
+const chainHitCount = computed(
+  () =>
+    [
+      chainAsset.value,
+      chainApplication.value,
+      chainBlock.value,
+      chainAccount.value,
+      chainTransaction.value,
+    ].filter((hit) => hit !== null).length
+);
 
 // Computed properties for result counts and detection
 const totalResults = computed(() => {
@@ -634,47 +830,38 @@ const totalResults = computed(() => {
     (searchResult.value.aggregatedPools?.length || 0) +
     (searchResult.value.addresses?.length || 0) +
     (searchResult.value.blocks?.length || 0) +
-    (searchResult.value.trades?.length || 0)
+    (searchResult.value.trades?.length || 0) +
+    chainHitCount.value
   );
 });
 
 const hasResults = computed(() => totalResults.value > 0);
 
-// Detection for input type to show hints (order matters - more specific first)
-const isBlockQuery = computed(() => {
-  const value = searchQuery.value.trim();
-  const num = parseInt(value);
-  return /^\d{1,12}$/.test(value) && num <= 999999999; // Blocks up to ~1B
-});
-const isTxQuery = computed(() =>
-  /^[A-Z0-9]{40,}$/.test(searchQuery.value.trim())
+// Detection for input type to show hints
+const queryKind = computed(() => classifySearchQuery(searchQuery.value));
+const isLastQueryTx = computed(
+  () => classifySearchQuery(lastSearchQuery.value) === "transaction"
 );
-const isLastQueryTx = computed(() =>
-  /^[A-Z0-9]{40,}$/.test(lastSearchQuery.value.trim())
-);
-const isAddressQuery = computed(() =>
-  /^[A-Z0-9]{58}$/.test(searchQuery.value.trim())
-);
-const isAssetQuery = computed(() => {
-  const value = searchQuery.value.trim();
-  const num = parseInt(value);
-  return /^\d{6,}$/.test(value) && (num > 999999999 || value.length >= 9); // Asset IDs are typically very large
-});
 
 const inputPlaceholder = computed(() => {
-  if (isAssetQuery.value) return "Asset ID detected - press Enter to search";
-  if (isBlockQuery.value)
-    return "Block number detected - press Enter to search";
-  if (isTxQuery.value) return "Transaction ID detected - press Enter to search";
-  if (isAddressQuery.value) return "Address detected - press Enter to search";
-  return "Search assets, pools, blocks, transactions, addresses...";
+  switch (queryKind.value) {
+    case "numeric":
+      return t("search.idPlaceholder");
+    case "transaction":
+      return t("search.txPlaceholder");
+    case "address":
+      return t("search.addressPlaceholder");
+    default:
+      return t("search.defaultPlaceholder");
+  }
 });
 const sampleQueries = computed(() => [
   { label: t("search.exampleAsset"), value: "452399768" },
   { label: t("search.exampleBlock"), value: "50000000" },
   {
     label: t("search.exampleAddress"),
-    value: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    // Zero address (32 zero bytes + checksum): checksum-valid on every network.
+    value: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
   },
 ]);
 
@@ -685,26 +872,56 @@ const performSearch = async () => {
   hasSearched.value = true;
   lastSearchQuery.value = searchQuery.value.trim();
   searchResult.value = null;
+  chainHits.value = emptyChainHits();
   blockTransactions.value = [];
   currentPage.value = 1;
 
-  try {
-    const response = await api.getApiSearch({ q: lastSearchQuery.value });
-    searchResult.value = response.data;
-  } catch (error) {
-    console.error("Search error:", error);
-    // Set empty result to show "No Results" message
-    searchResult.value = {
-      assets: null,
-      pools: null,
-      aggregatedPools: null,
-      addresses: null,
-      blocks: null,
-      trades: null,
-    };
-  }
+  const query = lastSearchQuery.value;
+  const requestId = ++searchRequestId;
+  const isCurrent = () => requestId === searchRequestId;
 
-  isSearching.value = false;
+  // The backend index and the direct node probes are independent: each
+  // renders as soon as it settles, so a slow node never delays backend
+  // results (and vice versa).
+  const backendDone = api
+    .getApiSearch({ q: query })
+    .then((response) => {
+      if (isCurrent()) searchResult.value = response.data;
+    })
+    .catch((error: unknown) => {
+      if (!isCurrent()) return;
+      console.error("Search error:", error);
+      // Set empty result so the "No Results" message (or chain hits) can render
+      searchResult.value = {
+        assets: null,
+        pools: null,
+        aggregatedPools: null,
+        addresses: null,
+        blocks: null,
+        trades: null,
+      };
+    })
+    .finally(() => {
+      if (isCurrent()) isSearching.value = false;
+    });
+
+  const chainDone = Promise.race([
+    probeChain(query),
+    new Promise<ChainSearchHits>((_, reject) =>
+      setTimeout(
+        () => reject(new Error("chain probe timed out")),
+        CHAIN_PROBE_TIMEOUT_MS
+      )
+    ),
+  ])
+    .then((hits) => {
+      if (isCurrent()) chainHits.value = hits;
+    })
+    .catch((error: unknown) => {
+      if (isCurrent()) console.warn("Chain probe unavailable:", error);
+    });
+
+  await Promise.all([backendDone, chainDone]);
 };
 
 function prefillExample(val: string) {
@@ -713,11 +930,21 @@ function prefillExample(val: string) {
 }
 
 function resetSearch() {
+  // Invalidate any in-flight search so its late response can't repopulate
+  // the page the user just cleared.
+  searchRequestId++;
+  isSearching.value = false;
   searchQuery.value = "";
+  lastSearchQuery.value = "";
   searchResult.value = null;
+  chainHits.value = emptyChainHits();
   hasSearched.value = false;
   blockTransactions.value = [];
   currentPage.value = 1;
+}
+
+function formatNativeBalance(microUnits: bigint): string {
+  return `${algorandService.formatAlgoAmount(microUnits)} ${nativeTokenUnit}`;
 }
 
 // Format functions for display
@@ -742,8 +969,9 @@ function formatAddress(address: string): string {
 }
 
 // Navigation functions for clickable results
-function navigateToAsset(assetId: number) {
-  router.push(`/asset/${assetId}`);
+// Ids are routed as strings so on-chain bigint ids above 2^53 survive intact.
+function navigateToAsset(assetId: number | bigint) {
+  router.push(`/asset/${assetId.toString()}`);
 }
 
 function navigateToPool(poolAddress: string) {
@@ -760,8 +988,12 @@ function navigateToAddress(address: string) {
   router.push(`/address/${address}`);
 }
 
-function navigateToBlock(blockNumber: number) {
-  router.push(`/block/${blockNumber}`);
+function navigateToApplication(appId: bigint) {
+  router.push(`/application/${appId.toString()}`);
+}
+
+function navigateToBlock(blockNumber: number | bigint) {
+  router.push(`/block/${blockNumber.toString()}`);
 }
 
 function navigateToTransaction(txId: string) {
@@ -770,7 +1002,8 @@ function navigateToTransaction(txId: string) {
   }
 }
 
-// Handle URL query parameter
+// Handle URL query parameter (immediate covers the initial mount, so the
+// same query is never searched twice on load).
 watch(
   () => route.query.q,
   (newQuery) => {
@@ -778,14 +1011,7 @@ watch(
       searchQuery.value = newQuery;
       performSearch();
     }
-  }
+  },
+  { immediate: true }
 );
-
-onMounted(() => {
-  const queryParam = route.query.q;
-  if (queryParam && typeof queryParam === "string") {
-    searchQuery.value = queryParam;
-    performSearch();
-  }
-});
 </script>
