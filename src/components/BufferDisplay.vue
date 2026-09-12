@@ -28,7 +28,7 @@
           UTF-8
         </button>
         <button
-          v-if="isAddressAvailable"
+          v-if="props.allowUTF8 && isAddressAvailable"
           @click="encoding = 'address'"
           :class="
             encoding === 'address'
@@ -37,7 +37,7 @@
           "
           class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
         >
-          Address
+          {{ $t("common.address") }}
         </button>
         <button
           @click="encoding = 'base64'"

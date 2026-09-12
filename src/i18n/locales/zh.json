@@ -69,7 +69,8 @@
     "status": "状态",
     "created": "创建时间",
     "updated": "更新时间",
-    "close": "关闭"
+    "close": "关闭",
+    "address": "地址"
   },
   "table": {
     "columns": "列",

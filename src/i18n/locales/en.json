@@ -69,7 +69,8 @@
     "created": "Created",
     "updated": "Updated",
     "backToDashboard": "Back to Dashboard",
-    "close": "Close"
+    "close": "Close",
+    "address": "Address"
   },
   "table": {
     "columns": "Columns",
