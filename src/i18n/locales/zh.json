@@ -198,7 +198,22 @@
     "blockPlaceholder": "检测到区块号 - 按 Enter 搜索",
     "txPlaceholder": "检测到交易 ID - 按 Enter 搜索",
     "addressPlaceholder": "检测到地址 - 按 Enter 搜索",
-    "defaultPlaceholder": "搜索资产、资金池、区块、交易、地址..."
+    "defaultPlaceholder": "搜索资产、资金池、区块、交易、地址...",
+    "idDetected": "检测到资产 / 应用 / 区块 ID",
+    "idPlaceholder": "检测到数字 ID - 按 Enter 搜索资产、应用和区块",
+    "onChainTitle": "链上匹配",
+    "onChainDescription": "直接从网络节点查询。这些结果可能尚未收录到 DEX 索引中。",
+    "asset": "资产",
+    "application": "应用",
+    "block": "区块",
+    "account": "账户",
+    "transaction": "交易",
+    "creator": "创建者",
+    "round": "轮次",
+    "txnCount": "{count} 笔交易",
+    "balance": "余额",
+    "optedIn": "已加入：{assets} 个资产，{apps} 个应用",
+    "sender": "发送方"
   },
   "trades": {
     "title": "交易",

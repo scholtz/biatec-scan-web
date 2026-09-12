@@ -198,7 +198,22 @@
     "blockPlaceholder": "Číslo bloku rozpoznané - stlač Enter na vyhľadanie",
     "txPlaceholder": "ID transakcie rozpoznané - stlač Enter na vyhľadanie",
     "addressPlaceholder": "Adresa rozpoznaná - stlač Enter na vyhľadanie",
-    "defaultPlaceholder": "Vyhľadať assety, pooly, bloky, transakcie, adresy..."
+    "defaultPlaceholder": "Vyhľadať assety, pooly, bloky, transakcie, adresy...",
+    "idDetected": "Zistené ID aktíva / aplikácie / bloku",
+    "idPlaceholder": "Zistené číselné ID - stlačte Enter pre vyhľadanie aktív, aplikácií a blokov",
+    "onChainTitle": "Zhody na blockchaine",
+    "onChainDescription": "Vyhľadané priamo na uzle siete. Nemusia ešte byť v indexe DEX.",
+    "asset": "Aktívum",
+    "application": "Aplikácia",
+    "block": "Blok",
+    "account": "Účet",
+    "transaction": "Transakcia",
+    "creator": "Tvorca",
+    "round": "Kolo",
+    "txnCount": "{count} transakcií",
+    "balance": "Zostatok",
+    "optedIn": "Prihlásené: {assets} aktív, {apps} aplikácií",
+    "sender": "Odosielateľ"
   },
   "trades": {
     "title": "Obchody",

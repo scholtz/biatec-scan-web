@@ -198,7 +198,22 @@
     "blockPlaceholder": "Blokk szám felismerve - nyomja meg az Enter-t a kereséshez",
     "txPlaceholder": "Tranzakció ID felismerve - nyomja meg az Enter-t a kereséshez",
     "addressPlaceholder": "Cím felismerve - nyomja meg az Enter-t a kereséshez",
-    "defaultPlaceholder": "Eszközök, poolok, blokkok, tranzakciók, címek keresése..."
+    "defaultPlaceholder": "Eszközök, poolok, blokkok, tranzakciók, címek keresése...",
+    "idDetected": "Eszköz / alkalmazás / blokk azonosító észlelve",
+    "idPlaceholder": "Numerikus azonosító észlelve - nyomj Entert az eszközök, alkalmazások és blokkok kereséséhez",
+    "onChainTitle": "Láncon talált egyezések",
+    "onChainDescription": "Közvetlenül a hálózati csomóponton lekérdezve. Lehet, hogy még nincsenek a DEX indexben.",
+    "asset": "Eszköz",
+    "application": "Alkalmazás",
+    "block": "Blokk",
+    "account": "Fiók",
+    "transaction": "Tranzakció",
+    "creator": "Létrehozó",
+    "round": "Kör",
+    "txnCount": "{count} tranzakció",
+    "balance": "Egyenleg",
+    "optedIn": "Csatlakozva: {assets} eszköz, {apps} alkalmazás",
+    "sender": "Küldő"
   },
   "trades": {
     "title": "Kereskedések",

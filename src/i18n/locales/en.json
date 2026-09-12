@@ -198,7 +198,22 @@
     "blockPlaceholder": "Block number detected - press Enter to search",
     "txPlaceholder": "Transaction ID detected - press Enter to search",
     "addressPlaceholder": "Address detected - press Enter to search",
-    "defaultPlaceholder": "Search assets, pools, blocks, transactions, addresses..."
+    "defaultPlaceholder": "Search assets, pools, blocks, transactions, addresses...",
+    "idDetected": "Asset / application / block ID detected",
+    "idPlaceholder": "Numeric ID detected - press Enter to search assets, applications and blocks",
+    "onChainTitle": "On-chain matches",
+    "onChainDescription": "Looked up directly on the network node. These may not be in the DEX index yet.",
+    "asset": "Asset",
+    "application": "Application",
+    "block": "Block",
+    "account": "Account",
+    "transaction": "Transaction",
+    "creator": "Creator",
+    "round": "Round",
+    "txnCount": "{count} transactions",
+    "balance": "Balance",
+    "optedIn": "Opted in: {assets} assets, {apps} apps",
+    "sender": "Sender"
   },
   "trades": {
     "title": "Trades",

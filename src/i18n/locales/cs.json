@@ -198,7 +198,22 @@
     "blockPlaceholder": "Číslo bloku rozpoznáno - stiskni Enter pro vyhledání",
     "txPlaceholder": "ID transakce rozpoznáno - stiskni Enter pro vyhledání",
     "addressPlaceholder": "Adresa rozpoznána - stiskni Enter pro vyhledání",
-    "defaultPlaceholder": "Vyhledat assety, pooly, bloky, transakce, adresy..."
+    "defaultPlaceholder": "Vyhledat assety, pooly, bloky, transakce, adresy...",
+    "idDetected": "Zjištěno ID aktiva / aplikace / bloku",
+    "idPlaceholder": "Zjištěno číselné ID - stiskněte Enter pro vyhledání aktiv, aplikací a bloků",
+    "onChainTitle": "Shody na blockchainu",
+    "onChainDescription": "Vyhledáno přímo na uzlu sítě. Nemusí ještě být v indexu DEX.",
+    "asset": "Aktivum",
+    "application": "Aplikace",
+    "block": "Blok",
+    "account": "Účet",
+    "transaction": "Transakce",
+    "creator": "Tvůrce",
+    "round": "Kolo",
+    "txnCount": "{count} transakcí",
+    "balance": "Zůstatek",
+    "optedIn": "Přihlášeno: {assets} aktiv, {apps} aplikací",
+    "sender": "Odesílatel"
   },
   "trades": {
     "title": "Obchody",

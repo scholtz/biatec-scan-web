@@ -198,7 +198,22 @@
     "blockPlaceholder": "Blocknummer erkannt - Enter zum Suchen drücken",
     "txPlaceholder": "Transaktions-ID erkannt - Enter zum Suchen drücken",
     "addressPlaceholder": "Adresse erkannt - Enter zum Suchen drücken",
-    "defaultPlaceholder": "Assets, Pools, Blöcke, Transaktionen, Adressen suchen..."
+    "defaultPlaceholder": "Assets, Pools, Blöcke, Transaktionen, Adressen suchen...",
+    "idDetected": "Asset- / Anwendungs- / Block-ID erkannt",
+    "idPlaceholder": "Numerische ID erkannt - Enter drücken, um Assets, Anwendungen und Blöcke zu suchen",
+    "onChainTitle": "On-Chain-Treffer",
+    "onChainDescription": "Direkt beim Netzwerkknoten nachgeschlagen. Diese sind möglicherweise noch nicht im DEX-Index.",
+    "asset": "Asset",
+    "application": "Anwendung",
+    "block": "Block",
+    "account": "Konto",
+    "transaction": "Transaktion",
+    "creator": "Ersteller",
+    "round": "Runde",
+    "txnCount": "{count} Transaktionen",
+    "balance": "Guthaben",
+    "optedIn": "Opt-in: {assets} Assets, {apps} Apps",
+    "sender": "Absender"
   },
   "trades": {
     "title": "Trades",
