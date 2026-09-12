@@ -190,12 +190,8 @@
     "exampleAsset": "Пример актива",
     "exampleBlock": "Пример блока",
     "exampleAddress": "Пример адреса",
-    "assetDetected": "Обнаружен ID актива",
-    "blockDetected": "Обнаружен блок",
     "transactionDetected": "Обнаружена транзакция",
     "addressDetected": "Обнаружен адрес",
-    "assetPlaceholder": "ID актива обнаружен - нажмите Enter для поиска",
-    "blockPlaceholder": "Номер блока обнаружен - нажмите Enter для поиска",
     "txPlaceholder": "ID транзакции обнаружен - нажмите Enter для поиска",
     "addressPlaceholder": "Адрес обнаружен - нажмите Enter для поиска",
     "defaultPlaceholder": "Поиск активов, пулов, блоков, транзакций, адресов...",
@@ -210,10 +206,10 @@
     "transaction": "Транзакция",
     "creator": "Создатель",
     "round": "Раунд",
-    "txnCount": "Транзакций: {count}",
     "balance": "Баланс",
     "optedIn": "Подключено: активов {assets}, приложений {apps}",
-    "sender": "Отправитель"
+    "sender": "Отправитель",
+    "pending": "Ожидает подтверждения"
   },
   "trades": {
     "title": "Торги",

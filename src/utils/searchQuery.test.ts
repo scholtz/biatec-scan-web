@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  accountHasChainState,
   classifySearchQuery,
   isAddressLike,
   isNumericId,
@@ -65,5 +66,27 @@ describe("classifySearchQuery", () => {
     expect(classifySearchQuery(TX_ID)).toBe("transaction");
     expect(classifySearchQuery("usdc")).toBe("text");
     expect(classifySearchQuery("A".repeat(58))).toBe("text");
+  });
+});
+
+describe("accountHasChainState", () => {
+  const empty = {
+    amount: BigInt(0),
+    totalAssetsOptedIn: 0,
+    totalAppsOptedIn: 0,
+    totalCreatedAssets: 0,
+    totalCreatedApps: 0,
+  };
+
+  it("treats the all-zero account algod returns for unknown addresses as absent", () => {
+    expect(accountHasChainState(empty)).toBe(false);
+  });
+
+  it("treats any balance, opt-in or created entity as present", () => {
+    expect(accountHasChainState({ ...empty, amount: BigInt(1) })).toBe(true);
+    expect(accountHasChainState({ ...empty, totalAssetsOptedIn: 1 })).toBe(true);
+    expect(accountHasChainState({ ...empty, totalAppsOptedIn: 1 })).toBe(true);
+    expect(accountHasChainState({ ...empty, totalCreatedAssets: 1 })).toBe(true);
+    expect(accountHasChainState({ ...empty, totalCreatedApps: 1 })).toBe(true);
   });
 });

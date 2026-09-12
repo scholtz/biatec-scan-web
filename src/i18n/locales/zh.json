@@ -190,12 +190,8 @@
     "exampleAsset": "示例资产",
     "exampleBlock": "示例区块",
     "exampleAddress": "示例地址",
-    "assetDetected": "检测到资产 ID",
-    "blockDetected": "检测到区块",
     "transactionDetected": "检测到交易",
     "addressDetected": "检测到地址",
-    "assetPlaceholder": "检测到资产 ID - 按 Enter 搜索",
-    "blockPlaceholder": "检测到区块号 - 按 Enter 搜索",
     "txPlaceholder": "检测到交易 ID - 按 Enter 搜索",
     "addressPlaceholder": "检测到地址 - 按 Enter 搜索",
     "defaultPlaceholder": "搜索资产、资金池、区块、交易、地址...",
@@ -210,10 +206,10 @@
     "transaction": "交易",
     "creator": "创建者",
     "round": "轮次",
-    "txnCount": "{count} 笔交易",
     "balance": "余额",
     "optedIn": "已加入：{assets} 个资产，{apps} 个应用",
-    "sender": "发送方"
+    "sender": "发送方",
+    "pending": "待确认"
   },
   "trades": {
     "title": "交易",

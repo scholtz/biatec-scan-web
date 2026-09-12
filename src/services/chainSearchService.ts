@@ -1,6 +1,9 @@
 import algosdk from "algosdk";
 import { algorandService } from "./algorandService";
-import { classifySearchQuery } from "../utils/searchQuery";
+import {
+  accountHasChainState,
+  classifySearchQuery,
+} from "../utils/searchQuery";
 
 export interface ChainAssetHit {
   id: bigint;
@@ -18,7 +21,6 @@ export interface ChainApplicationHit {
 export interface ChainBlockHit {
   round: bigint;
   timestamp: bigint;
-  txnCount: number;
 }
 
 export interface ChainAccountHit {
@@ -32,7 +34,8 @@ export interface ChainAccountHit {
 
 export interface ChainTransactionHit {
   txId: string;
-  round: bigint;
+  /** Null while the transaction is still pending (not yet confirmed). */
+  round: bigint | null;
   txType: string;
   sender: string;
 }
@@ -41,8 +44,8 @@ export interface ChainTransactionHit {
  * Entities that exist on-chain (per algod/indexer) for a search query. Each
  * slot is `null` when the query cannot be that kind of entity or when the
  * node reports it does not exist. Every probe is best-effort: a network or
- * node failure is treated as "not found" so backend search results still
- * render.
+ * node failure is logged and treated as "not found" so backend search
+ * results still render.
  */
 export interface ChainSearchHits {
   asset: ChainAssetHit | null;
@@ -52,29 +55,47 @@ export interface ChainSearchHits {
   transaction: ChainTransactionHit | null;
 }
 
-export const EMPTY_CHAIN_HITS: ChainSearchHits = Object.freeze({
-  asset: null,
-  application: null,
-  block: null,
-  account: null,
-  transaction: null,
-});
-
-export function countChainHits(hits: ChainSearchHits): number {
-  return [
-    hits.asset,
-    hits.application,
-    hits.block,
-    hits.account,
-    hits.transaction,
-  ].filter((hit) => hit !== null).length;
+export function emptyChainHits(): ChainSearchHits {
+  return {
+    asset: null,
+    application: null,
+    block: null,
+    account: null,
+    transaction: null,
+  };
 }
 
-async function probeAsset(
+/** True when the failed request was a plain "does not exist" answer. */
+function isNotFound(error: unknown): boolean {
+  // algosdk throws URLTokenBaseHTTPError, whose shape isn't exported as a
+  // type guard; we only need the numeric status off it.
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    error.status === 404
+  );
+}
+
+async function probe<T>(
+  label: string,
+  request: () => Promise<T | null>
+): Promise<T | null> {
+  try {
+    return await request();
+  } catch (e: unknown) {
+    if (!isNotFound(e)) {
+      console.warn(`Chain probe (${label}) failed:`, e);
+    }
+    return null;
+  }
+}
+
+function probeAsset(
   algod: algosdk.Algodv2,
   id: bigint
 ): Promise<ChainAssetHit | null> {
-  try {
+  return probe("asset", async () => {
     const asset = await algod.getAssetByID(id).do();
     if (!asset.params) return null;
     return {
@@ -84,47 +105,42 @@ async function probeAsset(
       decimals: Number(asset.params.decimals),
       creator: asset.params.creator,
     };
-  } catch {
-    return null;
-  }
+  });
 }
 
-async function probeApplication(
+function probeApplication(
   algod: algosdk.Algodv2,
   id: bigint
 ): Promise<ChainApplicationHit | null> {
-  try {
+  return probe("application", async () => {
     const app = await algod.getApplicationByID(id).do();
     if (!app.params) return null;
     return { id: app.id, creator: app.params.creator.toString() };
-  } catch {
-    return null;
-  }
+  });
 }
 
-async function probeBlock(
+function probeBlock(
   algod: algosdk.Algodv2,
   round: bigint
 ): Promise<ChainBlockHit | null> {
-  try {
-    const response = await algod.block(round).do();
+  return probe("block", async () => {
+    // Header only: the full block would pull every transaction in the
+    // round just to read two fields.
+    const response = await algod.block(round).headerOnly(true).do();
     return {
       round: response.block.header.round,
       timestamp: response.block.header.timestamp,
-      txnCount: response.block.payset.length,
     };
-  } catch {
-    return null;
-  }
+  });
 }
 
-async function probeAccount(
+function probeAccount(
   algod: algosdk.Algodv2,
   address: string
 ): Promise<ChainAccountHit | null> {
-  try {
+  return probe("account", async () => {
     const account = await algod.accountInformation(address).do();
-    return {
+    const hit: ChainAccountHit = {
       address: account.address,
       amount: account.amount,
       totalAssetsOptedIn: Number(account.totalAssetsOptedIn),
@@ -132,22 +148,30 @@ async function probeAccount(
       totalCreatedAssets: Number(account.totalCreatedAssets),
       totalCreatedApps: Number(account.totalCreatedApps),
     };
-  } catch {
-    return null;
-  }
+    return accountHasChainState(hit) ? hit : null;
+  });
 }
 
-async function probeTransaction(
+/**
+ * Transactions are the one probe that needs the indexer: algod only keeps
+ * pending and very recently confirmed transactions in memory, so a
+ * historical tx id can't be resolved from a node alone.
+ */
+function probeTransaction(
+  indexer: algosdk.Indexer,
   txId: string
 ): Promise<ChainTransactionHit | null> {
-  const tx = await algorandService.getTransaction(txId);
-  if (!tx || !tx.id) return null;
-  return {
-    txId: tx.id,
-    round: tx.confirmedRound ?? BigInt(0),
-    txType: tx.txType ?? "",
-    sender: tx.sender ?? "",
-  };
+  return probe("transaction", async () => {
+    const response = await indexer.lookupTransactionByID(txId).do();
+    const tx = response.transaction;
+    if (!tx.id) return null;
+    return {
+      txId: tx.id,
+      round: tx.confirmedRound ?? null,
+      txType: tx.txType ?? "",
+      sender: tx.sender ?? "",
+    };
+  });
 }
 
 /**
@@ -159,27 +183,29 @@ async function probeTransaction(
 export async function probeChain(query: string): Promise<ChainSearchHits> {
   const q = query.trim();
   const algod = algorandService.getAlgodClient();
-  const hits: ChainSearchHits = { ...EMPTY_CHAIN_HITS };
+  const empty = emptyChainHits();
 
   switch (classifySearchQuery(q)) {
     case "numeric": {
       const id = BigInt(q);
-      [hits.asset, hits.application, hits.block] = await Promise.all([
+      const [asset, application, block] = await Promise.all([
         probeAsset(algod, id),
         probeApplication(algod, id),
         probeBlock(algod, id),
       ]);
-      break;
+      return { ...empty, asset, application, block };
     }
     case "address":
-      hits.account = await probeAccount(algod, q);
-      break;
+      return { ...empty, account: await probeAccount(algod, q) };
     case "transaction":
-      hits.transaction = await probeTransaction(q);
-      break;
-    case "text":
-      break;
+      return {
+        ...empty,
+        transaction: await probeTransaction(
+          algorandService.getIndexerClient(),
+          q
+        ),
+      };
+    default:
+      return empty;
   }
-
-  return hits;
 }

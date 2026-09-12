@@ -190,12 +190,8 @@
     "exampleAsset": "Example Asset",
     "exampleBlock": "Example Block",
     "exampleAddress": "Example Address",
-    "assetDetected": "Asset ID Detected",
-    "blockDetected": "Block Detected",
     "transactionDetected": "Transaction Detected",
     "addressDetected": "Address Detected",
-    "assetPlaceholder": "Asset ID detected - press Enter to search",
-    "blockPlaceholder": "Block number detected - press Enter to search",
     "txPlaceholder": "Transaction ID detected - press Enter to search",
     "addressPlaceholder": "Address detected - press Enter to search",
     "defaultPlaceholder": "Search assets, pools, blocks, transactions, addresses...",
@@ -210,10 +206,10 @@
     "transaction": "Transaction",
     "creator": "Creator",
     "round": "Round",
-    "txnCount": "{count} transactions",
     "balance": "Balance",
     "optedIn": "Opted in: {assets} assets, {apps} apps",
-    "sender": "Sender"
+    "sender": "Sender",
+    "pending": "Pending"
   },
   "trades": {
     "title": "Trades",

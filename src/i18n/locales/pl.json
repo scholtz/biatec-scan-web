@@ -190,12 +190,8 @@
     "exampleAsset": "Przykładowy zasób",
     "exampleBlock": "Przykładowy blok",
     "exampleAddress": "Przykładowy adres",
-    "assetDetected": "Rozpoznane ID zasobu",
-    "blockDetected": "Rozpoznany blok",
     "transactionDetected": "Rozpoznana transakcja",
     "addressDetected": "Rozpoznany adres",
-    "assetPlaceholder": "Rozpoznane ID zasobu — naciśnij Enter, aby wyszukać",
-    "blockPlaceholder": "Rozpoznany numer bloku — naciśnij Enter, aby wyszukać",
     "txPlaceholder": "Rozpoznane ID transakcji — naciśnij Enter, aby wyszukać",
     "addressPlaceholder": "Rozpoznany adres — naciśnij Enter, aby wyszukać",
     "defaultPlaceholder": "Wyszukaj zasoby, pule, bloki, transakcje, adresy…",
@@ -210,10 +206,10 @@
     "transaction": "Transakcja",
     "creator": "Twórca",
     "round": "Runda",
-    "txnCount": "{count} transakcji",
     "balance": "Saldo",
     "optedIn": "Opt-in: {assets} aktywów, {apps} aplikacji",
-    "sender": "Nadawca"
+    "sender": "Nadawca",
+    "pending": "Oczekująca"
   },
   "trades": {
     "title": "Transakcje",

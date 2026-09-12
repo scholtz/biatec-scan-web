@@ -190,12 +190,8 @@
     "exampleAsset": "Példa eszköz",
     "exampleBlock": "Példa blokk",
     "exampleAddress": "Példa cím",
-    "assetDetected": "Eszköz ID felismerve",
-    "blockDetected": "Blokk felismerve",
     "transactionDetected": "Tranzakció felismerve",
     "addressDetected": "Cím felismerve",
-    "assetPlaceholder": "Eszköz ID felismerve - nyomja meg az Enter-t a kereséshez",
-    "blockPlaceholder": "Blokk szám felismerve - nyomja meg az Enter-t a kereséshez",
     "txPlaceholder": "Tranzakció ID felismerve - nyomja meg az Enter-t a kereséshez",
     "addressPlaceholder": "Cím felismerve - nyomja meg az Enter-t a kereséshez",
     "defaultPlaceholder": "Eszközök, poolok, blokkok, tranzakciók, címek keresése...",
@@ -210,10 +206,10 @@
     "transaction": "Tranzakció",
     "creator": "Létrehozó",
     "round": "Kör",
-    "txnCount": "{count} tranzakció",
     "balance": "Egyenleg",
     "optedIn": "Csatlakozva: {assets} eszköz, {apps} alkalmazás",
-    "sender": "Küldő"
+    "sender": "Küldő",
+    "pending": "Függőben"
   },
   "trades": {
     "title": "Kereskedések",

@@ -37,3 +37,24 @@ export function classifySearchQuery(query: string): SearchQueryKind {
   if (isTransactionIdLike(query)) return "transaction";
   return "text";
 }
+
+/**
+ * algod answers 200 with an all-zero account for any checksum-valid address,
+ * whether or not it ever existed on chain, so "exists" has to be inferred
+ * from the account having any state at all.
+ */
+export function accountHasChainState(account: {
+  amount: bigint;
+  totalAssetsOptedIn: number;
+  totalAppsOptedIn: number;
+  totalCreatedAssets: number;
+  totalCreatedApps: number;
+}): boolean {
+  return (
+    account.amount > BigInt(0) ||
+    account.totalAssetsOptedIn > 0 ||
+    account.totalAppsOptedIn > 0 ||
+    account.totalCreatedAssets > 0 ||
+    account.totalCreatedApps > 0
+  );
+}

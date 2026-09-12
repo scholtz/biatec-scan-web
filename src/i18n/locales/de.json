@@ -190,12 +190,8 @@
     "exampleAsset": "Beispiel-Asset",
     "exampleBlock": "Beispiel-Block",
     "exampleAddress": "Beispiel-Adresse",
-    "assetDetected": "Asset-ID erkannt",
-    "blockDetected": "Block erkannt",
     "transactionDetected": "Transaktion erkannt",
     "addressDetected": "Adresse erkannt",
-    "assetPlaceholder": "Asset-ID erkannt - Enter zum Suchen drücken",
-    "blockPlaceholder": "Blocknummer erkannt - Enter zum Suchen drücken",
     "txPlaceholder": "Transaktions-ID erkannt - Enter zum Suchen drücken",
     "addressPlaceholder": "Adresse erkannt - Enter zum Suchen drücken",
     "defaultPlaceholder": "Assets, Pools, Blöcke, Transaktionen, Adressen suchen...",
@@ -210,10 +206,10 @@
     "transaction": "Transaktion",
     "creator": "Ersteller",
     "round": "Runde",
-    "txnCount": "{count} Transaktionen",
     "balance": "Guthaben",
     "optedIn": "Opt-in: {assets} Assets, {apps} Apps",
-    "sender": "Absender"
+    "sender": "Absender",
+    "pending": "Ausstehend"
   },
   "trades": {
     "title": "Trades",

@@ -190,12 +190,8 @@
     "exampleAsset": "Ukázkový asset",
     "exampleBlock": "Ukázkový blok",
     "exampleAddress": "Ukázková adresa",
-    "assetDetected": "Rozpoznané ID assetu",
-    "blockDetected": "Rozpoznaný blok",
     "transactionDetected": "Rozpoznaná transakce",
     "addressDetected": "Rozpoznaná adresa",
-    "assetPlaceholder": "ID assetu rozpoznáno - stiskni Enter pro vyhledání",
-    "blockPlaceholder": "Číslo bloku rozpoznáno - stiskni Enter pro vyhledání",
     "txPlaceholder": "ID transakce rozpoznáno - stiskni Enter pro vyhledání",
     "addressPlaceholder": "Adresa rozpoznána - stiskni Enter pro vyhledání",
     "defaultPlaceholder": "Vyhledat assety, pooly, bloky, transakce, adresy...",
@@ -210,10 +206,10 @@
     "transaction": "Transakce",
     "creator": "Tvůrce",
     "round": "Kolo",
-    "txnCount": "{count} transakcí",
     "balance": "Zůstatek",
     "optedIn": "Přihlášeno: {assets} aktiv, {apps} aplikací",
-    "sender": "Odesílatel"
+    "sender": "Odesílatel",
+    "pending": "Čeká na potvrzení"
   },
   "trades": {
     "title": "Obchody",
