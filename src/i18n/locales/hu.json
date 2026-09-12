@@ -444,6 +444,7 @@
   "applicationDetails": {
     "title": "Alkalmazás részletei",
     "appIdLabel": "Alkalmazás ID",
+    "applicationAddress": "Alkalmazás címe",
     "creator": "Létrehozó",
     "version": "Verzió",
     "extraProgramPages": "Extra programoldalak",

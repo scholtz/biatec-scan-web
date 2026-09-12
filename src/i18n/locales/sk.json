@@ -444,6 +444,7 @@
   "applicationDetails": {
     "title": "Detaily aplikácie",
     "appIdLabel": "ID aplikácie",
+    "applicationAddress": "Adresa aplikácie",
     "creator": "Tvorca",
     "version": "Verzia",
     "extraProgramPages": "Extra stránky programu",

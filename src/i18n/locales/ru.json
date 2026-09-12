@@ -444,6 +444,7 @@
   "applicationDetails": {
     "title": "Информация о приложении",
     "appIdLabel": "ID приложения",
+    "applicationAddress": "Адрес приложения",
     "creator": "Создатель",
     "version": "Версия",
     "extraProgramPages": "Доп. страницы программы",
