@@ -60,7 +60,14 @@
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Protocol:</span>
-              <span class="text-purple-400">{{ poolInfo.protocol }}</span>
+              <span
+                :class="
+                  poolInfo.protocol === 'Scam'
+                    ? 'text-red-400 font-semibold'
+                    : 'text-purple-400'
+                "
+                >{{ poolInfo.protocol }}</span
+              >
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Asset A ID:</span>

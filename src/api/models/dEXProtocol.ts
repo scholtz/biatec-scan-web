@@ -227,4 +227,5 @@ export const DEXProtocol = {
   Pact: 'Pact',
   Tiny: 'Tiny',
   Biatec: 'Biatec',
+  Scam: 'Scam',
 } as const;
