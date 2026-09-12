@@ -118,6 +118,7 @@
  * - Swagger defines an API key scheme named arc14 (ARC-0014 Algorand authentication transaction transmitted in Authorization header)
  * - The SignalR pipeline moves access_token from query string to Authorization header for compatibility
  * - All REST endpoints require authentication ([Authorize]) except the following, which are intentionally public:
+ *   - GET /api/asset (asset list/lookup; the TradingView charting widget resolves asset id -> ticker via this endpoint with a plain unauthenticated fetch and has no ARC-14 signing capability - see AVMTradeReporterTests/Controllers/AssetControllerAuthorizationTests.cs)
  *   - GET /api/asset/image/{assetId} (asset image, embedded directly as an <img> src)
  *   - GET /api/Gossip/status (relay connectivity health check)
  *   - GET /api/Stats/dex (DefiLlama DEX stats adapter integration)
@@ -241,6 +242,7 @@ import type {
   GetApiPoolStatsParams,
   GetApiSearchParams,
   GetApiStatsDexParams,
+  GetApiTVLHistoryParams,
   GetApiTradeParams,
   GossipRelayStatus,
   Indexer,
@@ -280,7 +282,12 @@ const getApiAggregatedPoolReload = (
     }
 
 /**
- * @summary List assets from the in-memory cache (prefilled from Redis) or filter by IDs / search term.
+ * @summary List assets from the in-memory cache (prefilled from Redis, with Elasticsearch fallback) or filter by IDs / search term.
+Intentionally public (no authentication required): the TradingView charting widget
+(biatec-charting-widget, a separate unauthenticated browser client with no ARC-14 signing
+capability) resolves an asset id to its ticker/symbol via this endpoint with a plain
+fetch. Same public/read-only trust level as the asset image endpoint and the OHLC
+controller below, which stayed public for the same reason.
  */
 const getApiAsset = (
     params?: GetApiAssetParams,
@@ -659,7 +666,20 @@ const getApiTrade = (
       );
     }
 
-return {getApiAggregatedPool,getApiAggregatedPoolReload,getApiAsset,getApiAssetImageAssetId,getApiAssetStat,getApiAssetStatAssetId,getApiAssetTimeseries7d,getApiGossipStatus,getApiIndexerStatus,getApiLiquidity,getApiOHLCConfig,getApiOHLCTime,getApiOHLCSymbols,getApiOHLCSymbolInfo,getApiOHLCSearch,getApiOHLCMarks,getApiOHLCTimescaleMarks,getApiOHLCQuotes,getApiOHLCHistory,getApiPool,getApiPoolStats,getApiPoolReload,getApiSearch,getApiSignalrAuthTest,getApiSignalrAuthTestAuthorized,postApiSignalrTestBroadcast,postApiSignalrTestTrade,getApiSignalrConnections,getApiStatsDex,getApiAssetTop,getApiTrade}};
+/**
+ * @summary Returns hourly TVL (USD) bars for one asset over the trailing window ending now.
+ */
+const getApiTVLHistory = (
+    params?: GetApiTVLHistoryParams,
+ ) => {
+      return axiosInstance<void>(
+      {url: `/api/TVL/history`, method: 'GET',
+        params
+    },
+      );
+    }
+
+return {getApiAggregatedPool,getApiAggregatedPoolReload,getApiAsset,getApiAssetImageAssetId,getApiAssetStat,getApiAssetStatAssetId,getApiAssetTimeseries7d,getApiGossipStatus,getApiIndexerStatus,getApiLiquidity,getApiOHLCConfig,getApiOHLCTime,getApiOHLCSymbols,getApiOHLCSymbolInfo,getApiOHLCSearch,getApiOHLCMarks,getApiOHLCTimescaleMarks,getApiOHLCQuotes,getApiOHLCHistory,getApiPool,getApiPoolStats,getApiPoolReload,getApiSearch,getApiSignalrAuthTest,getApiSignalrAuthTestAuthorized,postApiSignalrTestBroadcast,postApiSignalrTestTrade,getApiSignalrConnections,getApiStatsDex,getApiAssetTop,getApiTrade,getApiTVLHistory}};
 export type GetApiAggregatedPoolResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAggregatedPool']>>>
 export type GetApiAggregatedPoolReloadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAggregatedPoolReload']>>>
 export type GetApiAssetResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAsset']>>>
@@ -691,3 +711,4 @@ export type GetApiSignalrConnectionsResult = NonNullable<Awaited<ReturnType<Retu
 export type GetApiStatsDexResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiStatsDex']>>>
 export type GetApiAssetTopResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiAssetTop']>>>
 export type GetApiTradeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiTrade']>>>
+export type GetApiTVLHistoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAVMTradeReporterAPI>['getApiTVLHistory']>>>

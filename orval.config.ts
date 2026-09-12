@@ -7,7 +7,9 @@ import type { ConfigExternal } from "orval";
 //   ORVAL_INPUT=https://api.testnet.scan.biatec.io/swagger/v1/swagger.json npm run generate:api
 const config: ConfigExternal = {
   api: {
-    input: process.env.ORVAL_INPUT ?? "https://api.algorand.scan.biatec.io/swagger/v1/swagger.json",
+    input:
+      process.env.ORVAL_INPUT ??
+      "https://api.testnet.scan.biatec.io/swagger/v1/swagger.json",
     output: {
       target: "src/api/index.ts",
       schemas: "src/api/models",
