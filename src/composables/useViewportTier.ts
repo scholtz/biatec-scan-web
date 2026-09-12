@@ -6,7 +6,9 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
  *
  *  - "sm"  : shown on any non-mobile width (tablets, laptops, desktops, 4K...)
  *  - "lg"  : shown from a "Full HD desktop" width upward only (hidden on tablets/narrow windows)
- *  - "xl4k": shown only on very large/4K-class monitors
+ *  - "xl4k": shown only on large/4K-class monitors. 2560 rather than the physical
+ *    3840px width because Windows commonly scales 4K displays at 150-200%, which
+ *    puts the browser's logical viewport width at 1920-2560, not 3840.
  */
 export const VIEWPORT_TIER_MIN_WIDTH = {
   sm: 0,
@@ -18,7 +20,10 @@ export type ViewportTier = keyof typeof VIEWPORT_TIER_MIN_WIDTH;
 
 const TIER_ORDER: ViewportTier[] = ["sm", "lg", "xl4k"];
 
-export function tierAtLeast(current: ViewportTier, required: ViewportTier): boolean {
+export function tierAtLeast(
+  current: ViewportTier,
+  required: ViewportTier,
+): boolean {
   return TIER_ORDER.indexOf(current) >= TIER_ORDER.indexOf(required);
 }
 
