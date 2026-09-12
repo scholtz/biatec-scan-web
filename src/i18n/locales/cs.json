@@ -321,7 +321,11 @@
     "recentTrades": "Nedávné obchody",
     "noTrades": "Pro tento pool nebyly nalezeny žádné nedávné obchody",
     "recentLiquidity": "Nedávné změny likvidity",
-    "noLiquidity": "Pro tento pool nebyly nalezeny žádné nedávné změny likvidity"
+    "noLiquidity": "Pro tento pool nebyly nalezeny žádné nedávné změny likvidity",
+    "scamWarningTitle": "Upozornění: podezřelý pool",
+    "scamWarningKnown": "Tento pool je označen jako známý podvodný (scam) pool (hodnocení {rating}/100). Nedůvěřujte mu: jeho zůstatky se zobrazují jako 0 a je vyloučen z výpočtu cen a likvidity.",
+    "scamWarningSuspicious": "Tento pool má hodnocení podvodu {rating}/100. Jeho smart kontrakt se nepodařilo ověřit vůči veřejnému registru ARC-56. Obchodujte opatrně.",
+    "scamRating": "Hodnocení podvodu"
   },
   "aggregatedPools": {
     "title": "Agregované pooly obsahující {assetName}",

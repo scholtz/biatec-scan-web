@@ -38,6 +38,35 @@
 
       <!-- Pool Information -->
       <div v-else-if="poolInfo" class="space-y-6">
+        <!-- Scam warning -->
+        <div
+          v-if="scamRating > 0"
+          role="alert"
+          :class="[
+            'rounded-lg border p-4 flex gap-3 items-start',
+            isKnownScam
+              ? 'bg-red-950/60 border-red-600 text-red-100'
+              : 'bg-amber-950/60 border-amber-500 text-amber-100',
+          ]"
+        >
+          <span class="text-2xl leading-none shrink-0" aria-hidden="true">&#9888;</span>
+          <div class="min-w-0">
+            <div class="font-semibold mb-1">
+              {{ $t("poolDetails.scamWarningTitle") }}
+            </div>
+            <p class="text-sm">
+              {{
+                $t(
+                  isKnownScam
+                    ? "poolDetails.scamWarningKnown"
+                    : "poolDetails.scamWarningSuspicious",
+                  { rating: scamRating }
+                )
+              }}
+            </p>
+          </div>
+        </div>
+
         <!-- Basic Pool Information -->
         <div class="card">
           <h2 class="text-xl font-semibold mb-4">
@@ -61,6 +90,21 @@
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Protocol:</span>
               <span class="text-purple-400">{{ poolInfo.protocol }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400"
+                >{{ $t("poolDetails.scamRating") }}:</span
+              >
+              <span
+                :class="
+                  isKnownScam
+                    ? 'text-red-400 font-semibold'
+                    : scamRating > 0
+                      ? 'text-amber-400'
+                      : 'text-green-400'
+                "
+                >{{ scamRating }}/100</span
+              >
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Asset A ID:</span>
@@ -241,6 +285,7 @@ const loadPoolInfo = async () => {
       l: poolData.l ? BigInt(poolData.l) : undefined,
       protocol: poolData.protocol || "Biatec",
       timestamp: poolData.timestamp || new Date().toISOString(),
+      scamRating: poolData.scamRating ?? 0,
       isReversed: assetService.needToReverseAssets(
         poolData.assetIdA != null ? BigInt(poolData.assetIdA) : 0n,
         poolData.assetIdB != null ? BigInt(poolData.assetIdB) : 0n
@@ -254,6 +299,10 @@ const loadPoolInfo = async () => {
     loading.value = false;
   }
 };
+
+const scamRating = computed(() => poolInfo.value?.scamRating ?? 0);
+// Mirrors the backend ScamRatingPolicy.ZeroBalancesThreshold: above 80 the API reports 0 balances.
+const isKnownScam = computed(() => scamRating.value > 80);
 
 const formatAddress = (address: string): string => {
   if (!address) return "";

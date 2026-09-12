@@ -118,6 +118,7 @@
  * - Swagger defines an API key scheme named arc14 (ARC-0014 Algorand authentication transaction transmitted in Authorization header)
  * - The SignalR pipeline moves access_token from query string to Authorization header for compatibility
  * - All REST endpoints require authentication ([Authorize]) except the following, which are intentionally public:
+ *   - GET /api/asset (asset list/lookup; the TradingView charting widget resolves asset id -> ticker via this endpoint with a plain unauthenticated fetch and has no ARC-14 signing capability - see AVMTradeReporterTests/Controllers/AssetControllerAuthorizationTests.cs)
  *   - GET /api/asset/image/{assetId} (asset image, embedded directly as an <img> src)
  *   - GET /api/Gossip/status (relay connectivity health check)
  *   - GET /api/Stats/dex (DefiLlama DEX stats adapter integration)
@@ -250,8 +251,8 @@ export interface TopAssetsResponse {
      */
   topLosers?: TopAssetItem[] | null;
   /**
-     * Top assets by relative real TVL growth in percent over 24h ("Top liquidity gainers"). Only positive changes qualify.
-     *             Newly funded assets (no TVL 24h ago) count as infinite relative growth: they rank first, ordered by absolute USD gain, with TVLChange24HPercent null.
+     * Top assets by relative real TVL growth in percent over 24h ("Top liquidity gainers"). Only positive, finite changes qualify.
+     *             Newly funded assets (no TVL 24h ago) have an undefined percent change from a zero baseline and are excluded.
      * @nullable
      */
   topValueGainers?: TopAssetItem[] | null;

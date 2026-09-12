@@ -220,9 +220,13 @@
  * OpenAPI spec version: v1
  */
 
-export type GetApiOHLCSymbolInfoParams = {
+export type GetApiTVLHistoryParams = {
 /**
- * Comma separated list of underscore-separated asset id pairs.
+ * Asset id (0 = ALGO).
  */
-group?: string;
+assetId?: number;
+/**
+ * How many trailing hours of bars to return (default 168 = 7 days).
+ */
+hoursBack?: number;
 };

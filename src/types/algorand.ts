@@ -140,6 +140,8 @@ export interface AMMPool {
   protocol: DEXProtocol;
   timestamp?: string; // ISO string, or Date if you prefer
   isReversed: boolean;
+  /** 0..100 backend scam score; > 80 = known scam, balances are reported as 0 */
+  scamRating?: number;
 }
 export interface AMMTrade {
   assetIdIn: bigint;
