@@ -69,7 +69,8 @@
     "byteSlices": "Byte-Slices",
     "key": "Kulcs",
     "action": "Művelet",
-    "close": "Bezárás"
+    "close": "Bezárás",
+    "address": "Cím"
   },
   "table": {
     "columns": "Oszlopok",

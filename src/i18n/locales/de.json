@@ -69,7 +69,8 @@
     "byteSlices": "Byte-Slices",
     "key": "Schlüssel",
     "action": "Aktion",
-    "close": "Schließen"
+    "close": "Schließen",
+    "address": "Adresse"
   },
   "table": {
     "columns": "Spalten",

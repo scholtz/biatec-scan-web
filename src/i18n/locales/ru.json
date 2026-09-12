@@ -69,7 +69,8 @@
     "byteSlices": "Byte-Slices",
     "key": "Ключ",
     "action": "Действие",
-    "close": "Закрыть"
+    "close": "Закрыть",
+    "address": "Адрес"
   },
   "table": {
     "columns": "Столбцы",

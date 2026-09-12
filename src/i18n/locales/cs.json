@@ -69,7 +69,8 @@
     "status": "Stav",
     "created": "Vytvořeno",
     "updated": "Aktualizováno",
-    "close": "Zavřít"
+    "close": "Zavřít",
+    "address": "Adresa"
   },
   "table": {
     "columns": "Sloupce",
