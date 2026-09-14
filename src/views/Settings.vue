@@ -26,6 +26,14 @@
     </div>
     
     <div class="card space-y-3 relative z-0">
+      <h2 class="text-lg font-semibold text-white">{{ $t('settings.aboutPage.title') }}</h2>
+      <p class="text-gray-300 text-sm">{{ $t('settings.aboutPage.description', { network: networkLabel }) }}</p>
+      <router-link to="/about" class="inline-block btn-secondary text-sm">
+        {{ $t('settings.aboutPage.link') }}
+      </router-link>
+    </div>
+
+    <div class="card space-y-3 relative z-0">
       <h2 class="text-lg font-semibold text-white">{{ $t('settings.about.title') }}</h2>
       <div class="space-y-2 text-sm text-gray-300">
         <p><strong class="text-white">{{ $t('settings.about.version') }}:</strong> 1.0.0</p>
@@ -48,4 +56,5 @@
 
 <script setup lang="ts">
 import LanguageSwitcher from "../components/LanguageSwitcher.vue";
+import { networkLabel } from "../config/env";
 </script>

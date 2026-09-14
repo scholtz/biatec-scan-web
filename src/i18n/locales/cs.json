@@ -93,6 +93,7 @@
     "trades": "Obchody",
     "favorites": "Oblíbené",
     "settings": "Nastavení",
+    "swap": "Swap",
     "about": "O aplikaci",
     "searchPlaceholder": "Hledat podle bloku nebo TX ID...",
     "searchMobilePlaceholder": "Hledat blok / tx..."
@@ -550,11 +551,125 @@
       "title": "Předvolby",
       "description": "Další nastavení a předvolby budou dostupné v budoucích aktualizacích."
     },
+    "aboutPage": {
+      "title": "O aplikaci",
+      "description": "Zjistěte, co je Biatec {network} Scan, odkud pocházejí jeho data a jak nás kontaktovat.",
+      "link": "Otevřít stránku O aplikaci"
+    },
     "about": {
       "title": "Informace o aplikaci",
       "version": "Verze",
       "buildWith": "Postaveno s",
       "repository": "Repozitář"
+    }
+  },
+  "wallet": {
+    "connect": "Připojit peněženku",
+    "viewAccount": "Zobrazit účet",
+    "copyAddress": "Kopírovat adresu",
+    "disconnect": "Odpojit",
+    "copied": "Adresa zkopírována do schránky",
+    "copyFailed": "Adresu se nepodařilo zkopírovat",
+    "pickerTitle": "Připojit peněženku",
+    "pickerDescription": "Vyberte peněženku, kterou chcete připojit. Biatec Wallet je doporučená možnost.",
+    "close": "Zavřít",
+    "recommended": "Doporučeno",
+    "noWallets": "V tomto prohlížeči nejsou dostupné žádné peněženky.",
+    "connected": "Připojeno přes {wallet}"
+  },
+  "swap": {
+    "title": "Swap",
+    "subtitle": "Porovnejte nabídky z {count} routerů najednou a proveďte swap přes ten, který si vyberete.",
+    "youPay": "Platíte",
+    "youReceive": "Obdržíte",
+    "balance": "Zůstatek",
+    "max": "MAX",
+    "selectAsset": "Vybrat asset",
+    "searchAssetPlaceholder": "Hledat podle názvu, tickeru nebo ID assetu…",
+    "yourAssets": "Vaše assety",
+    "noAssetsFound": "Nenalezeny žádné assety",
+    "switch": "Prohodit assety",
+    "slippage": "Slippage",
+    "slippageUnprotected": "Bez ochrany minimální přijaté částky!",
+    "slippageHigh": "Vysoká tolerance slippage",
+    "gettingQuotes": "Získávají se nabídky…",
+    "refreshQuotes": "Obnovit nabídky",
+    "getQuotes": "Získat nabídky",
+    "connectToExecute": "Pro provedení swapu připojte peněženku. Nabídky lze porovnat i bez připojení.",
+    "quotedAgo": "Nabídka před {seconds} s",
+    "bestRoute": "Nejlepší cesta",
+    "website": "Web",
+    "simulated": "Simulovaný on-chain výsledek",
+    "quoted": "nabídnuto",
+    "simulationFailed": "Simulace selhala",
+    "simulating": "Simuluje se…",
+    "belowBest": "O {percent} % méně než nejlepší cesta",
+    "price": "Cena",
+    "minimumReceived": "Minimálně přijato",
+    "priceImpact": "Dopad na cenu",
+    "networkFee": "Síťový poplatek",
+    "transactions": "Transakce",
+    "hideRoute": "Skrýt cestu",
+    "showRoute": "Zobrazit cestu",
+    "executing": "Provádí se…",
+    "swapVia": "Swap přes {router}",
+    "status": {
+      "unsupported": "Nedostupné na síti {network}",
+      "idle": "Čeká se na požadavek o nabídku",
+      "loading": "Načítá se nabídka…",
+      "error": "Nabídka selhala"
+    },
+    "route": {
+      "noPoolBreakdown": "Tento router nezveřejňuje jednotlivé pooly, které používá.",
+      "noDetailedRoute": "Nebyly vráceny podrobné informace o cestě.",
+      "path": "Cesta {index}"
+    },
+    "optIn": {
+      "assetRequired": "Váš účet není přihlášen (opt-in) k assetu {asset}. Před swapem se přihlaste.",
+      "assetButton": "Opt-in k {asset}",
+      "appRequired": "Tato cesta vyžaduje opt-in k aplikaci {app}.",
+      "appButton": "Opt-in k aplikaci {app}",
+      "inProgress": "Probíhá opt-in…"
+    },
+    "result": {
+      "title": "Swap odeslán",
+      "summary": "Směněno {amount} {from} za {to} přes {router}."
+    },
+    "disclaimer": {
+      "simulation": "Částky označené jako simulované jsou vypočteny zkušebním spuštěním přesných transakcí proti aktuálnímu stavu ledgeru; ostatní částky jsou odhady routeru.",
+      "risk": "Swapy provádějí routery třetích stran. Před podpisem si vždy zkontrolujte transakce ve své peněžence."
+    },
+    "errors": {
+      "noRoutes": "Žádný router nevrátil cestu pro tento pár a částku.",
+      "staleQuote": "Nabídky jsou starší než 90 sekund – před provedením je obnovte.",
+      "notSigned": "Peněženka nevrátila podepsanou transakci.",
+      "invalidAmount": "Zadejte platnou částku s nejvýše {decimals} desetinnými místy.",
+      "insufficientBalance": "Nedostatečný zůstatek",
+      "samePair": "Vyberte dva různé assety.",
+      "simulationBlocked": "Simulace selhala – tuto cestu nelze v této podobě provést.",
+      "appOptInRequired": "Vyžadován opt-in k aplikaci",
+      "otherExecuting": "Probíhá jiný swap",
+      "stage": {
+        "validate": "Kontrola transakce selhala: {message}",
+        "sign": "Podepisování selhalo: {message}",
+        "submit": "Odeslání selhalo: {message}",
+        "confirm": "Potvrzení selhalo: {message}"
+      }
+    },
+    "toast": {
+      "success": "Swap přes {router} potvrzen",
+      "optInDone": "Opt-in potvrzen"
+    },
+    "routers": {
+      "biatec": {
+        "description": "Vlastní agregátor Biatec přes pooly Pact, Tinyman a Biatec CLAMM."
+      },
+      "folks": {
+        "description": "Router Folks Finance agregující likviditu DEXů na Algorandu."
+      },
+      "haystack": {
+        "description": "Agregátor Haystack (Deflex) napříč DEXy na Algorandu."
+      }
     }
   },
   "favorites": {

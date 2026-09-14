@@ -55,7 +55,7 @@ RUN mkdir /app
 # environment in the k8s manifests) - this is what lets one image serve any
 # network's CSP without a rebuild.
 COPY docker/default.conf.template /etc/nginx/templates/default.conf.template
-ENV CSP_CONNECT_SRC="https://api.algorand.scan.biatec.io wss://api.algorand.scan.biatec.io https://algorand-algod-public.de-4.biatec.io https://mainnet-idx.4160.nodely.dev https://algorand.scan.biatec.io"
+ENV CSP_CONNECT_SRC="https://api.algorand.scan.biatec.io wss://api.algorand.scan.biatec.io https://algorand-algod-public.de-4.biatec.io https://mainnet-idx.4160.nodely.dev https://algorand.scan.biatec.io https://router.api.biatec.io https://*.walletconnect.com wss://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.org https://api.web3modal.org https://*.perawallet.app wss://*.perawallet.app https://*.defly.app wss://*.defly.app https://liquid.biatec.io wss://liquid.biatec.io https://deflex.txnlab.dev https://api.folksrouter.io"
 RUN chown nginx:nginx /etc/nginx/conf.d /etc/nginx/templates -R
 RUN chmod 0600 /etc/nginx/conf.d /etc/nginx/templates -R
 RUN chmod 0700 /etc/nginx/conf.d /etc/nginx/templates

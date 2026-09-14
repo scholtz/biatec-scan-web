@@ -76,6 +76,11 @@ const router = createRouter({
       component: () => import("../views/FavoriteAssets.vue"),
     },
     {
+      path: "/swap/:fromAssetId?/:toAssetId?",
+      name: "Swap",
+      component: () => import("../views/Swap.vue"),
+    },
+    {
       path: "/settings",
       name: "Settings",
       component: () => import("../views/Settings.vue"),

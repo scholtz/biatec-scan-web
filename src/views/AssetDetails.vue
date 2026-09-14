@@ -34,6 +34,12 @@
                   class="px-2 py-1 rounded bg-white/10 text-xs text-gray-300 font-mono"
                   >ID: {{ assetId }}</span
                 >
+                <router-link
+                  :to="`/swap/0/${assetId}`"
+                  class="px-2 py-1 rounded bg-primary-600/30 hover:bg-primary-600/50 text-xs text-primary-200 transition-colors"
+                >
+                  {{ $t("swap.title") }}
+                </router-link>
                 <button
                   @click="toggleFavorite"
                   class="transition-all duration-300 hover:scale-110 active:scale-95 p-1"

@@ -93,6 +93,7 @@
     "trades": "Transakcje",
     "favorites": "Ulubione",
     "settings": "Ustawienia",
+    "swap": "Swap",
     "about": "O aplikacji",
     "searchPlaceholder": "Szukaj po numerze bloku lub ID TX…",
     "searchMobilePlaceholder": "Szukaj bloku/TX…"
@@ -550,11 +551,125 @@
       "title": "Preferencje",
       "description": "Dodatkowe ustawienia i preferencje będą dostępne w przyszłych aktualizacjach."
     },
+    "aboutPage": {
+      "title": "O aplikacji",
+      "description": "Dowiedz się, czym jest Biatec {network} Scan, skąd pochodzą jego dane i jak się z nami skontaktować.",
+      "link": "Otwórz stronę O aplikacji"
+    },
     "about": {
       "title": "Informacje o aplikacji",
       "version": "Wersja",
       "buildWith": "Zbudowano z",
       "repository": "Repozytorium"
+    }
+  },
+  "wallet": {
+    "connect": "Połącz portfel",
+    "viewAccount": "Zobacz konto",
+    "copyAddress": "Kopiuj adres",
+    "disconnect": "Rozłącz",
+    "copied": "Adres skopiowany do schowka",
+    "copyFailed": "Nie udało się skopiować adresu",
+    "pickerTitle": "Połącz portfel",
+    "pickerDescription": "Wybierz portfel, który chcesz połączyć. Biatec Wallet jest opcją zalecaną.",
+    "close": "Zamknij",
+    "recommended": "Zalecany",
+    "noWallets": "W tej przeglądarce nie ma dostępnych portfeli.",
+    "connected": "Połączono z {wallet}"
+  },
+  "swap": {
+    "title": "Swap",
+    "subtitle": "Porównaj oferty z {count} routerów jednocześnie i wykonaj swap przez wybrany.",
+    "youPay": "Płacisz",
+    "youReceive": "Otrzymujesz",
+    "balance": "Saldo",
+    "max": "MAKS",
+    "selectAsset": "Wybierz aktywo",
+    "searchAssetPlaceholder": "Szukaj po nazwie, tickerze lub ID aktywa…",
+    "yourAssets": "Twoje aktywa",
+    "noAssetsFound": "Nie znaleziono aktywów",
+    "switch": "Zamień aktywa",
+    "slippage": "Poślizg",
+    "slippageUnprotected": "Brak ochrony minimalnej otrzymanej kwoty!",
+    "slippageHigh": "Wysoka tolerancja poślizgu",
+    "gettingQuotes": "Pobieranie ofert…",
+    "refreshQuotes": "Odśwież oferty",
+    "getQuotes": "Pobierz oferty",
+    "connectToExecute": "Połącz portfel, aby wykonać swap. Oferty można porównywać bez połączenia.",
+    "quotedAgo": "Oferta sprzed {seconds} s",
+    "bestRoute": "Najlepsza trasa",
+    "website": "Strona",
+    "simulated": "Symulowany wynik on-chain",
+    "quoted": "oferowane",
+    "simulationFailed": "Symulacja nie powiodła się",
+    "simulating": "Symulacja…",
+    "belowBest": "O {percent} % mniej niż najlepsza trasa",
+    "price": "Cena",
+    "minimumReceived": "Minimalnie otrzymane",
+    "priceImpact": "Wpływ na cenę",
+    "networkFee": "Opłata sieciowa",
+    "transactions": "Transakcje",
+    "hideRoute": "Ukryj trasę",
+    "showRoute": "Pokaż trasę",
+    "executing": "Wykonywanie…",
+    "swapVia": "Swap przez {router}",
+    "status": {
+      "unsupported": "Niedostępne w sieci {network}",
+      "idle": "Oczekiwanie na żądanie oferty",
+      "loading": "Pobieranie oferty…",
+      "error": "Oferta nie powiodła się"
+    },
+    "route": {
+      "noPoolBreakdown": "Ten router nie ujawnia poszczególnych używanych pul.",
+      "noDetailedRoute": "Nie zwrócono szczegółowych informacji o trasie.",
+      "path": "Ścieżka {index}"
+    },
+    "optIn": {
+      "assetRequired": "Twoje konto nie ma opt-in do {asset}. Wykonaj opt-in przed swapem.",
+      "assetButton": "Opt-in do {asset}",
+      "appRequired": "Ta trasa wymaga opt-in do aplikacji {app}.",
+      "appButton": "Opt-in do aplikacji {app}",
+      "inProgress": "Trwa opt-in…"
+    },
+    "result": {
+      "title": "Swap wysłany",
+      "summary": "Wymieniono {amount} {from} na {to} przez {router}."
+    },
+    "disclaimer": {
+      "simulation": "Kwoty oznaczone jako symulowane są obliczane przez próbne wykonanie dokładnych transakcji względem bieżącego stanu rejestru; pozostałe kwoty to szacunki routera.",
+      "risk": "Swapy są wykonywane przez routery firm trzecich. Zawsze sprawdzaj transakcje w portfelu przed podpisaniem."
+    },
+    "errors": {
+      "noRoutes": "Żaden router nie zwrócił trasy dla tej pary i kwoty.",
+      "staleQuote": "Oferty są starsze niż 90 sekund – odśwież je przed wykonaniem.",
+      "notSigned": "Portfel nie zwrócił podpisanej transakcji.",
+      "invalidAmount": "Wprowadź prawidłową kwotę z maksymalnie {decimals} miejscami po przecinku.",
+      "insufficientBalance": "Niewystarczające saldo",
+      "samePair": "Wybierz dwa różne aktywa.",
+      "simulationBlocked": "Symulacja nie powiodła się – tej trasy nie można wykonać w obecnej postaci.",
+      "appOptInRequired": "Wymagany opt-in do aplikacji",
+      "otherExecuting": "Trwa inny swap",
+      "stage": {
+        "validate": "Weryfikacja transakcji nie powiodła się: {message}",
+        "sign": "Podpisywanie nie powiodło się: {message}",
+        "submit": "Wysyłanie nie powiodło się: {message}",
+        "confirm": "Potwierdzenie nie powiodło się: {message}"
+      }
+    },
+    "toast": {
+      "success": "Swap przez {router} potwierdzony",
+      "optInDone": "Opt-in potwierdzony"
+    },
+    "routers": {
+      "biatec": {
+        "description": "Własny agregator Biatec obejmujący pule Pact, Tinyman i Biatec CLAMM."
+      },
+      "folks": {
+        "description": "Router Folks Finance agregujący płynność DEX-ów Algorand."
+      },
+      "haystack": {
+        "description": "Agregator Haystack (Deflex) obejmujący DEX-y Algorand."
+      }
     }
   },
   "favorites": {
