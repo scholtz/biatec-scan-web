@@ -26,11 +26,9 @@ for (const route of routes) {
     // message naming the hub URL, and once as a bare "Failed to load
     // resource" whose only link to the hub is the message's source URL.
     const isExpectedSignalRNoise = (text: string, sourceUrl = "") =>
-      (/signalr|negotiat|biatecScanHub/i.test(text) ||
-        /biatecScanHub|negotiate/i.test(sourceUrl)) &&
-      /failed to fetch|cors policy|err_failed|websocket|failed to load resource/i.test(
-        text,
-      );
+      (/signalr|negotiat/i.test(text) ||
+        /biatecScanHub\/negotiate/i.test(sourceUrl)) &&
+      /failed to fetch|cors policy|err_failed|websocket/i.test(text);
 
     const consoleErrors: string[] = [];
     const pageErrors: string[] = [];

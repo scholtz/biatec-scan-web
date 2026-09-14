@@ -6,7 +6,7 @@
       type="button"
       class="btn-primary text-sm whitespace-nowrap"
       :class="compact ? 'w-full' : ''"
-      @click="openPicker"
+      @click="pickerOpen = true"
     >
       {{ $t("wallet.connect") }}
     </button>
@@ -26,7 +26,7 @@
         :alt="activeWallet.metadata.name"
         class="w-5 h-5 rounded"
       />
-      <span class="font-mono">{{ shortAddress }}</span>
+      <span class="font-mono">{{ formatAddress(activeAddress) }}</span>
       <svg
         class="w-4 h-4 transition-transform duration-200"
         :class="{ 'rotate-180': menuOpen }"
@@ -55,7 +55,7 @@
           class="w-full px-3 py-2 text-left text-sm text-white hover:bg-dark-700/60 font-mono flex items-center justify-between"
           @click="selectAccount(account.address)"
         >
-          <span>{{ truncate(account.address) }}</span>
+          <span>{{ formatAddress(account.address) }}</span>
           <span
             v-if="account.address === activeAddress"
             class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
@@ -70,13 +70,15 @@
       >
         {{ $t("wallet.viewAccount") }}
       </router-link>
-      <button
-        type="button"
-        class="w-full px-3 py-2 text-left text-sm text-white hover:bg-dark-700/60"
-        @click="copyAddress"
+      <CopyToClipboard
+        :text="activeAddress"
+        :toast-message="$t('wallet.copied')"
+        :title="$t('wallet.copyAddress')"
+        button-class="w-full px-3 py-2 text-left text-sm text-white hover:bg-dark-700/60 rounded-none"
+        @click="menuOpen = false"
       >
         {{ $t("wallet.copyAddress") }}
-      </button>
+      </CopyToClipboard>
       <button
         type="button"
         class="w-full px-3 py-2 text-left text-sm text-red-300 hover:bg-dark-700/60"
@@ -91,15 +93,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useWallet } from "@txnlab/use-wallet-vue";
 import { useToast } from "../../composables/useToast";
+import { algorandService } from "../../services/algorandService";
+import { errorMessage } from "../../swap/errors";
+import CopyToClipboard from "../CopyToClipboard.vue";
 import WalletPickerModal from "./WalletPickerModal.vue";
 
 withDefaults(defineProps<{ compact?: boolean }>(), { compact: false });
 
-const { t } = useI18n();
 const { showToast } = useToast();
 const { activeAddress, activeWallet, activeWalletAccounts } = useWallet();
 
@@ -107,29 +110,10 @@ const root = ref<HTMLElement | null>(null);
 const menuOpen = ref(false);
 const pickerOpen = ref(false);
 
-const truncate = (address: string) =>
-  `${address.slice(0, 6)}…${address.slice(-4)}`;
-const shortAddress = computed(() =>
-  activeAddress.value ? truncate(activeAddress.value) : ""
-);
-
-function openPicker() {
-  pickerOpen.value = true;
-}
+const formatAddress = (address: string) => algorandService.formatAddress(address);
 
 function selectAccount(address: string) {
   activeWallet.value?.setActiveAccount(address);
-  menuOpen.value = false;
-}
-
-async function copyAddress() {
-  if (!activeAddress.value) return;
-  try {
-    await navigator.clipboard.writeText(activeAddress.value);
-    showToast(t("wallet.copied"), "success");
-  } catch {
-    showToast(t("wallet.copyFailed"), "error");
-  }
   menuOpen.value = false;
 }
 
@@ -138,7 +122,7 @@ async function disconnect() {
   try {
     await activeWallet.value?.disconnect();
   } catch (e: unknown) {
-    showToast(e instanceof Error ? e.message : String(e), "error");
+    showToast(errorMessage(e), "error");
   }
 }
 

@@ -7,6 +7,7 @@ so that every DEX aggregator is a self-contained plug-in.
 ```
 src/swap/
 ├── types.ts          SwapRouter contract + shared quote/route/result shapes
+├── errors.ts         SwapRouterError codes (translated by the UI)
 ├── amounts.ts        bigint amount parsing/formatting, slippage maths
 ├── validate.ts       sender / rekey / close-to guard for every signed txn
 ├── simulate.ts       algod simulate → ledger-computed net received amount
@@ -14,7 +15,8 @@ src/swap/
 ├── quoteService.ts   fan-out to all routers in parallel, progress callbacks
 ├── executeSwap.ts    validate → sign (injected signer) → submit → confirm
 └── routers/
-    ├── index.ts      the registry (`swapRouters`)
+    ├── index.ts      the registry (`swapRouters`, `isSwapAvailableOn`)
+    ├── shared.ts     decode / number-safety helpers used by adapters
     ├── biatec.ts     Biatec Router (ARC-14, mainnet + testnet)
     ├── folks.ts      Folks Router (@folks-router/js-sdk, mainnet)
     └── haystack.ts   Haystack / Deflex HTTP API (mainnet)
@@ -43,8 +45,14 @@ The Vue side is `src/composables/useSwap.ts` (reactive orchestration) and
 2. Append the router to `swapRouters` in `routers/index.ts`.
 3. Add a unit test next to it for the pure parts (route normalisation,
    grouping) – see `routers/*.test.ts`.
-4. Add the router's API host to the CSP `connect-src` list
-   (`docker/Dockerfile` `CSP_CONNECT_SRC` and `k8s/*/deployment-fe.yaml`).
+4. Add the router's API host to `CSP_WALLET_CONNECT_SRC` in
+   `docker/Dockerfile` (network-independent hosts live there once; the
+   per-network `k8s/*/deployment-fe.yaml` lists only carry API/algod/
+   indexer hosts). Network selection belongs in `src/config/env.ts` as a
+   `VITE_*` setting (see `folksRouterNetwork` / `haystackChain`), never
+   hardcoded in the adapter.
+5. Throw `SwapRouterError(code)` (`src/swap/errors.ts`) for user-facing
+   failures and add any new code to `swap.routerErrors.*` in every locale.
 
 Nothing else changes: quoting, simulation, best-route selection, the
 router cards and execution are all driven off the registry.
@@ -53,7 +61,11 @@ router cards and execution are all driven off the registry.
 
 - `executeSwap.ts` refuses to sign any transaction whose sender is not the
   connected account or that rekeys / closes out (`validate.ts`). Routers
-  are remote, untrusted parties.
+  are remote, untrusted parties. All groups are signed before any is
+  submitted, so a rejected wallet prompt never leaves a partial swap on
+  chain.
+- Amounts that do not fit a JS number exactly are refused for routers whose
+  API schema only accepts numbers (`shared.ts` `toSafeNumber`).
 - Biatec Router quotes are re-requested with the real `receiveMinimum` and
   cross-checked against it before they are offered for signing.
 - Quotes are invalidated whenever the pair, amount or sender changes.

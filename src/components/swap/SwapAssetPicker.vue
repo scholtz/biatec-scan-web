@@ -5,12 +5,11 @@
       class="flex items-center gap-2 px-3 py-2 rounded-lg bg-dark-800/70 border border-dark-700/50 text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 min-w-[140px]"
       @click="open = true"
     >
-      <img
+      <AssetIcon
         v-if="modelValue"
-        :src="iconUrl(modelValue.id)"
+        :asset-id="modelValue.id"
         :alt="assetLabel(modelValue)"
-        class="w-6 h-6 rounded-full bg-white/10"
-        @error="onIconError"
+        size-class="w-6 h-6"
       />
       <span class="flex-1 min-w-0 text-left truncate font-medium">
         {{ modelValue ? assetLabel(modelValue) : $t("swap.selectAsset") }}
@@ -81,12 +80,7 @@
                 :class="{ 'bg-primary-600/20': modelValue?.id === option.id }"
                 @click="select(option)"
               >
-                <img
-                  :src="iconUrl(option.id)"
-                  :alt="assetLabel(option)"
-                  class="w-8 h-8 rounded-full bg-white/10"
-                  @error="onIconError"
-                />
+                <AssetIcon :asset-id="option.id" :alt="assetLabel(option)" />
                 <span class="flex-1 min-w-0">
                   <span class="block text-white font-medium truncate">
                     {{ assetLabel(option) }}
@@ -99,7 +93,7 @@
                   v-if="balanceOf(option.id) !== undefined"
                   class="text-sm text-gray-300 font-mono"
                 >
-                  {{ formatBaseUnits(balanceOf(option.id)!, option.decimals, 4) }}
+                  {{ formatAmount(balanceOf(option.id)!, option.decimals, 4) }}
                 </span>
               </button>
               <p v-if="visibleOptions.length === 0" class="px-2 py-3 text-sm text-gray-400">
@@ -117,15 +111,15 @@
 import { computed, nextTick, ref, watch } from "vue";
 import { getAVMTradeReporterAPI } from "../../api";
 import type { BiatecAsset } from "../../api/models";
-import { assetImageUrl } from "../../config/env";
+import { useAmountFormat } from "../../composables/useAmountFormat";
 import { algorandService } from "../../services/algorandService";
-import { formatBaseUnits } from "../../swap/amounts";
 import {
   assetLabel,
   loadSwapAssetInfo,
   NATIVE_ASSET,
   type SwapAssetInfo,
 } from "../../swap/assetInfo";
+import AssetIcon from "../AssetIcon.vue";
 
 const props = defineProps<{
   modelValue: SwapAssetInfo | undefined;
@@ -136,34 +130,17 @@ const emit = defineEmits<{ "update:modelValue": [asset: SwapAssetInfo] }>();
 
 const api = getAVMTradeReporterAPI();
 const algod = algorandService.getAlgodClient();
+const { formatAmount } = useAmountFormat();
 
 const open = ref(false);
 const query = ref("");
 const searching = ref(false);
 const searchInput = ref<HTMLInputElement | null>(null);
 const searchResults = ref<SwapAssetInfo[]>([]);
-const popular = ref<SwapAssetInfo[]>([]);
 const heldOptions = ref<SwapAssetInfo[]>([]);
-const failedIcons = ref(new Set<string>());
+const popular = ref<SwapAssetInfo[]>([]);
 let searchSeq = 0;
-
-function iconUrl(id: bigint): string {
-  return failedIcons.value.has(id.toString())
-    ? "/default-asset.png"
-    : assetImageUrl(id);
-}
-
-function onIconError(event: Event) {
-  const img = event.target as HTMLImageElement;
-  const match = /\/image\/(\d+)/.exec(img.src);
-  if (match) {
-    failedIcons.value = new Set([...failedIcons.value, match[1]]);
-  }
-}
-
-function balanceOf(id: bigint): bigint | undefined {
-  return props.balances?.get(id);
-}
+let heldKey = "";
 
 function toInfo(asset: BiatecAsset): SwapAssetInfo {
   return {
@@ -172,6 +149,34 @@ function toInfo(asset: BiatecAsset): SwapAssetInfo {
     unitName: asset.params?.unitName ?? "",
     decimals: asset.params?.decimals ?? 0,
   };
+}
+
+// Shared across every picker instance and page visit: the "popular" list
+// is the same for everyone and changes slowly.
+let popularPromise: Promise<SwapAssetInfo[]> | undefined;
+function loadPopular(): Promise<SwapAssetInfo[]> {
+  if (!popularPromise) {
+    popularPromise = (async () => {
+      const { data: top } = await api.getApiAssetTop();
+      const ids = (top.popular ?? [])
+        .map((item) => item.assetId)
+        .filter((id): id is number => typeof id === "number");
+      const list: SwapAssetInfo[] = [NATIVE_ASSET];
+      if (ids.length > 0) {
+        const { data: assets } = await api.getApiAsset({ ids: ids.join(",") });
+        list.push(...assets.map(toInfo));
+      }
+      return list;
+    })().catch(() => {
+      popularPromise = undefined;
+      return [NATIVE_ASSET];
+    });
+  }
+  return popularPromise;
+}
+
+function balanceOf(id: bigint): bigint | undefined {
+  return props.balances?.get(id);
 }
 
 const visibleOptions = computed<SwapAssetInfo[]>(() => {
@@ -187,30 +192,16 @@ const visibleOptions = computed<SwapAssetInfo[]>(() => {
   return merged;
 });
 
+/** Resolve held assets only when the set of held ids actually changes. */
 async function loadHeld(): Promise<void> {
   const ids = [...(props.balances?.keys() ?? [])];
+  const key = ids.map(String).join(",");
+  if (key === heldKey) return;
+  heldKey = key;
   const infos = await Promise.all(
     ids.map((id) => loadSwapAssetInfo(id, algod).catch(() => undefined))
   );
   heldOptions.value = infos.filter((x): x is SwapAssetInfo => x !== undefined);
-}
-
-async function loadPopular(): Promise<void> {
-  if (popular.value.length > 0) return;
-  try {
-    const { data: top } = await api.getApiAssetTop();
-    const ids = (top.popular ?? [])
-      .map((item) => item.assetId)
-      .filter((id): id is number => typeof id === "number");
-    const list: SwapAssetInfo[] = [NATIVE_ASSET];
-    if (ids.length > 0) {
-      const { data: assets } = await api.getApiAsset({ ids: ids.join(",") });
-      list.push(...assets.map(toInfo));
-    }
-    popular.value = list;
-  } catch {
-    popular.value = [NATIVE_ASSET];
-  }
 }
 
 async function runSearch(term: string): Promise<void> {
@@ -229,7 +220,7 @@ async function runSearch(term: string): Promise<void> {
       const info = toInfo(asset);
       if (!results.some((r) => r.id === info.id)) results.push(info);
     }
-    if (NATIVE_ASSET.unitName.toLowerCase().includes(term.toLowerCase())) {
+    if (assetLabel(NATIVE_ASSET).toLowerCase().includes(term.toLowerCase())) {
       results.unshift(NATIVE_ASSET);
     }
     if (seq === searchSeq) searchResults.value = results;
@@ -255,7 +246,7 @@ watch(query, (value) => {
 watch(open, async (isOpen) => {
   if (!isOpen) return;
   query.value = "";
-  void loadPopular();
+  void loadPopular().then((list) => (popular.value = list));
   void loadHeld();
   await nextTick();
   searchInput.value?.focus();

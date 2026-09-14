@@ -94,7 +94,6 @@
     "favorites": "Ulubione",
     "settings": "Ustawienia",
     "swap": "Swap",
-    "about": "O aplikacji",
     "searchPlaceholder": "Szukaj po numerze bloku lub ID TX…",
     "searchMobilePlaceholder": "Szukaj bloku/TX…"
   },
@@ -648,6 +647,8 @@
       "samePair": "Wybierz dwa różne aktywa.",
       "simulationBlocked": "Symulacja nie powiodła się – tej trasy nie można wykonać w obecnej postaci.",
       "appOptInRequired": "Wymagany opt-in do aplikacji",
+      "assetOptInRequired": "Najpierw wykonaj opt-in do aktywa docelowego",
+      "holdingsUnavailable": "Nie udało się wczytać Twoich sald z sieci.",
       "otherExecuting": "Trwa inny swap",
       "stage": {
         "validate": "Weryfikacja transakcji nie powiodła się: {message}",
@@ -656,9 +657,19 @@
         "confirm": "Potwierdzenie nie powiodło się: {message}"
       }
     },
+    "routerErrors": {
+      "noRoute": "Brak dostępnej trasy dla tej pary",
+      "emptyQuote": "Router zwrócił pustą ofertę",
+      "belowMinimum": "Router zwrócił trasę poniżej akceptowanego minimum – odśwież oferty",
+      "noTransactions": "Router nie zwrócił żadnych transakcji",
+      "amountTooLarge": "Kwota zbyt duża dla tego routera",
+      "apiError": "Błąd API routera",
+      "cancelled": "Anulowano"
+    },
     "toast": {
       "success": "Swap przez {router} potwierdzony",
-      "optInDone": "Opt-in potwierdzony"
+      "optInDone": "Opt-in potwierdzony",
+      "cancelled": "Anulowano w portfelu"
     },
     "routers": {
       "biatec": {

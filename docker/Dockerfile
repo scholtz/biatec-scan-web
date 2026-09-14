@@ -28,6 +28,15 @@ ARG VITE_GENESIS_HASH=wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=
 ARG VITE_NATIVE_TOKEN_NAME=Algorand
 ARG VITE_NATIVE_TOKEN_UNIT=ALGO
 ARG VITE_NETWORK_LABEL=Algorand
+# Swap / wallet configuration; empty values fall back to the defaults in
+# src/config/env.ts (per-network router URLs, Biatec's WalletConnect id, ...).
+ARG VITE_WC_PROJECT_ID=
+ARG VITE_BIATEC_ROUTER_URL=
+ARG VITE_FOLKS_ROUTER_NETWORK=
+ARG VITE_HAYSTACK_CHAIN=
+ARG VITE_HAYSTACK_ALGOD_URL=
+ARG VITE_HAYSTACK_API_KEY=
+ARG VITE_SWAP_REFERRER_ADDRESS=
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL} \
     VITE_ALGORAND_ALGOD_URL=${VITE_ALGORAND_ALGOD_URL} \
     VITE_ALGORAND_INDEXER_URL=${VITE_ALGORAND_INDEXER_URL} \
@@ -37,7 +46,14 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL} \
     VITE_GENESIS_HASH=${VITE_GENESIS_HASH} \
     VITE_NATIVE_TOKEN_NAME=${VITE_NATIVE_TOKEN_NAME} \
     VITE_NATIVE_TOKEN_UNIT=${VITE_NATIVE_TOKEN_UNIT} \
-    VITE_NETWORK_LABEL=${VITE_NETWORK_LABEL}
+    VITE_NETWORK_LABEL=${VITE_NETWORK_LABEL} \
+    VITE_WC_PROJECT_ID=${VITE_WC_PROJECT_ID} \
+    VITE_BIATEC_ROUTER_URL=${VITE_BIATEC_ROUTER_URL} \
+    VITE_FOLKS_ROUTER_NETWORK=${VITE_FOLKS_ROUTER_NETWORK} \
+    VITE_HAYSTACK_CHAIN=${VITE_HAYSTACK_CHAIN} \
+    VITE_HAYSTACK_ALGOD_URL=${VITE_HAYSTACK_ALGOD_URL} \
+    VITE_HAYSTACK_API_KEY=${VITE_HAYSTACK_API_KEY} \
+    VITE_SWAP_REFERRER_ADDRESS=${VITE_SWAP_REFERRER_ADDRESS}
 
 RUN pnpm run build
 RUN cd /src/dist && ls
@@ -55,7 +71,10 @@ RUN mkdir /app
 # environment in the k8s manifests) - this is what lets one image serve any
 # network's CSP without a rebuild.
 COPY docker/default.conf.template /etc/nginx/templates/default.conf.template
-ENV CSP_CONNECT_SRC="https://api.algorand.scan.biatec.io wss://api.algorand.scan.biatec.io https://algorand-algod-public.de-4.biatec.io https://mainnet-idx.4160.nodely.dev https://algorand.scan.biatec.io https://router.api.biatec.io https://*.walletconnect.com wss://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.org https://api.web3modal.org https://*.perawallet.app wss://*.perawallet.app https://*.defly.app wss://*.defly.app https://liquid.biatec.io wss://liquid.biatec.io https://deflex.txnlab.dev https://api.folksrouter.io"
+ENV CSP_CONNECT_SRC="https://api.algorand.scan.biatec.io wss://api.algorand.scan.biatec.io https://algorand-algod-public.de-4.biatec.io https://mainnet-idx.4160.nodely.dev https://algorand.scan.biatec.io https://router.api.biatec.io"
+# Network-independent wallet / swap-aggregator hosts (see default.conf.template).
+# A new swap router's API host goes here, not in the per-network manifests.
+ENV CSP_WALLET_CONNECT_SRC="https://*.walletconnect.com wss://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.org https://api.web3modal.org https://*.perawallet.app wss://*.perawallet.app https://*.defly.app wss://*.defly.app https://s3.amazonaws.com https://*.amazonaws.com https://liquid.biatec.io wss://liquid.biatec.io https://deflex.txnlab.dev https://api.folksrouter.io"
 RUN chown nginx:nginx /etc/nginx/conf.d /etc/nginx/templates -R
 RUN chmod 0600 /etc/nginx/conf.d /etc/nginx/templates -R
 RUN chmod 0700 /etc/nginx/conf.d /etc/nginx/templates

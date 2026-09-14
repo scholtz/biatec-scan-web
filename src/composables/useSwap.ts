@@ -16,22 +16,16 @@ import {
   type SwapAssetInfo,
 } from "../swap/assetInfo";
 import { pickBestRouterId } from "../swap/bestQuote";
+import { errorMessage } from "../swap/errors";
 import {
   executeSwapQuote,
   SwapExecutionError,
   type SwapExecutionResult,
 } from "../swap/executeSwap";
-import {
-  createInitialResults,
-  errorMessage,
-  quoteAllRouters,
-} from "../swap/quoteService";
+import { createInitialResults, quoteAllRouters } from "../swap/quoteService";
 import { swapRouters } from "../swap/routers";
-import type {
-  RouterQuoteResult,
-  SwapRequest,
-  SwapRouterContext,
-} from "../swap/types";
+import type { RouterQuoteResult, SwapRequest } from "../swap/types";
+import { isUserRejection } from "../wallet/errors";
 import { useAccountHoldings } from "./useAccountHoldings";
 import { useToast } from "./useToast";
 
@@ -58,10 +52,13 @@ export interface SwapExecutionRecord extends SwapExecutionResult {
   amountIn: bigint;
 }
 
-export function useSwap(initialFrom?: Ref<bigint | undefined>, initialTo?: Ref<bigint | undefined>) {
+export function useSwap(
+  initialFrom?: Ref<bigint | undefined>,
+  initialTo?: Ref<bigint | undefined>
+) {
   const { t } = useI18n();
   const { showToast } = useToast();
-  const { activeAddress, signTransactions, isReady } = useWallet();
+  const { activeAddress, signTransactions } = useWallet();
   const algod = algorandService.getAlgodClient();
   const holdings = useAccountHoldings(activeAddress);
 
@@ -78,12 +75,7 @@ export function useSwap(initialFrom?: Ref<bigint | undefined>, initialTo?: Ref<b
   const lastExecution = shallowRef<SwapExecutionRecord | null>(null);
   const quotedAt = ref<number | null>(null);
   const quoteError = ref<string | null>(null);
-  let round = 0;
-
-  const ctx: SwapRouterContext = {
-    algod,
-    getAuthHeader: () => getAuthToken(),
-  };
+  let abort: AbortController | undefined;
 
   const amountBaseUnits = computed<bigint | undefined>(() =>
     parseAmountToBaseUnits(amountInput.value, fromAsset.value.decimals)
@@ -93,13 +85,12 @@ export function useSwap(initialFrom?: Ref<bigint | undefined>, initialTo?: Ref<b
     holdings.balanceOf(fromAsset.value.id)
   );
 
+  /** Only meaningful once holdings are known; never inferred from an error. */
   const insufficientBalance = computed<boolean>(() => {
     if (!activeAddress.value || amountBaseUnits.value === undefined) return false;
-    const available =
-      fromAsset.value.id === 0n
-        ? holdings.spendableNative.value
-        : (fromBalance.value ?? 0n);
-    return amountBaseUnits.value > available;
+    const spendable = holdings.spendableOf(fromAsset.value.id);
+    if (spendable === undefined) return false;
+    return amountBaseUnits.value > spendable;
   });
 
   const samePair = computed(
@@ -116,40 +107,46 @@ export function useSwap(initialFrom?: Ref<bigint | undefined>, initialTo?: Ref<b
   );
 
   const bestRouterId = computed(() => pickBestRouterId(results.value));
+  const hasQuotes = computed(() => results.value.some((r) => r.status === "ok"));
 
-  const hasQuotes = computed(() =>
-    results.value.some((r) => r.status === "ok")
-  );
-
+  // Quote age ticks only while quotes exist, so an idle page does no work.
   const quoteAgeMs = ref(0);
   const quotesStale = computed(
     () => quotedAt.value !== null && quoteAgeMs.value > QUOTE_TTL_MS
   );
-  const ageTimer = setInterval(() => {
-    quoteAgeMs.value = quotedAt.value ? Date.now() - quotedAt.value : 0;
-  }, 1000);
+  let ageTimer: ReturnType<typeof setInterval> | undefined;
+  watch(quotedAt, (value) => {
+    if (ageTimer) clearInterval(ageTimer);
+    ageTimer = undefined;
+    quoteAgeMs.value = 0;
+    if (value === null) return;
+    ageTimer = setInterval(() => {
+      quoteAgeMs.value = Date.now() - value;
+    }, 1000);
+  });
 
   const toAssetNeedsOptIn = computed<boolean>(
     () =>
       !!activeAddress.value &&
       toAsset.value !== undefined &&
-      !holdings.loading.value &&
-      !holdings.isOptedIn(toAsset.value.id)
+      holdings.isOptedIn(toAsset.value.id) === false
   );
 
   /** App ids any successful quote requires that the account hasn't opted into. */
   const missingAppOptIns = computed<bigint[]>(() => {
+    if (!holdings.loaded.value) return [];
     const ids = new Set<bigint>();
     for (const result of results.value) {
       for (const appId of result.quote?.requiredAppOptIns ?? []) {
-        if (!holdings.holdings.value.optedInApps.has(appId)) ids.add(appId);
+        if (!holdings.optedInApps.value.has(appId)) ids.add(appId);
       }
     }
     return [...ids];
   });
 
   function resetResults(): void {
-    round++;
+    abort?.abort();
+    abort = undefined;
     results.value = createInitialResults(swapRouters, genesisId);
     quotedAt.value = null;
     quoteError.value = null;
@@ -188,14 +185,12 @@ export function useSwap(initialFrom?: Ref<bigint | undefined>, initialTo?: Ref<b
   }
 
   function setMaxAmount(): void {
-    const available =
-      fromAsset.value.id === 0n
-        ? holdings.spendableNative.value
-        : fromBalance.value;
+    const available = holdings.spendableOf(fromAsset.value.id);
     if (available === undefined) return;
     const decimals = fromAsset.value.decimals;
-    const whole = available / 10n ** BigInt(decimals);
-    const fraction = (available % 10n ** BigInt(decimals))
+    const scale = 10n ** BigInt(decimals);
+    const whole = available / scale;
+    const fraction = (available % scale)
       .toString()
       .padStart(decimals, "0")
       .replace(/0+$/, "");
@@ -206,9 +201,10 @@ export function useSwap(initialFrom?: Ref<bigint | undefined>, initialTo?: Ref<b
     if (!canQuote.value || !toAsset.value || amountBaseUnits.value === undefined) {
       return;
     }
-    const thisRound = ++round;
+    resetResults();
+    const controller = new AbortController();
+    abort = controller;
     quoting.value = true;
-    quoteError.value = null;
     lastExecution.value = null;
     const sender = activeAddress.value;
     // Without a connected wallet the routers still need some sender to build
@@ -223,28 +219,26 @@ export function useSwap(initialFrom?: Ref<bigint | undefined>, initialTo?: Ref<b
       slippageBps: slippageBps.value,
       genesisId,
     };
-    results.value = createInitialResults(swapRouters, genesisId);
-    const apply = (result: RouterQuoteResult) => {
-      if (thisRound !== round) return;
-      results.value = results.value.map((r) =>
-        r.router.id === result.router.id ? result : r
-      );
-    };
     try {
-      await quoteAllRouters(swapRouters, request, ctx, {
-        simulate: sender !== null,
-        onUpdate: apply,
-        isCancelled: () => thisRound !== round,
-      });
-      if (thisRound === round) {
-        quotedAt.value = Date.now();
-        quoteAgeMs.value = 0;
-        if (!results.value.some((r) => r.status === "ok")) {
-          quoteError.value = t("swap.errors.noRoutes");
+      await quoteAllRouters(
+        swapRouters,
+        request,
+        { algod, getAuthHeader: (realm) => getAuthToken(realm), signal: controller.signal },
+        {
+          simulate: sender !== null,
+          onUpdate: (result) => {
+            results.value = results.value.map((r) =>
+              r.router.id === result.router.id ? result : r
+            );
+          },
         }
+      );
+      if (!controller.signal.aborted) {
+        quotedAt.value = Date.now();
+        if (!hasQuotes.value) quoteError.value = t("swap.errors.noRoutes");
       }
     } finally {
-      if (thisRound === round) quoting.value = false;
+      if (!controller.signal.aborted) quoting.value = false;
     }
   }
 
@@ -272,80 +266,74 @@ export function useSwap(initialFrom?: Ref<bigint | undefined>, initialTo?: Ref<b
         algod
       );
       lastExecution.value = { ...record, ...outcome };
-      showToast(t("swap.toast.success", { router: result.router.displayName }), "success");
+      showToast(
+        t("swap.toast.success", { router: result.router.displayName }),
+        "success"
+      );
       resetResults();
       amountInput.value = "";
       await holdings.refresh();
     } catch (error: unknown) {
-      const message =
-        error instanceof SwapExecutionError
-          ? t(`swap.errors.stage.${error.stage}`, { message: error.message })
-          : errorMessage(error);
-      showToast(message, "error", 6000);
-      if (error instanceof SwapExecutionError && error.txIds.length > 0) {
-        lastExecution.value = { ...record, txIds: error.txIds };
+      if (isUserRejection(error)) {
+        showToast(t("swap.toast.cancelled"), "info");
+      } else {
+        const message =
+          error instanceof SwapExecutionError
+            ? t(`swap.errors.stage.${error.stage}`, { message: error.message })
+            : errorMessage(error);
+        showToast(message, "error", 6000);
+        if (error instanceof SwapExecutionError && error.txIds.length > 0) {
+          lastExecution.value = { ...record, txIds: error.txIds };
+          await holdings.refresh();
+        }
       }
-      await holdings.refresh();
     } finally {
       executingRouterId.value = null;
     }
   }
 
-  async function sendSingle(
-    build: (params: algosdk.SuggestedParams) => algosdk.Transaction
-  ): Promise<string> {
-    const params = await algod.getTransactionParams().do();
-    const txn = build(params);
-    const [signed] = await signTransactions([txn], [0]);
-    if (!signed) throw new Error(t("swap.errors.notSigned"));
-    const { txid } = await algod.sendRawTransaction(signed).do();
-    await algosdk.waitForConfirmation(algod, txid, 10);
-    return txid;
-  }
-
-  async function optInToAsset(assetId: bigint): Promise<void> {
+  async function runOptIn(
+    build: (sender: string, params: algosdk.SuggestedParams) => algosdk.Transaction
+  ): Promise<void> {
     const sender = activeAddress.value;
     if (!sender || optingIn.value) return;
     optingIn.value = true;
     try {
-      await sendSingle((suggestedParams) =>
-        algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-          sender,
-          receiver: sender,
-          amount: 0,
-          assetIndex: assetId,
-          suggestedParams,
-        })
-      );
+      const params = await algod.getTransactionParams().do();
+      const txn = build(sender, params);
+      const [signed] = await signTransactions([txn], [0]);
+      if (!signed) throw new Error(t("swap.errors.notSigned"));
+      const { txid } = await algod.sendRawTransaction(signed).do();
+      await algosdk.waitForConfirmation(algod, txid, 10);
       showToast(t("swap.toast.optInDone"), "success");
       await holdings.refresh();
     } catch (error: unknown) {
-      showToast(errorMessage(error), "error", 6000);
+      if (isUserRejection(error)) showToast(t("swap.toast.cancelled"), "info");
+      else showToast(errorMessage(error), "error", 6000);
     } finally {
       optingIn.value = false;
     }
   }
 
-  async function optInToApp(appId: bigint): Promise<void> {
-    const sender = activeAddress.value;
-    if (!sender || optingIn.value) return;
-    optingIn.value = true;
-    try {
-      await sendSingle((suggestedParams) =>
-        algosdk.makeApplicationOptInTxnFromObject({
-          sender,
-          appIndex: appId,
-          suggestedParams,
-        })
-      );
-      showToast(t("swap.toast.optInDone"), "success");
-      await holdings.refresh();
-    } catch (error: unknown) {
-      showToast(errorMessage(error), "error", 6000);
-    } finally {
-      optingIn.value = false;
-    }
-  }
+  const optInToAsset = (assetId: bigint) =>
+    runOptIn((sender, suggestedParams) =>
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        sender,
+        receiver: sender,
+        amount: 0,
+        assetIndex: assetId,
+        suggestedParams,
+      })
+    );
+
+  const optInToApp = (appId: bigint) =>
+    runOptIn((sender, suggestedParams) =>
+      algosdk.makeApplicationOptInTxnFromObject({
+        sender,
+        appIndex: appId,
+        suggestedParams,
+      })
+    );
 
   async function selectAssetById(side: "from" | "to", id: bigint): Promise<void> {
     try {
@@ -359,21 +347,29 @@ export function useSwap(initialFrom?: Ref<bigint | undefined>, initialTo?: Ref<b
 
   // Initial pair: route params if given, otherwise native -> USD reference.
   void (async () => {
-    const from = initialFrom?.value;
-    const to = initialTo?.value;
-    if (from !== undefined) await selectAssetById("from", from);
-    await selectAssetById("to", to ?? (from === BigInt(usdcAssetId) ? 0n : BigInt(usdcAssetId)));
+    const fromId = initialFrom?.value ?? 0n;
+    const usd = BigInt(usdcAssetId);
+    const toId = initialTo?.value ?? (fromId === usd ? 0n : usd);
+    try {
+      const [from, to] = await Promise.all([
+        loadSwapAssetInfo(fromId, algod),
+        loadSwapAssetInfo(toId, algod),
+      ]);
+      fromAsset.value = from;
+      toAsset.value = to;
+    } catch (error: unknown) {
+      showToast(errorMessage(error), "error");
+    }
   })();
 
   function dispose(): void {
-    clearInterval(ageTimer);
-    round++;
+    abort?.abort();
+    if (ageTimer) clearInterval(ageTimer);
   }
 
   return {
     // wallet
     activeAddress,
-    walletReady: isReady,
     holdings,
     // inputs
     fromAsset,

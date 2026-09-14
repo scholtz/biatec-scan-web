@@ -2,10 +2,37 @@ import algosdk from "algosdk";
 import { Buffer } from "buffer";
 import { describe, expect, it } from "vitest";
 import type { biatecRouter } from "biatec-router";
-import { buildBiatecRouteInfo, combineBiatecRoutes } from "./biatec";
+import { SwapRouterError } from "../errors";
+import {
+  buildBiatecGroups,
+  buildBiatecRouteInfo,
+  combineBiatecRoutes,
+} from "./biatec";
 import { buildFolksRouteInfo } from "./folks";
 import { buildHaystackGroups, buildHaystackRouteInfo } from "./haystack";
-import { swapRouters } from "./index";
+import { isSwapAvailableOn as availabilityRule } from "../availability";
+import { isSwapAvailableOn, swapRouters } from "./index";
+
+const params: algosdk.SuggestedParams = {
+  fee: 1000n,
+  minFee: 1000n,
+  flatFee: true,
+  firstValid: 1n,
+  lastValid: 10n,
+  genesisID: "mainnet-v1.0",
+  genesisHash: new Uint8Array(32),
+};
+
+function encodedPayment(sender: algosdk.Address, group?: Uint8Array): string {
+  const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    sender,
+    receiver: sender,
+    amount: 0,
+    suggestedParams: params,
+  });
+  if (group) txn.group = group;
+  return Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString("base64");
+}
 
 describe("router registry", () => {
   it("registers every router with a unique id", () => {
@@ -14,18 +41,23 @@ describe("router registry", () => {
     expect(ids).toEqual(expect.arrayContaining(["biatec", "folks", "haystack"]));
   });
 
-  it("only offers Haystack and Folks on Algorand mainnet", () => {
-    for (const id of ["folks", "haystack"]) {
-      const router = swapRouters.find((r) => r.id === id)!;
-      expect(router.supportsNetwork("mainnet-v1.0")).toBe(true);
-      expect(router.supportsNetwork("testnet-v1.0")).toBe(false);
-      expect(router.supportsNetwork("voimain-v1.0")).toBe(false);
+  it("offers Haystack on mainnet only and Folks on mainnet (env default)", () => {
+    const haystack = swapRouters.find((r) => r.id === "haystack")!;
+    const folks = swapRouters.find((r) => r.id === "folks")!;
+    expect(haystack.supportsNetwork("mainnet-v1.0")).toBe(true);
+    expect(folks.supportsNetwork("mainnet-v1.0")).toBe(true);
+    expect(isSwapAvailableOn("mainnet-v1.0")).toBe(true);
+  });
+
+  it("keeps the lightweight availability rule in sync with the registry", () => {
+    for (const genesis of ["mainnet-v1.0", "testnet-v1.0", "voimain-v1.0"]) {
+      expect(availabilityRule(genesis)).toBe(isSwapAvailableOn(genesis));
     }
   });
 });
 
 describe("combineBiatecRoutes", () => {
-  it("sums amounts and fees and concatenates hops/txns across legs", () => {
+  it("sums amounts and fees, concatenates hops and keeps legs apart", () => {
     const response: biatecRouter.RouteOutputCover = {
       routes: [
         {
@@ -60,7 +92,7 @@ describe("combineBiatecRoutes", () => {
     expect(combined.route.outputAmount).toBe(151);
     expect(combined.route.totalNetworkFeeMicroAlgos).toBe(5000);
     expect(combined.route.hops).toHaveLength(3);
-    expect(combined.txsToSign).toEqual(["a", "b", "c"]);
+    expect(combined.legs).toEqual([["a", "b"], ["c"]]);
 
     const info = buildBiatecRouteInfo(combined.route, 0n, 31566704n);
     expect(info.paths).toHaveLength(2);
@@ -68,6 +100,43 @@ describe("combineBiatecRoutes", () => {
     expect(info.paths[1].hops).toHaveLength(2);
     expect(info.paths[0].percentage).toBeCloseTo(60, 6);
     expect(info.paths[1].percentage).toBeCloseTo(40, 6);
+  });
+});
+
+describe("buildBiatecGroups", () => {
+  const acct = algosdk.generateAccount();
+
+  it("merges small legs into one re-grouped atomic group", () => {
+    const stale = new Uint8Array(32).fill(7);
+    const legs = [
+      [encodedPayment(acct.addr, stale), encodedPayment(acct.addr, stale)],
+      [encodedPayment(acct.addr)],
+    ];
+    const groups = buildBiatecGroups(legs);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].transactions).toHaveLength(3);
+    const fresh = legs
+      .flat()
+      .map((b64) =>
+        algosdk.decodeUnsignedTransaction(new Uint8Array(Buffer.from(b64, "base64")))
+      );
+    for (const tx of fresh) tx.group = undefined;
+    const expected = algosdk.computeGroupID(fresh);
+    for (const tx of groups[0].transactions) {
+      expect(tx.group).toEqual(expected);
+      expect(tx.group).not.toEqual(stale);
+    }
+  });
+
+  it("keeps legs as separate groups when they would exceed 16 transactions", () => {
+    const leg = Array.from({ length: 9 }, () => encodedPayment(acct.addr));
+    const groups = buildBiatecGroups([leg, leg]);
+    expect(groups).toHaveLength(2);
+    expect(groups.every((g) => g.transactions.length === 9)).toBe(true);
+  });
+
+  it("rejects an empty route", () => {
+    expect(() => buildBiatecGroups([[], []])).toThrow(SwapRouterError);
   });
 });
 
@@ -119,21 +188,6 @@ describe("Haystack helpers", () => {
   it("groups transactions by group id and keeps presigned bytes aside", () => {
     const acct = algosdk.generateAccount();
     const lsig = new algosdk.LogicSigAccount(new Uint8Array([1, 32, 1, 1, 34]));
-    const params: algosdk.SuggestedParams = {
-      fee: 1000n,
-      minFee: 1000n,
-      flatFee: true,
-      firstValid: 1n,
-      lastValid: 10n,
-      genesisID: "mainnet-v1.0",
-      genesisHash: new Uint8Array(32),
-    };
-    const userTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      sender: acct.addr,
-      receiver: acct.addr,
-      amount: 0,
-      suggestedParams: params,
-    });
     const lsigTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       sender: lsig.address(),
       receiver: acct.addr,
@@ -145,11 +199,7 @@ describe("Haystack helpers", () => {
     const groups = buildHaystackGroups({
       groupMetadata: [],
       txns: [
-        {
-          group: "g1",
-          logicSigBlob: false,
-          data: Buffer.from(algosdk.encodeUnsignedTransaction(userTxn)).toString("base64"),
-        },
+        { group: "g1", logicSigBlob: false, data: encodedPayment(acct.addr) },
         {
           group: "g2",
           logicSigBlob: Object.fromEntries(
@@ -157,11 +207,7 @@ describe("Haystack helpers", () => {
           ),
           data: "",
         },
-        {
-          group: "g2",
-          logicSigBlob: false,
-          data: Buffer.from(algosdk.encodeUnsignedTransaction(userTxn)).toString("base64"),
-        },
+        { group: "g2", logicSigBlob: false, data: encodedPayment(acct.addr) },
       ],
     });
 

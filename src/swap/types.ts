@@ -71,7 +71,6 @@ export interface SwapTransactionGroup {
 }
 
 export interface SwapQuote {
-  routerId: string;
   /** Router-advertised output amount, base units of `toAssetId`. */
   outputAmount: bigint;
   /** Minimum output the prepared transactions enforce (after slippage). */
@@ -85,8 +84,6 @@ export interface SwapQuote {
   requiredAppOptIns: bigint[];
   /** Prepared, unsigned groups - submitted in order. */
   groups: SwapTransactionGroup[];
-  /** Wall-clock time the quote was produced. */
-  createdAt: number;
 }
 
 /** Services a router may need; injected so routers stay unit-testable. */
@@ -94,6 +91,8 @@ export interface SwapRouterContext {
   algod: algosdk.Algodv2;
   /** Returns an ARC-14 `Authorization` header value for the given realm. */
   getAuthHeader: (realm: string) => Promise<string>;
+  /** Set when the quote round was superseded; routers stop early. */
+  signal?: AbortSignal;
 }
 
 /**
@@ -135,6 +134,7 @@ export interface RouterQuoteResult {
   router: SwapRouter;
   status: RouterQuoteStatus;
   quote?: SwapQuote;
-  error?: string;
+  /** Raw error; the UI translates `SwapRouterError` codes. */
+  error?: unknown; // errors from third-party SDKs/fetch have no shared type
   simulation?: SwapSimulationResult;
 }

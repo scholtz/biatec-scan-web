@@ -94,7 +94,6 @@
     "favorites": "Favoritos",
     "settings": "Configuración",
     "swap": "Swap",
-    "about": "Acerca de",
     "searchPlaceholder": "Buscar por bloque o ID de TX...",
     "searchMobilePlaceholder": "Buscar bloque / TX..."
   },
@@ -648,6 +647,8 @@
       "samePair": "Elija dos activos diferentes.",
       "simulationBlocked": "La simulación falló: esta ruta no se puede ejecutar tal cual.",
       "appOptInRequired": "Se requiere opt-in a la aplicación",
+      "assetOptInRequired": "Primero haga opt-in al activo de destino",
+      "holdingsUnavailable": "No se pudieron cargar sus saldos desde la red.",
       "otherExecuting": "Hay otro swap en curso",
       "stage": {
         "validate": "Falló la verificación de la transacción: {message}",
@@ -656,9 +657,19 @@
         "confirm": "Falló la confirmación: {message}"
       }
     },
+    "routerErrors": {
+      "noRoute": "No hay ruta disponible para este par",
+      "emptyQuote": "El enrutador devolvió una cotización vacía",
+      "belowMinimum": "El enrutador devolvió una ruta por debajo del mínimo aceptado: actualice las cotizaciones",
+      "noTransactions": "El enrutador no devolvió transacciones",
+      "amountTooLarge": "Importe demasiado grande para este enrutador",
+      "apiError": "Error de la API del enrutador",
+      "cancelled": "Cancelado"
+    },
     "toast": {
       "success": "Swap vía {router} confirmado",
-      "optInDone": "Opt-in confirmado"
+      "optInDone": "Opt-in confirmado",
+      "cancelled": "Cancelado en la billetera"
     },
     "routers": {
       "biatec": {

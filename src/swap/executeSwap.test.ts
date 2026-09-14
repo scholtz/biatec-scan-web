@@ -26,19 +26,18 @@ function txn(sender = user.addr) {
 
 function quoteWith(groups: SwapQuote["groups"]): SwapQuote {
   return {
-    routerId: "test",
     outputAmount: 1n,
     minimumReceived: 1n,
     route: { paths: [] },
     requiredAppOptIns: [],
     groups,
-    createdAt: 0,
   };
 }
 
-function fakeAlgod(txid = "TX1") {
+function fakeAlgod(txids: string[] = ["TX1"]) {
+  let call = 0;
   const sendRawTransaction = vi.fn(() => ({
-    do: () => Promise.resolve({ txid }),
+    do: () => Promise.resolve({ txid: txids[call++] ?? "TX?" }),
   }));
   const pendingTransactionInformation = vi.fn(() => ({
     do: () =>
@@ -69,7 +68,7 @@ describe("executeSwapQuote", () => {
     const signer = vi.fn(async (_txns: algosdk.Transaction[], indexes: number[]) =>
       _txns.map((_, i) => (indexes.includes(i) ? signedBytes : null))
     );
-    const { algod, sendRawTransaction } = fakeAlgod("ABC");
+    const { algod, sendRawTransaction } = fakeAlgod(["ABC"]);
 
     const result = await executeSwapQuote(
       quoteWith(groups),
@@ -83,6 +82,41 @@ describe("executeSwapQuote", () => {
     expect(sendRawTransaction).toHaveBeenCalledWith([presignedBytes, signedBytes]);
     expect(result.txIds).toEqual(["ABC"]);
     expect(result.confirmedRound).toBe(5n);
+  });
+
+  it("signs every group before submitting any, so a late rejection leaves nothing on chain", async () => {
+    const groups: SwapQuote["groups"] = [
+      { transactions: [txn()], presigned: new Map() },
+      { transactions: [txn()], presigned: new Map() },
+    ];
+    let calls = 0;
+    const signer = vi.fn(async () => {
+      calls++;
+      if (calls === 2) throw new Error("User rejected");
+      return [new Uint8Array([1])];
+    });
+    const { algod, sendRawTransaction } = fakeAlgod();
+    await expect(
+      executeSwapQuote(quoteWith(groups), user.addr.toString(), signer, algod)
+    ).rejects.toMatchObject({ stage: "sign", txIds: [] });
+    expect(sendRawTransaction).not.toHaveBeenCalled();
+  });
+
+  it("submits multiple groups in order and reports every tx id", async () => {
+    const groups: SwapQuote["groups"] = [
+      { transactions: [txn()], presigned: new Map() },
+      { transactions: [txn()], presigned: new Map() },
+    ];
+    const signer = vi.fn(async () => [new Uint8Array([1])]);
+    const { algod, sendRawTransaction } = fakeAlgod(["A", "B"]);
+    const result = await executeSwapQuote(
+      quoteWith(groups),
+      user.addr.toString(),
+      signer,
+      algod
+    );
+    expect(sendRawTransaction).toHaveBeenCalledTimes(2);
+    expect(result.txIds).toEqual(["A", "B"]);
   });
 
   it("refuses to sign a group containing a foreign sender", async () => {

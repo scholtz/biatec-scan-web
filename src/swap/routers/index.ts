@@ -15,3 +15,8 @@ export const swapRouters: readonly SwapRouter[] = [
 export function getSwapRouter(id: string): SwapRouter | undefined {
   return swapRouters.find((router) => router.id === id);
 }
+
+/** True when at least one router serves the given network. */
+export function isSwapAvailableOn(genesisId: string): boolean {
+  return swapRouters.some((router) => router.supportsNetwork(genesisId));
+}

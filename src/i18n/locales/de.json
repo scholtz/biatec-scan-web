@@ -94,7 +94,6 @@
     "favorites": "Favoriten",
     "settings": "Einstellungen",
     "swap": "Swap",
-    "about": "Über",
     "searchPlaceholder": "Nach Block oder TX-ID suchen...",
     "searchMobilePlaceholder": "Block / TX suchen..."
   },
@@ -648,6 +647,8 @@
       "samePair": "Wählen Sie zwei verschiedene Assets.",
       "simulationBlocked": "Simulation fehlgeschlagen – diese Route kann so nicht ausgeführt werden.",
       "appOptInRequired": "Opt-in für Anwendung erforderlich",
+      "assetOptInRequired": "Zuerst Opt-in für das Ziel-Asset durchführen",
+      "holdingsUnavailable": "Ihre Guthaben konnten nicht aus dem Netzwerk geladen werden.",
       "otherExecuting": "Ein anderer Swap läuft bereits",
       "stage": {
         "validate": "Transaktionsprüfung fehlgeschlagen: {message}",
@@ -656,9 +657,19 @@
         "confirm": "Bestätigung fehlgeschlagen: {message}"
       }
     },
+    "routerErrors": {
+      "noRoute": "Keine Route für dieses Paar verfügbar",
+      "emptyQuote": "Der Router hat ein leeres Angebot zurückgegeben",
+      "belowMinimum": "Der Router hat eine Route unter dem akzeptierten Minimum zurückgegeben – Angebote aktualisieren",
+      "noTransactions": "Der Router hat keine Transaktionen zurückgegeben",
+      "amountTooLarge": "Betrag für diesen Router zu groß",
+      "apiError": "Router-API-Fehler",
+      "cancelled": "Abgebrochen"
+    },
     "toast": {
       "success": "Swap über {router} bestätigt",
-      "optInDone": "Opt-in bestätigt"
+      "optInDone": "Opt-in bestätigt",
+      "cancelled": "In der Wallet abgebrochen"
     },
     "routers": {
       "biatec": {

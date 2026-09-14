@@ -20,6 +20,7 @@
 
           <div class="hidden lg:flex space-x-4 xl:space-x-6">
             <router-link
+              v-if="isSwapAvailable"
               to="/swap"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
@@ -131,6 +132,7 @@
         >
           <div class="pt-4 flex flex-col space-y-3">
             <router-link
+              v-if="isSwapAvailable"
               to="/swap"
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
               @click="closeMobile"
@@ -242,10 +244,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { networkLabel } from "../config/env";
-import WalletConnectButton from "./wallet/WalletConnectButton.vue";
+import { isSwapAvailable } from "../swap/availability";
+import { walletReady } from "../wallet/walletReady";
+
+// Loaded after the wallet plugin is installed (see main.ts) so the heavy
+// wallet SDKs never block the first render of any page.
+const WalletConnectButton = defineAsyncComponent(async () => {
+  await walletReady;
+  return import("./wallet/WalletConnectButton.vue");
+});
 
 const router = useRouter();
 const route = useRoute();

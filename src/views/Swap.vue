@@ -24,7 +24,7 @@
               @click="setMaxAmount"
             >
               {{ $t("swap.balance") }}:
-              {{ formatBaseUnits(fromBalance, fromAsset.decimals, 6) }}
+              {{ formatAmount(fromBalance, fromAsset.decimals) }}
               {{ assetLabel(fromAsset) }}
               <span class="ml-1 text-primary-400">{{ $t("swap.max") }}</span>
             </button>
@@ -35,7 +35,7 @@
               type="text"
               inputmode="decimal"
               autocomplete="off"
-              :placeholder="'0.0'"
+              placeholder="0.0"
               class="flex-1 min-w-0 bg-transparent text-2xl font-mono text-white placeholder-gray-600 focus:outline-none"
               :class="{ 'text-red-300': amountInvalid || insufficientBalance }"
               @keyup.enter="getQuotes"
@@ -73,16 +73,16 @@
         <div class="rounded-xl bg-dark-900/50 border border-dark-700/50 p-4 space-y-2">
           <div class="flex items-center justify-between text-xs text-gray-400">
             <span>{{ $t("swap.youReceive") }}</span>
-            <span v-if="toAsset && holdings.balanceOf(toAsset.id) !== undefined">
+            <span v-if="toAsset && toBalance !== undefined">
               {{ $t("swap.balance") }}:
-              {{ formatBaseUnits(holdings.balanceOf(toAsset.id)!, toAsset.decimals, 6) }}
+              {{ formatAmount(toBalance, toAsset.decimals) }}
               {{ assetLabel(toAsset) }}
             </span>
           </div>
           <div class="flex items-center gap-2">
             <div class="flex-1 min-w-0 text-2xl font-mono text-white truncate">
               <template v-if="bestOutput !== undefined && toAsset">
-                {{ formatBaseUnits(bestOutput, toAsset.decimals, 6) }}
+                {{ formatAmount(bestOutput, toAsset.decimals) }}
               </template>
               <span v-else class="text-gray-600">0.0</span>
             </div>
@@ -149,11 +149,17 @@
         <p v-if="!activeAddress" class="text-xs text-gray-400 text-center">
           {{ $t("swap.connectToExecute") }}
         </p>
-        <p v-else-if="quotedAt && !quotesStale" class="text-xs text-gray-500 text-center">
-          {{ $t("swap.quotedAgo", { seconds: Math.floor(quoteAgeMs / 1000) }) }}
+        <p v-else-if="holdings.error.value" class="text-xs text-amber-300 text-center">
+          {{ $t("swap.errors.holdingsUnavailable") }}
+          <button type="button" class="underline ml-1" @click="holdings.refresh()">
+            {{ $t("common.refresh") }}
+          </button>
         </p>
         <p v-else-if="quotesStale" class="text-xs text-amber-300 text-center">
           {{ $t("swap.errors.staleQuote") }}
+        </p>
+        <p v-else-if="quotedAt" class="text-xs text-gray-500 text-center">
+          {{ $t("swap.quotedAgo", { seconds: Math.floor(quoteAgeMs / 1000) }) }}
         </p>
 
         <!-- Opt-in notices -->
@@ -200,7 +206,7 @@
           <p class="text-sm text-gray-200">
             {{
               $t("swap.result.summary", {
-                amount: formatBaseUnits(lastExecution.amountIn, lastExecution.fromAsset.decimals, 6),
+                amount: formatAmount(lastExecution.amountIn, lastExecution.fromAsset.decimals),
                 from: assetLabel(lastExecution.fromAsset),
                 to: assetLabel(lastExecution.toAsset),
                 router: routerName(lastExecution.routerId),
@@ -228,8 +234,8 @@
             :result="result"
             :is-best="result.router.id === bestRouterId"
             :from-asset="fromAsset"
-            :to-asset="toAsset ?? fromAsset"
-            :amount-in="amountBaseUnits ?? 0n"
+            :to-asset="toAsset"
+            :amount-in="amountBaseUnits"
             :below-best-percent="percentBelowBest(result, results)"
             :executing="executingRouterId === result.router.id"
             :disabled-reason="disabledReasonFor(result)"
@@ -254,17 +260,18 @@ import { useRoute, useRouter } from "vue-router";
 import SwapAssetPicker from "../components/swap/SwapAssetPicker.vue";
 import SwapRouterCard from "../components/swap/SwapRouterCard.vue";
 import WalletConnectButton from "../components/wallet/WalletConnectButton.vue";
+import { useAmountFormat } from "../composables/useAmountFormat";
 import { useSwap } from "../composables/useSwap";
-import { formatBaseUnits } from "../swap/amounts";
+import { genesisId } from "../config/env";
 import { assetLabel } from "../swap/assetInfo";
 import { effectiveOutputAmount, percentBelowBest } from "../swap/bestQuote";
-import { genesisId } from "../config/env";
 import { getSwapRouter, swapRouters } from "../swap/routers";
 import type { RouterQuoteResult } from "../swap/types";
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const { formatAmount } = useAmountFormat();
 
 function paramAsId(value: string | string[] | undefined): bigint | undefined {
   const raw = Array.isArray(value) ? value[0] : value;
@@ -274,7 +281,6 @@ function paramAsId(value: string | string[] | undefined): bigint | undefined {
 const initialFrom = ref(paramAsId(route.params.fromAssetId));
 const initialTo = ref(paramAsId(route.params.toAssetId));
 
-const swap = useSwap(initialFrom, initialTo);
 const {
   activeAddress,
   holdings,
@@ -308,7 +314,7 @@ const {
   optInToAsset,
   optInToApp,
   dispose,
-} = swap;
+} = useSwap(initialFrom, initialTo);
 
 onUnmounted(dispose);
 
@@ -327,6 +333,10 @@ const amountInvalid = computed(
   () => amountInput.value.trim() !== "" && amountBaseUnits.value === undefined
 );
 
+const toBalance = computed(() =>
+  toAsset.value ? holdings.balanceOf(toAsset.value.id) : undefined
+);
+
 const bestOutput = computed<bigint | undefined>(() => {
   const best = results.value.find((r) => r.router.id === bestRouterId.value);
   return best ? effectiveOutputAmount(best) : undefined;
@@ -339,8 +349,10 @@ function routerName(id: string): string {
 function disabledReasonFor(result: RouterQuoteResult): string | undefined {
   if (result.status !== "ok") return undefined;
   if (!activeAddress.value) return t("swap.connectToExecute");
+  if (holdings.error.value) return t("swap.errors.holdingsUnavailable");
   if (quotesStale.value) return t("swap.errors.staleQuote");
   if (insufficientBalance.value) return t("swap.errors.insufficientBalance");
+  if (toAssetNeedsOptIn.value) return t("swap.errors.assetOptInRequired");
   if (result.simulation && !result.simulation.success) {
     return t("swap.errors.simulationBlocked");
   }

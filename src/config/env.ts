@@ -119,3 +119,39 @@ export const haystackApiKey: string =
 export const swapReferrerAddress: string =
   viteEnv.VITE_SWAP_REFERRER_ADDRESS ||
   "AWALLETCPHQPJGCZ6AHLIFPHWBHUEHQ7VBYJVVGQRRY4MEIGWUBKCQYP4Y";
+
+/**
+ * Resolve an optional per-router network setting: unset/empty (Docker passes
+ * undeclared build args as "") means "use the default for this network";
+ * the explicit value "none" disables the router on this build.
+ */
+function networkSetting(value: string | undefined, fallback: string): string {
+  if (!value) return fallback;
+  return value === "none" ? "" : value;
+}
+
+/**
+ * Folks Router network to quote against ("mainnet" | "testnet"); empty
+ * string = Folks Router is not offered on this network.
+ */
+export const folksRouterNetwork: string = networkSetting(
+  viteEnv.VITE_FOLKS_ROUTER_NETWORK,
+  isAlgorandMainnet ? "mainnet" : isAlgorandTestnet ? "testnet" : ""
+);
+
+/**
+ * Haystack (Deflex) chain name; empty string = Haystack is not offered on
+ * this network (it only has an Algorand mainnet deployment).
+ */
+export const haystackChain: string = networkSetting(
+  viteEnv.VITE_HAYSTACK_CHAIN,
+  isAlgorandMainnet ? "mainnet" : ""
+);
+
+/**
+ * Algod URL Haystack builds its transactions against - a request parameter
+ * of their API, not something this app connects to, hence separate from
+ * `algodUrl` (which must stay a browser-reachable, CSP-allowed endpoint).
+ */
+export const haystackAlgodUrl: string =
+  viteEnv.VITE_HAYSTACK_ALGOD_URL || "https://mainnet-api.algonode.cloud";

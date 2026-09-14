@@ -51,11 +51,6 @@ export function resolveWalletNetworkId(genesis: string): string {
   }
 }
 
-/** Ids of the registered wallets, in picker order - Biatec Wallet first. */
-export function walletOrder(configs: readonly WalletAdapterConfig[]): string[] {
-  return configs.map((config) => config.id);
-}
-
 export function buildNetworks(): Record<string, NetworkConfig> {
   const algod = { baseServer: algodUrl, token: "", port: "" };
   const builder = new NetworkConfigBuilder();

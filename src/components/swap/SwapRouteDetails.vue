@@ -41,9 +41,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { algorandService } from "../../services/algorandService";
-import { loadSwapAssetInfo, peekSwapAssetInfo } from "../../swap/assetInfo";
+import { assetLabel, loadSwapAssetInfo } from "../../swap/assetInfo";
 import type { SwapRouteHop, SwapRouteInfo } from "../../swap/types";
 
 const props = defineProps<{ route: SwapRouteInfo }>();
@@ -70,24 +70,16 @@ async function resolveNames(): Promise<void> {
       ids.add(hop.toAssetId);
     }
   }
-  const next = new Map(names.value);
-  for (const id of ids) {
-    const key = id.toString();
-    const cached = peekSwapAssetInfo(id);
-    if (cached) {
-      next.set(key, cached.unitName || cached.name || `#${key}`);
-      continue;
-    }
-    try {
-      const info = await loadSwapAssetInfo(id, algod);
-      next.set(key, info.unitName || info.name || `#${key}`);
-    } catch {
-      next.set(key, `#${key}`);
-    }
-  }
-  names.value = next;
+  const entries = await Promise.all(
+    [...ids].map(async (id): Promise<[string, string]> => [
+      id.toString(),
+      await loadSwapAssetInfo(id, algod)
+        .then(assetLabel)
+        .catch(() => `#${id}`),
+    ])
+  );
+  names.value = new Map(entries);
 }
 
-onMounted(() => void resolveNames());
-watch(() => props.route, () => void resolveNames());
+watch(() => props.route, () => void resolveNames(), { immediate: true });
 </script>

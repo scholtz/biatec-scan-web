@@ -22,13 +22,11 @@ function router(id: string): SwapRouter {
 
 function quote(outputAmount: bigint): SwapQuote {
   return {
-    routerId: "x",
     outputAmount,
     minimumReceived: outputAmount,
     route: { paths: [] },
     requiredAppOptIns: [],
     groups: [],
-    createdAt: 0,
   };
 }
 

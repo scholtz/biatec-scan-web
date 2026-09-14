@@ -14,8 +14,6 @@ export interface QuoteAllOptions {
   simulate: boolean;
   /** Invoked every time a router's result changes. */
   onUpdate?: (result: RouterQuoteResult) => void;
-  /** Resolves true if the round was superseded and results must be dropped. */
-  isCancelled?: () => boolean;
 }
 
 /** Initial (idle / unsupported) result rows for the given network. */
@@ -29,12 +27,6 @@ export function createInitialResults(
   }));
 }
 
-export function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "string") return error;
-  return "Unknown error";
-}
-
 async function quoteOne(
   router: SwapRouter,
   request: SwapRequest,
@@ -42,7 +34,7 @@ async function quoteOne(
   options: QuoteAllOptions
 ): Promise<RouterQuoteResult> {
   const emit = (result: RouterQuoteResult) => {
-    if (!options.isCancelled?.()) options.onUpdate?.(result);
+    if (!ctx.signal?.aborted) options.onUpdate?.(result);
     return result;
   };
   if (!router.supportsNetwork(request.genesisId)) {
@@ -54,9 +46,9 @@ async function quoteOne(
     const quote = await router.quote(request, ctx);
     result = { router, status: "ok", quote };
   } catch (error: unknown) {
-    return emit({ router, status: "error", error: errorMessage(error) });
+    return emit({ router, status: "error", error });
   }
-  if (options.simulate) {
+  if (options.simulate && !ctx.signal?.aborted) {
     emit(result);
     try {
       result = {
@@ -72,7 +64,10 @@ async function quoteOne(
     } catch (error: unknown) {
       result = {
         ...result,
-        simulation: { success: false, failureMessage: errorMessage(error) },
+        simulation: {
+          success: false,
+          failureMessage: error instanceof Error ? error.message : String(error),
+        },
       };
     }
   }

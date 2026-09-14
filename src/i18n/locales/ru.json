@@ -94,7 +94,6 @@
     "favorites": "Избранное",
     "settings": "Настройки",
     "swap": "Обмен",
-    "about": "О приложении",
     "searchPlaceholder": "Поиск по блоку или ID TX...",
     "searchMobilePlaceholder": "Поиск блок / tx..."
   },
@@ -648,6 +647,8 @@
       "samePair": "Выберите два разных актива.",
       "simulationBlocked": "Симуляция не удалась — этот маршрут нельзя выполнить в текущем виде.",
       "appOptInRequired": "Требуется opt-in в приложение",
+      "assetOptInRequired": "Сначала выполните opt-in на целевой актив",
+      "holdingsUnavailable": "Не удалось загрузить ваши балансы из сети.",
       "otherExecuting": "Выполняется другой обмен",
       "stage": {
         "validate": "Проверка транзакции не пройдена: {message}",
@@ -656,9 +657,19 @@
         "confirm": "Ошибка подтверждения: {message}"
       }
     },
+    "routerErrors": {
+      "noRoute": "Для этой пары нет доступного маршрута",
+      "emptyQuote": "Маршрутизатор вернул пустую котировку",
+      "belowMinimum": "Маршрутизатор вернул маршрут ниже допустимого минимума — обновите котировки",
+      "noTransactions": "Маршрутизатор не вернул транзакций",
+      "amountTooLarge": "Сумма слишком велика для этого маршрутизатора",
+      "apiError": "Ошибка API маршрутизатора",
+      "cancelled": "Отменено"
+    },
     "toast": {
       "success": "Обмен через {router} подтверждён",
-      "optInDone": "Opt-in подтверждён"
+      "optInDone": "Opt-in подтверждён",
+      "cancelled": "Отменено в кошельке"
     },
     "routers": {
       "biatec": {

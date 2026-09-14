@@ -80,6 +80,8 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useWallet, type Wallet } from "@txnlab/use-wallet-vue";
 import { useToast } from "../../composables/useToast";
+import { errorMessage } from "../../swap/errors";
+import { isUserRejection } from "../../wallet/errors";
 import { BIATEC_WALLET_ID } from "../../wallet/walletConfig";
 
 const emit = defineEmits<{ close: [] }>();
@@ -101,11 +103,8 @@ async function connect(wallet: Wallet) {
     showToast(t("wallet.connected", { wallet: wallet.metadata.name }), "success");
     emit("close");
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : String(e);
     // A user closing the wallet's own dialog is not an error worth a toast.
-    if (!/cancel|reject|closed|dismiss/i.test(message)) {
-      showToast(message, "error", 6000);
-    }
+    if (!isUserRejection(e)) showToast(errorMessage(e), "error", 6000);
   } finally {
     connectingId.value = null;
   }

@@ -94,7 +94,6 @@
     "favorites": "Kedvencek",
     "settings": "Beállítások",
     "swap": "Csere",
-    "about": "Névjegy",
     "searchPlaceholder": "Keresés blokk vagy tranzakció ID alapján...",
     "searchMobilePlaceholder": "Blokk / tranzakció keresése..."
   },
@@ -648,6 +647,8 @@
       "samePair": "Válasszon két különböző eszközt.",
       "simulationBlocked": "A szimuláció sikertelen – ez az útvonal jelen formájában nem hajtható végre.",
       "appOptInRequired": "Alkalmazás opt-in szükséges",
+      "assetOptInRequired": "Először iratkozzon fel (opt-in) a céleszközre",
+      "holdingsUnavailable": "Az egyenlegeit nem sikerült betölteni a hálózatról.",
       "otherExecuting": "Másik csere van folyamatban",
       "stage": {
         "validate": "A tranzakció ellenőrzése sikertelen: {message}",
@@ -656,9 +657,19 @@
         "confirm": "A megerősítés sikertelen: {message}"
       }
     },
+    "routerErrors": {
+      "noRoute": "Ehhez a párhoz nincs elérhető útvonal",
+      "emptyQuote": "A router üres árajánlatot adott vissza",
+      "belowMinimum": "A router az elfogadott minimum alatti útvonalat adott vissza – frissítse az árajánlatokat",
+      "noTransactions": "A router nem adott vissza tranzakciókat",
+      "amountTooLarge": "Az összeg túl nagy ehhez a routerhez",
+      "apiError": "Router API hiba",
+      "cancelled": "Megszakítva"
+    },
     "toast": {
       "success": "Csere megerősítve ezen keresztül: {router}",
-      "optInDone": "Opt-in megerősítve"
+      "optInDone": "Opt-in megerősítve",
+      "cancelled": "Megszakítva a tárcában"
     },
     "routers": {
       "biatec": {

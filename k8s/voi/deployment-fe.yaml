@@ -39,19 +39,6 @@ spec:
                 https://voimain-algod-public.de.nodes.biatec.io
                 https://voimain-indexer-public.de.nodes.biatec.io
                 https://algorand.scan.biatec.io
-                https://*.walletconnect.com
-                wss://*.walletconnect.com
-                https://*.walletconnect.org
-                wss://*.walletconnect.org
-                https://api.web3modal.org
-                https://*.perawallet.app
-                wss://*.perawallet.app
-                https://*.defly.app
-                wss://*.defly.app
-                https://liquid.biatec.io
-                wss://liquid.biatec.io
-                https://deflex.txnlab.dev
-                https://api.folksrouter.io
           resources:
             requests:
               cpu: 100m

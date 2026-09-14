@@ -94,7 +94,6 @@
     "favorites": "收藏",
     "settings": "设置",
     "swap": "兑换",
-    "about": "关于",
     "searchPlaceholder": "按区块或交易 ID 搜索...",
     "searchMobilePlaceholder": "搜索区块/交易..."
   },
@@ -648,6 +647,8 @@
       "samePair": "请选择两个不同的资产。",
       "simulationBlocked": "模拟失败，此路线无法按原样执行。",
       "appOptInRequired": "需要选择加入应用",
+      "assetOptInRequired": "请先选择加入目标资产",
+      "holdingsUnavailable": "无法从网络加载您的余额。",
       "otherExecuting": "另一笔兑换正在进行中",
       "stage": {
         "validate": "交易检查失败：{message}",
@@ -656,9 +657,19 @@
         "confirm": "确认失败：{message}"
       }
     },
+    "routerErrors": {
+      "noRoute": "此交易对没有可用路线",
+      "emptyQuote": "路由器返回了空报价",
+      "belowMinimum": "路由器返回的路线低于可接受的最低值，请刷新报价",
+      "noTransactions": "路由器未返回任何交易",
+      "amountTooLarge": "金额对此路由器而言过大",
+      "apiError": "路由器 API 错误",
+      "cancelled": "已取消"
+    },
     "toast": {
       "success": "通过 {router} 的兑换已确认",
-      "optInDone": "选择加入已确认"
+      "optInDone": "选择加入已确认",
+      "cancelled": "已在钱包中取消"
     },
     "routers": {
       "biatec": {

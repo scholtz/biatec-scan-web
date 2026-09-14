@@ -9,12 +9,12 @@
 // is cross-checked against that minimum before anything is offered for
 // signing (AW-2026-045).
 import algosdk from "algosdk";
-import { Buffer } from "buffer";
 // biatecRouter is a namespace object (value + type namespace): the generated
 // client's response types are only reachable as its members.
 import { biatecRouter } from "biatec-router";
 import { biatecRouterUrl } from "../../config/env";
 import { applySlippage } from "../amounts";
+import { SwapRouterError } from "../errors";
 import type {
   SwapQuote,
   SwapRequest,
@@ -23,22 +23,34 @@ import type {
   SwapRoutePath,
   SwapRouter,
   SwapRouterContext,
+  SwapTransactionGroup,
 } from "../types";
+import {
+  assertPositiveOutput,
+  decodeUnsignedTransactions,
+  throwIfAborted,
+  toBigInt,
+  toSafeNumber,
+} from "./shared";
 
 export const BIATEC_ROUTER_AUTH_REALM = "BiatecScan#ARC14";
 const MAX_HOPS = 3;
 // routesCount 1 intentionally enables the router's split routing: the
 // response may still carry several legs that are combined below.
 const ROUTES_COUNT = 1;
+/** Algorand's atomic group limit. */
+const MAX_GROUP_SIZE = 16;
 
 export interface BiatecCombinedRoute {
   route: biatecRouter.QuoteRoute;
-  txsToSign: string[];
+  /** One entry per leg, each already a self-contained transaction list. */
+  legs: string[][];
 }
 
 /**
  * Merge every leg of a split route into one aggregate route (summed
- * amounts/fees, concatenated hops and transactions).
+ * amounts/fees, concatenated hops) while keeping the legs' transaction
+ * lists separate so they can be grouped safely.
  */
 export function combineBiatecRoutes(
   response: biatecRouter.RouteOutputCover
@@ -57,7 +69,29 @@ export function combineBiatecRoutes(
       0
     ),
   };
-  return { route, txsToSign: routes.flatMap((r) => r.txsToSign ?? []) };
+  return {
+    route,
+    legs: routes.map((r) => r.txsToSign ?? []).filter((leg) => leg.length > 0),
+  };
+}
+
+/**
+ * Legs are slices of one router-built group when they fit the 16-transaction
+ * limit together (re-grouped as a single atomic group); otherwise each leg
+ * keeps its own group and they are submitted in order.
+ */
+export function buildBiatecGroups(legs: string[][]): SwapTransactionGroup[] {
+  const total = legs.reduce((sum, leg) => sum + leg.length, 0);
+  if (total === 0) throw new SwapRouterError("noTransactions");
+  const regroup = (encoded: string[]): SwapTransactionGroup => {
+    const transactions = decodeUnsignedTransactions(encoded);
+    for (const tx of transactions) tx.group = undefined;
+    const groupId = algosdk.computeGroupID(transactions);
+    for (const tx of transactions) tx.group = groupId;
+    return { transactions, presigned: new Map() };
+  };
+  if (total <= MAX_GROUP_SIZE) return [regroup(legs.flat())];
+  return legs.map(regroup);
 }
 
 // The combined `hops` array is flat but can encode several independent legs
@@ -88,10 +122,6 @@ function splitHopsIntoPaths(hops: SwapRouteHop[]): SwapRoutePath[] {
         : undefined,
     hops: legHops,
   }));
-}
-
-function toBigInt(value: number | undefined): bigint | undefined {
-  return typeof value === "number" ? BigInt(Math.round(value)) : undefined;
 }
 
 export function buildBiatecRouteInfo(
@@ -131,15 +161,15 @@ async function requestRoute(
 ): Promise<BiatecCombinedRoute> {
   const response = await biatecRouter.RouterService.postApiV1RouterRouteTxs({
     sender: request.sender,
-    fromAsset: Number(request.fromAssetId),
-    toAsset: Number(request.toAssetId),
-    swapAmount: Number(request.amount),
-    receiveMinimum: Number(receiveMinimum),
+    fromAsset: toSafeNumber(request.fromAssetId),
+    toAsset: toSafeNumber(request.toAssetId),
+    swapAmount: toSafeNumber(request.amount),
+    receiveMinimum: toSafeNumber(receiveMinimum),
     routesCount: ROUTES_COUNT,
     maxHops: MAX_HOPS,
   });
   if (!response.routes || response.routes.length === 0) {
-    throw new Error("No Biatec Router route available for this pair.");
+    throw new SwapRouterError("noRoute");
   }
   return combineBiatecRoutes(response);
 }
@@ -163,33 +193,21 @@ export const biatecSwapRouter: SwapRouter = {
 
     const preview = await requestRoute(request, 0n);
     const previewOutput = toBigInt(preview.route.outputAmount) ?? 0n;
-    if (previewOutput <= 0n) {
-      throw new Error("Biatec Router returned an empty quote.");
-    }
+    assertPositiveOutput(previewOutput);
     const minimumReceived = applySlippage(previewOutput, request.slippageBps);
 
+    throwIfAborted(ctx.signal);
     const final = await requestRoute(request, minimumReceived);
     const outputAmount = toBigInt(final.route.outputAmount) ?? 0n;
+    assertPositiveOutput(outputAmount);
     if (outputAmount < minimumReceived) {
-      throw new Error(
-        `Biatec Router returned a route below the accepted minimum (${outputAmount} < ${minimumReceived}). Refresh the quote and try again.`
+      throw new SwapRouterError(
+        "belowMinimum",
+        `${outputAmount} < ${minimumReceived}`
       );
     }
-    if (final.txsToSign.length === 0) {
-      throw new Error("Biatec Router returned no transactions for this route.");
-    }
-
-    const transactions = final.txsToSign.map((b64) =>
-      algosdk.decodeUnsignedTransaction(new Uint8Array(Buffer.from(b64, "base64")))
-    );
-    // Legs of a split route arrive with their own group ids; re-group the
-    // concatenated list into a single atomic group.
-    for (const tx of transactions) tx.group = undefined;
-    const groupId = algosdk.computeGroupID(transactions);
-    for (const tx of transactions) tx.group = groupId;
 
     return {
-      routerId: biatecSwapRouter.id,
       outputAmount,
       minimumReceived,
       networkFeeMicroAlgos: toBigInt(final.route.totalNetworkFeeMicroAlgos),
@@ -199,8 +217,7 @@ export const biatecSwapRouter: SwapRouter = {
         request.toAssetId
       ),
       requiredAppOptIns: [],
-      groups: [{ transactions, presigned: new Map() }],
-      createdAt: Date.now(),
+      groups: buildBiatecGroups(final.legs),
     };
   },
 };

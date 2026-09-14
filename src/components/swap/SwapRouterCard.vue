@@ -13,10 +13,7 @@
           <h3 class="text-white font-semibold truncate">
             {{ result.router.displayName }}
           </h3>
-          <span
-            v-if="isBest"
-            class="status-badge status-success"
-          >
+          <span v-if="isBest" class="status-badge status-success">
             {{ $t("swap.bestRoute") }}
           </span>
         </div>
@@ -48,14 +45,14 @@
         {{ $t("swap.status.loading") }}
       </div>
       <p v-else-if="result.status === 'error'" class="text-red-300 break-words">
-        {{ $t("swap.status.error") }}: {{ result.error }}
+        {{ $t("swap.status.error") }}: {{ errorText }}
       </p>
 
-      <template v-else-if="result.quote">
+      <template v-else-if="result.quote && toAsset">
         <div>
           <div class="text-xs text-gray-400">{{ $t("swap.youReceive") }}</div>
           <div class="text-2xl font-bold text-white font-mono leading-tight">
-            {{ formatBaseUnits(displayAmount, toAsset.decimals, 6) }}
+            {{ formatAmount(displayAmount, toAsset.decimals) }}
             <span class="text-base text-gray-300 font-sans">{{ assetLabel(toAsset) }}</span>
           </div>
           <div
@@ -65,18 +62,24 @@
           >
             <template v-if="result.simulation.success">
               {{ $t("swap.simulated") }}
-              <span v-if="result.simulation.netReceived !== result.quote.outputAmount" class="text-gray-400">
-                ({{ $t("swap.quoted") }}: {{ formatBaseUnits(result.quote.outputAmount, toAsset.decimals, 6) }})
+              <span
+                v-if="result.simulation.netReceived !== result.quote.outputAmount"
+                class="text-gray-400"
+              >
+                ({{ $t("swap.quoted") }}: {{ formatAmount(result.quote.outputAmount, toAsset.decimals) }})
               </span>
             </template>
             <template v-else>
               {{ $t("swap.simulationFailed") }}: {{ result.simulation.failureMessage }}
             </template>
           </div>
-          <div v-else-if="!result.simulation && !isPreviewOnly" class="text-xs text-gray-400 mt-0.5">
+          <div v-else-if="!isPreviewOnly" class="text-xs text-gray-400 mt-0.5">
             {{ $t("swap.simulating") }}
           </div>
-          <div v-if="belowBestPercent !== undefined && belowBestPercent > 0" class="text-xs text-amber-300 mt-0.5">
+          <div
+            v-if="belowBestPercent !== undefined && belowBestPercent > 0"
+            class="text-xs text-amber-300 mt-0.5"
+          >
             {{ $t("swap.belowBest", { percent: belowBestPercent.toFixed(2) }) }}
           </div>
         </div>
@@ -88,7 +91,7 @@
           </dd>
           <dt class="text-gray-400">{{ $t("swap.minimumReceived") }}</dt>
           <dd class="text-gray-200 font-mono text-right">
-            {{ formatBaseUnits(result.quote.minimumReceived, toAsset.decimals, 6) }}
+            {{ formatAmount(result.quote.minimumReceived, toAsset.decimals) }}
           </dd>
           <template v-if="result.quote.priceImpactPercent !== undefined">
             <dt class="text-gray-400">{{ $t("swap.priceImpact") }}</dt>
@@ -102,7 +105,7 @@
           <template v-if="result.quote.networkFeeMicroAlgos !== undefined">
             <dt class="text-gray-400">{{ $t("swap.networkFee") }}</dt>
             <dd class="text-gray-200 font-mono text-right">
-              {{ formatBaseUnits(result.quote.networkFeeMicroAlgos, 6, 4) }} {{ nativeTokenUnit }}
+              {{ formatAmount(result.quote.networkFeeMicroAlgos, 6, 4) }} {{ nativeTokenUnit }}
             </dd>
           </template>
           <dt class="text-gray-400">{{ $t("swap.transactions") }}</dt>
@@ -148,10 +151,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { nativeTokenUnit, networkLabel } from "../../config/env";
-import { computeUnitPrice, formatBaseUnits } from "../../swap/amounts";
+import { useAmountFormat } from "../../composables/useAmountFormat";
+import { computeUnitPrice } from "../../swap/amounts";
 import { assetLabel, type SwapAssetInfo } from "../../swap/assetInfo";
 import { effectiveOutputAmount } from "../../swap/bestQuote";
+import { errorMessage, SwapRouterError } from "../../swap/errors";
 import type { RouterQuoteResult } from "../../swap/types";
 import SwapRouteDetails from "./SwapRouteDetails.vue";
 
@@ -159,8 +165,8 @@ const props = defineProps<{
   result: RouterQuoteResult;
   isBest: boolean;
   fromAsset: SwapAssetInfo;
-  toAsset: SwapAssetInfo;
-  amountIn: bigint;
+  toAsset: SwapAssetInfo | undefined;
+  amountIn: bigint | undefined;
   belowBestPercent?: number;
   executing: boolean;
   /** Reason execution is disabled (already translated), or undefined. */
@@ -171,6 +177,8 @@ const props = defineProps<{
 
 defineEmits<{ execute: [] }>();
 
+const { t } = useI18n();
+const { formatAmount, formatNumber } = useAmountFormat();
 const showRoute = ref(false);
 
 const displayAmount = computed<bigint>(
@@ -184,7 +192,17 @@ const txCount = computed(() =>
   )
 );
 
+const errorText = computed(() => {
+  const error = props.result.error;
+  if (error instanceof SwapRouterError) {
+    const translated = t(`swap.routerErrors.${error.code}`);
+    return error.detail ? `${translated} (${error.detail})` : translated;
+  }
+  return errorMessage(error);
+});
+
 const priceText = computed(() => {
+  if (!props.toAsset || props.amountIn === undefined) return "-";
   const price = computeUnitPrice(
     props.amountIn,
     props.fromAsset.decimals,
@@ -192,9 +210,7 @@ const priceText = computed(() => {
     props.toAsset.decimals
   );
   if (price === undefined) return "-";
-  return `1 ${assetLabel(props.fromAsset)} ≈ ${price.toLocaleString(undefined, {
-    maximumSignificantDigits: 6,
-  })} ${assetLabel(props.toAsset)}`;
+  return `1 ${assetLabel(props.fromAsset)} ≈ ${formatNumber(price)} ${assetLabel(props.toAsset)}`;
 });
 
 const canExecute = computed(

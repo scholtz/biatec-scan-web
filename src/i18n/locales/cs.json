@@ -94,7 +94,6 @@
     "favorites": "Oblíbené",
     "settings": "Nastavení",
     "swap": "Swap",
-    "about": "O aplikaci",
     "searchPlaceholder": "Hledat podle bloku nebo TX ID...",
     "searchMobilePlaceholder": "Hledat blok / tx..."
   },
@@ -589,7 +588,7 @@
     "yourAssets": "Vaše assety",
     "noAssetsFound": "Nenalezeny žádné assety",
     "switch": "Prohodit assety",
-    "slippage": "Slippage",
+    "slippage": "Skluz",
     "slippageUnprotected": "Bez ochrany minimální přijaté částky!",
     "slippageHigh": "Vysoká tolerance slippage",
     "gettingQuotes": "Získávají se nabídky…",
@@ -648,6 +647,8 @@
       "samePair": "Vyberte dva různé assety.",
       "simulationBlocked": "Simulace selhala – tuto cestu nelze v této podobě provést.",
       "appOptInRequired": "Vyžadován opt-in k aplikaci",
+      "assetOptInRequired": "Nejprve se přihlaste (opt-in) k cílovému assetu",
+      "holdingsUnavailable": "Vaše zůstatky se nepodařilo načíst ze sítě.",
       "otherExecuting": "Probíhá jiný swap",
       "stage": {
         "validate": "Kontrola transakce selhala: {message}",
@@ -656,9 +657,19 @@
         "confirm": "Potvrzení selhalo: {message}"
       }
     },
+    "routerErrors": {
+      "noRoute": "Pro tento pár není dostupná žádná cesta",
+      "emptyQuote": "Router vrátil prázdnou nabídku",
+      "belowMinimum": "Router vrátil cestu pod přijatelným minimem – obnovte nabídky",
+      "noTransactions": "Router nevrátil žádné transakce",
+      "amountTooLarge": "Částka je pro tento router příliš velká",
+      "apiError": "Chyba API routeru",
+      "cancelled": "Zrušeno"
+    },
     "toast": {
       "success": "Swap přes {router} potvrzen",
-      "optInDone": "Opt-in potvrzen"
+      "optInDone": "Opt-in potvrzen",
+      "cancelled": "Zrušeno v peněžence"
     },
     "routers": {
       "biatec": {

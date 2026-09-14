@@ -1,8 +1,9 @@
 // src/swap/executeSwap.ts - Wallet-agnostic execution of a prepared quote:
-// validate, sign through the injected signer (use-wallet's
-// `signTransactions`), submit each atomic group in order and wait for
-// confirmation. No router-specific code lives here.
+// validate every group, sign every group, and only then submit them in
+// order and wait for confirmation - so a rejected wallet prompt can never
+// leave an earlier group already on chain. No router-specific code here.
 import algosdk from "algosdk";
+import { errorMessage } from "./errors";
 import type { SwapQuote } from "./types";
 import { assertSwapGroupSafe } from "./validate";
 
@@ -22,6 +23,7 @@ export class SwapExecutionError extends Error {
   constructor(
     public readonly stage: SwapExecutionStage,
     message: string,
+    /** Transactions already submitted before the failure, if any. */
     public readonly txIds: string[] = []
   ) {
     super(message);
@@ -36,82 +38,69 @@ export interface SwapExecutionResult {
 
 const CONFIRMATION_WAIT_ROUNDS = 10;
 
+async function stage<T>(
+  name: SwapExecutionStage,
+  txIds: string[],
+  run: () => Promise<T> | T
+): Promise<T> {
+  try {
+    return await run();
+  } catch (error: unknown) {
+    throw new SwapExecutionError(name, errorMessage(error), txIds);
+  }
+}
+
 export async function executeSwapQuote(
   quote: SwapQuote,
   sender: string,
   signer: SwapSigner,
   algod: algosdk.Algodv2
 ): Promise<SwapExecutionResult> {
-  // Validate everything up front so a bad later group never leaves an
-  // earlier one already on chain.
-  for (const group of quote.groups) {
-    try {
-      assertSwapGroupSafe(group.transactions, group.presigned, sender);
-    } catch (error: unknown) {
-      throw new SwapExecutionError(
-        "validate",
-        error instanceof Error ? error.message : String(error)
-      );
-    }
-  }
-
   const txIds: string[] = [];
+
+  await stage("validate", txIds, () => {
+    for (const group of quote.groups) {
+      assertSwapGroupSafe(group.transactions, group.presigned, sender);
+    }
+  });
+
+  const signedGroups = await stage("sign", txIds, async () => {
+    const groups: Uint8Array[][] = [];
+    for (const group of quote.groups) {
+      const indexesToSign = group.transactions
+        .map((_, index) => index)
+        .filter((index) => !group.presigned.has(index));
+      const signed = await signer(group.transactions, indexesToSign);
+      groups.push(
+        group.transactions.map((_, index) => {
+          const bytes = group.presigned.get(index) ?? signed[index];
+          if (!bytes) {
+            throw new Error(
+              `Wallet did not return a signature for transaction ${index + 1}.`
+            );
+          }
+          return bytes;
+        })
+      );
+    }
+    return groups;
+  });
+
   let confirmedRound: bigint | undefined;
-  for (const group of quote.groups) {
-    const indexesToSign = group.transactions
-      .map((_, index) => index)
-      .filter((index) => !group.presigned.has(index));
-
-    let signed: (Uint8Array | null)[];
-    try {
-      signed = await signer(group.transactions, indexesToSign);
-    } catch (error: unknown) {
-      throw new SwapExecutionError(
-        "sign",
-        error instanceof Error ? error.message : String(error),
-        txIds
-      );
-    }
-    const bytes = group.transactions.map((_, index) => {
-      const presigned = group.presigned.get(index);
-      if (presigned) return presigned;
-      const bytesFromWallet = signed[index];
-      if (!bytesFromWallet) {
-        throw new SwapExecutionError(
-          "sign",
-          `Wallet did not return a signature for transaction ${index + 1}.`,
-          txIds
-        );
-      }
-      return bytesFromWallet;
-    });
-
-    let txId: string;
-    try {
+  for (const bytes of signedGroups) {
+    const txId = await stage("submit", txIds, async () => {
       const response = await algod.sendRawTransaction(bytes).do();
-      txId = response.txid;
-      txIds.push(txId);
-    } catch (error: unknown) {
-      throw new SwapExecutionError(
-        "submit",
-        error instanceof Error ? error.message : String(error),
-        txIds
-      );
-    }
-    try {
+      txIds.push(response.txid);
+      return response.txid;
+    });
+    await stage("confirm", txIds, async () => {
       const confirmation = await algosdk.waitForConfirmation(
         algod,
         txId,
         CONFIRMATION_WAIT_ROUNDS
       );
       confirmedRound = confirmation.confirmedRound ?? confirmedRound;
-    } catch (error: unknown) {
-      throw new SwapExecutionError(
-        "confirm",
-        error instanceof Error ? error.message : String(error),
-        txIds
-      );
-    }
+    });
   }
   return { txIds, confirmedRound };
 }

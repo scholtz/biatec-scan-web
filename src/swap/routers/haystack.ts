@@ -2,24 +2,30 @@
 // HTTP API at deflex.txnlab.dev with no published TypeScript SDK; the
 // response interfaces below are hand-derived from the fields this code
 // reads, exactly as Biatec Wallet does (scripts/aggregators/deflex.ts).
-// Mainnet-only: there is no testnet Haystack deployment.
+// The chain name and the algod Haystack should build against come from
+// src/config/env.ts (empty chain = not offered on this network).
 import algosdk from "algosdk";
 import { Buffer } from "buffer";
-import { haystackApiKey, swapReferrerAddress } from "../../config/env";
+import {
+  haystackAlgodUrl,
+  haystackApiKey,
+  haystackChain,
+  swapReferrerAddress,
+} from "../../config/env";
 import { applySlippage } from "../amounts";
+import { SwapRouterError } from "../errors";
 import type {
   SwapQuote,
   SwapRequest,
   SwapRouteInfo,
   SwapRoutePath,
   SwapRouter,
+  SwapRouterContext,
   SwapTransactionGroup,
 } from "../types";
+import { assertPositiveOutput, fractionToPercent, throwIfAborted } from "./shared";
 
 const HAYSTACK_API = "https://deflex.txnlab.dev/api";
-// Haystack builds the transactions server-side against this algod; it is a
-// request parameter of their API, not something this app connects to.
-const HAYSTACK_ALGOD_URI = "https://mainnet-api.algonode.cloud";
 
 export interface HaystackRouteStep {
   name?: string;
@@ -118,8 +124,12 @@ export function buildHaystackGroups(
   });
 }
 
-async function fetchJson<T>(input: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(input, init);
+async function fetchJson<T>(
+  input: string,
+  init: RequestInit,
+  signal: AbortSignal | undefined
+): Promise<T> {
+  const response = await fetch(input, { ...init, signal });
   if (!response.ok) {
     let detail = "";
     try {
@@ -127,9 +137,7 @@ async function fetchJson<T>(input: string, init?: RequestInit): Promise<T> {
     } catch {
       // body unreadable - status alone is enough
     }
-    throw new Error(
-      `Haystack API ${response.status}${detail ? `: ${detail}` : ""}`
-    );
+    throw new SwapRouterError("apiError", `${response.status} ${detail}`.trim());
   }
   return (await response.json()) as T;
 }
@@ -139,16 +147,17 @@ export const haystackRouter: SwapRouter = {
   displayName: "Haystack",
   homepage: "https://haystack.fi",
 
-  supportsNetwork(genesisId: string): boolean {
-    return genesisId === "mainnet-v1.0";
+  supportsNetwork(): boolean {
+    return haystackChain !== "";
   },
 
-  async quote(request: SwapRequest): Promise<SwapQuote> {
+  async quote(request: SwapRequest, ctx: SwapRouterContext): Promise<SwapQuote> {
+    const algod = new URL(haystackAlgodUrl);
     const quoteUrl = new URL(`${HAYSTACK_API}/fetchQuote`);
-    quoteUrl.searchParams.set("chain", "mainnet");
-    quoteUrl.searchParams.set("algodUri", HAYSTACK_ALGOD_URI);
+    quoteUrl.searchParams.set("chain", haystackChain);
+    quoteUrl.searchParams.set("algodUri", algod.origin);
     quoteUrl.searchParams.set("algodToken", "");
-    quoteUrl.searchParams.set("algodPort", "443");
+    quoteUrl.searchParams.set("algodPort", algod.port || "443");
     quoteUrl.searchParams.set("fromASAID", request.fromAssetId.toString());
     quoteUrl.searchParams.set("toASAID", request.toAssetId.toString());
     quoteUrl.searchParams.set("atomicOnly", "true");
@@ -158,15 +167,20 @@ export const haystackRouter: SwapRouter = {
     quoteUrl.searchParams.set("referrerAddress", swapReferrerAddress);
     quoteUrl.searchParams.set("apiKey", haystackApiKey);
 
-    const quote = await fetchJson<HaystackQuoteResponse>(quoteUrl.toString());
-    if (!quote?.txnPayload) {
-      throw new Error("No Haystack route available for this pair.");
-    }
+    const quote = await fetchJson<HaystackQuoteResponse>(
+      quoteUrl.toString(),
+      {},
+      ctx.signal
+    );
+    if (!quote?.txnPayload) throw new SwapRouterError("noRoute");
+    const outputAmount = BigInt(Math.round(quote.quote ?? 0));
+    assertPositiveOutput(outputAmount);
 
     // Haystack's slippage is a percentage; 100 (%) collapses the
     // minimum-received check to zero, i.e. "no protection".
     const slippagePercent =
       request.slippageBps >= 10000 ? 100 : request.slippageBps / 100;
+    throwIfAborted(ctx.signal);
     const txns = await fetchJson<HaystackTxnsResponse>(
       `${HAYSTACK_API}/fetchExecuteSwapTxns`,
       {
@@ -178,21 +192,17 @@ export const haystackRouter: SwapRouter = {
           txnPayloadJSON: quote.txnPayload,
           apiKey: haystackApiKey,
         }),
-      }
+      },
+      ctx.signal
     );
     if (!Array.isArray(txns?.txns) || txns.txns.length === 0) {
-      throw new Error("Haystack returned no transactions for this route.");
+      throw new SwapRouterError("noTransactions");
     }
 
-    const outputAmount = BigInt(Math.round(quote.quote ?? 0));
     return {
-      routerId: haystackRouter.id,
       outputAmount,
       minimumReceived: applySlippage(outputAmount, request.slippageBps),
-      priceImpactPercent:
-        typeof quote.userPriceImpact === "number"
-          ? quote.userPriceImpact * 100
-          : undefined,
+      priceImpactPercent: fractionToPercent(quote.userPriceImpact),
       route: buildHaystackRouteInfo(
         quote,
         txns,
@@ -201,7 +211,6 @@ export const haystackRouter: SwapRouter = {
       ),
       requiredAppOptIns: (quote.requiredAppOptIns ?? []).map((id) => BigInt(id)),
       groups: buildHaystackGroups(txns),
-      createdAt: Date.now(),
     };
   },
 };
