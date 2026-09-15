@@ -44,7 +44,7 @@ export function buildFolksRouteInfo(
   fromAssetId: bigint,
   toAssetId: bigint,
   inputAmount: bigint,
-  outputAmount: bigint
+  outputAmount: bigint,
 ): SwapRouteInfo {
   return {
     paths: [
@@ -77,15 +77,19 @@ export function buildFolksRouteInfo(
 export const folksRouter: SwapRouter = {
   id: "folks",
   displayName: "Folks Router",
-  homepage: "https://folks.finance",
+  homepage: "https://folksrouter.io/",
 
   supportsNetwork(): boolean {
     return resolveNetwork() !== undefined;
   },
 
-  async quote(request: SwapRequest, ctx: SwapRouterContext): Promise<SwapQuote> {
+  async quote(
+    request: SwapRequest,
+    ctx: SwapRouterContext,
+  ): Promise<SwapQuote> {
     const network = resolveNetwork();
-    if (network === undefined) throw new Error("Folks Router network not configured");
+    if (network === undefined)
+      throw new Error("Folks Router network not configured");
     const client = new FolksRouterClient(network);
     const params = {
       amount: request.amount,
@@ -98,7 +102,7 @@ export const folksRouter: SwapRouter = {
       MAX_GROUP_SIZE,
       INTEGRATOR_FEE_BPS,
       USER_FEE_DISCOUNT,
-      swapReferrerAddress
+      swapReferrerAddress,
     );
     const outputAmount = BigInt(quote.quoteAmount);
     assertPositiveOutput(outputAmount);
@@ -110,7 +114,7 @@ export const folksRouter: SwapRouter = {
       params,
       request.sender,
       slippageBps,
-      quote
+      quote,
     );
     return {
       outputAmount,
@@ -121,10 +125,15 @@ export const folksRouter: SwapRouter = {
         request.fromAssetId,
         request.toAssetId,
         request.amount,
-        outputAmount
+        outputAmount,
       ),
       requiredAppOptIns: [],
-      groups: [{ transactions: decodeUnsignedTransactions(encoded), presigned: new Map() }],
+      groups: [
+        {
+          transactions: decodeUnsignedTransactions(encoded),
+          presigned: new Map(),
+        },
+      ],
     };
   },
 };

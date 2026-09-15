@@ -23,9 +23,13 @@ import type {
   SwapRouterContext,
   SwapTransactionGroup,
 } from "../types";
-import { assertPositiveOutput, fractionToPercent, throwIfAborted } from "./shared";
+import {
+  assertPositiveOutput,
+  fractionToPercent,
+  throwIfAborted,
+} from "./shared";
 
-const HAYSTACK_API = "https://deflex.txnlab.dev/api";
+const HAYSTACK_API = "https://txnlab.gitbook.io/haystack-router";
 
 export interface HaystackRouteStep {
   name?: string;
@@ -65,7 +69,7 @@ export function buildHaystackRouteInfo(
   quote: Pick<HaystackQuoteResponse, "route">,
   txns: Pick<HaystackTxnsResponse, "groupMetadata"> | undefined,
   fromAssetId: bigint,
-  toAssetId: bigint
+  toAssetId: bigint,
 ): SwapRouteInfo {
   const steps = (txns?.groupMetadata ?? [])
     .map((g) => g?.labelText)
@@ -100,7 +104,7 @@ export function buildHaystackRouteInfo(
 
 /** Group Haystack's flat transaction list into ordered atomic groups. */
 export function buildHaystackGroups(
-  txns: HaystackTxnsResponse
+  txns: HaystackTxnsResponse,
 ): SwapTransactionGroup[] {
   const byGroup = new Map<string, HaystackTxnEntry[]>();
   for (const entry of txns.txns) {
@@ -117,7 +121,7 @@ export function buildHaystackGroups(
         return algosdk.decodeSignedTransaction(bytes).txn;
       }
       return algosdk.decodeUnsignedTransaction(
-        new Uint8Array(Buffer.from(entry.data, "base64"))
+        new Uint8Array(Buffer.from(entry.data, "base64")),
       );
     });
     return { transactions, presigned };
@@ -127,7 +131,7 @@ export function buildHaystackGroups(
 async function fetchJson<T>(
   input: string,
   init: RequestInit,
-  signal: AbortSignal | undefined
+  signal: AbortSignal | undefined,
 ): Promise<T> {
   const response = await fetch(input, { ...init, signal });
   if (!response.ok) {
@@ -137,7 +141,10 @@ async function fetchJson<T>(
     } catch {
       // body unreadable - status alone is enough
     }
-    throw new SwapRouterError("apiError", `${response.status} ${detail}`.trim());
+    throw new SwapRouterError(
+      "apiError",
+      `${response.status} ${detail}`.trim(),
+    );
   }
   return (await response.json()) as T;
 }
@@ -151,7 +158,10 @@ export const haystackRouter: SwapRouter = {
     return haystackChain !== "";
   },
 
-  async quote(request: SwapRequest, ctx: SwapRouterContext): Promise<SwapQuote> {
+  async quote(
+    request: SwapRequest,
+    ctx: SwapRouterContext,
+  ): Promise<SwapQuote> {
     const algod = new URL(haystackAlgodUrl);
     const quoteUrl = new URL(`${HAYSTACK_API}/fetchQuote`);
     quoteUrl.searchParams.set("chain", haystackChain);
@@ -170,7 +180,7 @@ export const haystackRouter: SwapRouter = {
     const quote = await fetchJson<HaystackQuoteResponse>(
       quoteUrl.toString(),
       {},
-      ctx.signal
+      ctx.signal,
     );
     if (!quote?.txnPayload) throw new SwapRouterError("noRoute");
     const outputAmount = BigInt(Math.round(quote.quote ?? 0));
@@ -193,7 +203,7 @@ export const haystackRouter: SwapRouter = {
           apiKey: haystackApiKey,
         }),
       },
-      ctx.signal
+      ctx.signal,
     );
     if (!Array.isArray(txns?.txns) || txns.txns.length === 0) {
       throw new SwapRouterError("noTransactions");
@@ -207,9 +217,11 @@ export const haystackRouter: SwapRouter = {
         quote,
         txns,
         request.fromAssetId,
-        request.toAssetId
+        request.toAssetId,
       ),
-      requiredAppOptIns: (quote.requiredAppOptIns ?? []).map((id) => BigInt(id)),
+      requiredAppOptIns: (quote.requiredAppOptIns ?? []).map((id) =>
+        BigInt(id),
+      ),
       groups: buildHaystackGroups(txns),
     };
   },
