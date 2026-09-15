@@ -93,7 +93,7 @@
     "trades": "Obchody",
     "favorites": "Obľúbené",
     "settings": "Nastavenia",
-    "about": "O aplikácii",
+    "swap": "Swap",
     "searchPlaceholder": "Hľadať podľa bloku alebo tx ID...",
     "searchMobilePlaceholder": "Hľadať blok / tx..."
   },
@@ -550,11 +550,137 @@
       "title": "Predvoľby",
       "description": "Ďalšie nastavenia a predvoľby budú dostupné v budúcich aktualizáciách."
     },
+    "aboutPage": {
+      "title": "O aplikácii",
+      "description": "Zistite, čo je Biatec {network} Scan, odkiaľ pochádzajú jeho dáta a ako nás kontaktovať.",
+      "link": "Otvoriť stránku O aplikácii"
+    },
     "about": {
       "title": "Informácie o aplikácii",
       "version": "Verzia",
       "buildWith": "Postavené s",
       "repository": "Repozitár"
+    }
+  },
+  "wallet": {
+    "connect": "Pripojiť peňaženku",
+    "viewAccount": "Zobraziť účet",
+    "copyAddress": "Kopírovať adresu",
+    "disconnect": "Odpojiť",
+    "copied": "Adresa skopírovaná do schránky",
+    "copyFailed": "Adresu sa nepodarilo skopírovať",
+    "pickerTitle": "Pripojiť peňaženku",
+    "pickerDescription": "Vyberte peňaženku, ktorú chcete pripojiť. Biatec Wallet je odporúčaná možnosť.",
+    "close": "Zavrieť",
+    "recommended": "Odporúčané",
+    "noWallets": "V tomto prehliadači nie sú dostupné žiadne peňaženky.",
+    "connected": "Pripojené cez {wallet}"
+  },
+  "swap": {
+    "title": "Swap",
+    "subtitle": "Porovnajte ponuky z {count} routerov naraz a vykonajte swap cez ten, ktorý si vyberiete.",
+    "youPay": "Platíte",
+    "youReceive": "Dostanete",
+    "balance": "Zostatok",
+    "max": "MAX",
+    "selectAsset": "Vybrať asset",
+    "searchAssetPlaceholder": "Hľadať podľa názvu, tickeru alebo ID assetu…",
+    "yourAssets": "Vaše assety",
+    "noAssetsFound": "Nenašli sa žiadne assety",
+    "switch": "Vymeniť assety",
+    "slippage": "Sklz",
+    "slippageUnprotected": "Bez ochrany minimálnej prijatej sumy!",
+    "slippageHigh": "Vysoká tolerancia slippage",
+    "gettingQuotes": "Získavajú sa ponuky…",
+    "refreshQuotes": "Obnoviť ponuky",
+    "getQuotes": "Získať ponuky",
+    "connectToExecute": "Na vykonanie swapu pripojte peňaženku. Ponuky je možné porovnať aj bez pripojenia.",
+    "quotedAgo": "Ponuka spred {seconds} s",
+    "bestRoute": "Najlepšia cesta",
+    "website": "Web",
+    "simulated": "Simulovaný on-chain výsledok",
+    "quoted": "ponúknuté",
+    "simulationFailed": "Simulácia zlyhala",
+    "simulating": "Simuluje sa…",
+    "belowBest": "O {percent} % menej ako najlepšia cesta",
+    "price": "Cena",
+    "minimumReceived": "Minimálne prijaté",
+    "priceImpact": "Vplyv na cenu",
+    "networkFee": "Sieťový poplatok",
+    "transactions": "Transakcie",
+    "hideRoute": "Skryť cestu",
+    "showRoute": "Zobraziť cestu",
+    "executing": "Vykonáva sa…",
+    "swapVia": "Swap cez {router}",
+    "status": {
+      "unsupported": "Nedostupné na sieti {network}",
+      "idle": "Čaká sa na požiadavku o ponuku",
+      "loading": "Načítava sa ponuka…",
+      "error": "Ponuka zlyhala"
+    },
+    "route": {
+      "noPoolBreakdown": "Tento router nezverejňuje jednotlivé pooly, ktoré používa.",
+      "noDetailedRoute": "Neboli vrátené podrobné informácie o ceste.",
+      "path": "Cesta {index}"
+    },
+    "optIn": {
+      "assetRequired": "Váš účet nie je prihlásený (opt-in) k assetu {asset}. Pred swapom sa prihláste.",
+      "assetButton": "Opt-in k {asset}",
+      "appRequired": "Táto cesta vyžaduje opt-in k aplikácii {app}.",
+      "appButton": "Opt-in k aplikácii {app}",
+      "inProgress": "Prebieha opt-in…"
+    },
+    "result": {
+      "title": "Swap odoslaný",
+      "summary": "Vymenené {amount} {from} za {to} cez {router}."
+    },
+    "disclaimer": {
+      "simulation": "Sumy označené ako simulované sú vypočítané testovacím spustením presných transakcií voči aktuálnemu stavu ledgeru; ostatné sumy sú odhady routera.",
+      "risk": "Swapy vykonávajú routery tretích strán. Pred podpisom si vždy skontrolujte transakcie vo svojej peňaženke."
+    },
+    "errors": {
+      "noRoutes": "Žiadny router nevrátil cestu pre tento pár a sumu.",
+      "staleQuote": "Ponuky sú staršie ako 90 sekúnd – pred vykonaním ich obnovte.",
+      "notSigned": "Peňaženka nevrátila podpísanú transakciu.",
+      "invalidAmount": "Zadajte platnú sumu s najviac {decimals} desatinnými miestami.",
+      "insufficientBalance": "Nedostatočný zostatok",
+      "samePair": "Vyberte dva rôzne assety.",
+      "simulationBlocked": "Simulácia zlyhala – túto cestu nie je možné vykonať v tejto podobe.",
+      "appOptInRequired": "Vyžaduje sa opt-in k aplikácii",
+      "assetOptInRequired": "Najprv sa prihláste (opt-in) k cieľovému assetu",
+      "holdingsUnavailable": "Vaše zostatky sa nepodarilo načítať zo siete.",
+      "otherExecuting": "Prebieha iný swap",
+      "stage": {
+        "validate": "Kontrola transakcie zlyhala: {message}",
+        "sign": "Podpisovanie zlyhalo: {message}",
+        "submit": "Odoslanie zlyhalo: {message}",
+        "confirm": "Potvrdenie zlyhalo: {message}"
+      }
+    },
+    "routerErrors": {
+      "noRoute": "Pre tento pár nie je dostupná žiadna cesta",
+      "emptyQuote": "Router vrátil prázdnu ponuku",
+      "belowMinimum": "Router vrátil cestu pod prijateľným minimom – obnovte ponuky",
+      "noTransactions": "Router nevrátil žiadne transakcie",
+      "amountTooLarge": "Suma je pre tento router príliš veľká",
+      "apiError": "Chyba API routera",
+      "cancelled": "Zrušené"
+    },
+    "toast": {
+      "success": "Swap cez {router} potvrdený",
+      "optInDone": "Opt-in potvrdený",
+      "cancelled": "Zrušené v peňaženke"
+    },
+    "routers": {
+      "biatec": {
+        "description": "Vlastný agregátor Biatec cez pooly Pact, Tinyman a Biatec CLAMM."
+      },
+      "folks": {
+        "description": "Router Folks Finance agregujúci likviditu DEXov na Algorande."
+      },
+      "haystack": {
+        "description": "Agregátor Haystack (Deflex) naprieč DEXami na Algorande."
+      }
     }
   },
   "favorites": {

@@ -34,6 +34,13 @@
                   class="px-2 py-1 rounded bg-white/10 text-xs text-gray-300 font-mono"
                   >ID: {{ assetId }}</span
                 >
+                <router-link
+                  v-if="isSwapAvailable"
+                  :to="swapLink"
+                  class="px-2 py-1 rounded bg-primary-600/30 hover:bg-primary-600/50 text-xs text-primary-200 transition-colors"
+                >
+                  {{ $t("swap.title") }}
+                </router-link>
                 <button
                   @click="toggleFavorite"
                   class="transition-all duration-300 hover:scale-110 active:scale-95 p-1"
@@ -210,6 +217,7 @@ import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import { favoriteService } from "../services/favoriteService";
 import { assetChartUrl, assetImageUrl, usdcAssetId } from "../config/env";
+import { isSwapAvailable } from "../swap/availability";
 import { signalrService } from "../services/signalrService";
 import { algorandService } from "../services/algorandService";
 import type { SubscriptionFilter } from "../types/SubscriptionFilter";
@@ -224,6 +232,11 @@ const { t } = useI18n();
 
 const route = useRoute();
 const assetId = ref<string>(route.params.assetId as string);
+// Sell the native token for this asset; on the native token's own page
+// fall back to the default pair instead of a same-asset swap.
+const swapLink = computed(() =>
+  assetId.value === "0" ? "/swap" : `/swap/0/${assetId.value}`
+);
 
 const forceUpdate = ref<number>(0);
 const reserveBalance = ref<bigint>(0n);

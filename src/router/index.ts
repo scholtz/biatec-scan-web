@@ -1,3 +1,4 @@
+import { walletReady } from "../wallet/walletReady";
 import { createRouter, createWebHistory } from "vue-router";
 import Assets from "../views/Assets.vue";
 // Lazy import for aggregated pools by asset
@@ -74,6 +75,16 @@ const router = createRouter({
       path: "/favorite",
       name: "FavoriteAssets",
       component: () => import("../views/FavoriteAssets.vue"),
+    },
+    {
+      path: "/swap/:fromAssetId?/:toAssetId?",
+      name: "Swap",
+      component: () => import("../views/Swap.vue"),
+      // The page calls useWallet() in setup, which needs the lazily
+      // installed wallet plugin (see main.ts).
+      beforeEnter: async () => {
+        await walletReady;
+      },
     },
     {
       path: "/settings",

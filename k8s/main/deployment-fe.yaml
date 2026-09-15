@@ -31,6 +31,7 @@ spec:
                 https://mainnet-idx.4160.nodely.dev
                 https://mainnet-idx.voi.nodely.dev
                 https://algorand.scan.biatec.io
+                https://router.api.biatec.io
           resources:
             requests:
               cpu: 200m

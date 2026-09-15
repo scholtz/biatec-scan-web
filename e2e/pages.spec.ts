@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 // Routes that don't require dynamic params, so they can be visited directly.
 const routes = [
   { path: "/", name: "Dashboard" },
+  { path: "/swap", name: "Swap" },
   { path: "/explore", name: "Explore" },
   { path: "/assets", name: "Assets" },
   { path: "/trades", name: "Trades" },
@@ -21,15 +22,22 @@ for (const route of routes) {
     // (shows "OFFLINE"), so that specific network failure is expected noise.
     // Anything else mentioning signalr/negotiation (e.g. a TypeError from a
     // bug in the connection setup code) must NOT be swallowed by this filter.
-    const isExpectedSignalRNoise = (text: string) =>
-      /signalr|negotiation/i.test(text) &&
+    // Chrome reports the blocked negotiate call twice: once as a CORS
+    // message naming the hub URL, and once as a bare "Failed to load
+    // resource" whose only link to the hub is the message's source URL.
+    const isExpectedSignalRNoise = (text: string, sourceUrl = "") =>
+      (/signalr|negotiat/i.test(text) ||
+        /biatecScanHub\/negotiate/i.test(sourceUrl)) &&
       /failed to fetch|cors policy|err_failed|websocket/i.test(text);
 
     const consoleErrors: string[] = [];
     const pageErrors: string[] = [];
 
     page.on("console", (msg) => {
-      if (msg.type() === "error" && !isExpectedSignalRNoise(msg.text())) {
+      if (
+        msg.type() === "error" &&
+        !isExpectedSignalRNoise(msg.text(), msg.location().url)
+      ) {
         consoleErrors.push(msg.text());
       }
     });

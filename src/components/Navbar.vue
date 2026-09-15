@@ -20,6 +20,13 @@
 
           <div class="hidden lg:flex space-x-4 xl:space-x-6">
             <router-link
+              v-if="isSwapAvailable"
+              to="/swap"
+              class="text-gray-300 hover:text-white transition-colors duration-200"
+            >
+              {{ $t("nav.swap") }}
+            </router-link>
+            <router-link
               to="/"
               class="text-gray-300 hover:text-white transition-colors duration-200"
             >
@@ -55,17 +62,11 @@
             >
               {{ $t("nav.settings") }}
             </router-link>
-            <router-link
-              to="/about"
-              class="text-gray-300 hover:text-white transition-colors duration-200"
-            >
-              {{ $t("nav.about") }}
-            </router-link>
           </div>
         </div>
 
-        <div class="hidden xl:flex items-center space-x-4">
-          <div class="relative">
+        <div class="hidden lg:flex items-center space-x-4">
+          <div class="relative hidden xl:block">
             <input
               v-model="searchQuery"
               @keyup.enter="performSearch"
@@ -87,6 +88,7 @@
               />
             </svg>
           </div>
+          <WalletConnectButton />
         </div>
 
         <!-- Mobile hamburger -->
@@ -129,6 +131,18 @@
           class="lg:hidden mt-2 pb-4 border-t border-dark-700/50 space-y-4"
         >
           <div class="pt-4 flex flex-col space-y-3">
+            <router-link
+              v-if="isSwapAvailable"
+              to="/swap"
+              class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
+              @click="closeMobile"
+            >
+              <span>{{ $t("nav.swap") }}</span>
+              <span
+                v-if="isActive('/swap')"
+                class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
+              />
+            </router-link>
             <router-link
               to="/"
               class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
@@ -195,17 +209,9 @@
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
               />
             </router-link>
-            <router-link
-              to="/about"
-              class="px-2 py-2 rounded-lg text-gray-200 hover:bg-dark-800/70 flex items-center justify-between"
-              @click="closeMobile"
-            >
-              <span>{{ $t("nav.about") }}</span>
-              <span
-                v-if="isActive('/about')"
-                class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
-              />
-            </router-link>
+            <div class="px-1 pt-1">
+              <WalletConnectButton compact />
+            </div>
           </div>
           <div class="px-1">
             <div class="relative">
@@ -238,9 +244,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { networkLabel } from "../config/env";
+import { isSwapAvailable } from "../swap/availability";
+import { walletReady } from "../wallet/walletReady";
+
+// Loaded after the wallet plugin is installed (see main.ts) so the heavy
+// wallet SDKs never block the first render of any page.
+const WalletConnectButton = defineAsyncComponent(async () => {
+  await walletReady;
+  return import("./wallet/WalletConnectButton.vue");
+});
 
 const router = useRouter();
 const route = useRoute();

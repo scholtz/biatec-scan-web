@@ -93,7 +93,7 @@
     "trades": "Trades",
     "favorites": "Favorites",
     "settings": "Settings",
-    "about": "About",
+    "swap": "Swap",
     "searchPlaceholder": "Search by block or tx ID...",
     "searchMobilePlaceholder": "Search block / tx..."
   },
@@ -550,11 +550,137 @@
       "title": "Preferences",
       "description": "Additional settings and preferences will be available here in future updates."
     },
+    "aboutPage": {
+      "title": "About",
+      "description": "Learn what Biatec {network} Scan is, where its data comes from and how to get in touch.",
+      "link": "Open the About page"
+    },
     "about": {
       "title": "Application Info",
       "version": "Version",
       "buildWith": "Built with",
       "repository": "Repository"
+    }
+  },
+  "wallet": {
+    "connect": "Connect wallet",
+    "viewAccount": "View account",
+    "copyAddress": "Copy address",
+    "disconnect": "Disconnect",
+    "copied": "Address copied to clipboard",
+    "copyFailed": "Failed to copy address",
+    "pickerTitle": "Connect a wallet",
+    "pickerDescription": "Choose the wallet you want to connect. Biatec Wallet is the recommended option.",
+    "close": "Close",
+    "recommended": "Recommended",
+    "noWallets": "No wallets are available in this browser.",
+    "connected": "Connected with {wallet}"
+  },
+  "swap": {
+    "title": "Swap",
+    "subtitle": "Compare quotes from {count} routers at once and execute with the one you choose.",
+    "youPay": "You pay",
+    "youReceive": "You receive",
+    "balance": "Balance",
+    "max": "MAX",
+    "selectAsset": "Select asset",
+    "searchAssetPlaceholder": "Search by name, ticker or asset id…",
+    "yourAssets": "Your assets",
+    "noAssetsFound": "No assets found",
+    "switch": "Switch assets",
+    "slippage": "Slippage",
+    "slippageUnprotected": "No minimum-received protection!",
+    "slippageHigh": "High slippage tolerance",
+    "gettingQuotes": "Getting quotes…",
+    "refreshQuotes": "Refresh quotes",
+    "getQuotes": "Get quotes",
+    "connectToExecute": "Connect a wallet to execute a swap. Quotes can be compared without connecting.",
+    "quotedAgo": "Quoted {seconds}s ago",
+    "bestRoute": "Best route",
+    "website": "Website",
+    "simulated": "Simulated on-chain outcome",
+    "quoted": "quoted",
+    "simulationFailed": "Simulation failed",
+    "simulating": "Simulating…",
+    "belowBest": "{percent}% less than the best route",
+    "price": "Price",
+    "minimumReceived": "Minimum received",
+    "priceImpact": "Price impact",
+    "networkFee": "Network fee",
+    "transactions": "Transactions",
+    "hideRoute": "Hide route",
+    "showRoute": "Show route",
+    "executing": "Executing…",
+    "swapVia": "Swap via {router}",
+    "status": {
+      "unsupported": "Not available on {network}",
+      "idle": "Waiting for a quote request",
+      "loading": "Fetching quote…",
+      "error": "Quote failed"
+    },
+    "route": {
+      "noPoolBreakdown": "This router does not disclose the individual pools it uses.",
+      "noDetailedRoute": "No detailed route information was returned.",
+      "path": "Path {index}"
+    },
+    "optIn": {
+      "assetRequired": "Your account is not opted in to {asset}. Opt in before swapping.",
+      "assetButton": "Opt in to {asset}",
+      "appRequired": "This route requires opting in to application {app}.",
+      "appButton": "Opt in to app {app}",
+      "inProgress": "Opting in…"
+    },
+    "result": {
+      "title": "Swap submitted",
+      "summary": "Swapped {amount} {from} to {to} via {router}."
+    },
+    "disclaimer": {
+      "simulation": "Amounts marked as simulated are computed by dry-running the exact transactions against the current ledger state; other amounts are router estimates.",
+      "risk": "Swaps are executed by third-party routers. Always review the transactions in your wallet before signing."
+    },
+    "errors": {
+      "noRoutes": "No router returned a route for this pair and amount.",
+      "staleQuote": "Quotes are older than 90 seconds - refresh before executing.",
+      "notSigned": "The wallet did not return a signed transaction.",
+      "invalidAmount": "Enter a valid amount with at most {decimals} decimals.",
+      "insufficientBalance": "Insufficient balance",
+      "samePair": "Choose two different assets.",
+      "simulationBlocked": "Simulation failed - this route cannot be executed as is.",
+      "appOptInRequired": "Application opt-in required",
+      "assetOptInRequired": "Opt in to the destination asset first",
+      "holdingsUnavailable": "Your balances could not be loaded from the network.",
+      "otherExecuting": "Another swap is in progress",
+      "stage": {
+        "validate": "Transaction check failed: {message}",
+        "sign": "Signing failed: {message}",
+        "submit": "Submission failed: {message}",
+        "confirm": "Confirmation failed: {message}"
+      }
+    },
+    "routerErrors": {
+      "noRoute": "No route available for this pair",
+      "emptyQuote": "The router returned an empty quote",
+      "belowMinimum": "The router returned a route below the accepted minimum - refresh the quotes",
+      "noTransactions": "The router returned no transactions",
+      "amountTooLarge": "Amount too large for this router",
+      "apiError": "Router API error",
+      "cancelled": "Cancelled"
+    },
+    "toast": {
+      "success": "Swap via {router} confirmed",
+      "optInDone": "Opt-in confirmed",
+      "cancelled": "Cancelled in the wallet"
+    },
+    "routers": {
+      "biatec": {
+        "description": "Biatec's own aggregator across Pact, Tinyman and Biatec CLAMM pools."
+      },
+      "folks": {
+        "description": "Folks Finance router aggregating Algorand DEX liquidity."
+      },
+      "haystack": {
+        "description": "Haystack (Deflex) aggregator across Algorand DEXes."
+      }
     }
   },
   "favorites": {

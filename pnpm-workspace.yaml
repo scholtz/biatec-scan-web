@@ -1,5 +1,7 @@
 allowBuilds:
+  cbor-extract: false
   esbuild: true
+  vue-demi: false
 minimumReleaseAgeExclude:
   - '@intlify/core-base@11.4.7'
   - '@intlify/devtools-types@11.4.7'

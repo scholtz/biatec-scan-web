@@ -80,3 +80,78 @@ export const signalrHubUrl = `${apiBaseUrl}/biatecScanHub`;
 export function assetImageUrl(assetId: number | string | bigint): string {
   return `${apiBaseUrl}/api/asset/image/${assetId}`;
 }
+
+/** Whether this build targets Algorand testnet (stage environment). */
+export const isAlgorandTestnet: boolean = genesisId === "testnet-v1.0";
+
+/**
+ * WalletConnect Cloud project id used by the WalletConnect-based wallet
+ * adapters (Biatec Wallet, Pera, Defly). It identifies this dApp to the
+ * relay, not the user, so it's safe to ship in the bundle; override per
+ * deployment with VITE_WC_PROJECT_ID (get one at https://cloud.reown.com).
+ */
+export const walletConnectProjectId: string =
+  viteEnv.VITE_WC_PROJECT_ID || "fcfde0713d43baa0d23be0773c80a72b";
+
+/**
+ * Base URL of the Biatec Router API for this network. Empty string means the
+ * router is not offered on this network (see src/swap/routers/biatec.ts).
+ */
+export const biatecRouterUrl: string =
+  viteEnv.VITE_BIATEC_ROUTER_URL ||
+  (isAlgorandMainnet
+    ? "https://router.api.biatec.io"
+    : isAlgorandTestnet
+      ? "https://testnet.router.api.biatec.io"
+      : "");
+
+/**
+ * Shared, non-secret Haystack (Deflex) API key. Same anonymous key Biatec
+ * Wallet ships - it only identifies the integrating app, not a user.
+ */
+export const haystackApiKey: string =
+  viteEnv.VITE_HAYSTACK_API_KEY || "1b72df7e-1131-4449-8ce1-29b79dd3f51e";
+
+/**
+ * Referrer address passed to the Haystack and Folks routers so integrator
+ * fees are attributed to Biatec (same address Biatec Wallet uses).
+ */
+export const swapReferrerAddress: string =
+  viteEnv.VITE_SWAP_REFERRER_ADDRESS ||
+  "AWALLETCPHQPJGCZ6AHLIFPHWBHUEHQ7VBYJVVGQRRY4MEIGWUBKCQYP4Y";
+
+/**
+ * Resolve an optional per-router network setting: unset/empty (Docker passes
+ * undeclared build args as "") means "use the default for this network";
+ * the explicit value "none" disables the router on this build.
+ */
+function networkSetting(value: string | undefined, fallback: string): string {
+  if (!value) return fallback;
+  return value === "none" ? "" : value;
+}
+
+/**
+ * Folks Router network to quote against ("mainnet" | "testnet"); empty
+ * string = Folks Router is not offered on this network.
+ */
+export const folksRouterNetwork: string = networkSetting(
+  viteEnv.VITE_FOLKS_ROUTER_NETWORK,
+  isAlgorandMainnet ? "mainnet" : isAlgorandTestnet ? "testnet" : ""
+);
+
+/**
+ * Haystack (Deflex) chain name; empty string = Haystack is not offered on
+ * this network (it only has an Algorand mainnet deployment).
+ */
+export const haystackChain: string = networkSetting(
+  viteEnv.VITE_HAYSTACK_CHAIN,
+  isAlgorandMainnet ? "mainnet" : ""
+);
+
+/**
+ * Algod URL Haystack builds its transactions against - a request parameter
+ * of their API, not something this app connects to, hence separate from
+ * `algodUrl` (which must stay a browser-reachable, CSP-allowed endpoint).
+ */
+export const haystackAlgodUrl: string =
+  viteEnv.VITE_HAYSTACK_ALGOD_URL || "https://mainnet-api.algonode.cloud";

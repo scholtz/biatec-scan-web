@@ -93,7 +93,7 @@
     "trades": "Kereskedések",
     "favorites": "Kedvencek",
     "settings": "Beállítások",
-    "about": "Névjegy",
+    "swap": "Csere",
     "searchPlaceholder": "Keresés blokk vagy tranzakció ID alapján...",
     "searchMobilePlaceholder": "Blokk / tranzakció keresése..."
   },
@@ -550,11 +550,137 @@
       "title": "Beállítások",
       "description": "További beállítások és preferenciák a jövőbeli frissítésekben lesznek elérhetők."
     },
+    "aboutPage": {
+      "title": "Névjegy",
+      "description": "Tudja meg, mi a Biatec {network} Scan, honnan származnak az adatai, és hogyan léphet velünk kapcsolatba.",
+      "link": "Névjegy oldal megnyitása"
+    },
     "about": {
       "title": "Alkalmazás információ",
       "version": "Verzió",
       "buildWith": "Készítve",
       "repository": "Repository"
+    }
+  },
+  "wallet": {
+    "connect": "Tárca csatlakoztatása",
+    "viewAccount": "Fiók megtekintése",
+    "copyAddress": "Cím másolása",
+    "disconnect": "Leválasztás",
+    "copied": "Cím a vágólapra másolva",
+    "copyFailed": "A cím másolása nem sikerült",
+    "pickerTitle": "Tárca csatlakoztatása",
+    "pickerDescription": "Válassza ki a csatlakoztatni kívánt tárcát. A Biatec Wallet az ajánlott lehetőség.",
+    "close": "Bezárás",
+    "recommended": "Ajánlott",
+    "noWallets": "Ebben a böngészőben nem érhető el tárca.",
+    "connected": "Csatlakozva: {wallet}"
+  },
+  "swap": {
+    "title": "Csere",
+    "subtitle": "Hasonlítsa össze {count} router árajánlatát egyszerre, és hajtsa végre a cserét a választott routerrel.",
+    "youPay": "Ön fizet",
+    "youReceive": "Ön kap",
+    "balance": "Egyenleg",
+    "max": "MAX",
+    "selectAsset": "Eszköz kiválasztása",
+    "searchAssetPlaceholder": "Keresés név, ticker vagy eszközazonosító alapján…",
+    "yourAssets": "Az Ön eszközei",
+    "noAssetsFound": "Nem található eszköz",
+    "switch": "Eszközök felcserélése",
+    "slippage": "Csúszás",
+    "slippageUnprotected": "Nincs minimális kapott összeg védelem!",
+    "slippageHigh": "Magas csúszástűrés",
+    "gettingQuotes": "Árajánlatok lekérése…",
+    "refreshQuotes": "Árajánlatok frissítése",
+    "getQuotes": "Árajánlatok lekérése",
+    "connectToExecute": "Csere végrehajtásához csatlakoztasson tárcát. Az árajánlatok csatlakozás nélkül is összehasonlíthatók.",
+    "quotedAgo": "Árajánlat {seconds} mp-cel ezelőtt",
+    "bestRoute": "Legjobb útvonal",
+    "website": "Weboldal",
+    "simulated": "Szimulált láncon belüli eredmény",
+    "quoted": "ajánlott",
+    "simulationFailed": "A szimuláció sikertelen",
+    "simulating": "Szimuláció…",
+    "belowBest": "{percent} %-kal kevesebb, mint a legjobb útvonal",
+    "price": "Ár",
+    "minimumReceived": "Minimálisan kapott",
+    "priceImpact": "Árhatás",
+    "networkFee": "Hálózati díj",
+    "transactions": "Tranzakciók",
+    "hideRoute": "Útvonal elrejtése",
+    "showRoute": "Útvonal megjelenítése",
+    "executing": "Végrehajtás…",
+    "swapVia": "Csere ezen keresztül: {router}",
+    "status": {
+      "unsupported": "Nem érhető el a(z) {network} hálózaton",
+      "idle": "Várakozás árajánlat-kérésre",
+      "loading": "Árajánlat lekérése…",
+      "error": "Az árajánlat sikertelen"
+    },
+    "route": {
+      "noPoolBreakdown": "Ez a router nem fedi fel az általa használt egyes poolokat.",
+      "noDetailedRoute": "Nem érkezett részletes útvonalinformáció.",
+      "path": "{index}. útvonal"
+    },
+    "optIn": {
+      "assetRequired": "A fiókja nincs feliratkozva (opt-in) a(z) {asset} eszközre. Csere előtt iratkozzon fel.",
+      "assetButton": "Opt-in: {asset}",
+      "appRequired": "Ez az útvonal opt-in-t igényel a(z) {app} alkalmazáshoz.",
+      "appButton": "Opt-in: {app} alkalmazás",
+      "inProgress": "Opt-in folyamatban…"
+    },
+    "result": {
+      "title": "Csere elküldve",
+      "summary": "{amount} {from} elcserélve {to} eszközre ezen keresztül: {router}."
+    },
+    "disclaimer": {
+      "simulation": "A szimuláltként jelölt összegeket a pontos tranzakciók aktuális főkönyvi állapoton végzett próbafuttatása számítja ki; a többi összeg a router becslése.",
+      "risk": "A cseréket harmadik fél routerei hajtják végre. Aláírás előtt mindig ellenőrizze a tranzakciókat a tárcájában."
+    },
+    "errors": {
+      "noRoutes": "Egyetlen router sem adott vissza útvonalat ehhez a párhoz és összeghez.",
+      "staleQuote": "Az árajánlatok 90 másodpercnél régebbiek – végrehajtás előtt frissítse őket.",
+      "notSigned": "A tárca nem adott vissza aláírt tranzakciót.",
+      "invalidAmount": "Adjon meg érvényes összeget legfeljebb {decimals} tizedesjeggyel.",
+      "insufficientBalance": "Nincs elegendő egyenleg",
+      "samePair": "Válasszon két különböző eszközt.",
+      "simulationBlocked": "A szimuláció sikertelen – ez az útvonal jelen formájában nem hajtható végre.",
+      "appOptInRequired": "Alkalmazás opt-in szükséges",
+      "assetOptInRequired": "Először iratkozzon fel (opt-in) a céleszközre",
+      "holdingsUnavailable": "Az egyenlegeit nem sikerült betölteni a hálózatról.",
+      "otherExecuting": "Másik csere van folyamatban",
+      "stage": {
+        "validate": "A tranzakció ellenőrzése sikertelen: {message}",
+        "sign": "Az aláírás sikertelen: {message}",
+        "submit": "A beküldés sikertelen: {message}",
+        "confirm": "A megerősítés sikertelen: {message}"
+      }
+    },
+    "routerErrors": {
+      "noRoute": "Ehhez a párhoz nincs elérhető útvonal",
+      "emptyQuote": "A router üres árajánlatot adott vissza",
+      "belowMinimum": "A router az elfogadott minimum alatti útvonalat adott vissza – frissítse az árajánlatokat",
+      "noTransactions": "A router nem adott vissza tranzakciókat",
+      "amountTooLarge": "Az összeg túl nagy ehhez a routerhez",
+      "apiError": "Router API hiba",
+      "cancelled": "Megszakítva"
+    },
+    "toast": {
+      "success": "Csere megerősítve ezen keresztül: {router}",
+      "optInDone": "Opt-in megerősítve",
+      "cancelled": "Megszakítva a tárcában"
+    },
+    "routers": {
+      "biatec": {
+        "description": "A Biatec saját aggregátora a Pact, Tinyman és Biatec CLAMM poolok felett."
+      },
+      "folks": {
+        "description": "A Folks Finance routere, amely az Algorand DEX-ek likviditását aggregálja."
+      },
+      "haystack": {
+        "description": "Haystack (Deflex) aggregátor az Algorand DEX-ek felett."
+      }
     }
   },
   "favorites": {

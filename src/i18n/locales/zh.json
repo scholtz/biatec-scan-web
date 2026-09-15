@@ -93,7 +93,7 @@
     "trades": "交易",
     "favorites": "收藏",
     "settings": "设置",
-    "about": "关于",
+    "swap": "兑换",
     "searchPlaceholder": "按区块或交易 ID 搜索...",
     "searchMobilePlaceholder": "搜索区块/交易..."
   },
@@ -550,11 +550,137 @@
       "title": "偏好设置",
       "description": "未来更新中将提供其他设置和偏好设置。"
     },
+    "aboutPage": {
+      "title": "关于",
+      "description": "了解 Biatec {network} Scan 是什么、数据来源以及联系方式。",
+      "link": "打开“关于”页面"
+    },
     "about": {
       "title": "应用信息",
       "version": "版本",
       "buildWith": "构建工具",
       "repository": "代码库"
+    }
+  },
+  "wallet": {
+    "connect": "连接钱包",
+    "viewAccount": "查看账户",
+    "copyAddress": "复制地址",
+    "disconnect": "断开连接",
+    "copied": "地址已复制到剪贴板",
+    "copyFailed": "复制地址失败",
+    "pickerTitle": "连接钱包",
+    "pickerDescription": "选择要连接的钱包。推荐使用 Biatec Wallet。",
+    "close": "关闭",
+    "recommended": "推荐",
+    "noWallets": "此浏览器中没有可用的钱包。",
+    "connected": "已通过 {wallet} 连接"
+  },
+  "swap": {
+    "title": "兑换",
+    "subtitle": "同时比较 {count} 个路由器的报价，并通过您选择的路由器执行。",
+    "youPay": "您支付",
+    "youReceive": "您收到",
+    "balance": "余额",
+    "max": "最大",
+    "selectAsset": "选择资产",
+    "searchAssetPlaceholder": "按名称、代码或资产 ID 搜索…",
+    "yourAssets": "您的资产",
+    "noAssetsFound": "未找到资产",
+    "switch": "交换资产",
+    "slippage": "滑点",
+    "slippageUnprotected": "没有最低收到金额保护！",
+    "slippageHigh": "滑点容忍度过高",
+    "gettingQuotes": "正在获取报价…",
+    "refreshQuotes": "刷新报价",
+    "getQuotes": "获取报价",
+    "connectToExecute": "连接钱包以执行兑换。无需连接即可比较报价。",
+    "quotedAgo": "{seconds} 秒前报价",
+    "bestRoute": "最佳路线",
+    "website": "网站",
+    "simulated": "链上模拟结果",
+    "quoted": "报价",
+    "simulationFailed": "模拟失败",
+    "simulating": "模拟中…",
+    "belowBest": "比最佳路线少 {percent}%",
+    "price": "价格",
+    "minimumReceived": "最低收到",
+    "priceImpact": "价格影响",
+    "networkFee": "网络费用",
+    "transactions": "交易数",
+    "hideRoute": "隐藏路线",
+    "showRoute": "显示路线",
+    "executing": "执行中…",
+    "swapVia": "通过 {router} 兑换",
+    "status": {
+      "unsupported": "在 {network} 上不可用",
+      "idle": "等待报价请求",
+      "loading": "正在获取报价…",
+      "error": "报价失败"
+    },
+    "route": {
+      "noPoolBreakdown": "此路由器不公开其使用的具体资金池。",
+      "noDetailedRoute": "未返回详细路线信息。",
+      "path": "路径 {index}"
+    },
+    "optIn": {
+      "assetRequired": "您的账户尚未选择加入 {asset}。请在兑换前选择加入。",
+      "assetButton": "选择加入 {asset}",
+      "appRequired": "此路线需要选择加入应用 {app}。",
+      "appButton": "选择加入应用 {app}",
+      "inProgress": "正在选择加入…"
+    },
+    "result": {
+      "title": "兑换已提交",
+      "summary": "已通过 {router} 将 {amount} {from} 兑换为 {to}。"
+    },
+    "disclaimer": {
+      "simulation": "标记为模拟的金额是通过在当前账本状态下试运行确切交易计算得出的；其他金额为路由器估算值。",
+      "risk": "兑换由第三方路由器执行。签名前请务必在钱包中检查交易。"
+    },
+    "errors": {
+      "noRoutes": "没有路由器为此交易对和金额返回路线。",
+      "staleQuote": "报价已超过 90 秒，请在执行前刷新。",
+      "notSigned": "钱包未返回已签名的交易。",
+      "invalidAmount": "请输入有效金额，最多 {decimals} 位小数。",
+      "insufficientBalance": "余额不足",
+      "samePair": "请选择两个不同的资产。",
+      "simulationBlocked": "模拟失败，此路线无法按原样执行。",
+      "appOptInRequired": "需要选择加入应用",
+      "assetOptInRequired": "请先选择加入目标资产",
+      "holdingsUnavailable": "无法从网络加载您的余额。",
+      "otherExecuting": "另一笔兑换正在进行中",
+      "stage": {
+        "validate": "交易检查失败：{message}",
+        "sign": "签名失败：{message}",
+        "submit": "提交失败：{message}",
+        "confirm": "确认失败：{message}"
+      }
+    },
+    "routerErrors": {
+      "noRoute": "此交易对没有可用路线",
+      "emptyQuote": "路由器返回了空报价",
+      "belowMinimum": "路由器返回的路线低于可接受的最低值，请刷新报价",
+      "noTransactions": "路由器未返回任何交易",
+      "amountTooLarge": "金额对此路由器而言过大",
+      "apiError": "路由器 API 错误",
+      "cancelled": "已取消"
+    },
+    "toast": {
+      "success": "通过 {router} 的兑换已确认",
+      "optInDone": "选择加入已确认",
+      "cancelled": "已在钱包中取消"
+    },
+    "routers": {
+      "biatec": {
+        "description": "Biatec 自有聚合器，覆盖 Pact、Tinyman 和 Biatec CLAMM 资金池。"
+      },
+      "folks": {
+        "description": "聚合 Algorand DEX 流动性的 Folks Finance 路由器。"
+      },
+      "haystack": {
+        "description": "覆盖 Algorand 各 DEX 的 Haystack (Deflex) 聚合器。"
+      }
     }
   },
   "favorites": {

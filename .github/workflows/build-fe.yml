@@ -170,6 +170,13 @@ jobs:
             VITE_NATIVE_TOKEN_NAME=${{ matrix.vite_native_token_name }}
             VITE_NATIVE_TOKEN_UNIT=${{ matrix.vite_native_token_unit }}
             VITE_NETWORK_LABEL=${{ matrix.vite_network_label }}
+            VITE_WC_PROJECT_ID=${{ matrix.vite_wc_project_id }}
+            VITE_BIATEC_ROUTER_URL=${{ matrix.vite_biatec_router_url }}
+            VITE_FOLKS_ROUTER_NETWORK=${{ matrix.vite_folks_router_network }}
+            VITE_HAYSTACK_CHAIN=${{ matrix.vite_haystack_chain }}
+            VITE_HAYSTACK_ALGOD_URL=${{ matrix.vite_haystack_algod_url }}
+            VITE_HAYSTACK_API_KEY=${{ matrix.vite_haystack_api_key }}
+            VITE_SWAP_REFERRER_ADDRESS=${{ matrix.vite_swap_referrer_address }}
           tags: |
             ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-${{ needs.version.outputs.version }}
             ${{ env.DOCKERHUB_IMAGE }}:${{ matrix.network }}-latest

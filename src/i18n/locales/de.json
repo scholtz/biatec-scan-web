@@ -93,7 +93,7 @@
     "trades": "Trades",
     "favorites": "Favoriten",
     "settings": "Einstellungen",
-    "about": "Über",
+    "swap": "Swap",
     "searchPlaceholder": "Nach Block oder TX-ID suchen...",
     "searchMobilePlaceholder": "Block / TX suchen..."
   },
@@ -550,11 +550,137 @@
       "title": "Einstellungen",
       "description": "Zusätzliche Einstellungen und Präferenzen werden in zukünftigen Updates verfügbar sein."
     },
+    "aboutPage": {
+      "title": "Über",
+      "description": "Erfahren Sie, was Biatec {network} Scan ist, woher die Daten stammen und wie Sie uns erreichen.",
+      "link": "Über-Seite öffnen"
+    },
     "about": {
       "title": "Anwendungsinfo",
       "version": "Version",
       "buildWith": "Erstellt mit",
       "repository": "Repository"
+    }
+  },
+  "wallet": {
+    "connect": "Wallet verbinden",
+    "viewAccount": "Konto anzeigen",
+    "copyAddress": "Adresse kopieren",
+    "disconnect": "Trennen",
+    "copied": "Adresse in die Zwischenablage kopiert",
+    "copyFailed": "Adresse konnte nicht kopiert werden",
+    "pickerTitle": "Wallet verbinden",
+    "pickerDescription": "Wählen Sie die Wallet, die Sie verbinden möchten. Biatec Wallet wird empfohlen.",
+    "close": "Schließen",
+    "recommended": "Empfohlen",
+    "noWallets": "In diesem Browser sind keine Wallets verfügbar.",
+    "connected": "Verbunden mit {wallet}"
+  },
+  "swap": {
+    "title": "Swap",
+    "subtitle": "Vergleichen Sie Angebote von {count} Routern gleichzeitig und führen Sie den Swap über den Router Ihrer Wahl aus.",
+    "youPay": "Sie zahlen",
+    "youReceive": "Sie erhalten",
+    "balance": "Guthaben",
+    "max": "MAX",
+    "selectAsset": "Asset auswählen",
+    "searchAssetPlaceholder": "Nach Name, Ticker oder Asset-ID suchen…",
+    "yourAssets": "Ihre Assets",
+    "noAssetsFound": "Keine Assets gefunden",
+    "switch": "Assets tauschen",
+    "slippage": "Slippage",
+    "slippageUnprotected": "Kein Schutz des Mindestbetrags!",
+    "slippageHigh": "Hohe Slippage-Toleranz",
+    "gettingQuotes": "Angebote werden abgerufen…",
+    "refreshQuotes": "Angebote aktualisieren",
+    "getQuotes": "Angebote abrufen",
+    "connectToExecute": "Verbinden Sie eine Wallet, um einen Swap auszuführen. Angebote können auch ohne Verbindung verglichen werden.",
+    "quotedAgo": "Angebot vor {seconds} s",
+    "bestRoute": "Beste Route",
+    "website": "Website",
+    "simulated": "Simuliertes On-Chain-Ergebnis",
+    "quoted": "angeboten",
+    "simulationFailed": "Simulation fehlgeschlagen",
+    "simulating": "Simulation läuft…",
+    "belowBest": "{percent} % weniger als die beste Route",
+    "price": "Preis",
+    "minimumReceived": "Mindestens erhalten",
+    "priceImpact": "Preisauswirkung",
+    "networkFee": "Netzwerkgebühr",
+    "transactions": "Transaktionen",
+    "hideRoute": "Route ausblenden",
+    "showRoute": "Route anzeigen",
+    "executing": "Wird ausgeführt…",
+    "swapVia": "Swap über {router}",
+    "status": {
+      "unsupported": "Auf {network} nicht verfügbar",
+      "idle": "Warten auf Angebotsanfrage",
+      "loading": "Angebot wird abgerufen…",
+      "error": "Angebot fehlgeschlagen"
+    },
+    "route": {
+      "noPoolBreakdown": "Dieser Router legt die einzelnen verwendeten Pools nicht offen.",
+      "noDetailedRoute": "Es wurden keine detaillierten Routeninformationen zurückgegeben.",
+      "path": "Pfad {index}"
+    },
+    "optIn": {
+      "assetRequired": "Ihr Konto hat kein Opt-in für {asset}. Führen Sie vor dem Swap ein Opt-in durch.",
+      "assetButton": "Opt-in für {asset}",
+      "appRequired": "Diese Route erfordert ein Opt-in für Anwendung {app}.",
+      "appButton": "Opt-in für App {app}",
+      "inProgress": "Opt-in läuft…"
+    },
+    "result": {
+      "title": "Swap gesendet",
+      "summary": "{amount} {from} über {router} in {to} getauscht."
+    },
+    "disclaimer": {
+      "simulation": "Als simuliert markierte Beträge werden durch einen Testlauf der exakten Transaktionen gegen den aktuellen Ledger-Zustand berechnet; andere Beträge sind Schätzungen des Routers.",
+      "risk": "Swaps werden von Routern Dritter ausgeführt. Prüfen Sie die Transaktionen immer in Ihrer Wallet, bevor Sie signieren."
+    },
+    "errors": {
+      "noRoutes": "Kein Router hat eine Route für dieses Paar und diesen Betrag zurückgegeben.",
+      "staleQuote": "Die Angebote sind älter als 90 Sekunden – vor der Ausführung aktualisieren.",
+      "notSigned": "Die Wallet hat keine signierte Transaktion zurückgegeben.",
+      "invalidAmount": "Geben Sie einen gültigen Betrag mit höchstens {decimals} Dezimalstellen ein.",
+      "insufficientBalance": "Unzureichendes Guthaben",
+      "samePair": "Wählen Sie zwei verschiedene Assets.",
+      "simulationBlocked": "Simulation fehlgeschlagen – diese Route kann so nicht ausgeführt werden.",
+      "appOptInRequired": "Opt-in für Anwendung erforderlich",
+      "assetOptInRequired": "Zuerst Opt-in für das Ziel-Asset durchführen",
+      "holdingsUnavailable": "Ihre Guthaben konnten nicht aus dem Netzwerk geladen werden.",
+      "otherExecuting": "Ein anderer Swap läuft bereits",
+      "stage": {
+        "validate": "Transaktionsprüfung fehlgeschlagen: {message}",
+        "sign": "Signieren fehlgeschlagen: {message}",
+        "submit": "Senden fehlgeschlagen: {message}",
+        "confirm": "Bestätigung fehlgeschlagen: {message}"
+      }
+    },
+    "routerErrors": {
+      "noRoute": "Keine Route für dieses Paar verfügbar",
+      "emptyQuote": "Der Router hat ein leeres Angebot zurückgegeben",
+      "belowMinimum": "Der Router hat eine Route unter dem akzeptierten Minimum zurückgegeben – Angebote aktualisieren",
+      "noTransactions": "Der Router hat keine Transaktionen zurückgegeben",
+      "amountTooLarge": "Betrag für diesen Router zu groß",
+      "apiError": "Router-API-Fehler",
+      "cancelled": "Abgebrochen"
+    },
+    "toast": {
+      "success": "Swap über {router} bestätigt",
+      "optInDone": "Opt-in bestätigt",
+      "cancelled": "In der Wallet abgebrochen"
+    },
+    "routers": {
+      "biatec": {
+        "description": "Biatecs eigener Aggregator über Pact-, Tinyman- und Biatec-CLAMM-Pools."
+      },
+      "folks": {
+        "description": "Folks-Finance-Router, der Algorand-DEX-Liquidität aggregiert."
+      },
+      "haystack": {
+        "description": "Haystack-(Deflex-)Aggregator über Algorand-DEXes."
+      }
     }
   },
   "favorites": {

@@ -3,6 +3,13 @@ import i18n from "../i18n";
 import { algodUrl, indexerUrl, apiBaseUrl } from "../config/env";
 import { getAuthToken } from "./authService";
 
+export interface AccountHoldings {
+  /** asset id -> amount in base units; key 0n is the native token. */
+  balances: Map<bigint, bigint>;
+  optedInApps: Set<bigint>;
+  minBalance: bigint;
+}
+
 class AlgorandService {
   private algodUrl = algodUrl;
   private indexerUrl = indexerUrl;
@@ -163,6 +170,24 @@ class AlgorandService {
   formatTransactionId(txId: string): string {
     if (!txId) return "";
     return `${txId.slice(0, 12)}...${txId.slice(-12)}`;
+  }
+
+  /**
+   * Balances (native under key 0n), opted-in application ids and minimum
+   * balance of an account, straight from algod.
+   */
+  async getAccountHoldings(address: string): Promise<AccountHoldings> {
+    const info = await this.algodClient.accountInformation(address).do();
+    const balances = new Map<bigint, bigint>();
+    balances.set(0n, info.amount);
+    for (const holding of info.assets ?? []) {
+      balances.set(holding.assetId, holding.amount);
+    }
+    return {
+      balances,
+      optedInApps: new Set((info.appsLocalState ?? []).map((app) => app.id)),
+      minBalance: info.minBalance,
+    };
   }
 
   async getAccountAssetBalance(

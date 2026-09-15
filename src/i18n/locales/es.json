@@ -93,7 +93,7 @@
     "trades": "Operaciones",
     "favorites": "Favoritos",
     "settings": "Configuración",
-    "about": "Acerca de",
+    "swap": "Swap",
     "searchPlaceholder": "Buscar por bloque o ID de TX...",
     "searchMobilePlaceholder": "Buscar bloque / TX..."
   },
@@ -550,11 +550,137 @@
       "title": "Preferencias",
       "description": "Configuraciones y preferencias adicionales estarán disponibles en futuras actualizaciones."
     },
+    "aboutPage": {
+      "title": "Acerca de",
+      "description": "Descubra qué es Biatec {network} Scan, de dónde provienen sus datos y cómo contactarnos.",
+      "link": "Abrir la página Acerca de"
+    },
     "about": {
       "title": "Información de la aplicación",
       "version": "Versión",
       "buildWith": "Construido con",
       "repository": "Repositorio"
+    }
+  },
+  "wallet": {
+    "connect": "Conectar billetera",
+    "viewAccount": "Ver cuenta",
+    "copyAddress": "Copiar dirección",
+    "disconnect": "Desconectar",
+    "copied": "Dirección copiada al portapapeles",
+    "copyFailed": "No se pudo copiar la dirección",
+    "pickerTitle": "Conectar una billetera",
+    "pickerDescription": "Elija la billetera que desea conectar. Biatec Wallet es la opción recomendada.",
+    "close": "Cerrar",
+    "recommended": "Recomendada",
+    "noWallets": "No hay billeteras disponibles en este navegador.",
+    "connected": "Conectado con {wallet}"
+  },
+  "swap": {
+    "title": "Swap",
+    "subtitle": "Compare cotizaciones de {count} enrutadores a la vez y ejecute con el que elija.",
+    "youPay": "Usted paga",
+    "youReceive": "Usted recibe",
+    "balance": "Saldo",
+    "max": "MÁX",
+    "selectAsset": "Seleccionar activo",
+    "searchAssetPlaceholder": "Buscar por nombre, ticker o ID de activo…",
+    "yourAssets": "Sus activos",
+    "noAssetsFound": "No se encontraron activos",
+    "switch": "Intercambiar activos",
+    "slippage": "Slippage",
+    "slippageUnprotected": "¡Sin protección del mínimo recibido!",
+    "slippageHigh": "Tolerancia de slippage alta",
+    "gettingQuotes": "Obteniendo cotizaciones…",
+    "refreshQuotes": "Actualizar cotizaciones",
+    "getQuotes": "Obtener cotizaciones",
+    "connectToExecute": "Conecte una billetera para ejecutar un swap. Las cotizaciones se pueden comparar sin conectarse.",
+    "quotedAgo": "Cotizado hace {seconds} s",
+    "bestRoute": "Mejor ruta",
+    "website": "Sitio web",
+    "simulated": "Resultado on-chain simulado",
+    "quoted": "cotizado",
+    "simulationFailed": "La simulación falló",
+    "simulating": "Simulando…",
+    "belowBest": "{percent} % menos que la mejor ruta",
+    "price": "Precio",
+    "minimumReceived": "Mínimo recibido",
+    "priceImpact": "Impacto en el precio",
+    "networkFee": "Comisión de red",
+    "transactions": "Transacciones",
+    "hideRoute": "Ocultar ruta",
+    "showRoute": "Mostrar ruta",
+    "executing": "Ejecutando…",
+    "swapVia": "Swap vía {router}",
+    "status": {
+      "unsupported": "No disponible en {network}",
+      "idle": "Esperando una solicitud de cotización",
+      "loading": "Obteniendo cotización…",
+      "error": "La cotización falló"
+    },
+    "route": {
+      "noPoolBreakdown": "Este enrutador no revela los pools individuales que utiliza.",
+      "noDetailedRoute": "No se devolvió información detallada de la ruta.",
+      "path": "Ruta {index}"
+    },
+    "optIn": {
+      "assetRequired": "Su cuenta no tiene opt-in para {asset}. Haga opt-in antes de intercambiar.",
+      "assetButton": "Opt-in a {asset}",
+      "appRequired": "Esta ruta requiere opt-in a la aplicación {app}.",
+      "appButton": "Opt-in a la app {app}",
+      "inProgress": "Realizando opt-in…"
+    },
+    "result": {
+      "title": "Swap enviado",
+      "summary": "Se intercambiaron {amount} {from} por {to} vía {router}."
+    },
+    "disclaimer": {
+      "simulation": "Los importes marcados como simulados se calculan ejecutando en seco las transacciones exactas contra el estado actual del ledger; los demás importes son estimaciones del enrutador.",
+      "risk": "Los swaps los ejecutan enrutadores de terceros. Revise siempre las transacciones en su billetera antes de firmar."
+    },
+    "errors": {
+      "noRoutes": "Ningún enrutador devolvió una ruta para este par e importe.",
+      "staleQuote": "Las cotizaciones tienen más de 90 segundos: actualícelas antes de ejecutar.",
+      "notSigned": "La billetera no devolvió una transacción firmada.",
+      "invalidAmount": "Introduzca un importe válido con como máximo {decimals} decimales.",
+      "insufficientBalance": "Saldo insuficiente",
+      "samePair": "Elija dos activos diferentes.",
+      "simulationBlocked": "La simulación falló: esta ruta no se puede ejecutar tal cual.",
+      "appOptInRequired": "Se requiere opt-in a la aplicación",
+      "assetOptInRequired": "Primero haga opt-in al activo de destino",
+      "holdingsUnavailable": "No se pudieron cargar sus saldos desde la red.",
+      "otherExecuting": "Hay otro swap en curso",
+      "stage": {
+        "validate": "Falló la verificación de la transacción: {message}",
+        "sign": "Falló la firma: {message}",
+        "submit": "Falló el envío: {message}",
+        "confirm": "Falló la confirmación: {message}"
+      }
+    },
+    "routerErrors": {
+      "noRoute": "No hay ruta disponible para este par",
+      "emptyQuote": "El enrutador devolvió una cotización vacía",
+      "belowMinimum": "El enrutador devolvió una ruta por debajo del mínimo aceptado: actualice las cotizaciones",
+      "noTransactions": "El enrutador no devolvió transacciones",
+      "amountTooLarge": "Importe demasiado grande para este enrutador",
+      "apiError": "Error de la API del enrutador",
+      "cancelled": "Cancelado"
+    },
+    "toast": {
+      "success": "Swap vía {router} confirmado",
+      "optInDone": "Opt-in confirmado",
+      "cancelled": "Cancelado en la billetera"
+    },
+    "routers": {
+      "biatec": {
+        "description": "Agregador propio de Biatec sobre pools de Pact, Tinyman y Biatec CLAMM."
+      },
+      "folks": {
+        "description": "Enrutador de Folks Finance que agrega liquidez de los DEX de Algorand."
+      },
+      "haystack": {
+        "description": "Agregador Haystack (Deflex) sobre los DEX de Algorand."
+      }
     }
   },
   "favorites": {

@@ -34,7 +34,26 @@ export function getSessionId(): string {
   return s;
 }
 
-export async function getAuthToken(): Promise<string> {
+export const DEFAULT_ARC14_REALM = "BiatecScan#ARC14";
+
+// The signed ARC-14 transaction is fully deterministic (fixed validity window,
+// deterministic ARC-76 key), so the header can be minted once per realm and
+// reused - deriving the key is a ~1M-iteration PBKDF2, far too slow to repeat
+// on every API request.
+const headerCache = new Map<string, Promise<string>>();
+
+export function getAuthToken(realm: string = DEFAULT_ARC14_REALM): Promise<string> {
+  const cached = headerCache.get(realm);
+  if (cached) return cached;
+  const pending = buildAuthToken(realm).catch((error: unknown) => {
+    headerCache.delete(realm);
+    throw error;
+  });
+  headerCache.set(realm, pending);
+  return pending;
+}
+
+async function buildAuthToken(realm: string): Promise<string> {
   const session = getSessionId();
   const account: algosdk.Account = await generateAlgorandAccount(session);
   const params: SuggestedParams = {
@@ -47,7 +66,7 @@ export async function getAuthToken(): Promise<string> {
     firstValid: 46915880n,
   };
   const tx = await makeArc14TxWithSuggestedParams(
-    "BiatecScan#ARC14",
+    realm,
     account.addr.toString(),
     params
   );

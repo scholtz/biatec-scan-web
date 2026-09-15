@@ -7,4 +7,12 @@ import { networkLabel } from "./config/env";
 
 document.title = `${networkLabel} Explorer - Biatec Scan`;
 
-createApp(App).use(router).use(i18n).mount("#app");
+const app = createApp(App).use(router).use(i18n);
+app.mount("#app");
+
+// The wallet stack is only needed by the navbar's connect button and the
+// Swap page, so it is installed from a separate chunk after first paint;
+// consumers await `walletReady` (src/wallet/walletReady.ts) before use.
+void import("./wallet/installWallet").then(({ installWallet }) =>
+  installWallet(app)
+);
