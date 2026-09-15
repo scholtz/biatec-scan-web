@@ -296,7 +296,6 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import SwapAssetPicker from "../components/swap/SwapAssetPicker.vue";
 import SwapRouterCard from "../components/swap/SwapRouterCard.vue";
-import WalletConnectButton from "../components/wallet/WalletConnectButton.vue";
 import { useAmountFormat } from "../composables/useAmountFormat";
 import { useSwap } from "../composables/useSwap";
 import { genesisId } from "../config/env";
