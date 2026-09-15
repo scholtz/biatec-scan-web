@@ -6,6 +6,7 @@
 // throttled to one algod lookup per 2 s for list pages, which is far too
 // slow for a picker that must resolve every held asset on open.
 import type algosdk from "algosdk";
+import { nativeTokenName, nativeTokenUnit } from "../config/env";
 import type { AssetParams } from "../types/algorand";
 import { getTokenFromAlgod } from "../scripts/algo/getTokenFromAlgod";
 import { getTokenFromLocalStorage } from "../scripts/algo/getTokenFromLocalStorage";
@@ -24,9 +25,14 @@ function fromParams(id: bigint, params: AssetParams): SwapAssetInfo {
 /** The network's native token, as the shared asset cache describes it. */
 export const NATIVE_ASSET: SwapAssetInfo = fromParams(
   0n,
-  // getTokenFromLocalStorage(0n) is synchronous and never null: the native
-  // token is synthesised from env config rather than looked up.
-  getTokenFromLocalStorage(0n) ?? { name: "", unitName: "", total: 0, decimals: 6 }
+  // getTokenFromLocalStorage(0n) synthesises the native token from env config
+  // (it only returns null outside a browser, e.g. unit tests).
+  getTokenFromLocalStorage(0n) ?? {
+    name: nativeTokenName,
+    unitName: nativeTokenUnit,
+    total: 0,
+    decimals: 6,
+  }
 );
 
 export function isNativeAsset(assetId: bigint): boolean {
