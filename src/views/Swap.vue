@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 sm:p-6 space-y-6 max-w-6xl mx-auto">
+  <div class="p-4 space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl font-bold text-white">{{ $t("swap.title") }}</h1>
@@ -7,14 +7,17 @@
           {{ $t("swap.subtitle", { count: supportedRouterCount }) }}
         </p>
       </div>
-      <WalletConnectButton />
     </div>
 
-    <div class="grid lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-6 items-start">
+    <div
+      class="grid lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-6 items-start"
+    >
       <!-- Order form -->
       <div class="card space-y-4 relative z-10">
         <!-- From -->
-        <div class="rounded-xl bg-dark-900/50 border border-dark-700/50 p-4 space-y-2">
+        <div
+          class="rounded-xl bg-dark-900/50 border border-dark-700/50 p-4 space-y-2"
+        >
           <div class="flex items-center justify-between text-xs text-gray-400">
             <span>{{ $t("swap.youPay") }}</span>
             <button
@@ -47,7 +50,9 @@
             />
           </div>
           <p v-if="amountInvalid" class="text-xs text-red-300">
-            {{ $t("swap.errors.invalidAmount", { decimals: fromAsset.decimals }) }}
+            {{
+              $t("swap.errors.invalidAmount", { decimals: fromAsset.decimals })
+            }}
           </p>
           <p v-else-if="insufficientBalance" class="text-xs text-red-300">
             {{ $t("swap.errors.insufficientBalance") }}
@@ -63,14 +68,26 @@
             :aria-label="$t('swap.switch')"
             @click="switchAssets"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+              />
             </svg>
           </button>
         </div>
 
         <!-- To -->
-        <div class="rounded-xl bg-dark-900/50 border border-dark-700/50 p-4 space-y-2">
+        <div
+          class="rounded-xl bg-dark-900/50 border border-dark-700/50 p-4 space-y-2"
+        >
           <div class="flex items-center justify-between text-xs text-gray-400">
             <span>{{ $t("swap.youReceive") }}</span>
             <span v-if="toAsset && toBalance !== undefined">
@@ -149,9 +166,16 @@
         <p v-if="!activeAddress" class="text-xs text-gray-400 text-center">
           {{ $t("swap.connectToExecute") }}
         </p>
-        <p v-else-if="holdings.error.value" class="text-xs text-amber-300 text-center">
+        <p
+          v-else-if="holdings.error.value"
+          class="text-xs text-amber-300 text-center"
+        >
           {{ $t("swap.errors.holdingsUnavailable") }}
-          <button type="button" class="underline ml-1" @click="holdings.refresh()">
+          <button
+            type="button"
+            class="underline ml-1"
+            @click="holdings.refresh()"
+          >
             {{ $t("common.refresh") }}
           </button>
         </p>
@@ -167,14 +191,20 @@
           v-if="toAssetNeedsOptIn && toAsset"
           class="rounded-lg border border-amber-500/40 bg-amber-900/10 p-3 text-sm text-amber-200 space-y-2"
         >
-          <p>{{ $t("swap.optIn.assetRequired", { asset: assetLabel(toAsset) }) }}</p>
+          <p>
+            {{ $t("swap.optIn.assetRequired", { asset: assetLabel(toAsset) }) }}
+          </p>
           <button
             type="button"
             class="btn-secondary text-sm"
             :disabled="optingIn"
             @click="optInToAsset(toAsset.id)"
           >
-            {{ optingIn ? $t("swap.optIn.inProgress") : $t("swap.optIn.assetButton", { asset: assetLabel(toAsset) }) }}
+            {{
+              optingIn
+                ? $t("swap.optIn.inProgress")
+                : $t("swap.optIn.assetButton", { asset: assetLabel(toAsset) })
+            }}
           </button>
         </div>
         <div
@@ -189,7 +219,11 @@
             :disabled="optingIn"
             @click="optInToApp(appId)"
           >
-            {{ optingIn ? $t("swap.optIn.inProgress") : $t("swap.optIn.appButton", { app: appId.toString() }) }}
+            {{
+              optingIn
+                ? $t("swap.optIn.inProgress")
+                : $t("swap.optIn.appButton", { app: appId.toString() })
+            }}
           </button>
         </div>
       </div>
@@ -206,7 +240,10 @@
           <p class="text-sm text-gray-200">
             {{
               $t("swap.result.summary", {
-                amount: formatAmount(lastExecution.amountIn, lastExecution.fromAsset.decimals),
+                amount: formatAmount(
+                  lastExecution.amountIn,
+                  lastExecution.fromAsset.decimals,
+                ),
                 from: assetLabel(lastExecution.fromAsset),
                 to: assetLabel(lastExecution.toAsset),
                 router: routerName(lastExecution.routerId),
@@ -319,22 +356,24 @@ const {
 onUnmounted(dispose);
 
 const supportedRouterCount = swapRouters.filter((r) =>
-  r.supportsNetwork(genesisId)
+  r.supportsNetwork(genesisId),
 ).length;
 
 const slippagePresets = [0.1, 0.5, 1];
-const slippagePercentInput = computed(() => (slippageBps.value / 100).toString());
+const slippagePercentInput = computed(() =>
+  (slippageBps.value / 100).toString(),
+);
 
 function onSlippageInput(event: Event) {
   setSlippagePercent((event.target as HTMLInputElement).value);
 }
 
 const amountInvalid = computed(
-  () => amountInput.value.trim() !== "" && amountBaseUnits.value === undefined
+  () => amountInput.value.trim() !== "" && amountBaseUnits.value === undefined,
 );
 
 const toBalance = computed(() =>
-  toAsset.value ? holdings.balanceOf(toAsset.value.id) : undefined
+  toAsset.value ? holdings.balanceOf(toAsset.value.id) : undefined,
 );
 
 const bestOutput = computed<bigint | undefined>(() => {
@@ -356,7 +395,11 @@ function disabledReasonFor(result: RouterQuoteResult): string | undefined {
   if (result.simulation && !result.simulation.success) {
     return t("swap.errors.simulationBlocked");
   }
-  if (result.quote?.requiredAppOptIns.some((id) => missingAppOptIns.value.includes(id))) {
+  if (
+    result.quote?.requiredAppOptIns.some((id) =>
+      missingAppOptIns.value.includes(id),
+    )
+  ) {
     return t("swap.errors.appOptInRequired");
   }
   if (executingRouterId.value && executingRouterId.value !== result.router.id) {
@@ -366,12 +409,9 @@ function disabledReasonFor(result: RouterQuoteResult): string | undefined {
 }
 
 // Keep the URL in sync so a pair can be shared / bookmarked.
-watch(
-  [() => fromAsset.value.id, () => toAsset.value?.id],
-  ([from, to]) => {
-    if (to === undefined) return;
-    const target = `/swap/${from}/${to}`;
-    if (route.path !== target) void router.replace(target);
-  }
-);
+watch([() => fromAsset.value.id, () => toAsset.value?.id], ([from, to]) => {
+  if (to === undefined) return;
+  const target = `/swap/${from}/${to}`;
+  if (route.path !== target) void router.replace(target);
+});
 </script>
