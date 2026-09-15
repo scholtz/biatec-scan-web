@@ -29,7 +29,7 @@ import {
   throwIfAborted,
 } from "./shared";
 
-const HAYSTACK_API = "https://txnlab.gitbook.io/haystack-router";
+const HAYSTACK_API = "https://deflex.txnlab.dev/api";
 
 export interface HaystackRouteStep {
   name?: string;
@@ -152,7 +152,7 @@ async function fetchJson<T>(
 export const haystackRouter: SwapRouter = {
   id: "haystack",
   displayName: "Haystack",
-  homepage: "https://haystack.fi",
+  homepage: "https://txnlab.gitbook.io/haystack-router",
 
   supportsNetwork(): boolean {
     return haystackChain !== "";
