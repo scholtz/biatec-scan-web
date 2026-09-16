@@ -131,13 +131,12 @@ function networkSetting(value: string | undefined, fallback: string): string {
 }
 
 /**
- * Folks Router network to quote against ("mainnet" | "testnet"); empty
+ * Folks Router network to quote against ("mainnet"); empty
  * string = Folks Router is not offered on this network.
  */
-export const folksRouterNetwork: string = networkSetting(
-  viteEnv.VITE_FOLKS_ROUTER_NETWORK,
-  isAlgorandMainnet ? "mainnet" : isAlgorandTestnet ? "testnet" : ""
-);
+export const folksRouterNetwork: string = isAlgorandMainnet
+  ? networkSetting(viteEnv.VITE_FOLKS_ROUTER_NETWORK, "mainnet")
+  : "";
 
 /**
  * Haystack (Deflex) chain name; empty string = Haystack is not offered on

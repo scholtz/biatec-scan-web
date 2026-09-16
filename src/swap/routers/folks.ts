@@ -4,6 +4,7 @@
 // to the referrer address, slippage in basis points. The Folks network to
 // use comes from src/config/env.ts (empty = not offered on this network).
 import { FolksRouterClient, Network, SwapMode } from "@folks-router/js-sdk";
+import { Buffer } from "buffer";
 import { folksRouterNetwork, swapReferrerAddress } from "../../config/env";
 import { applySlippage } from "../amounts";
 import type {
@@ -24,17 +25,6 @@ import {
 const MAX_GROUP_SIZE = 15;
 const INTEGRATOR_FEE_BPS = 10;
 const USER_FEE_DISCOUNT = 0;
-
-function resolveNetwork(): Network | undefined {
-  switch (folksRouterNetwork) {
-    case "mainnet":
-      return Network.MAINNET;
-    case "testnet":
-      return Network.TESTNET;
-    default:
-      return undefined;
-  }
-}
 
 /**
  * Folks reports only the aggregate outcome, not the pool breakdown, so the
@@ -79,18 +69,20 @@ export const folksRouter: SwapRouter = {
   displayName: "Folks Router",
   homepage: "https://folksrouter.io/",
 
-  supportsNetwork(): boolean {
-    return resolveNetwork() !== undefined;
+  supportsNetwork(genesis: string): boolean {
+    return genesis === "mainnet-v1.0" && folksRouterNetwork === "mainnet";
   },
 
   async quote(
     request: SwapRequest,
     ctx: SwapRouterContext,
   ): Promise<SwapQuote> {
-    const network = resolveNetwork();
-    if (network === undefined)
+    if (!folksRouter.supportsNetwork(request.genesisId))
       throw new Error("Folks Router network not configured");
-    const client = new FolksRouterClient(network);
+    if (typeof globalThis.Buffer === "undefined") {
+      Object.assign(globalThis, { Buffer });
+    }
+    const client = new FolksRouterClient(Network.MAINNET);
     const params = {
       amount: request.amount,
       fromAssetId: Number(request.fromAssetId),

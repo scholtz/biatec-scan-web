@@ -1,6 +1,8 @@
 import algosdk from "algosdk";
+import axios from "axios";
+import { MainnetFolksRouterAppId, routerABIContract } from "@folks-router/js-sdk";
 import { Buffer } from "buffer";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { biatecRouter } from "biatec-router";
 import { SwapRouterError } from "../errors";
 import {
@@ -8,7 +10,8 @@ import {
   buildBiatecRouteInfo,
   combineBiatecRoutes,
 } from "./biatec";
-import { buildFolksRouteInfo } from "./folks";
+import { buildFolksRouteInfo, folksRouter } from "./folks";
+import type { SwapRequest, SwapRouterContext } from "../types";
 import { buildHaystackGroups, buildHaystackRouteInfo } from "./haystack";
 import { isSwapAvailableOn as availabilityRule } from "../availability";
 import { isSwapAvailableOn, swapRouters } from "./index";
@@ -46,6 +49,8 @@ describe("router registry", () => {
     const folks = swapRouters.find((r) => r.id === "folks")!;
     expect(haystack.supportsNetwork("mainnet-v1.0")).toBe(true);
     expect(folks.supportsNetwork("mainnet-v1.0")).toBe(true);
+    expect(folks.supportsNetwork("testnet-v1.0")).toBe(false);
+    expect(folks.supportsNetwork("voimain-v1.0")).toBe(false);
     expect(isSwapAvailableOn("mainnet-v1.0")).toBe(true);
   });
 
@@ -137,6 +142,96 @@ describe("buildBiatecGroups", () => {
 
   it("rejects an empty route", () => {
     expect(() => buildBiatecGroups([[], []])).toThrow(SwapRouterError);
+  });
+});
+
+describe("Folks quotes", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  const sender = algosdk.generateAccount().addr.toString();
+  const request: SwapRequest = {
+    sender,
+    fromAssetId: 0n,
+    toAssetId: 31566704n,
+    amount: 1000000n,
+    slippageBps: 100,
+    genesisId: "mainnet-v1.0",
+  };
+  const context: SwapRouterContext = {
+    algod: new algosdk.Algodv2("", "https://example.com"),
+    getAuthHeader: async () => "",
+  };
+
+  it("prepares and validates a quote when the browser has no global Buffer", async () => {
+    const transactions = algosdk.assignGroupID([
+      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        sender,
+        receiver: algosdk.getApplicationAddress(MainnetFolksRouterAppId),
+        amount: request.amount,
+        suggestedParams: params,
+      }),
+      algosdk.makeApplicationNoOpTxnFromObject({
+        sender,
+        appIndex: MainnetFolksRouterAppId,
+        appArgs: [
+          routerABIContract.getMethodByName("fi_end_swap").getSelector(),
+          algosdk.encodeUint64(request.toAssetId),
+          algosdk.encodeUint64(990n),
+        ],
+        suggestedParams: params,
+      }),
+    ]);
+    const encoded = transactions.map((transaction) =>
+      Buffer.from(algosdk.encodeUnsignedTransaction(transaction)).toString("base64")
+    );
+    const http = axios.create();
+    const get = vi.spyOn(http, "get")
+      .mockResolvedValueOnce({ data: { success: true, result: {
+        quoteAmount: "1000",
+        priceImpact: 0.01,
+        microalgoTxnsFee: 2000,
+        txnPayload: "test-payload",
+      } } })
+      .mockResolvedValueOnce({ data: { success: true, result: encoded } });
+    vi.spyOn(axios, "create").mockReturnValue(http);
+    vi.stubGlobal("Buffer", undefined);
+
+    const quote = await folksRouter.quote(request, context);
+
+    expect(globalThis.Buffer).toBe(Buffer);
+    expect(quote.outputAmount).toBe(1000n);
+    expect(quote.minimumReceived).toBe(990n);
+    expect(quote.groups[0].transactions).toHaveLength(2);
+    expect(quote.groups[0].transactions[0].payment?.amount).toBe(request.amount);
+    expect(get).toHaveBeenNthCalledWith(2, "/prepare/swap", {
+      params: { userAddress: sender, slippageBps: 100, txnPayload: "test-payload" },
+    });
+  });
+
+  it("rejects a testnet quote before creating an HTTP client", async () => {
+    const create = vi.spyOn(axios, "create");
+    await expect(folksRouter.quote({ ...request, genesisId: "testnet-v1.0" }, context))
+      .rejects.toThrow("Folks Router network not configured");
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["mainnet-v1.0", "", "mainnet"],
+    ["mainnet-v1.0", "none", ""],
+    ["testnet-v1.0", "", ""],
+    ["testnet-v1.0", "testnet", ""],
+    ["testnet-v1.0", "mainnet", ""],
+    ["voimain-v1.0", "mainnet", ""],
+  ])("resolves Folks config on %s with override '%s' to '%s'", async (genesis, override, expected) => {
+    vi.resetModules();
+    vi.stubEnv("VITE_GENESIS_ID", genesis);
+    vi.stubEnv("VITE_FOLKS_ROUTER_NETWORK", override);
+    const config = await import("../../config/env");
+    expect(config.folksRouterNetwork).toBe(expected);
   });
 });
 

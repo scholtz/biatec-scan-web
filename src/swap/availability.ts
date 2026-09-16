@@ -11,14 +11,15 @@ import {
 
 /**
  * Mirrors each router's `supportsNetwork()` rule (see src/swap/routers/):
- * Biatec Router needs a configured URL on an Algorand network, Folks and
- * Haystack need a non-empty network/chain setting.
+ * Biatec Router needs a configured URL on an Algorand network, Folks needs
+ * mainnet, and Haystack needs a non-empty chain setting.
  */
 export function isSwapAvailableOn(genesis: string): boolean {
   const biatec =
     biatecRouterUrl !== "" &&
     (genesis === "mainnet-v1.0" || genesis === "testnet-v1.0");
-  return biatec || folksRouterNetwork !== "" || haystackChain !== "";
+  const folks = genesis === "mainnet-v1.0" && folksRouterNetwork === "mainnet";
+  return biatec || folks || haystackChain !== "";
 }
 
 export const isSwapAvailable: boolean = isSwapAvailableOn(genesisId);
