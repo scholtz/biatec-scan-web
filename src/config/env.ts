@@ -27,8 +27,7 @@ export const usdcAssetId: number =
   Number(viteEnv.VITE_USDC_ASSET_ID) || 31566704;
 
 /** Genesis id of the network this build targets (e.g. "mainnet-v1.0", "voimain-v1.0"). */
-export const genesisId: string =
-  viteEnv.VITE_GENESIS_ID || "mainnet-v1.0";
+export const genesisId: string = viteEnv.VITE_GENESIS_ID || "mainnet-v1.0";
 
 /** Base64 genesis hash of the network this build targets, used for ARC-14 auth. */
 export const genesisHash: string =
@@ -39,12 +38,10 @@ export const nativeTokenName: string =
   viteEnv.VITE_NATIVE_TOKEN_NAME || "Algorand";
 
 /** Ticker of the network's native token, e.g. "ALGO" / "VOI". */
-export const nativeTokenUnit: string =
-  viteEnv.VITE_NATIVE_TOKEN_UNIT || "ALGO";
+export const nativeTokenUnit: string = viteEnv.VITE_NATIVE_TOKEN_UNIT || "ALGO";
 
 /** Human-readable network label used in branding/titles, e.g. "Algorand" / "Voi". */
-export const networkLabel: string =
-  viteEnv.VITE_NETWORK_LABEL || "Algorand";
+export const networkLabel: string = viteEnv.VITE_NETWORK_LABEL || "Algorand";
 
 /**
  * Whether this build targets Algorand mainnet. Gates UI that only makes sense
@@ -144,7 +141,7 @@ export const folksRouterNetwork: string = isAlgorandMainnet
  */
 export const haystackChain: string = networkSetting(
   viteEnv.VITE_HAYSTACK_CHAIN,
-  isAlgorandMainnet ? "mainnet" : ""
+  isAlgorandMainnet ? "mainnet" : "",
 );
 
 /**

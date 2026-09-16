@@ -1,6 +1,9 @@
 import algosdk from "algosdk";
 import axios from "axios";
-import { MainnetFolksRouterAppId, routerABIContract } from "@folks-router/js-sdk";
+import {
+  MainnetFolksRouterAppId,
+  routerABIContract,
+} from "@folks-router/js-sdk";
 import { Buffer } from "buffer";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { biatecRouter } from "biatec-router";
@@ -41,7 +44,9 @@ describe("router registry", () => {
   it("registers every router with a unique id", () => {
     const ids = swapRouters.map((r) => r.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toEqual(expect.arrayContaining(["biatec", "folks", "haystack"]));
+    expect(ids).toEqual(
+      expect.arrayContaining(["biatec", "folks", "haystack"]),
+    );
   });
 
   it("offers Haystack on mainnet only and Folks on mainnet (env default)", () => {
@@ -72,7 +77,14 @@ describe("combineBiatecRoutes", () => {
             inputAmount: 600,
             outputAmount: 90,
             totalNetworkFeeMicroAlgos: 2000,
-            hops: [{ fromAsset: 0, toAsset: 31566704, inputAmount: 600, outputAmount: 90 }],
+            hops: [
+              {
+                fromAsset: 0,
+                toAsset: 31566704,
+                inputAmount: 600,
+                outputAmount: 90,
+              },
+            ],
           },
           txsToSign: ["a", "b"],
         },
@@ -85,7 +97,12 @@ describe("combineBiatecRoutes", () => {
             totalNetworkFeeMicroAlgos: 3000,
             hops: [
               { fromAsset: 0, toAsset: 7, inputAmount: 400, outputAmount: 5 },
-              { fromAsset: 7, toAsset: 31566704, inputAmount: 5, outputAmount: 61 },
+              {
+                fromAsset: 7,
+                toAsset: 31566704,
+                inputAmount: 5,
+                outputAmount: 61,
+              },
             ],
           },
           txsToSign: ["c"],
@@ -123,7 +140,9 @@ describe("buildBiatecGroups", () => {
     const fresh = legs
       .flat()
       .map((b64) =>
-        algosdk.decodeUnsignedTransaction(new Uint8Array(Buffer.from(b64, "base64")))
+        algosdk.decodeUnsignedTransaction(
+          new Uint8Array(Buffer.from(b64, "base64")),
+        ),
       );
     for (const tx of fresh) tx.group = undefined;
     const expected = algosdk.computeGroupID(fresh);
@@ -186,16 +205,24 @@ describe("Folks quotes", () => {
       }),
     ]);
     const encoded = transactions.map((transaction) =>
-      Buffer.from(algosdk.encodeUnsignedTransaction(transaction)).toString("base64")
+      Buffer.from(algosdk.encodeUnsignedTransaction(transaction)).toString(
+        "base64",
+      ),
     );
     const http = axios.create();
-    const get = vi.spyOn(http, "get")
-      .mockResolvedValueOnce({ data: { success: true, result: {
-        quoteAmount: "1000",
-        priceImpact: 0.01,
-        microalgoTxnsFee: 2000,
-        txnPayload: "test-payload",
-      } } })
+    const get = vi
+      .spyOn(http, "get")
+      .mockResolvedValueOnce({
+        data: {
+          success: true,
+          result: {
+            quoteAmount: "1000",
+            priceImpact: 0.01,
+            microalgoTxnsFee: 2000,
+            txnPayload: "test-payload",
+          },
+        },
+      })
       .mockResolvedValueOnce({ data: { success: true, result: encoded } });
     vi.spyOn(axios, "create").mockReturnValue(http);
     vi.stubGlobal("Buffer", undefined);
@@ -206,16 +233,23 @@ describe("Folks quotes", () => {
     expect(quote.outputAmount).toBe(1000n);
     expect(quote.minimumReceived).toBe(990n);
     expect(quote.groups[0].transactions).toHaveLength(2);
-    expect(quote.groups[0].transactions[0].payment?.amount).toBe(request.amount);
+    expect(quote.groups[0].transactions[0].payment?.amount).toBe(
+      request.amount,
+    );
     expect(get).toHaveBeenNthCalledWith(2, "/prepare/swap", {
-      params: { userAddress: sender, slippageBps: 100, txnPayload: "test-payload" },
+      params: {
+        userAddress: sender,
+        slippageBps: 100,
+        txnPayload: "test-payload",
+      },
     });
   });
 
   it("rejects a testnet quote before creating an HTTP client", async () => {
     const create = vi.spyOn(axios, "create");
-    await expect(folksRouter.quote({ ...request, genesisId: "testnet-v1.0" }, context))
-      .rejects.toThrow("Folks Router network not configured");
+    await expect(
+      folksRouter.quote({ ...request, genesisId: "testnet-v1.0" }, context),
+    ).rejects.toThrow("Folks Router network not configured");
     expect(create).not.toHaveBeenCalled();
   });
 
@@ -226,13 +260,16 @@ describe("Folks quotes", () => {
     ["testnet-v1.0", "testnet", ""],
     ["testnet-v1.0", "mainnet", ""],
     ["voimain-v1.0", "mainnet", ""],
-  ])("resolves Folks config on %s with override '%s' to '%s'", async (genesis, override, expected) => {
-    vi.resetModules();
-    vi.stubEnv("VITE_GENESIS_ID", genesis);
-    vi.stubEnv("VITE_FOLKS_ROUTER_NETWORK", override);
-    const config = await import("../../config/env");
-    expect(config.folksRouterNetwork).toBe(expected);
-  });
+  ])(
+    "resolves Folks config on %s with override '%s' to '%s'",
+    async (genesis, override, expected) => {
+      vi.resetModules();
+      vi.stubEnv("VITE_GENESIS_ID", genesis);
+      vi.stubEnv("VITE_FOLKS_ROUTER_NETWORK", override);
+      const config = await import("../../config/env");
+      expect(config.folksRouterNetwork).toBe(expected);
+    },
+  );
 });
 
 describe("buildFolksRouteInfo", () => {
@@ -264,7 +301,7 @@ describe("Haystack helpers", () => {
       },
       { groupMetadata: [{ labelText: "Swap" }, {}] },
       0n,
-      31566704n
+      31566704n,
     );
     expect(info.steps).toEqual(["Swap"]);
     expect(info.paths[0].hops.map((h) => h.pools[0].label)).toEqual([
@@ -276,7 +313,7 @@ describe("Haystack helpers", () => {
 
   it("flags an empty route", () => {
     expect(buildHaystackRouteInfo({}, undefined, 0n, 1n).note).toBe(
-      "no-detailed-route"
+      "no-detailed-route",
     );
   });
 
@@ -289,7 +326,10 @@ describe("Haystack helpers", () => {
       amount: 0,
       suggestedParams: params,
     });
-    const signedLsig = algosdk.signLogicSigTransactionObject(lsigTxn, lsig).blob;
+    const signedLsig = algosdk.signLogicSigTransactionObject(
+      lsigTxn,
+      lsig,
+    ).blob;
 
     const groups = buildHaystackGroups({
       groupMetadata: [],
@@ -298,7 +338,7 @@ describe("Haystack helpers", () => {
         {
           group: "g2",
           logicSigBlob: Object.fromEntries(
-            [...signedLsig].map((byte, index) => [index, byte])
+            [...signedLsig].map((byte, index) => [index, byte]),
           ),
           data: "",
         },
@@ -312,6 +352,8 @@ describe("Haystack helpers", () => {
     expect(groups[1].transactions).toHaveLength(2);
     expect(groups[1].presigned.get(0)).toEqual(signedLsig);
     expect(groups[1].presigned.has(1)).toBe(false);
-    expect(groups[1].transactions[0].sender.toString()).toBe(lsig.address().toString());
+    expect(groups[1].transactions[0].sender.toString()).toBe(
+      lsig.address().toString(),
+    );
   });
 });
