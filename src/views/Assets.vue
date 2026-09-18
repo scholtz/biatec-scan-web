@@ -114,6 +114,7 @@
             <FormattedNumber
               :value="a.priceUSD"
               type="currency"
+              :minimum-significant-digits="2"
               :maximum-significant-digits="5"
               :small-threshold="0.01"
               :significant-digits="4"
