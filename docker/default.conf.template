@@ -22,8 +22,12 @@ server {
     # aggregator hosts (WalletConnect relays, Pera/Defly bridges, Liquid Auth,
     # Haystack, Folks Router). It is set once in docker/Dockerfile and never
     # overridden per environment. media-src/frame-src cover the wallet SDKs'
-    # notification sounds and the WalletConnect Verify iframe.
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' ${CSP_CONNECT_SRC} ${CSP_WALLET_CONNECT_SRC}; frame-src https://verify.walletconnect.org https://verify.walletconnect.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
+    # notification sounds and the WalletConnect Verify iframe. frame-src also
+    # needs 'self': AssetDetails.vue embeds the /charts TradingView widget
+    # (same origin, routed by the ingress - see k8s/*/deployment-fe.yaml) in
+    # an <iframe>, and an explicit frame-src list (unlike default-src) does
+    # NOT fall back to allowing same-origin framing on its own.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' ${CSP_CONNECT_SRC} ${CSP_WALLET_CONNECT_SRC}; frame-src 'self' https://verify.walletconnect.org https://verify.walletconnect.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "DENY" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
