@@ -478,7 +478,11 @@
     "decompile": "Dekompilovať",
     "decompiling": "Dekompilujem...",
     "decompileHint": "Kliknutím na 'Dekompilovať' zobrazíte kód TEAL.",
-    "base64Encoded": "Kódované v base64"
+    "base64Encoded": "Kódované v base64",
+    "identifiedPool": "Identifikovaný pool",
+    "poolPair": "Pár poolu",
+    "poolProtocol": "Protokol",
+    "viewPoolDetails": "Zobraziť detaily poolu"
   },
   "addressDetails": {
     "title": "Detaily adresy",

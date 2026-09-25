@@ -478,7 +478,11 @@
     "decompile": "Dekompiluj",
     "decompiling": "Dekompilowanie...",
     "decompileHint": "Kliknij „Dekompiluj”, aby zobaczyć kod TEAL.",
-    "base64Encoded": "Zakodowane w base64"
+    "base64Encoded": "Zakodowane w base64",
+    "identifiedPool": "Zidentyfikowana pula",
+    "poolPair": "Para puli",
+    "poolProtocol": "Protokół",
+    "viewPoolDetails": "Zobacz szczegóły puli"
   },
   "addressDetails": {
     "title": "Szczegóły adresu",

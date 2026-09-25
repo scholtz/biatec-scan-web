@@ -478,7 +478,11 @@
     "decompile": "Декомпилировать",
     "decompiling": "Декомпиляция...",
     "decompileHint": "Нажмите «Декомпилировать», чтобы увидеть код TEAL.",
-    "base64Encoded": "Кодировка base64"
+    "base64Encoded": "Кодировка base64",
+    "identifiedPool": "Определенный пул",
+    "poolPair": "Пара пула",
+    "poolProtocol": "Протокол",
+    "viewPoolDetails": "Просмотреть детали пула"
   },
   "addressDetails": {
     "title": "Детали адреса",

@@ -107,6 +107,52 @@
         </div>
       </div>
 
+      <!-- Identified Pool -->
+      <div v-if="identifiedPool" class="card">
+        <div
+          class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
+        >
+          <div>
+            <h2 class="text-xl font-semibold mb-2">
+              {{ $t("applicationDetails.identifiedPool") }}
+            </h2>
+            <div class="text-sm text-gray-400">
+              {{ $t("applicationDetails.poolPair") }}:
+              <router-link
+                v-if="identifiedPool.poolAddress"
+                :to="{
+                  name: 'PoolDetails',
+                  params: { poolAddress: identifiedPool.poolAddress },
+                }"
+                class="text-purple-400 hover:text-purple-300 font-mono transition-colors"
+              >
+                {{ formatPoolPair(identifiedPool) }}
+              </router-link>
+              <span v-else class="text-white font-mono">
+                {{ formatPoolPair(identifiedPool) }}
+              </span>
+            </div>
+            <div
+              v-if="identifiedPool.protocol"
+              class="text-sm text-gray-400 mt-1"
+            >
+              {{ $t("applicationDetails.poolProtocol") }}:
+              <span class="text-white">{{ identifiedPool.protocol }}</span>
+            </div>
+          </div>
+          <router-link
+            v-if="identifiedPool.poolAddress"
+            :to="{
+              name: 'PoolDetails',
+              params: { poolAddress: identifiedPool.poolAddress },
+            }"
+            class="btn-secondary text-sm self-start"
+          >
+            {{ $t("applicationDetails.viewPoolDetails") }}
+          </router-link>
+        </div>
+      </div>
+
       <!-- State Schemas -->
       <div v-if="application.params" class="card">
         <h2 class="text-xl font-semibold text-white mb-4">
@@ -279,14 +325,20 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
 import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { algorandService } from "../services/algorandService";
+import { assetService } from "../services/assetService";
 import { isAlgorandMainnet } from "../config/env";
+import { getAVMTradeReporterAPI } from "../api";
+import type { Pool } from "../api/models";
 import algosdk, { ProgramSourceMap } from "algosdk";
 import { Buffer } from "buffer";
 import ApplicationKeyValueTable from "../components/application/ApplicationKeyValueTable.vue";
 import ApplicationLocalState from "../components/application/ApplicationLocalState.vue";
 import ApplicationBoxes from "../components/application/ApplicationBoxes.vue";
 
+const { t } = useI18n();
+const api = getAVMTradeReporterAPI();
 const route = useRoute();
 const appId = ref<string>("");
 const application = ref<algosdk.modelsv2.Application | null>(null);
@@ -294,6 +346,7 @@ const isLoading = ref(true);
 const isDecompiling = ref(false);
 const decompiledApproval = ref("");
 const decompiledClear = ref("");
+const identifiedPool = ref<Pool | null>(null);
 
 const formatAddress = (address: string): string => {
   if (!address) return "";
@@ -324,6 +377,35 @@ const loadApplication = async (id: string) => {
     application.value = null;
   }
   isLoading.value = false;
+};
+
+const getAssetLabel = (assetId?: number | bigint | null): string => {
+  if (assetId === undefined || assetId === null) return t("common.unknown");
+  const info = assetService.getAssetInfo(BigInt(assetId));
+  if (!info) {
+    assetService.requestAsset(BigInt(assetId), () => {});
+    return `${t("common.asset")} ${assetId}`;
+  }
+  return info.unitName || info.name || `${t("common.asset")} ${assetId}`;
+};
+
+const formatPoolPair = (pool: Pool): string =>
+  `${getAssetLabel(pool.assetIdA)} / ${getAssetLabel(pool.assetIdB)}`;
+
+// Every DEX pool is itself an application - its escrow account (the app's
+// own address, derived above) doubles as the pool's on-chain identity, so
+// looking that address up against the pool index is how we tell whether
+// this app is a pool contract at all.
+const fetchIdentifiedPool = async (address: string) => {
+  identifiedPool.value = null;
+  if (!address) return;
+
+  try {
+    const response = await api.getApiPool({ address, size: 1 });
+    identifiedPool.value = response.data?.[0] ?? null;
+  } catch (error) {
+    console.error("Error identifying pool application:", error);
+  }
 };
 
 const decompileProgram = async (type: "approval" | "clear") => {
@@ -407,6 +489,7 @@ watch(
       decompiledApproval.value = "";
       decompiledClear.value = "";
       loadApplication(appId.value);
+      fetchIdentifiedPool(applicationAddress.value);
     }
   }
 );
@@ -415,6 +498,7 @@ onMounted(() => {
   appId.value = route.params.appId as string;
   if (appId.value) {
     loadApplication(appId.value);
+    fetchIdentifiedPool(applicationAddress.value);
   }
 });
 </script>

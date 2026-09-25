@@ -478,7 +478,11 @@
     "decompile": "Dekompilálás",
     "decompiling": "Dekompilálás folyamatban...",
     "decompileHint": "Kattintson a „Dekompilálás” gombra a TEAL kód megtekintéséhez.",
-    "base64Encoded": "Base64 kódolt"
+    "base64Encoded": "Base64 kódolt",
+    "identifiedPool": "Azonosított pool",
+    "poolPair": "Pool pár",
+    "poolProtocol": "Protokoll",
+    "viewPoolDetails": "Pool részleteinek megtekintése"
   },
   "addressDetails": {
     "title": "Cím részletek",

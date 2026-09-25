@@ -478,7 +478,11 @@
     "decompile": "反编译",
     "decompiling": "反编译中...",
     "decompileHint": "点击“反编译”以查看 TEAL 代码。",
-    "base64Encoded": "Base64 编码"
+    "base64Encoded": "Base64 编码",
+    "identifiedPool": "已识别资金池",
+    "poolPair": "资金池交易对",
+    "poolProtocol": "协议",
+    "viewPoolDetails": "查看资金池详情"
   },
   "addressDetails": {
     "title": "地址详情",
