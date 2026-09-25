@@ -4,8 +4,58 @@
       <div class="loading-spinner"></div>
     </div>
 
-    <div v-else-if="application" class="space-y-6">
-      <!-- Application Header -->
+    <div v-else class="space-y-6">
+      <!-- Identified Pool: shown independently of whether algod resolved the
+           application itself, since the pool index lookup is a separate,
+           independently-succeeding fetch (e.g. the app is unreachable via
+           algod but its escrow address is still a known indexed pool). -->
+      <div v-if="identifiedPool" class="card">
+        <div
+          class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
+        >
+          <div>
+            <h2 class="text-xl font-semibold text-white mb-2">
+              {{ $t("applicationDetails.identifiedPool") }}
+            </h2>
+            <div class="text-sm text-gray-400">
+              {{ $t("applicationDetails.poolPair") }}:
+              <router-link
+                v-if="identifiedPool.poolAddress"
+                :to="{
+                  name: 'PoolDetails',
+                  params: { poolAddress: identifiedPool.poolAddress },
+                }"
+                class="text-purple-400 hover:text-purple-300 font-mono transition-colors"
+              >
+                {{ formatPoolPair(identifiedPool) }}
+              </router-link>
+              <span v-else class="text-white font-mono">
+                {{ formatPoolPair(identifiedPool) }}
+              </span>
+            </div>
+            <div
+              v-if="identifiedPool.protocol"
+              class="text-sm text-gray-400 mt-1"
+            >
+              {{ $t("applicationDetails.poolProtocol") }}:
+              <span class="text-white">{{ identifiedPool.protocol }}</span>
+            </div>
+          </div>
+          <router-link
+            v-if="identifiedPool.poolAddress"
+            :to="{
+              name: 'PoolDetails',
+              params: { poolAddress: identifiedPool.poolAddress },
+            }"
+            class="btn-secondary text-sm self-start"
+          >
+            {{ $t("applicationDetails.viewPoolDetails") }}
+          </router-link>
+        </div>
+      </div>
+
+      <div v-if="application" class="space-y-6">
+        <!-- Application Header -->
       <div class="card">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div class="flex items-center space-x-4">
@@ -104,52 +154,6 @@
           >
             Pera <span class="text-xs">↗</span>
           </a>
-        </div>
-      </div>
-
-      <!-- Identified Pool -->
-      <div v-if="identifiedPool" class="card">
-        <div
-          class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
-        >
-          <div>
-            <h2 class="text-xl font-semibold text-white mb-2">
-              {{ $t("applicationDetails.identifiedPool") }}
-            </h2>
-            <div class="text-sm text-gray-400">
-              {{ $t("applicationDetails.poolPair") }}:
-              <router-link
-                v-if="identifiedPool.poolAddress"
-                :to="{
-                  name: 'PoolDetails',
-                  params: { poolAddress: identifiedPool.poolAddress },
-                }"
-                class="text-purple-400 hover:text-purple-300 font-mono transition-colors"
-              >
-                {{ formatPoolPair(identifiedPool) }}
-              </router-link>
-              <span v-else class="text-white font-mono">
-                {{ formatPoolPair(identifiedPool) }}
-              </span>
-            </div>
-            <div
-              v-if="identifiedPool.protocol"
-              class="text-sm text-gray-400 mt-1"
-            >
-              {{ $t("applicationDetails.poolProtocol") }}:
-              <span class="text-white">{{ identifiedPool.protocol }}</span>
-            </div>
-          </div>
-          <router-link
-            v-if="identifiedPool.poolAddress"
-            :to="{
-              name: 'PoolDetails',
-              params: { poolAddress: identifiedPool.poolAddress },
-            }"
-            class="btn-secondary text-sm self-start"
-          >
-            {{ $t("applicationDetails.viewPoolDetails") }}
-          </router-link>
         </div>
       </div>
 
@@ -318,6 +322,7 @@
         </router-link>
       </p>
       <router-link to="/" class="btn-primary">{{ $t("common.backToDashboard") }}</router-link>
+    </div>
     </div>
   </div>
 </template>
