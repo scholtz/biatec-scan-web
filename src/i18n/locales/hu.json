@@ -735,6 +735,7 @@
     "balance": "Egyenleg",
     "usdValue": "Érték USD-ben",
     "loading": "Eszköztulajdonosok betöltése…",
+    "error": "Nem sikerült betölteni az eszköz tulajdonosait",
     "retry": "Újra",
     "noHolders": "Nem található aktív tulajdonos ehhez az eszközhöz",
     "notAvailableForNative": "A natív hálózati tokenhez nem érhetők el tulajdonosok",

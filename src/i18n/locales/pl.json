@@ -735,6 +735,7 @@
     "balance": "Saldo",
     "usdValue": "Wartość w USD",
     "loading": "Ładowanie posiadaczy aktywa…",
+    "error": "Nie udało się załadować posiadaczy aktywa",
     "retry": "Spróbuj ponownie",
     "noHolders": "Nie znaleziono aktywnych posiadaczy tego aktywa",
     "notAvailableForNative": "Lista posiadaczy nie jest dostępna dla natywnego tokena sieci",

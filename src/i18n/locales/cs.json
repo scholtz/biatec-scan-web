@@ -735,6 +735,7 @@
     "balance": "Zůstatek",
     "usdValue": "Hodnota v USD",
     "loading": "Načítání držitelů aktiva…",
+    "error": "Nepodařilo se načíst držitele aktiva",
     "retry": "Zkusit znovu",
     "noHolders": "Pro toto aktivum nebyli nalezeni žádní aktivní držitelé",
     "notAvailableForNative": "Seznam držitelů není k dispozici pro nativní token sítě",

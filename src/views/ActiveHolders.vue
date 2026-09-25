@@ -124,6 +124,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
 import { getAVMTradeReporterAPI } from "../api";
@@ -131,6 +132,7 @@ import FormattedNumber from "../components/FormattedNumber.vue";
 
 const route = useRoute();
 const api = getAVMTradeReporterAPI();
+const { t } = useI18n();
 
 const PAGE_SIZE = 50;
 
@@ -150,6 +152,11 @@ const tokenStack = ref<Array<string | undefined>>([]);
 const currentToken = ref<string | undefined>(undefined);
 const nextTokenValue = ref<string | undefined>(undefined);
 
+// Bumped on every reload()/goNext()/goPrev() so a slow, superseded fetch
+// (e.g. switching assetId while a request is in flight) can detect it's
+// stale and discard its result instead of overwriting newer state.
+let requestSeq = 0;
+
 const pageNumber = computed(() => tokenStack.value.length + 1);
 
 const assetInfo = computed(() => {
@@ -165,9 +172,6 @@ const assetName = computed(
 );
 
 const decimals = computed(() => assetInfo.value?.decimals ?? 0);
-const unitName = computed(
-  () => assetInfo.value?.unitName || assetInfo.value?.name || "",
-);
 
 const rows = computed(() => {
   const d = decimals.value;
@@ -193,25 +197,43 @@ function formatAddress(address: string): string {
   return `${address.slice(0, 8)}...${address.slice(-6)}`;
 }
 
+// Not assetService.formatAssetBalance(): that helper caps precision at the
+// Intl default of 3 fraction digits (truncating >3-decimal ASA balances to
+// "0") and returns the hardcoded, untranslated literal "Loading..." when the
+// asset isn't cached yet. Takes the already-decimal-divided `balance` from
+// the `rows` computed (rather than re-deriving it from the raw amount) so
+// the displayed figure can never drift from the one used for the USD column.
 function formatBalance(balance: number): string {
   const formatted = balance.toLocaleString(undefined, {
-    maximumFractionDigits: 6,
+    maximumFractionDigits: decimals.value,
   });
-  return unitName.value ? `${formatted} ${unitName.value}` : formatted;
+  const unit = assetInfo.value?.unitName || assetInfo.value?.name || "";
+  return unit ? `${formatted} ${unit}` : formatted;
 }
 
-async function loadPrice() {
+async function loadPrice(seq: number) {
+  if (assetId.value === "0") return;
+
   try {
     const response = await api.getApiAsset({ ids: assetId.value, size: 1 });
+    if (seq !== requestSeq) return;
     priceUSD.value = response.data?.[0]?.priceUSD ?? null;
   } catch (err) {
+    if (seq !== requestSeq) return;
     console.error("Error loading asset price:", err);
     priceUSD.value = null;
   }
 }
 
-async function loadHolders(token?: string) {
-  if (assetId.value === "0") return;
+async function loadHolders(seq: number, token?: string) {
+  if (assetId.value === "0") {
+    // Authoritative for the current request even if an older, now-stale
+    // fetch for a real asset is still in flight (its own finally() is
+    // skipped by the seq check below, so it would otherwise leave the
+    // spinner on forever).
+    if (seq === requestSeq) loading.value = false;
+    return;
+  }
 
   loading.value = true;
   error.value = "";
@@ -226,19 +248,18 @@ async function loadHolders(token?: string) {
       request = request.nextToken(token);
     }
     const response = await request.do();
+    if (seq !== requestSeq) return;
     rawBalances.value = (response.balances ?? []).map((b) => ({
       address: b.address,
       amount: b.amount,
     }));
     nextTokenValue.value = response.nextToken;
   } catch (err: unknown) {
-    error.value =
-      err instanceof Error
-        ? err.message
-        : "Failed to load asset holders";
+    if (seq !== requestSeq) return;
+    error.value = err instanceof Error ? err.message : t("activeHolders.error");
     rawBalances.value = [];
   } finally {
-    loading.value = false;
+    if (seq === requestSeq) loading.value = false;
   }
 }
 
@@ -246,19 +267,28 @@ async function goNext() {
   if (!nextTokenValue.value) return;
   tokenStack.value.push(currentToken.value);
   currentToken.value = nextTokenValue.value;
-  await loadHolders(currentToken.value);
+  const seq = ++requestSeq;
+  await loadHolders(seq, currentToken.value);
 }
 
 async function goPrev() {
   if (tokenStack.value.length === 0) return;
   currentToken.value = tokenStack.value.pop();
-  await loadHolders(currentToken.value);
+  const seq = ++requestSeq;
+  await loadHolders(seq, currentToken.value);
 }
 
 async function reload() {
   tokenStack.value = [];
   currentToken.value = undefined;
-  await Promise.all([loadPrice(), loadHolders()]);
+  // Drop the previous asset's rows immediately so a reused component
+  // instance (assetId changing via the route) never renders one asset's
+  // addresses/amounts scaled by another asset's decimals/price while the
+  // new fetch is in flight.
+  rawBalances.value = [];
+  priceUSD.value = null;
+  const seq = ++requestSeq;
+  await Promise.all([loadPrice(seq), loadHolders(seq)]);
 }
 
 onMounted(() => {

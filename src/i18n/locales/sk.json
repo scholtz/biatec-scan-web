@@ -735,6 +735,7 @@
     "balance": "Zostatok",
     "usdValue": "Hodnota v USD",
     "loading": "Načítavajú sa držitelia aktíva…",
+    "error": "Nepodarilo sa načítať držiteľov aktíva",
     "retry": "Skúsiť znova",
     "noHolders": "Pre toto aktívum neboli nájdení žiadni aktívni držitelia",
     "notAvailableForNative": "Zoznam držiteľov nie je dostupný pre natívny token siete",

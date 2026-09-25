@@ -735,6 +735,7 @@
     "balance": "Saldo",
     "usdValue": "Valor en USD",
     "loading": "Cargando titulares del activo…",
+    "error": "No se pudieron cargar los titulares del activo",
     "retry": "Reintentar",
     "noHolders": "No se encontraron titulares activos para este activo",
     "notAvailableForNative": "Los titulares no están disponibles para el token nativo de la red",

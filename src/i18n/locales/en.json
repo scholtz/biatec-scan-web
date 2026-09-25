@@ -735,6 +735,7 @@
     "balance": "Balance",
     "usdValue": "USD Value",
     "loading": "Loading asset holders…",
+    "error": "Failed to load asset holders",
     "retry": "Retry",
     "noHolders": "No active holders found for this asset",
     "notAvailableForNative": "Active holders are not available for the native network token",

@@ -735,6 +735,7 @@
     "balance": "Guthaben",
     "usdValue": "Wert in USD",
     "loading": "Halter des Assets werden geladen…",
+    "error": "Halter des Assets konnten nicht geladen werden",
     "retry": "Erneut versuchen",
     "noHolders": "Keine aktiven Halter für dieses Asset gefunden",
     "notAvailableForNative": "Für das native Netzwerk-Token sind keine Halter verfügbar",

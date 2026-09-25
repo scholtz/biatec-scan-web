@@ -735,6 +735,7 @@
     "balance": "余额",
     "usdValue": "美元价值",
     "loading": "正在加载资产持有者…",
+    "error": "加载资产持有者失败",
     "retry": "重试",
     "noHolders": "未找到该资产的活跃持有者",
     "notAvailableForNative": "原生网络代币不支持持有者列表",
