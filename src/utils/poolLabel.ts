@@ -21,9 +21,19 @@ export function getAssetLabel(
   onLoaded?: () => void,
 ): string {
   if (assetId === undefined || assetId === null) return t("common.unknown");
-  const info = assetService.getAssetInfo(BigInt(assetId));
+  const id = BigInt(assetId);
+  const info = assetService.getAssetInfo(id);
   if (!info) {
-    assetService.requestAsset(BigInt(assetId), () => onLoaded?.());
+    // requestAsset's callback fires once per call, on both success and a
+    // failed load (there's no way to tell them apart from the callback
+    // alone). Calling onLoaded unconditionally means a permanently-missing
+    // asset keeps re-requesting - at most once per assetService's ~2s
+    // MIN_LOAD_INTERVAL, since that's a single global queue shared by every
+    // asset load in the app, and only for as long as this component keeps
+    // re-rendering (nothing keeps it going after unmount). Accepting that
+    // bounded, self-limiting cost is simpler than hand-rolled retry-count
+    // bookkeeping, and it lets a merely transient failure self-heal for free.
+    assetService.requestAsset(id, () => onLoaded?.());
     return `${t("common.asset")} ${assetId}`;
   }
   return info.unitName || info.name || `${t("common.asset")} ${assetId}`;

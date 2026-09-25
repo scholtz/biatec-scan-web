@@ -281,9 +281,19 @@
       </div>
     </div>
 
-    <!-- Not-found only when the app *also* isn't identified as a pool -
-         otherwise the pool card above already accounts for this address,
-         and pairing it with "Application Not Found" would be contradictory. -->
+    <!-- While application resolved to null but the independent, possibly
+         slower pool lookup hasn't settled yet, wait rather than showing
+         "Application Not Found" - a fast algod not-found alongside a
+         still-in-flight pool check would otherwise flash that message
+         before the pool card (rendered above once identifiedPool resolves)
+         had a chance to replace it. -->
+    <div v-else-if="isLoadingPool" class="flex justify-center py-12">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Not-found only once the pool lookup has also settled and found
+         nothing - pairing it with the pool card above would be
+         contradictory. -->
     <div v-else-if="!identifiedPool" class="card text-center py-12">
       <h2 class="text-xl font-semibold text-white mb-2">
         {{ $t("applicationDetails.notFoundTitle") }}
@@ -326,7 +336,11 @@ const isLoading = ref(true);
 const isDecompiling = ref(false);
 const decompiledApproval = ref("");
 const decompiledClear = ref("");
-const { identifiedPool, fetchIdentifiedPool } = useIdentifiedPool();
+const {
+  identifiedPool,
+  isLoading: isLoadingPool,
+  fetchIdentifiedPool,
+} = useIdentifiedPool();
 
 const formatAddress = (address: string): string => {
   if (!address) return "";
@@ -345,18 +359,28 @@ const applicationAddress = computed(() => {
   }
 });
 
+// Bumped on every loadApplication() call so a slow, superseded algod
+// response (the viewed appId changed again before it resolved) can detect
+// it's stale and discard its result instead of overwriting the current
+// application's state with a different application's data.
+let loadApplicationSeq = 0;
+
 const loadApplication = async (id: string) => {
+  const seq = ++loadApplicationSeq;
   isLoading.value = true;
   try {
     // Use algod client to get application info
     const algodClient = algorandService.getAlgodClient();
     const appInfo = await algodClient.getApplicationByID(parseInt(id)).do();
+    if (seq !== loadApplicationSeq) return;
     application.value = appInfo;
   } catch (error) {
+    if (seq !== loadApplicationSeq) return;
     console.error("Error loading application:", error);
     application.value = null;
+  } finally {
+    if (seq === loadApplicationSeq) isLoading.value = false;
   }
-  isLoading.value = false;
 };
 
 const decompileProgram = async (type: "approval" | "clear") => {
