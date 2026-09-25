@@ -28,7 +28,14 @@ export function useIdentifiedPool() {
   async function fetchIdentifiedPool(address: string): Promise<void> {
     const seq = ++requestSeq;
     identifiedPool.value = null;
-    if (!address) return;
+    if (!address) {
+      // Settle isLoading synchronously for *this* (now-latest) call rather
+      // than leaving it untouched - otherwise an in-flight older request's
+      // finally block, which no-ops because its seq is now stale, would
+      // never get a chance to clear it, wedging isLoading at true forever.
+      isLoading.value = false;
+      return;
+    }
 
     isLoading.value = true;
     try {

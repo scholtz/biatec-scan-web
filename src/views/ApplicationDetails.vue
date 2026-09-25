@@ -281,15 +281,20 @@
       </div>
     </div>
 
-    <!-- Not-found only once the (independent, possibly slower) pool lookup
-         has also settled and found nothing - otherwise a fast algod
-         not-found alongside a still-in-flight pool check would flash this
-         card before the pool card had a chance to replace it, and pairing
-         it with "Application Not Found" would be contradictory. -->
-    <div
-      v-else-if="!identifiedPool && !isLoadingPool"
-      class="card text-center py-12"
-    >
+    <!-- While application resolved to null but the independent, possibly
+         slower pool lookup hasn't settled yet, wait rather than showing
+         "Application Not Found" - a fast algod not-found alongside a
+         still-in-flight pool check would otherwise flash that message
+         before the pool card (rendered above once identifiedPool resolves)
+         had a chance to replace it. -->
+    <div v-else-if="isLoadingPool" class="flex justify-center py-12">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Not-found only once the pool lookup has also settled and found
+         nothing - pairing it with the pool card above would be
+         contradictory. -->
+    <div v-else-if="!identifiedPool" class="card text-center py-12">
       <h2 class="text-xl font-semibold text-white mb-2">
         {{ $t("applicationDetails.notFoundTitle") }}
       </h2>
