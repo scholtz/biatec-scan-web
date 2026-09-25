@@ -17,27 +17,29 @@ export function useIdentifiedPool() {
   // a slow pool lookup can't be raced by a faster negative result elsewhere.
   const isLoading = ref(false);
 
-  // Tracks the address the most recent call was made for, so a slow fetch
-  // superseded by a newer call (the viewed address/application changed
-  // again before the previous lookup resolved) can detect it's stale and
-  // discard its result instead of overwriting the current target's state.
-  let latestAddress = "";
+  // Bumped on every call so a slow fetch superseded by a newer call (the
+  // viewed address/application changed again before the previous lookup
+  // resolved) can detect it's stale and discard its result instead of
+  // overwriting the current target's state. Keyed by call order rather than
+  // by address, so rapid A -> B -> A navigation can't have an in-flight
+  // request from the first visit to A win a race against the third.
+  let requestSeq = 0;
 
   async function fetchIdentifiedPool(address: string): Promise<void> {
-    latestAddress = address;
+    const seq = ++requestSeq;
     identifiedPool.value = null;
     if (!address) return;
 
     isLoading.value = true;
     try {
       const response = await api.getApiPool({ address, size: 1 });
-      if (address !== latestAddress) return;
+      if (seq !== requestSeq) return;
       identifiedPool.value = response.data?.[0] ?? null;
     } catch (error) {
-      if (address !== latestAddress) return;
+      if (seq !== requestSeq) return;
       console.error("Error identifying pool:", error);
     } finally {
-      if (address === latestAddress) isLoading.value = false;
+      if (seq === requestSeq) isLoading.value = false;
     }
   }
 
