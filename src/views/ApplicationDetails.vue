@@ -113,7 +113,7 @@
           class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
         >
           <div>
-            <h2 class="text-xl font-semibold mb-2">
+            <h2 class="text-xl font-semibold text-white mb-2">
               {{ $t("applicationDetails.identifiedPool") }}
             </h2>
             <div class="text-sm text-gray-400">
@@ -327,10 +327,10 @@ import { ref, onMounted, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { algorandService } from "../services/algorandService";
-import { assetService } from "../services/assetService";
 import { isAlgorandMainnet } from "../config/env";
 import { getAVMTradeReporterAPI } from "../api";
 import type { Pool } from "../api/models";
+import { formatPoolPair as formatPoolPairShared } from "../utils/poolLabel";
 import algosdk, { ProgramSourceMap } from "algosdk";
 import { Buffer } from "buffer";
 import ApplicationKeyValueTable from "../components/application/ApplicationKeyValueTable.vue";
@@ -379,29 +379,26 @@ const loadApplication = async (id: string) => {
   isLoading.value = false;
 };
 
-const getAssetLabel = (assetId?: number | bigint | null): string => {
-  if (assetId === undefined || assetId === null) return t("common.unknown");
-  const info = assetService.getAssetInfo(BigInt(assetId));
-  if (!info) {
-    assetService.requestAsset(BigInt(assetId), () => {});
-    return `${t("common.asset")} ${assetId}`;
-  }
-  return info.unitName || info.name || `${t("common.asset")} ${assetId}`;
-};
+const formatPoolPair = (pool: Pool): string => formatPoolPairShared(pool, t);
 
-const formatPoolPair = (pool: Pool): string =>
-  `${getAssetLabel(pool.assetIdA)} / ${getAssetLabel(pool.assetIdB)}`;
+// Bumped on every fetchIdentifiedPool() call so a slow, superseded fetch
+// (the app id changed again before the previous lookup resolved) can detect
+// it's stale and discard its result instead of overwriting the current app's
+// state with a different application's pool.
+let identifiedPoolSeq = 0;
 
 // Every DEX pool is itself an application - its escrow account (the app's
 // own address, derived above) doubles as the pool's on-chain identity, so
 // looking that address up against the pool index is how we tell whether
 // this app is a pool contract at all.
 const fetchIdentifiedPool = async (address: string) => {
+  const seq = ++identifiedPoolSeq;
   identifiedPool.value = null;
   if (!address) return;
 
   try {
     const response = await api.getApiPool({ address, size: 1 });
+    if (seq !== identifiedPoolSeq) return;
     identifiedPool.value = response.data?.[0] ?? null;
   } catch (error) {
     console.error("Error identifying pool application:", error);

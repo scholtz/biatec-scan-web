@@ -686,6 +686,7 @@ import { getAVMTradeReporterAPI } from "../api";
 import type { Pool, Trade } from "../api/models";
 import type { AMMTrade } from "../types/algorand";
 import type { SubscriptionFilter } from "../types/SubscriptionFilter";
+import { formatPoolPair as formatPoolPairShared } from "../utils/poolLabel";
 import {
   assetImageUrl as sharedAssetImageUrl,
   indexerUrl,
@@ -1216,20 +1217,7 @@ const formatStatus = (status?: string) => {
   return status;
 };
 
-const getAssetLabel = (assetId?: number | null): string => {
-  if (assetId === undefined || assetId === null) return t("common.unknown");
-  const assetInfo = assetService.getAssetInfo(BigInt(assetId));
-  if (!assetInfo) {
-    assetService.requestAsset(BigInt(assetId), () => {});
-    return `${t("common.asset")} ${assetId}`;
-  }
-  return (
-    assetInfo.unitName || assetInfo.name || `${t("common.asset")} ${assetId}`
-  );
-};
-
-const formatPoolPair = (pool: Pool): string =>
-  `${getAssetLabel(pool.assetIdA)} / ${getAssetLabel(pool.assetIdB)}`;
+const formatPoolPair = (pool: Pool): string => formatPoolPairShared(pool, t);
 
 // ---- Lifecycle ----
 
