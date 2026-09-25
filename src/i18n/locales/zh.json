@@ -725,7 +725,21 @@
     "liquidityFetchError": "无法加载流动性更新。请稍后重试。",
     "recentPools": "最近池更新",
     "noPools": "未找到此资产的最近池更新",
-    "poolsFetchError": "无法加载池更新。请稍后重试。"
+    "poolsFetchError": "无法加载池更新。请稍后重试。",
+    "viewActiveHolders": "查看活跃持有者"
+  },
+  "activeHolders": {
+    "title": "{name} 的活跃持有者",
+    "backToAsset": "返回 {name}",
+    "address": "地址",
+    "balance": "余额",
+    "usdValue": "美元价值",
+    "loading": "正在加载资产持有者…",
+    "error": "加载资产持有者失败",
+    "retry": "重试",
+    "noHolders": "未找到该资产的活跃持有者",
+    "notAvailableForNative": "原生网络代币不支持持有者列表",
+    "page": "第 {page} 页"
   },
   "transaction": {
     "details": "交易详情",

@@ -115,17 +115,45 @@
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Asset A ID:</span>
-              <span class="text-white">{{ poolInfo.assetIdA ?? 0 }}</span>
+              <router-link
+                v-if="poolInfo.assetIdA !== undefined"
+                :to="{
+                  name: 'AssetDetails',
+                  params: { assetId: poolInfo.assetIdA.toString() },
+                }"
+                class="text-blue-400 hover:text-blue-300 font-mono text-sm transition-colors"
+              >
+                {{ poolInfo.assetIdA }}
+              </router-link>
+              <span v-else class="text-white">0</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Asset B ID:</span>
-              <span class="text-white">{{ poolInfo.assetIdB ?? 0n }}</span>
+              <router-link
+                v-if="poolInfo.assetIdB !== undefined"
+                :to="{
+                  name: 'AssetDetails',
+                  params: { assetId: poolInfo.assetIdB.toString() },
+                }"
+                class="text-blue-400 hover:text-blue-300 font-mono text-sm transition-colors"
+              >
+                {{ poolInfo.assetIdB }}
+              </router-link>
+              <span v-else class="text-white">0</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">LP Token ID:</span>
-              <span v-if="hasLpToken" class="text-white">{{
-                poolInfo.assetIdLP
-              }}</span>
+              <!-- hasLpToken guarantees assetIdLP is defined and non-zero -->
+              <router-link
+                v-if="hasLpToken"
+                :to="{
+                  name: 'AssetDetails',
+                  params: { assetId: poolInfo.assetIdLP!.toString() },
+                }"
+                class="text-blue-400 hover:text-blue-300 font-mono text-sm transition-colors"
+              >
+                {{ poolInfo.assetIdLP }}
+              </router-link>
               <span v-else class="text-amber-400">{{
                 $t("poolDetails.noLpToken")
               }}</span>
