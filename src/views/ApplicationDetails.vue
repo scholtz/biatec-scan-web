@@ -359,18 +359,28 @@ const applicationAddress = computed(() => {
   }
 });
 
+// Bumped on every loadApplication() call so a slow, superseded algod
+// response (the viewed appId changed again before it resolved) can detect
+// it's stale and discard its result instead of overwriting the current
+// application's state with a different application's data.
+let loadApplicationSeq = 0;
+
 const loadApplication = async (id: string) => {
+  const seq = ++loadApplicationSeq;
   isLoading.value = true;
   try {
     // Use algod client to get application info
     const algodClient = algorandService.getAlgodClient();
     const appInfo = await algodClient.getApplicationByID(parseInt(id)).do();
+    if (seq !== loadApplicationSeq) return;
     application.value = appInfo;
   } catch (error) {
+    if (seq !== loadApplicationSeq) return;
     console.error("Error loading application:", error);
     application.value = null;
+  } finally {
+    if (seq === loadApplicationSeq) isLoading.value = false;
   }
-  isLoading.value = false;
 };
 
 const decompileProgram = async (type: "approval" | "clear") => {
