@@ -11,6 +11,11 @@ import type { Pool } from "../api/models";
 export function useIdentifiedPool() {
   const api = getAVMTradeReporterAPI();
   const identifiedPool = ref<Pool | null>(null);
+  // True while a lookup is in flight - callers whose "not found" state for
+  // some other, independently-fetched resource would otherwise render before
+  // this pool check has had a chance to settle should also wait on this, so
+  // a slow pool lookup can't be raced by a faster negative result elsewhere.
+  const isLoading = ref(false);
 
   // Tracks the address the most recent call was made for, so a slow fetch
   // superseded by a newer call (the viewed address/application changed
@@ -23,6 +28,7 @@ export function useIdentifiedPool() {
     identifiedPool.value = null;
     if (!address) return;
 
+    isLoading.value = true;
     try {
       const response = await api.getApiPool({ address, size: 1 });
       if (address !== latestAddress) return;
@@ -30,8 +36,10 @@ export function useIdentifiedPool() {
     } catch (error) {
       if (address !== latestAddress) return;
       console.error("Error identifying pool:", error);
+    } finally {
+      if (address === latestAddress) isLoading.value = false;
     }
   }
 
-  return { identifiedPool, fetchIdentifiedPool };
+  return { identifiedPool, isLoading, fetchIdentifiedPool };
 }

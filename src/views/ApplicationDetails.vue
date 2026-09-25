@@ -281,10 +281,15 @@
       </div>
     </div>
 
-    <!-- Not-found only when the app *also* isn't identified as a pool -
-         otherwise the pool card above already accounts for this address,
-         and pairing it with "Application Not Found" would be contradictory. -->
-    <div v-else-if="!identifiedPool" class="card text-center py-12">
+    <!-- Not-found only once the (independent, possibly slower) pool lookup
+         has also settled and found nothing - otherwise a fast algod
+         not-found alongside a still-in-flight pool check would flash this
+         card before the pool card had a chance to replace it, and pairing
+         it with "Application Not Found" would be contradictory. -->
+    <div
+      v-else-if="!identifiedPool && !isLoadingPool"
+      class="card text-center py-12"
+    >
       <h2 class="text-xl font-semibold text-white mb-2">
         {{ $t("applicationDetails.notFoundTitle") }}
       </h2>
@@ -326,7 +331,11 @@ const isLoading = ref(true);
 const isDecompiling = ref(false);
 const decompiledApproval = ref("");
 const decompiledClear = ref("");
-const { identifiedPool, fetchIdentifiedPool } = useIdentifiedPool();
+const {
+  identifiedPool,
+  isLoading: isLoadingPool,
+  fetchIdentifiedPool,
+} = useIdentifiedPool();
 
 const formatAddress = (address: string): string => {
   if (!address) return "";

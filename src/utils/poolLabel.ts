@@ -23,7 +23,14 @@ export function getAssetLabel(
   if (assetId === undefined || assetId === null) return t("common.unknown");
   const info = assetService.getAssetInfo(BigInt(assetId));
   if (!info) {
-    assetService.requestAsset(BigInt(assetId), () => onLoaded?.());
+    // requestAsset's callback fires on both success and failure (so the UI
+    // never hangs waiting forever) - only call onLoaded when the asset is
+    // actually now cached, otherwise a permanently-failing load (deleted
+    // asset, node error) would have onLoaded trigger a recompute that finds
+    // the asset still missing, request it again, and loop indefinitely.
+    assetService.requestAsset(BigInt(assetId), () => {
+      if (assetService.getAssetInfo(BigInt(assetId))) onLoaded?.();
+    });
     return `${t("common.asset")} ${assetId}`;
   }
   return info.unitName || info.name || `${t("common.asset")} ${assetId}`;
