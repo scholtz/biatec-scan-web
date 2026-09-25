@@ -79,7 +79,7 @@
                   </router-link>
                 </div>
                 <div class="min-w-0 text-left md:text-right text-sm text-gray-100">
-                  {{ formatBalance(row.balance) }}
+                  {{ formatBalance(row.amount) }}
                 </div>
                 <div class="min-w-0 text-left md:text-right text-sm text-gray-100">
                   <FormattedNumber
@@ -177,11 +177,15 @@ const rows = computed(() => {
   const d = decimals.value;
   const price = priceUSD.value;
   return rawBalances.value.map((b) => {
-    const balance = Number(b.amount) / Math.pow(10, d);
+    // Number(bigint) loses precision above 2^53, which matters for a
+    // low-decimal ASA with a very large supply — fine for the inherently
+    // approximate USD estimate (price itself is a float), but the balance
+    // column itself is formatted from the raw bigint below to stay exact.
+    const approxBalance = Number(b.amount) / Math.pow(10, d);
     return {
       address: b.address,
-      balance,
-      usdValue: price != null ? balance * price : null,
+      amount: b.amount,
+      usdValue: price != null ? approxBalance * price : null,
     };
   });
 });
@@ -200,13 +204,19 @@ function formatAddress(address: string): string {
 // Not assetService.formatAssetBalance(): that helper caps precision at the
 // Intl default of 3 fraction digits (truncating >3-decimal ASA balances to
 // "0") and returns the hardcoded, untranslated literal "Loading..." when the
-// asset isn't cached yet. Takes the already-decimal-divided `balance` from
-// the `rows` computed (rather than re-deriving it from the raw amount) so
-// the displayed figure can never drift from the one used for the USD column.
-function formatBalance(balance: number): string {
-  const formatted = balance.toLocaleString(undefined, {
-    maximumFractionDigits: decimals.value,
-  });
+// asset isn't cached yet. Formats straight from the raw bigint (integer
+// division, not Number(amount)/10^d) so balances above 2^53 base units
+// still render exactly instead of being silently rounded.
+function formatBalance(amount: bigint): string {
+  const d = decimals.value;
+  const base = 10n ** BigInt(d);
+  const whole = amount / base;
+  const wholeStr = whole.toLocaleString();
+  let formatted = wholeStr;
+  if (d > 0) {
+    const fraction = (amount % base).toString().padStart(d, "0").replace(/0+$/, "");
+    if (fraction) formatted = `${wholeStr}.${fraction}`;
+  }
   const unit = assetInfo.value?.unitName || assetInfo.value?.name || "";
   return unit ? `${formatted} ${unit}` : formatted;
 }
