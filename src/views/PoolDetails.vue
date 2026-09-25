@@ -143,6 +143,7 @@
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">LP Token ID:</span>
+              <!-- hasLpToken guarantees assetIdLP is defined and non-zero -->
               <router-link
                 v-if="hasLpToken"
                 :to="{
