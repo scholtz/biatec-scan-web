@@ -35,7 +35,7 @@
         <div v-else-if="error" class="text-center py-12">
           <p class="text-red-400 mb-4">{{ error }}</p>
           <button
-            @click="reload"
+            @click="retry"
             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
           >
             {{ $t("activeHolders.retry") }}
@@ -225,9 +225,16 @@ function ensureAssetLoaded() {
     return;
   }
 
+  // requestAsset's own queue is throttled (MIN_LOAD_INTERVAL), so a request
+  // queued for a previous assetId can still be in flight and resolve after
+  // the user has already navigated to a different asset. Only let the
+  // callback mark completion for the asset it was actually requested for.
+  const requestedFor = assetId.value;
   assetService.requestAsset(id, () => {
     forceUpdate.value++;
-    assetInfoAttempted.value = true;
+    if (assetId.value === requestedFor) {
+      assetInfoAttempted.value = true;
+    }
   });
 }
 
@@ -325,6 +332,14 @@ async function goPrev() {
   currentToken.value = tokenStack.value.pop();
   const seq = ++requestSeq;
   await loadHolders(seq, currentToken.value);
+}
+
+// Re-fetches the current page after a failed request, without losing the
+// user's place — unlike reload(), which is only for a fresh asset/mount and
+// intentionally resets back to page 1.
+async function retry() {
+  const seq = ++requestSeq;
+  await Promise.all([loadPrice(seq), loadHolders(seq, currentToken.value)]);
 }
 
 async function reload() {
