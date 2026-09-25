@@ -57,6 +57,8 @@
     "app": "Aplikace",
     "asset": "Aktivum",
     "externalLinks": "Externí odkazy",
+    "identifiedPool": "Identifikovaný pool",
+    "poolPair": "Pár poolu",
     "argument": "Argument",
     "uints": "Uinty",
     "byteSlices": "Byte segmenty",
@@ -478,7 +480,9 @@
     "decompile": "Dekompilovat",
     "decompiling": "Dekompiluji...",
     "decompileHint": "Kliknutím na 'Dekompilovat' zobrazíte kód TEAL.",
-    "base64Encoded": "Kódováno v base64"
+    "base64Encoded": "Kódováno v base64",
+    "poolProtocol": "Protokol",
+    "viewPoolDetails": "Zobrazit detaily poolu"
   },
   "addressDetails": {
     "title": "Detaily adresy",
@@ -500,8 +504,6 @@
     "loadTxError": "Nepodařilo se načíst transakce",
     "perUnit": "/ jednotka",
     "fee": "Poplatek:",
-    "identifiedPool": "Identifikovaný pool",
-    "poolPair": "Pár poolu",
     "poolAppId": "ID aplikace poolu",
     "viewPoolTrades": "Zobrazit obchody poolu",
     "recentTrades": "Nedávné obchody",

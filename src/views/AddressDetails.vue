@@ -142,64 +142,27 @@
         </div>
 
         <!-- Pool Actions -->
-        <div v-if="identifiedPool" class="card">
-          <div
-            class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
-          >
-            <div>
-              <h2 class="text-xl font-semibold mb-2">
-                {{ $t("addressDetails.identifiedPool") }}
-              </h2>
-              <div class="text-sm text-gray-400">
-                {{ $t("addressDetails.poolPair") }}:
-                <router-link
-                  v-if="identifiedPool.poolAddress"
-                  :to="{
-                    name: 'PoolDetails',
-                    params: { poolAddress: identifiedPool.poolAddress },
-                  }"
-                  class="text-blue-400 hover:text-blue-300 font-mono transition-colors"
-                >
-                  {{ formatPoolPair(identifiedPool) }}
-                </router-link>
-                <span v-else class="text-white font-mono">
-                  {{ formatPoolPair(identifiedPool) }}
-                </span>
-              </div>
-              <div
-                v-if="identifiedPool.poolAppId"
-                class="text-sm text-gray-400 mt-1"
+        <IdentifiedPoolCard
+          v-if="identifiedPool"
+          :pool="identifiedPool"
+          :action-to="tradesByPairRoute"
+          :action-label="$t('addressDetails.viewPoolTrades')"
+        >
+          <template v-if="identifiedPool.poolAppId" #extra>
+            <div class="text-sm text-gray-400 mt-1">
+              {{ $t("addressDetails.poolAppId") }}:
+              <router-link
+                :to="{
+                  name: 'ApplicationDetails',
+                  params: { appId: identifiedPool.poolAppId.toString() },
+                }"
+                class="text-blue-400 hover:text-blue-300 font-mono transition-colors"
               >
-                {{ $t("addressDetails.poolAppId") }}:
-                <router-link
-                  :to="{
-                    name: 'ApplicationDetails',
-                    params: { appId: identifiedPool.poolAppId.toString() },
-                  }"
-                  class="text-blue-400 hover:text-blue-300 font-mono transition-colors"
-                >
-                  {{ identifiedPool.poolAppId }}
-                </router-link>
-              </div>
+                {{ identifiedPool.poolAppId }}
+              </router-link>
             </div>
-            <router-link
-              v-if="
-                identifiedPool.assetIdA !== undefined &&
-                identifiedPool.assetIdB !== undefined
-              "
-              :to="{
-                name: 'TradesByPair',
-                params: {
-                  assetId1: identifiedPool.assetIdA?.toString(),
-                  assetId2: identifiedPool.assetIdB?.toString(),
-                },
-              }"
-              class="btn-secondary text-sm self-start"
-            >
-              {{ $t("addressDetails.viewPoolTrades") }}
-            </router-link>
-          </div>
-        </div>
+          </template>
+        </IdentifiedPoolCard>
 
         <!-- Asset Balance Change -->
         <AssetBalanceDelta
@@ -683,9 +646,10 @@ import { algorandService } from "../services/algorandService";
 import { assetService } from "../services/assetService";
 import { signalrService } from "../services/signalrService";
 import { getAVMTradeReporterAPI } from "../api";
-import type { Pool, Trade } from "../api/models";
+import type { Trade } from "../api/models";
 import type { AMMTrade } from "../types/algorand";
 import type { SubscriptionFilter } from "../types/SubscriptionFilter";
+import { useIdentifiedPool } from "../composables/useIdentifiedPool";
 import {
   assetImageUrl as sharedAssetImageUrl,
   indexerUrl,
@@ -696,6 +660,7 @@ import {
 import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
+import IdentifiedPoolCard from "../components/IdentifiedPoolCard.vue";
 import TransactionFilterBar from "../components/address/TransactionFilterBar.vue";
 import AddressTransactionRow from "../components/address/AddressTransactionRow.vue";
 import AssetBalanceDelta from "../components/address/AssetBalanceDelta.vue";
@@ -744,7 +709,21 @@ const loading = ref(false);
 const error = ref("");
 const accountInfo = ref<AccountInfo | null>(null);
 const assetPrices = ref<Record<number, number>>({});
-const identifiedPool = ref<Pool | null>(null);
+const { identifiedPool, fetchIdentifiedPool } = useIdentifiedPool();
+
+const tradesByPairRoute = computed(() => {
+  const pool = identifiedPool.value;
+  if (pool?.assetIdA == null || pool?.assetIdB == null) {
+    return undefined;
+  }
+  return {
+    name: "TradesByPair",
+    params: {
+      assetId1: pool.assetIdA.toString(),
+      assetId2: pool.assetIdB.toString(),
+    },
+  };
+});
 
 // Single 1000-transaction fetch shared by the Recent Transactions list and
 // the Asset Balance Change section below — no separate paginated fetching.
@@ -1136,25 +1115,13 @@ const loadAddressInfo = async () => {
     accountInfo.value = accountData.account;
 
     fetchAssetPrices();
-    fetchIdentifiedPool();
+    fetchIdentifiedPool(address.value);
   } catch (err: unknown) {
     error.value =
       err instanceof Error ? err.message : t("addressDetails.loadError");
     console.error("Error loading address info:", err);
   } finally {
     loading.value = false;
-  }
-};
-
-const fetchIdentifiedPool = async () => {
-  identifiedPool.value = null;
-  if (!address.value) return;
-
-  try {
-    const response = await api.getApiPool({ address: address.value, size: 1 });
-    identifiedPool.value = response.data?.[0] ?? null;
-  } catch (poolError) {
-    console.error("Error identifying pool address:", poolError);
   }
 };
 
@@ -1215,21 +1182,6 @@ const formatStatus = (status?: string) => {
   if (status === "Offline") return t("status.offline");
   return status;
 };
-
-const getAssetLabel = (assetId?: number | null): string => {
-  if (assetId === undefined || assetId === null) return t("common.unknown");
-  const assetInfo = assetService.getAssetInfo(BigInt(assetId));
-  if (!assetInfo) {
-    assetService.requestAsset(BigInt(assetId), () => {});
-    return `${t("common.asset")} ${assetId}`;
-  }
-  return (
-    assetInfo.unitName || assetInfo.name || `${t("common.asset")} ${assetId}`
-  );
-};
-
-const formatPoolPair = (pool: Pool): string =>
-  `${getAssetLabel(pool.assetIdA)} / ${getAssetLabel(pool.assetIdB)}`;
 
 // ---- Lifecycle ----
 

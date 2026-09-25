@@ -57,6 +57,8 @@
     "app": "Приложение",
     "asset": "Актив",
     "externalLinks": "Внешние ссылки",
+    "identifiedPool": "Определенный пул",
+    "poolPair": "Пара пула",
     "argument": "Аргумент",
     "value": "Значение",
     "type": "Тип",
@@ -478,7 +480,9 @@
     "decompile": "Декомпилировать",
     "decompiling": "Декомпиляция...",
     "decompileHint": "Нажмите «Декомпилировать», чтобы увидеть код TEAL.",
-    "base64Encoded": "Кодировка base64"
+    "base64Encoded": "Кодировка base64",
+    "poolProtocol": "Протокол",
+    "viewPoolDetails": "Просмотреть детали пула"
   },
   "addressDetails": {
     "title": "Детали адреса",
@@ -500,8 +504,6 @@
     "loadTxError": "Не удалось загрузить транзакции",
     "perUnit": "/ ед.",
     "fee": "Комиссия:",
-    "identifiedPool": "Определенный пул",
-    "poolPair": "Пара пула",
     "poolAppId": "ID приложения пула",
     "viewPoolTrades": "Просмотреть торги пула",
     "recentTrades": "Последние сделки",

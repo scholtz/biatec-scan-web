@@ -57,6 +57,8 @@
     "app": "App",
     "asset": "Asset",
     "externalLinks": "Externe Links",
+    "identifiedPool": "Identifizierter Pool",
+    "poolPair": "Pool-Paar",
     "argument": "Argument",
     "value": "Wert",
     "type": "Typ",
@@ -478,7 +480,9 @@
     "decompile": "Dekompilieren",
     "decompiling": "Dekompiliere...",
     "decompileHint": "Klicken Sie auf 'Dekompilieren', um den TEAL-Code anzuzeigen.",
-    "base64Encoded": "Base64-codiert"
+    "base64Encoded": "Base64-codiert",
+    "poolProtocol": "Protokoll",
+    "viewPoolDetails": "Pool-Details anzeigen"
   },
   "addressDetails": {
     "title": "Adressdetails",
@@ -500,8 +504,6 @@
     "loadTxError": "Fehler beim Laden der Transaktionen",
     "perUnit": "/ Einheit",
     "fee": "Gebühr:",
-    "identifiedPool": "Identifizierter Pool",
-    "poolPair": "Pool-Paar",
     "poolAppId": "Pool-App-ID",
     "viewPoolTrades": "Pool-Trades anzeigen",
     "recentTrades": "Neueste Trades",

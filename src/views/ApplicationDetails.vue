@@ -4,8 +4,34 @@
       <div class="loading-spinner"></div>
     </div>
 
-    <div v-else-if="application" class="space-y-6">
-      <!-- Application Header -->
+    <div v-else class="space-y-6">
+      <!-- Identified Pool: shown independently of whether algod resolved the
+           application itself, since the pool index lookup is a separate,
+           independently-succeeding fetch (e.g. the app is unreachable via
+           algod but its escrow address is still a known indexed pool). -->
+      <IdentifiedPoolCard
+        v-if="identifiedPool"
+        :pool="identifiedPool"
+        :action-to="
+          identifiedPool.poolAddress
+            ? {
+                name: 'PoolDetails',
+                params: { poolAddress: identifiedPool.poolAddress },
+              }
+            : undefined
+        "
+        :action-label="$t('applicationDetails.viewPoolDetails')"
+      >
+        <template v-if="identifiedPool.protocol" #extra>
+          <div class="text-sm text-gray-400 mt-1">
+            {{ $t("applicationDetails.poolProtocol") }}:
+            <span class="text-white">{{ identifiedPool.protocol }}</span>
+          </div>
+        </template>
+      </IdentifiedPoolCard>
+
+      <div v-if="application" class="space-y-6">
+        <!-- Application Header -->
       <div class="card">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div class="flex items-center space-x-4">
@@ -255,7 +281,10 @@
       </div>
     </div>
 
-    <div v-else class="card text-center py-12">
+    <!-- Not-found only when the app *also* isn't identified as a pool -
+         otherwise the pool card above already accounts for this address,
+         and pairing it with "Application Not Found" would be contradictory. -->
+    <div v-else-if="!identifiedPool" class="card text-center py-12">
       <h2 class="text-xl font-semibold text-white mb-2">
         {{ $t("applicationDetails.notFoundTitle") }}
       </h2>
@@ -273,19 +302,22 @@
       </p>
       <router-link to="/" class="btn-primary">{{ $t("common.backToDashboard") }}</router-link>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import { algorandService } from "../services/algorandService";
 import { isAlgorandMainnet } from "../config/env";
+import { useIdentifiedPool } from "../composables/useIdentifiedPool";
 import algosdk, { ProgramSourceMap } from "algosdk";
 import { Buffer } from "buffer";
 import ApplicationKeyValueTable from "../components/application/ApplicationKeyValueTable.vue";
 import ApplicationLocalState from "../components/application/ApplicationLocalState.vue";
 import ApplicationBoxes from "../components/application/ApplicationBoxes.vue";
+import IdentifiedPoolCard from "../components/IdentifiedPoolCard.vue";
 
 const route = useRoute();
 const appId = ref<string>("");
@@ -294,6 +326,7 @@ const isLoading = ref(true);
 const isDecompiling = ref(false);
 const decompiledApproval = ref("");
 const decompiledClear = ref("");
+const { identifiedPool, fetchIdentifiedPool } = useIdentifiedPool();
 
 const formatAddress = (address: string): string => {
   if (!address) return "";
@@ -402,19 +435,13 @@ const decompileProgram = async (type: "approval" | "clear") => {
 watch(
   () => route.params.appId,
   (newAppId) => {
-    if (newAppId) {
-      appId.value = newAppId as string;
-      decompiledApproval.value = "";
-      decompiledClear.value = "";
-      loadApplication(appId.value);
-    }
-  }
-);
-
-onMounted(() => {
-  appId.value = route.params.appId as string;
-  if (appId.value) {
+    if (!newAppId) return;
+    appId.value = newAppId as string;
+    decompiledApproval.value = "";
+    decompiledClear.value = "";
     loadApplication(appId.value);
-  }
-});
+    fetchIdentifiedPool(applicationAddress.value);
+  },
+  { immediate: true },
+);
 </script>
