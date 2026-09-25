@@ -725,7 +725,20 @@
     "liquidityFetchError": "Unable to load liquidity updates. Please try again later.",
     "recentPools": "Recent Pool Updates",
     "noPools": "No recent pool updates found for this asset",
-    "poolsFetchError": "Unable to load pool updates. Please try again later."
+    "poolsFetchError": "Unable to load pool updates. Please try again later.",
+    "viewActiveHolders": "View Active Holders"
+  },
+  "activeHolders": {
+    "title": "{name} Active Holders",
+    "backToAsset": "Back to {name}",
+    "address": "Address",
+    "balance": "Balance",
+    "usdValue": "USD Value",
+    "loading": "Loading asset holders…",
+    "retry": "Retry",
+    "noHolders": "No active holders found for this asset",
+    "notAvailableForNative": "Active holders are not available for the native network token",
+    "page": "Page {page}"
   },
   "transaction": {
     "details": "Transaction Details",

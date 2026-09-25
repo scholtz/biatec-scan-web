@@ -104,6 +104,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: "/asset/:assetId/holders",
+      name: "ActiveHolders",
+      component: () => import("../views/ActiveHolders.vue"),
+      props: true,
+    },
+    {
       path: "/application/:appId",
       name: "ApplicationDetails",
       component: () => import("../views/ApplicationDetails.vue"),

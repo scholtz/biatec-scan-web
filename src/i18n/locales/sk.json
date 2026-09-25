@@ -725,7 +725,20 @@
     "liquidityFetchError": "Nie je možné načítať aktualizácie likvidity. Skúste to neskôr.",
     "recentPools": "Nedávne aktualizácie poolov",
     "noPools": "Neboli nájdené žiadne nedávne aktualizácie poolov pre tento asset",
-    "poolsFetchError": "Nie je možné načítať aktualizácie poolov. Skúste to neskôr."
+    "poolsFetchError": "Nie je možné načítať aktualizácie poolov. Skúste to neskôr.",
+    "viewActiveHolders": "Zobraziť aktívnych držiteľov"
+  },
+  "activeHolders": {
+    "title": "Aktívni držitelia {name}",
+    "backToAsset": "Späť na {name}",
+    "address": "Adresa",
+    "balance": "Zostatok",
+    "usdValue": "Hodnota v USD",
+    "loading": "Načítavajú sa držitelia aktíva…",
+    "retry": "Skúsiť znova",
+    "noHolders": "Pre toto aktívum neboli nájdení žiadni aktívni držitelia",
+    "notAvailableForNative": "Zoznam držiteľov nie je dostupný pre natívny token siete",
+    "page": "Strana {page}"
   },
   "transaction": {
     "details": "Detaily transakcie",

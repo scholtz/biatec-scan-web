@@ -725,7 +725,20 @@
     "liquidityFetchError": "Nelze načíst aktualizace likvidity. Zkuste to prosím později.",
     "recentPools": "Nedávné aktualizace poolů",
     "noPools": "Nebyly nalezeny žádné nedávné aktualizace poolů pro toto aktivum",
-    "poolsFetchError": "Nelze načíst aktualizace poolů. Zkuste to prosím později."
+    "poolsFetchError": "Nelze načíst aktualizace poolů. Zkuste to prosím později.",
+    "viewActiveHolders": "Zobrazit aktivní držitele"
+  },
+  "activeHolders": {
+    "title": "Aktivní držitelé {name}",
+    "backToAsset": "Zpět na {name}",
+    "address": "Adresa",
+    "balance": "Zůstatek",
+    "usdValue": "Hodnota v USD",
+    "loading": "Načítání držitelů aktiva…",
+    "retry": "Zkusit znovu",
+    "noHolders": "Pro toto aktivum nebyli nalezeni žádní aktivní držitelé",
+    "notAvailableForNative": "Seznam držitelů není k dispozici pro nativní token sítě",
+    "page": "Strana {page}"
   },
   "transaction": {
     "details": "Detaily transakce",

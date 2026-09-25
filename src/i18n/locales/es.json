@@ -725,7 +725,20 @@
     "liquidityFetchError": "No se pueden cargar las actualizaciones de liquidez. Por favor, inténtelo de nuevo más tarde.",
     "recentPools": "Actualizaciones recientes de pools",
     "noPools": "No se encontraron actualizaciones recientes de pools para este activo",
-    "poolsFetchError": "No se pueden cargar las actualizaciones de pools. Por favor, inténtelo de nuevo más tarde."
+    "poolsFetchError": "No se pueden cargar las actualizaciones de pools. Por favor, inténtelo de nuevo más tarde.",
+    "viewActiveHolders": "Ver titulares activos"
+  },
+  "activeHolders": {
+    "title": "Titulares activos de {name}",
+    "backToAsset": "Volver a {name}",
+    "address": "Dirección",
+    "balance": "Saldo",
+    "usdValue": "Valor en USD",
+    "loading": "Cargando titulares del activo…",
+    "retry": "Reintentar",
+    "noHolders": "No se encontraron titulares activos para este activo",
+    "notAvailableForNative": "Los titulares no están disponibles para el token nativo de la red",
+    "page": "Página {page}"
   },
   "transaction": {
     "details": "Detalles de la transacción",

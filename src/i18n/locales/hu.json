@@ -725,7 +725,20 @@
     "liquidityFetchError": "Nem sikerült betölteni a likviditás frissítéseket. Kérjük, próbálja újra később.",
     "recentPools": "Legutóbbi pool frissítések",
     "noPools": "Nem találhatók legutóbbi pool frissítések ehhez az eszközhöz",
-    "poolsFetchError": "Nem sikerült betölteni a pool frissítéseket. Kérjük, próbálja újra később."
+    "poolsFetchError": "Nem sikerült betölteni a pool frissítéseket. Kérjük, próbálja újra később.",
+    "viewActiveHolders": "Aktív tulajdonosok megtekintése"
+  },
+  "activeHolders": {
+    "title": "{name} aktív tulajdonosai",
+    "backToAsset": "Vissza a(z) {name} eszközhöz",
+    "address": "Cím",
+    "balance": "Egyenleg",
+    "usdValue": "Érték USD-ben",
+    "loading": "Eszköztulajdonosok betöltése…",
+    "retry": "Újra",
+    "noHolders": "Nem található aktív tulajdonos ehhez az eszközhöz",
+    "notAvailableForNative": "A natív hálózati tokenhez nem érhetők el tulajdonosok",
+    "page": "{page}. oldal"
   },
   "transaction": {
     "details": "Tranzakció részletei",

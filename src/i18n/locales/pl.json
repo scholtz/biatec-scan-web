@@ -725,7 +725,20 @@
     "liquidityFetchError": "Nie można załadować aktualizacji płynności. Spróbuj ponownie później.",
     "recentPools": "Ostatnie aktualizacje pul",
     "noPools": "Nie znaleziono ostatnich aktualizacji pul dla tego aktywa",
-    "poolsFetchError": "Nie można załadować aktualizacji pul. Spróbuj ponownie później."
+    "poolsFetchError": "Nie można załadować aktualizacji pul. Spróbuj ponownie później.",
+    "viewActiveHolders": "Pokaż aktywnych posiadaczy"
+  },
+  "activeHolders": {
+    "title": "Aktywni posiadacze {name}",
+    "backToAsset": "Powrót do {name}",
+    "address": "Adres",
+    "balance": "Saldo",
+    "usdValue": "Wartość w USD",
+    "loading": "Ładowanie posiadaczy aktywa…",
+    "retry": "Spróbuj ponownie",
+    "noHolders": "Nie znaleziono aktywnych posiadaczy tego aktywa",
+    "notAvailableForNative": "Lista posiadaczy nie jest dostępna dla natywnego tokena sieci",
+    "page": "Strona {page}"
   },
   "transaction": {
     "details": "Szczegóły transakcji",

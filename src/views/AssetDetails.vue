@@ -166,6 +166,13 @@
             >
               {{ $t("assetDetails.viewPoolsWithUsdc") }}
             </router-link>
+            <router-link
+              v-if="assetId !== '0'"
+              :to="{ name: 'ActiveHolders', params: { assetId } }"
+              class="btn-secondary text-sm py-2 px-4"
+            >
+              {{ $t("assetDetails.viewActiveHolders") }}
+            </router-link>
 
             <a
               target="_blank"
@@ -173,6 +180,46 @@
               class="btn-secondary text-sm py-2 px-4"
             >
               {{ $t("assetDetails.fullScreenChart") }}
+            </a>
+          </div>
+
+          <!-- External Links (Algorand-mainnet-only explorers) -->
+          <div
+            v-if="isAlgorandMainnet && assetId !== '0'"
+            class="flex flex-wrap gap-x-4 gap-y-2 pt-2"
+          >
+            <span class="text-sm text-gray-500">{{ $t("common.externalLinks") }}:</span>
+            <a
+              :href="`https://allo.info/asset/${assetId}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
+            >
+              Allo <span class="text-xs">↗</span>
+            </a>
+            <a
+              :href="`https://lora.algokit.io/mainnet/asset/${assetId}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
+            >
+              Lora <span class="text-xs">↗</span>
+            </a>
+            <a
+              :href="`https://vestige.fi/asset/${assetId}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
+            >
+              Vestige <span class="text-xs">↗</span>
+            </a>
+            <a
+              :href="`https://explorer.perawallet.app/asset/${assetId}/`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
+            >
+              Pera <span class="text-xs">↗</span>
             </a>
           </div>
         </div>
@@ -216,7 +263,12 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import { favoriteService } from "../services/favoriteService";
-import { assetChartUrl, assetImageUrl, usdcAssetId } from "../config/env";
+import {
+  assetChartUrl,
+  assetImageUrl,
+  isAlgorandMainnet,
+  usdcAssetId,
+} from "../config/env";
 import { isSwapAvailable } from "../swap/availability";
 import { signalrService } from "../services/signalrService";
 import { algorandService } from "../services/algorandService";
