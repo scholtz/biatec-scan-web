@@ -21,7 +21,10 @@
 
       <template v-else>
         <!-- Loading State -->
-        <div v-if="loading && rows.length === 0" class="text-center py-12">
+        <div
+          v-if="(loading || !assetInfoAttempted) && rows.length === 0"
+          class="text-center py-12"
+        >
           <div
             class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
           ></div>
@@ -159,9 +162,27 @@ let requestSeq = 0;
 
 const pageNumber = computed(() => tokenStack.value.length + 1);
 
+// True once the asset-metadata lookup for the *current* assetId has settled
+// (found or not) — decimals default to 0 until then, which would otherwise
+// briefly render holder balances/USD values off by 10^realDecimals if the
+// indexer fetch resolves before this one (e.g. a direct/bookmarked link to a
+// not-yet-cached asset's holders page).
+const assetInfoAttempted = ref(false);
+
+function parseAssetId(id: string): bigint | null {
+  try {
+    return BigInt(id);
+  } catch {
+    // Malformed route param (e.g. a non-numeric assetId) — treat as unknown
+    // rather than letting BigInt's SyntaxError blow up a template render.
+    return null;
+  }
+}
+
 const assetInfo = computed(() => {
   void forceUpdate.value;
-  return assetService.getAssetInfo(BigInt(assetId.value || "0"));
+  const id = parseAssetId(assetId.value || "0");
+  return id === null ? null : assetService.getAssetInfo(id);
 });
 
 const assetName = computed(
@@ -174,6 +195,8 @@ const assetName = computed(
 const decimals = computed(() => assetInfo.value?.decimals ?? 0);
 
 const rows = computed(() => {
+  if (!assetInfoAttempted.value) return [];
+
   const d = decimals.value;
   const price = priceUSD.value;
   return rawBalances.value.map((b) => {
@@ -191,8 +214,20 @@ const rows = computed(() => {
 });
 
 function ensureAssetLoaded() {
-  assetService.requestAsset(BigInt(assetId.value || "0"), () => {
+  assetInfoAttempted.value = false;
+
+  // Native asset 0 is never cached as an ASA and this id renders the
+  // "not available for native token" branch only, so loading it would just
+  // be a wasted algod request.
+  const id = assetId.value === "0" ? null : parseAssetId(assetId.value);
+  if (id === null) {
+    assetInfoAttempted.value = true;
+    return;
+  }
+
+  assetService.requestAsset(id, () => {
     forceUpdate.value++;
+    assetInfoAttempted.value = true;
   });
 }
 
@@ -249,6 +284,10 @@ async function loadHolders(seq: number, token?: string) {
   error.value = "";
 
   try {
+    // Indexer, not algod: algod has no "list every holder of an asset"
+    // endpoint (it only answers per-account queries), so this is the same
+    // kind of indexer-only lookup as the existing tx-by-id case — a listing
+    // that genuinely doesn't exist on algod, not a preference over it.
     const indexer = algorandService.getIndexerClient();
     let request = indexer
       .lookupAssetBalances(BigInt(assetId.value))
