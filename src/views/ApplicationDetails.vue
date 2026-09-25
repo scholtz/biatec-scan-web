@@ -9,50 +9,26 @@
            application itself, since the pool index lookup is a separate,
            independently-succeeding fetch (e.g. the app is unreachable via
            algod but its escrow address is still a known indexed pool). -->
-      <div v-if="identifiedPool" class="card">
-        <div
-          class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
-        >
-          <div>
-            <h2 class="text-xl font-semibold text-white mb-2">
-              {{ $t("applicationDetails.identifiedPool") }}
-            </h2>
-            <div class="text-sm text-gray-400">
-              {{ $t("applicationDetails.poolPair") }}:
-              <router-link
-                v-if="identifiedPool.poolAddress"
-                :to="{
-                  name: 'PoolDetails',
-                  params: { poolAddress: identifiedPool.poolAddress },
-                }"
-                class="text-purple-400 hover:text-purple-300 font-mono transition-colors"
-              >
-                {{ formatPoolPair(identifiedPool) }}
-              </router-link>
-              <span v-else class="text-white font-mono">
-                {{ formatPoolPair(identifiedPool) }}
-              </span>
-            </div>
-            <div
-              v-if="identifiedPool.protocol"
-              class="text-sm text-gray-400 mt-1"
-            >
-              {{ $t("applicationDetails.poolProtocol") }}:
-              <span class="text-white">{{ identifiedPool.protocol }}</span>
-            </div>
+      <IdentifiedPoolCard
+        v-if="identifiedPool"
+        :pool="identifiedPool"
+        :action-to="
+          identifiedPool.poolAddress
+            ? {
+                name: 'PoolDetails',
+                params: { poolAddress: identifiedPool.poolAddress },
+              }
+            : undefined
+        "
+        :action-label="$t('applicationDetails.viewPoolDetails')"
+      >
+        <template v-if="identifiedPool.protocol" #extra>
+          <div class="text-sm text-gray-400 mt-1">
+            {{ $t("applicationDetails.poolProtocol") }}:
+            <span class="text-white">{{ identifiedPool.protocol }}</span>
           </div>
-          <router-link
-            v-if="identifiedPool.poolAddress"
-            :to="{
-              name: 'PoolDetails',
-              params: { poolAddress: identifiedPool.poolAddress },
-            }"
-            class="btn-secondary text-sm self-start"
-          >
-            {{ $t("applicationDetails.viewPoolDetails") }}
-          </router-link>
-        </div>
-      </div>
+        </template>
+      </IdentifiedPoolCard>
 
       <div v-if="application" class="space-y-6">
         <!-- Application Header -->
@@ -305,7 +281,10 @@
       </div>
     </div>
 
-    <div v-else class="card text-center py-12">
+    <!-- Not-found only when the app *also* isn't identified as a pool -
+         otherwise the pool card above already accounts for this address,
+         and pairing it with "Application Not Found" would be contradictory. -->
+    <div v-else-if="!identifiedPool" class="card text-center py-12">
       <h2 class="text-xl font-semibold text-white mb-2">
         {{ $t("applicationDetails.notFoundTitle") }}
       </h2>
@@ -328,22 +307,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
-import { useI18n } from "vue-i18n";
 import { algorandService } from "../services/algorandService";
 import { isAlgorandMainnet } from "../config/env";
-import { getAVMTradeReporterAPI } from "../api";
-import type { Pool } from "../api/models";
-import { formatPoolPair as formatPoolPairShared } from "../utils/poolLabel";
+import { useIdentifiedPool } from "../composables/useIdentifiedPool";
 import algosdk, { ProgramSourceMap } from "algosdk";
 import { Buffer } from "buffer";
 import ApplicationKeyValueTable from "../components/application/ApplicationKeyValueTable.vue";
 import ApplicationLocalState from "../components/application/ApplicationLocalState.vue";
 import ApplicationBoxes from "../components/application/ApplicationBoxes.vue";
+import IdentifiedPoolCard from "../components/IdentifiedPoolCard.vue";
 
-const { t } = useI18n();
-const api = getAVMTradeReporterAPI();
 const route = useRoute();
 const appId = ref<string>("");
 const application = ref<algosdk.modelsv2.Application | null>(null);
@@ -351,7 +326,7 @@ const isLoading = ref(true);
 const isDecompiling = ref(false);
 const decompiledApproval = ref("");
 const decompiledClear = ref("");
-const identifiedPool = ref<Pool | null>(null);
+const { identifiedPool, fetchIdentifiedPool } = useIdentifiedPool();
 
 const formatAddress = (address: string): string => {
   if (!address) return "";
@@ -382,32 +357,6 @@ const loadApplication = async (id: string) => {
     application.value = null;
   }
   isLoading.value = false;
-};
-
-const formatPoolPair = (pool: Pool): string => formatPoolPairShared(pool, t);
-
-// Bumped on every fetchIdentifiedPool() call so a slow, superseded fetch
-// (the app id changed again before the previous lookup resolved) can detect
-// it's stale and discard its result instead of overwriting the current app's
-// state with a different application's pool.
-let identifiedPoolSeq = 0;
-
-// Every DEX pool is itself an application - its escrow account (the app's
-// own address, derived above) doubles as the pool's on-chain identity, so
-// looking that address up against the pool index is how we tell whether
-// this app is a pool contract at all.
-const fetchIdentifiedPool = async (address: string) => {
-  const seq = ++identifiedPoolSeq;
-  identifiedPool.value = null;
-  if (!address) return;
-
-  try {
-    const response = await api.getApiPool({ address, size: 1 });
-    if (seq !== identifiedPoolSeq) return;
-    identifiedPool.value = response.data?.[0] ?? null;
-  } catch (error) {
-    console.error("Error identifying pool application:", error);
-  }
 };
 
 const decompileProgram = async (type: "approval" | "clear") => {
@@ -486,21 +435,13 @@ const decompileProgram = async (type: "approval" | "clear") => {
 watch(
   () => route.params.appId,
   (newAppId) => {
-    if (newAppId) {
-      appId.value = newAppId as string;
-      decompiledApproval.value = "";
-      decompiledClear.value = "";
-      loadApplication(appId.value);
-      fetchIdentifiedPool(applicationAddress.value);
-    }
-  }
-);
-
-onMounted(() => {
-  appId.value = route.params.appId as string;
-  if (appId.value) {
+    if (!newAppId) return;
+    appId.value = newAppId as string;
+    decompiledApproval.value = "";
+    decompiledClear.value = "";
     loadApplication(appId.value);
     fetchIdentifiedPool(applicationAddress.value);
-  }
-});
+  },
+  { immediate: true },
+);
 </script>
