@@ -152,7 +152,17 @@
               </h2>
               <div class="text-sm text-gray-400">
                 {{ $t("addressDetails.poolPair") }}:
-                <span class="text-white font-mono">
+                <router-link
+                  v-if="identifiedPool.poolAddress"
+                  :to="{
+                    name: 'PoolDetails',
+                    params: { poolAddress: identifiedPool.poolAddress },
+                  }"
+                  class="text-blue-400 hover:text-blue-300 font-mono transition-colors"
+                >
+                  {{ formatPoolPair(identifiedPool) }}
+                </router-link>
+                <span v-else class="text-white font-mono">
                   {{ formatPoolPair(identifiedPool) }}
                 </span>
               </div>
@@ -161,9 +171,15 @@
                 class="text-sm text-gray-400 mt-1"
               >
                 {{ $t("addressDetails.poolAppId") }}:
-                <span class="text-white font-mono">{{
-                  identifiedPool.poolAppId
-                }}</span>
+                <router-link
+                  :to="{
+                    name: 'ApplicationDetails',
+                    params: { appId: identifiedPool.poolAppId.toString() },
+                  }"
+                  class="text-blue-400 hover:text-blue-300 font-mono transition-colors"
+                >
+                  {{ identifiedPool.poolAppId }}
+                </router-link>
               </div>
             </div>
             <router-link
@@ -315,7 +331,16 @@
                     class="text-xs text-gray-500 flex items-center gap-1 mt-0.5"
                     v-if="asset['asset-id'] !== 0"
                   >
-                    ID: {{ asset["asset-id"] }}
+                    ID:
+                    <router-link
+                      :to="{
+                        name: 'AssetDetails',
+                        params: { assetId: asset['asset-id'].toString() },
+                      }"
+                      class="text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      {{ asset["asset-id"] }}
+                    </router-link>
                     <CopyToClipboard
                       :text="asset['asset-id'].toString()"
                       :toast-message="
