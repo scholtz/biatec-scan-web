@@ -71,7 +71,7 @@ RUN mkdir /app
 # environment in the k8s manifests) - this is what lets one image serve any
 # network's CSP without a rebuild.
 COPY docker/default.conf.template /etc/nginx/templates/default.conf.template
-ENV CSP_CONNECT_SRC="https://api.algorand.scan.biatec.io wss://api.algorand.scan.biatec.io https://algorand-algod-public.de-4.biatec.io https://mainnet-idx.4160.nodely.dev https://algorand.scan.biatec.io https://router.api.biatec.io"
+ENV CSP_CONNECT_SRC="https://api.algorand.scan.biatec.io wss://api.algorand.scan.biatec.io https://algorand-algod-public.de-4.biatec.io https://mainnet-idx.4160.nodely.dev https://algorand.scan.biatec.io https://router.api.biatec.io https://scholtz.github.io"
 # Network-independent wallet / swap-aggregator hosts (see default.conf.template).
 # A new swap router's API host goes here, not in the per-network manifests.
 ENV CSP_WALLET_CONNECT_SRC="https://*.walletconnect.com wss://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.org https://api.web3modal.org https://*.perawallet.app wss://*.perawallet.app https://*.defly.app wss://*.defly.app https://s3.amazonaws.com https://*.amazonaws.com https://liquid.biatec.io wss://liquid.biatec.io https://deflex.txnlab.dev https://api.folksrouter.io"

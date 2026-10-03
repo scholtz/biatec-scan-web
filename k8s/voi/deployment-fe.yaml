@@ -34,6 +34,7 @@ spec:
             # the shared chain-agnostic ARC-56 registry.
             - name: CSP_CONNECT_SRC
               value: >-
+                https://scholtz.github.io
                 https://api.voi.scan.biatec.io
                 wss://api.voi.scan.biatec.io
                 https://voimain-algod-public.de.nodes.biatec.io

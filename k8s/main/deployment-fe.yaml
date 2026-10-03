@@ -25,6 +25,7 @@ spec:
             # build args whenever either changes.
             - name: CSP_CONNECT_SRC
               value: >-
+                https://scholtz.github.io
                 https://api.algorand.scan.biatec.io
                 wss://api.algorand.scan.biatec.io
                 https://algorand-algod-public.de-4.biatec.io
