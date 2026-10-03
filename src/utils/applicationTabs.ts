@@ -8,3 +8,6 @@ export const TAB_KEYS = [
 ] as const;
 
 export type TabKey = (typeof TAB_KEYS)[number];
+
+/** Route path for the application details page; the tab regex is built from TAB_KEYS (single source of truth). */
+export const APPLICATION_ROUTE_PATH = `/application/:appId/:tab(${TAB_KEYS.join("|")})?`;

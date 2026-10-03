@@ -1,3 +1,4 @@
+import { APPLICATION_ROUTE_PATH } from "../utils/applicationTabs";
 import { walletReady } from "../wallet/walletReady";
 import { createRouter, createWebHistory } from "vue-router";
 import Assets from "../views/Assets.vue";
@@ -110,10 +111,9 @@ const router = createRouter({
       props: true,
     },
     {
-      path: "/application/:appId/:tab(basic-info|schema-and-state|boxes|approval-program|clear-state-program)?",
+      path: APPLICATION_ROUTE_PATH,
       name: "ApplicationDetails",
       component: () => import("../views/ApplicationDetails.vue"),
-      props: true,
     },
     {
       path: "/pools/:asset1/:asset2",

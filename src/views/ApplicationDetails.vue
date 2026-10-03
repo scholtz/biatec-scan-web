@@ -51,13 +51,13 @@
       </div>
 
       <!-- Tabs -->
-      <div class="border-b border-gray-700 flex flex-wrap gap-x-6" role="tablist">
+      <nav class="border-b border-gray-700 flex flex-wrap gap-x-6" :aria-label="$t('applicationDetails.title')">
         <router-link
           v-for="tab in tabs"
           :key="tab.key"
           :to="tabRoute(tab.key)"
-          role="tab"
-          :aria-selected="activeTab === tab.key"
+          replace
+          :aria-current="activeTab === tab.key ? 'page' : undefined"
           :data-testid="`app-tab-${tab.key}`"
           class="pb-2 text-sm font-medium transition-colors border-b-2 -mb-px"
           :class="
@@ -68,7 +68,7 @@
         >
           {{ $t(tab.labelKey) }}
         </router-link>
-      </div>
+      </nav>
 
       <div v-show="activeTab === 'basic-info'" class="card">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -249,20 +249,20 @@
             </h2>
             <div class="flex flex-wrap items-center gap-2">
               <CopyToClipboard
-                :text="programBase64('approval')"
+                :text="approvalBase64"
                 :toast-message="$t('applicationDetails.copyBase64Toast')"
                 :title="$t('applicationDetails.copyBase64')"
-                button-class="text-sm px-3 py-1.5 border border-gray-600"
+                button-class="!px-3 !py-1.5 text-sm border border-gray-600"
                 :data-testid="'copy-base64-approval'"
               >
                 {{ $t("applicationDetails.copyBase64") }}
               </CopyToClipboard>
               <CopyToClipboard
-                v-if="decompiledApproval"
+                v-if="decompiledApproval && !decompiledApproval.startsWith(DECOMPILE_ERROR_PREFIX)"
                 :text="decompiledApproval"
                 :toast-message="$t('applicationDetails.copyDecompiledToast')"
                 :title="$t('applicationDetails.copyDecompiled')"
-                button-class="text-sm px-3 py-1.5 border border-gray-600"
+                button-class="!px-3 !py-1.5 text-sm border border-gray-600"
                 :data-testid="'copy-decompiled-approval'"
               >
                 {{ $t("applicationDetails.copyDecompiled") }}
@@ -321,20 +321,20 @@
             </h2>
             <div class="flex flex-wrap items-center gap-2">
               <CopyToClipboard
-                :text="programBase64('clear')"
+                :text="clearBase64"
                 :toast-message="$t('applicationDetails.copyBase64Toast')"
                 :title="$t('applicationDetails.copyBase64')"
-                button-class="text-sm px-3 py-1.5 border border-gray-600"
+                button-class="!px-3 !py-1.5 text-sm border border-gray-600"
                 :data-testid="'copy-base64-clear'"
               >
                 {{ $t("applicationDetails.copyBase64") }}
               </CopyToClipboard>
               <CopyToClipboard
-                v-if="decompiledClear"
+                v-if="decompiledClear && !decompiledClear.startsWith(DECOMPILE_ERROR_PREFIX)"
                 :text="decompiledClear"
                 :toast-message="$t('applicationDetails.copyDecompiledToast')"
                 :title="$t('applicationDetails.copyDecompiled')"
-                button-class="text-sm px-3 py-1.5 border border-gray-600"
+                button-class="!px-3 !py-1.5 text-sm border border-gray-600"
                 :data-testid="'copy-decompiled-clear'"
               >
                 {{ $t("applicationDetails.copyDecompiled") }}
@@ -553,13 +553,14 @@ const loadApplication = async (id: string) => {
 };
 
 // Full (untruncated) base64 of the raw on-chain program bytes.
-const programBase64 = (type: "approval" | "clear"): string => {
-  const program =
-    type === "approval"
-      ? application.value?.params?.approvalProgram
-      : application.value?.params?.clearStateProgram;
-  return program ? Buffer.from(program).toString("base64") : "";
-};
+const toBase64 = (program?: Uint8Array): string =>
+  program ? Buffer.from(program).toString("base64") : "";
+const approvalBase64 = computed(() => toBase64(application.value?.params?.approvalProgram));
+const clearBase64 = computed(() => toBase64(application.value?.params?.clearStateProgram));
+
+// Decompile failures are stored in the same refs as results; this prefix lets
+// the template tell them apart so "Copy decompiled" never copies an error.
+const DECOMPILE_ERROR_PREFIX = "Error decompiling program:";
 
 const decompileProgram = async (type: "approval" | "clear") => {
   if (!application.value || !application.value.params) return;
@@ -626,9 +627,9 @@ const decompileProgram = async (type: "approval" | "clear") => {
   } catch (error) {
     console.error(`Error decompiling ${type} program:`, error);
     if (type === "approval") {
-      decompiledApproval.value = `Error decompiling program: ${error}`;
+      decompiledApproval.value = `${DECOMPILE_ERROR_PREFIX} ${error}`;
     } else {
-      decompiledClear.value = `Error decompiling program: ${error}`;
+      decompiledClear.value = `${DECOMPILE_ERROR_PREFIX} ${error}`;
     }
   }
   isDecompiling.value = false;
