@@ -39,10 +39,11 @@ body,
 }
 
 /* Default page colour: the animated background canvas sits behind everything,
-   so if it is missing or blank the page must still be dark, not white. */
-html,
-body {
-  background-color: #0f172a;
+   so if it is missing or blank the page must still be dark, not white. Only
+   on <html>: a background on <body> too would paint above the negative
+   z-index canvas and hide the animation. */
+html {
+  background-color: var(--color-dark-900);
 }
 
 /* Custom component classes */

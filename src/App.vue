@@ -41,7 +41,12 @@ onMounted(async () => {
   /* Static fallback in the animation's palette: visible before the WebGL
      gradient first paints and whenever it is blank (context lost, WebGL
      unavailable), so the page is never white behind the translucent cards. */
-  background: linear-gradient(135deg, #1a18a8 0%, #0c2c3d 55%, #222 100%);
+  background: linear-gradient(
+    135deg,
+    var(--gradient-color-4) 0%,
+    var(--gradient-color-2) 55%,
+    var(--gradient-color-3) 100%
+  );
   position: fixed;
   top: 0;
   left: 0;

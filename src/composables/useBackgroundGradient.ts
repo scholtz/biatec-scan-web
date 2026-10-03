@@ -4,7 +4,18 @@ import { Gradient } from "whatamesh";
 const CANVAS_SELECTOR = "#gradient-canvas";
 // Mobile browsers throttle/discard WebGL for backgrounded tabs without always
 // firing context-loss events, so after being away this long we rebuild anyway.
-const REBUILD_AFTER_HIDDEN_MS = 30_000;
+const REBUILD_AFTER_HIDDEN_MS = 120_000;
+// whatamesh finishes initialising asynchronously (after CSS vars resolve), so a
+// retired instance is paused/disconnected again after these delays to catch a
+// late init() that would re-register its resize listener on a dead canvas.
+const RETIRE_RECHECK_MS = [1_000, 3_000];
+// Don't probe the context before whatamesh has had time to create it itself
+// (getContext() would otherwise create one with different attributes).
+const CONTEXT_PROBE_AFTER_MS = 1_000;
+// Back-off for context-loss storms (e.g. GPU reset): at most this many
+// automatic rebuilds per window.
+const MAX_REBUILDS_PER_WINDOW = 3;
+const REBUILD_WINDOW_MS = 10_000;
 
 /**
  * Drives the animated (WebGL) page background and keeps it alive across
@@ -21,21 +32,25 @@ export function useBackgroundGradient() {
   let canvas: HTMLCanvasElement | null = null;
   let hiddenAt: number | null = null;
   let contextLost = false;
+  let startedAt = 0;
   let restarting = false;
+  let restartQueued = false;
+  let recentRebuilds: number[] = [];
 
   const onContextLost = (event: Event) => {
     // Without preventDefault the browser never tries to restore the context.
     event.preventDefault();
     contextLost = true;
-    if (document.visibilityState === "visible") void restart();
+    if (document.visibilityState === "visible") void restart(true);
   };
 
-  const onContextRestored = () => void restart();
+  const onContextRestored = () => void restart(true);
 
   const start = () => {
     canvas = document.querySelector<HTMLCanvasElement>(CANVAS_SELECTOR);
     if (!canvas) return;
     contextLost = false;
+    startedAt = Date.now();
     canvas.addEventListener("webglcontextlost", onContextLost);
     canvas.addEventListener("webglcontextrestored", onContextRestored);
     try {
@@ -48,21 +63,40 @@ export function useBackgroundGradient() {
     }
   };
 
+  const retire = (old: Gradient) => {
+    old.pause();
+    // whatamesh's typings omit disconnect(), which removes its window resize
+    // listener; without it every rebuild would leak one. Optional call so a
+    // library upgrade that drops it can't abort a rebuild.
+    (old as unknown as { disconnect?: () => void }).disconnect?.();
+  };
+
   const stop = () => {
     if (gradient) {
-      gradient.pause();
-      // whatamesh's typings omit disconnect(), which removes its window
-      // resize listener; without it every rebuild would leak one.
-      (gradient as unknown as { disconnect(): void }).disconnect();
+      const old = gradient;
       gradient = null;
+      retire(old);
+      RETIRE_RECHECK_MS.forEach((ms) => setTimeout(() => retire(old), ms));
     }
     canvas?.removeEventListener("webglcontextlost", onContextLost);
     canvas?.removeEventListener("webglcontextrestored", onContextRestored);
     canvas = null;
   };
 
-  const restart = async () => {
-    if (restarting) return;
+  // `automatic` rebuilds (context-loss events) are rate limited; visibility
+  // driven ones are user-initiated and always allowed.
+  const restart = async (automatic = false): Promise<void> => {
+    if (automatic) {
+      const now = Date.now();
+      recentRebuilds = recentRebuilds.filter((t) => now - t < REBUILD_WINDOW_MS);
+      if (recentRebuilds.length >= MAX_REBUILDS_PER_WINDOW) return;
+      recentRebuilds.push(now);
+    }
+    if (restarting) {
+      // Don't drop it: run once more after the in-flight rebuild finishes.
+      restartQueued = true;
+      return;
+    }
     restarting = true;
     try {
       stop();
@@ -72,10 +106,15 @@ export function useBackgroundGradient() {
     } finally {
       restarting = false;
     }
+    if (restartQueued) {
+      restartQueued = false;
+      await restart();
+    }
   };
 
   const isCanvasDead = (): boolean => {
     if (contextLost || !gradient || !canvas) return true;
+    if (Date.now() - startedAt < CONTEXT_PROBE_AFTER_MS) return false;
     // Returns the already-created context (the attributes are ignored).
     const gl = canvas.getContext("webgl");
     return !gl || gl.isContextLost();
