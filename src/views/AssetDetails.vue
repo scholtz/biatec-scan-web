@@ -25,7 +25,7 @@
                 class="text-2xl sm:text-3xl font-bold text-white flex flex-wrap items-baseline justify-center xl:justify-start gap-x-3 gap-y-1 break-words"
               >
                 {{ name }}
-                <span class="text-xl text-gray-400 font-normal">{{
+                <span class="text-base sm:text-xl text-gray-400 font-normal">{{
                   unitName
                 }}</span>
               </h1>
@@ -82,8 +82,8 @@
           <div
             class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 border-t border-white/10 pt-4"
           >
-            <div class="min-w-0 rounded-lg bg-white/5 px-3 py-2.5 sm:bg-transparent sm:p-0">
-              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider mb-0.5 sm:mb-1 truncate">
+            <div class="stat-tile">
+              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider mb-0.5 sm:mb-1">
                 {{ $t("assetDetails.price") }}
               </div>
               <div class="text-base sm:text-lg text-white font-mono break-all">
@@ -102,8 +102,8 @@
                 </template>
               </div>
             </div>
-            <div class="min-w-0 rounded-lg bg-white/5 px-3 py-2.5 sm:bg-transparent sm:p-0">
-              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider mb-0.5 sm:mb-1 truncate">
+            <div class="stat-tile">
+              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider mb-0.5 sm:mb-1">
                 {{ $t("assetDetails.volume24H") }}
               </div>
               <div class="text-base sm:text-lg text-white font-mono break-all">
@@ -121,14 +121,14 @@
                 </template>
               </div>
             </div>
-            <div class="col-span-2 sm:col-span-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 sm:block min-w-0 rounded-lg bg-white/5 px-3 py-2.5 sm:bg-transparent sm:p-0">
-              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider sm:mb-1 sm:truncate shrink-0">
+            <div class="stat-tile stat-tile-row">
+              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider sm:mb-1 shrink-0">
                 {{ $t("assetDetails.decimals") }}
               </div>
               <div class="text-base sm:text-lg text-white font-mono">{{ decimals }}</div>
             </div>
-            <div class="col-span-2 sm:col-span-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 sm:block min-w-0 rounded-lg bg-white/5 px-3 py-2.5 sm:bg-transparent sm:p-0">
-              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider sm:mb-1 sm:truncate shrink-0">
+            <div class="stat-tile stat-tile-row">
+              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider sm:mb-1 shrink-0">
                 {{ $t("assetDetails.totalSupply") }}
               </div>
               <div class="text-base sm:text-lg text-white font-mono break-words sm:break-all ml-auto sm:ml-0 text-right sm:text-left">
@@ -144,16 +144,17 @@
                 name: 'AggregatedPoolsByAsset',
                 params: { asset1: assetId },
               }"
-              class="btn-secondary text-sm py-2 px-3 sm:px-4 text-center flex items-center justify-center leading-tight col-span-2 sm:col-span-1"
+              class="action-btn col-span-2 sm:col-span-1"
             >
               {{ $t("assetDetails.viewAllPools", { name }) }}
             </router-link>
             <router-link
+              v-if="assetId !== '0'"
               :to="{
                 name: 'PoolsByAssets',
                 params: { asset1: assetId, asset2: 0 },
               }"
-              class="btn-secondary text-sm py-2 px-3 sm:px-4 text-center flex items-center justify-center leading-tight"
+              class="action-btn"
             >
               {{ $t("assetDetails.viewPoolsWithAlgo") }}
             </router-link>
@@ -162,14 +163,14 @@
                 name: 'PoolsByAssets',
                 params: { asset1: assetId, asset2: usdcAssetId },
               }"
-              class="btn-secondary text-sm py-2 px-3 sm:px-4 text-center flex items-center justify-center leading-tight"
+              class="action-btn"
             >
               {{ $t("assetDetails.viewPoolsWithUsdc") }}
             </router-link>
             <router-link
               v-if="assetId !== '0'"
               :to="{ name: 'ActiveHolders', params: { assetId } }"
-              class="btn-secondary text-sm py-2 px-3 sm:px-4 text-center flex items-center justify-center leading-tight"
+              class="action-btn"
             >
               {{ $t("assetDetails.viewActiveHolders") }}
             </router-link>
@@ -177,7 +178,7 @@
             <a
               target="_blank"
               :href="assetChartUrl(assetId)"
-              class="btn-secondary text-sm py-2 px-3 sm:px-4 text-center flex items-center justify-center leading-tight"
+              class="action-btn [&:last-child:nth-child(even)]:col-span-2 sm:[&:last-child:nth-child(even)]:col-span-1"
             >
               {{ $t("assetDetails.fullScreenChart") }}
             </a>
@@ -186,7 +187,7 @@
           <!-- External Links (Algorand-mainnet-only explorers) -->
           <div
             v-if="isAlgorandMainnet && assetId !== '0'"
-            class="flex flex-wrap items-center justify-center xl:justify-start gap-x-4 gap-y-2 pt-2 border-t border-white/10"
+            class="flex flex-wrap items-center justify-center xl:justify-start gap-x-4 gap-y-2 pt-1"
           >
             <span class="text-sm text-gray-500">{{ $t("common.externalLinks") }}:</span>
             <a
