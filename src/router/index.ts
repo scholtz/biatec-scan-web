@@ -110,7 +110,7 @@ const router = createRouter({
       props: true,
     },
     {
-      path: "/application/:appId",
+      path: "/application/:appId/:tab(basic-info|schema-and-state|boxes|approval-program|clear-state-program)?",
       name: "ApplicationDetails",
       component: () => import("../views/ApplicationDetails.vue"),
       props: true,

@@ -510,7 +510,11 @@
     "registryBanned": "Gesperrt",
     "registryRisk": "Risiko",
     "registryOpenSpec": "ARC-56-Spezifikation öffnen",
-    "registryOwnersUnavailable": "Eigentümerinformationen konnten derzeit nicht aus dem Register geladen werden."
+    "registryOwnersUnavailable": "Eigentümerinformationen konnten derzeit nicht aus dem Register geladen werden.",
+    "copyBase64": "Base64 kopieren",
+    "copyBase64Toast": "Programm als Base64 kopiert",
+    "copyDecompiled": "Dekompiliert kopieren",
+    "copyDecompiledToast": "Dekompilierter TEAL-Code kopiert"
   },
   "addressDetails": {
     "title": "Adressdetails",

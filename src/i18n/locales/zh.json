@@ -510,7 +510,11 @@
     "registryBanned": "已封禁",
     "registryRisk": "风险",
     "registryOpenSpec": "打开 ARC-56 规范",
-    "registryOwnersUnavailable": "目前无法从注册表加载所有者信息。"
+    "registryOwnersUnavailable": "目前无法从注册表加载所有者信息。",
+    "copyBase64": "复制 base64",
+    "copyBase64Toast": "程序已以 base64 复制",
+    "copyDecompiled": "复制反编译结果",
+    "copyDecompiledToast": "已复制反编译的 TEAL"
   },
   "addressDetails": {
     "title": "地址详情",

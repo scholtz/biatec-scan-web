@@ -510,7 +510,11 @@
     "registryBanned": "Tiltott",
     "registryRisk": "Kockázat",
     "registryOpenSpec": "ARC-56 specifikáció megnyitása",
-    "registryOwnersUnavailable": "A tulajdonosi adatokat jelenleg nem sikerült betölteni a regiszterből."
+    "registryOwnersUnavailable": "A tulajdonosi adatokat jelenleg nem sikerült betölteni a regiszterből.",
+    "copyBase64": "Base64 másolása",
+    "copyBase64Toast": "A program base64 formában másolva",
+    "copyDecompiled": "Dekompilált másolása",
+    "copyDecompiledToast": "A dekompilált TEAL másolva"
   },
   "addressDetails": {
     "title": "Cím részletek",

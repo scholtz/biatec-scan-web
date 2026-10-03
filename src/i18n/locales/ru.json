@@ -510,7 +510,11 @@
     "registryBanned": "Заблокирован",
     "registryRisk": "Риск",
     "registryOpenSpec": "Открыть спецификацию ARC-56",
-    "registryOwnersUnavailable": "Сейчас не удалось загрузить сведения о владельцах из реестра."
+    "registryOwnersUnavailable": "Сейчас не удалось загрузить сведения о владельцах из реестра.",
+    "copyBase64": "Копировать base64",
+    "copyBase64Toast": "Программа скопирована в base64",
+    "copyDecompiled": "Копировать декомпилированный",
+    "copyDecompiledToast": "Декомпилированный TEAL скопирован"
   },
   "addressDetails": {
     "title": "Детали адреса",

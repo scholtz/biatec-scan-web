@@ -510,7 +510,11 @@
     "registryBanned": "Banned",
     "registryRisk": "Risk",
     "registryOpenSpec": "Open ARC-56 spec",
-    "registryOwnersUnavailable": "Owner information could not be loaded from the registry right now."
+    "registryOwnersUnavailable": "Owner information could not be loaded from the registry right now.",
+    "copyBase64": "Copy base64",
+    "copyBase64Toast": "Program copied as base64",
+    "copyDecompiled": "Copy decompiled",
+    "copyDecompiledToast": "Decompiled TEAL copied"
   },
   "addressDetails": {
     "title": "Address Details",

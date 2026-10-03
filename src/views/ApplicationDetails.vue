@@ -52,13 +52,13 @@
 
       <!-- Tabs -->
       <div class="border-b border-gray-700 flex flex-wrap gap-x-6" role="tablist">
-        <button
+        <router-link
           v-for="tab in tabs"
           :key="tab.key"
+          :to="tabRoute(tab.key)"
           role="tab"
           :aria-selected="activeTab === tab.key"
           :data-testid="`app-tab-${tab.key}`"
-          @click="activeTab = tab.key"
           class="pb-2 text-sm font-medium transition-colors border-b-2 -mb-px"
           :class="
             activeTab === tab.key
@@ -67,10 +67,10 @@
           "
         >
           {{ $t(tab.labelKey) }}
-        </button>
+        </router-link>
       </div>
 
-      <div v-show="activeTab === 'basic'" class="card">
+      <div v-show="activeTab === 'basic-info'" class="card">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
             <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.appIdLabel") }}</p>
@@ -167,11 +167,11 @@
         </div>
       </div>
 
-      <div v-show="activeTab === 'basic'" class="space-y-6">
+      <div v-show="activeTab === 'basic-info'" class="space-y-6">
         <ApplicationRegistryInfo :approval-hash="approvalHash" />
       </div>
 
-      <div v-show="activeTab === 'schema'" class="space-y-6">
+      <div v-show="activeTab === 'schema-and-state'" class="space-y-6">
       <!-- State Schemas -->
       <div v-if="application.params" class="card">
         <h2 class="text-xl font-semibold text-white mb-4">
@@ -241,19 +241,40 @@
       <ApplicationBoxes :app-id="appId" />
       </div>
 
-      <div v-show="activeTab === 'approval'" class="space-y-6">
+      <div v-show="activeTab === 'approval-program'" class="space-y-6">
         <div v-if="application.params?.approvalProgram" class="card">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-white">
               {{ $t("applicationDetails.approvalProgram") }}
             </h2>
-            <button
-              @click="decompileProgram('approval')"
-              :disabled="isDecompiling"
-              class="btn-primary text-sm"
-            >
-              {{ isDecompiling ? $t("applicationDetails.decompiling") : $t("applicationDetails.decompile") }}
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+              <CopyToClipboard
+                :text="programBase64('approval')"
+                :toast-message="$t('applicationDetails.copyBase64Toast')"
+                :title="$t('applicationDetails.copyBase64')"
+                button-class="text-sm px-3 py-1.5 border border-gray-600"
+                :data-testid="'copy-base64-approval'"
+              >
+                {{ $t("applicationDetails.copyBase64") }}
+              </CopyToClipboard>
+              <CopyToClipboard
+                v-if="decompiledApproval"
+                :text="decompiledApproval"
+                :toast-message="$t('applicationDetails.copyDecompiledToast')"
+                :title="$t('applicationDetails.copyDecompiled')"
+                button-class="text-sm px-3 py-1.5 border border-gray-600"
+                :data-testid="'copy-decompiled-approval'"
+              >
+                {{ $t("applicationDetails.copyDecompiled") }}
+              </CopyToClipboard>
+              <button
+                @click="decompileProgram('approval')"
+                :disabled="isDecompiling"
+                class="btn-primary text-sm"
+              >
+                {{ isDecompiling ? $t("applicationDetails.decompiling") : $t("applicationDetails.decompile") }}
+              </button>
+            </div>
           </div>
 
           <div v-if="approvalHash" class="mb-4">
@@ -292,19 +313,40 @@
         </div>
       </div>
 
-      <div v-show="activeTab === 'clear'" class="space-y-6">
+      <div v-show="activeTab === 'clear-state-program'" class="space-y-6">
         <div v-if="application.params?.clearStateProgram" class="card">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-white">
               {{ $t("applicationDetails.clearStateProgram") }}
             </h2>
-            <button
-              @click="decompileProgram('clear')"
-              :disabled="isDecompiling"
-              class="btn-primary text-sm"
-            >
-              {{ isDecompiling ? $t("applicationDetails.decompiling") : $t("applicationDetails.decompile") }}
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+              <CopyToClipboard
+                :text="programBase64('clear')"
+                :toast-message="$t('applicationDetails.copyBase64Toast')"
+                :title="$t('applicationDetails.copyBase64')"
+                button-class="text-sm px-3 py-1.5 border border-gray-600"
+                :data-testid="'copy-base64-clear'"
+              >
+                {{ $t("applicationDetails.copyBase64") }}
+              </CopyToClipboard>
+              <CopyToClipboard
+                v-if="decompiledClear"
+                :text="decompiledClear"
+                :toast-message="$t('applicationDetails.copyDecompiledToast')"
+                :title="$t('applicationDetails.copyDecompiled')"
+                button-class="text-sm px-3 py-1.5 border border-gray-600"
+                :data-testid="'copy-decompiled-clear'"
+              >
+                {{ $t("applicationDetails.copyDecompiled") }}
+              </CopyToClipboard>
+              <button
+                @click="decompileProgram('clear')"
+                :disabled="isDecompiling"
+                class="btn-primary text-sm"
+              >
+                {{ isDecompiling ? $t("applicationDetails.decompiling") : $t("applicationDetails.decompile") }}
+              </button>
+            </div>
           </div>
 
           <div
@@ -375,6 +417,8 @@ import algosdk, { ProgramSourceMap } from "algosdk";
 import { Buffer } from "buffer";
 import ApplicationKeyValueTable from "../components/application/ApplicationKeyValueTable.vue";
 import ApplicationLocalState from "../components/application/ApplicationLocalState.vue";
+import { TAB_KEYS, type TabKey } from "../utils/applicationTabs";
+import CopyToClipboard from "../components/CopyToClipboard.vue";
 import ApplicationRegistryInfo from "../components/application/ApplicationRegistryInfo.vue";
 import ApplicationBoxes from "../components/application/ApplicationBoxes.vue";
 import IdentifiedPoolCard from "../components/IdentifiedPoolCard.vue";
@@ -400,14 +444,21 @@ const boxesCountLabel = computed(() => {
   if (boxesCount.value === null) return "…";
   return boxesCountCapped.value ? `${boxesCount.value}+` : String(boxesCount.value);
 });
-type TabKey = "basic" | "schema" | "boxes" | "approval" | "clear";
-const activeTab = ref<TabKey>("basic");
+// Tab keys double as the URL segment: /application/:appId/:tab? (no segment = basic-info).
+const activeTab = computed<TabKey>(() => {
+  const t = route.params.tab;
+  return TAB_KEYS.find((k) => k === t) ?? "basic-info";
+});
+const tabRoute = (key: TabKey) => ({
+  name: "ApplicationDetails",
+  params: { appId: appId.value, tab: key === "basic-info" ? undefined : key },
+});
 const tabs: { key: TabKey; labelKey: string }[] = [
-  { key: "basic", labelKey: "applicationDetails.tabBasicInfo" },
-  { key: "schema", labelKey: "applicationDetails.tabSchemaAndState" },
+  { key: "basic-info", labelKey: "applicationDetails.tabBasicInfo" },
+  { key: "schema-and-state", labelKey: "applicationDetails.tabSchemaAndState" },
   { key: "boxes", labelKey: "applicationDetails.tabBoxes" },
-  { key: "approval", labelKey: "applicationDetails.tabApprovalProgram" },
-  { key: "clear", labelKey: "applicationDetails.tabClearStateProgram" },
+  { key: "approval-program", labelKey: "applicationDetails.tabApprovalProgram" },
+  { key: "clear-state-program", labelKey: "applicationDetails.tabClearStateProgram" },
 ];
 const {
   identifiedPool,
@@ -501,6 +552,15 @@ const loadApplication = async (id: string) => {
   }
 };
 
+// Full (untruncated) base64 of the raw on-chain program bytes.
+const programBase64 = (type: "approval" | "clear"): string => {
+  const program =
+    type === "approval"
+      ? application.value?.params?.approvalProgram
+      : application.value?.params?.clearStateProgram;
+  return program ? Buffer.from(program).toString("base64") : "";
+};
+
 const decompileProgram = async (type: "approval" | "clear") => {
   if (!application.value || !application.value.params) return;
 
@@ -585,7 +645,6 @@ watch(
     boxesCount.value = null;
     boxesCountCapped.value = false;
     boxesCountFailed.value = false;
-    activeTab.value = "basic";
     loadApplication(appId.value);
     fetchIdentifiedPool(applicationAddress.value);
   },
