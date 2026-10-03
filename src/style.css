@@ -38,6 +38,14 @@ body,
   overflow-x: clip;
 }
 
+/* Default page colour: the animated background canvas sits behind everything,
+   so if it is missing or blank the page must still be dark, not white. Only
+   on <html>: a background on <body> too would paint above the negative
+   z-index canvas and hide the animation. */
+html {
+  background-color: var(--color-dark-900);
+}
+
 /* Custom component classes */
 .card {
   @apply bg-dark-800/50 border border-dark-700/50 rounded-lg p-6 backdrop-blur-sm;

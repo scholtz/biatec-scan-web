@@ -1,5 +1,5 @@
 <template>
-  <canvas id="gradient-canvas" data-transition-in />
+  <canvas :key="canvasKey" id="gradient-canvas" data-transition-in />
   <div id="app" class="min-h-screen">
     <Navbar />
     <main>
@@ -14,12 +14,11 @@ import { onMounted } from "vue";
 import Navbar from "./components/Navbar.vue";
 import ToastContainer from "./components/ToastContainer.vue";
 import { signalrService } from "./services/signalrService";
-import { Gradient } from "whatamesh";
+import { useBackgroundGradient } from "./composables/useBackgroundGradient";
 
-const gradient = new Gradient();
+const { canvasKey } = useBackgroundGradient();
 onMounted(async () => {
   // Initialize SignalR connection
-  gradient.initGradient("#gradient-canvas");
   try {
     await signalrService.connect();
   } catch (error) {
@@ -39,6 +38,15 @@ onMounted(async () => {
   --gradient-color-2: #0c2c3d;
   --gradient-color-3: #222;
   --gradient-color-4: #1a18a8;
+  /* Static fallback in the animation's palette: visible before the WebGL
+     gradient first paints and whenever it is blank (context lost, WebGL
+     unavailable), so the page is never white behind the translucent cards. */
+  background: linear-gradient(
+    135deg,
+    var(--gradient-color-4) 0%,
+    var(--gradient-color-2) 55%,
+    var(--gradient-color-3) 100%
+  );
   position: fixed;
   top: 0;
   left: 0;
