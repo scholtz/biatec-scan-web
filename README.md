@@ -47,10 +47,13 @@ with the indexer used only for historical transaction lookups.
 
 How it gets there:
 
-- Every push to `main` runs the tests (`.github/workflows/build-fe.yml`),
-  builds one Docker image per network (`scholtz2/biatec-scan-fe:<network>-<version>`,
-  an nginx image serving the static bundle with a strict Content-Security-Policy)
-  and deploys the **testnet** build to the stage Kubernetes namespace.
+- Every push to `main` runs the checks in `.github/workflows/build-fe.yml`
+  (lint, type-check, localization check, build and the Playwright e2e tests;
+  pull requests run the same checks but deploy nothing), builds one Docker image
+  per network (`scholtz2/biatec-scan-fe:<network>-<version>`, an nginx image
+  serving the static bundle with a strict Content-Security-Policy) and deploys
+  the **testnet** build to the stage Kubernetes namespace. The vitest unit tests
+  (`pnpm test`) are not part of that workflow, so run them locally.
 - Production is never deployed automatically. Once a version is verified on
   stage, run **Promote to Production**
   (`.github/workflows/promote-production.yml`) to re-tag that already-built image
@@ -58,26 +61,29 @@ How it gets there:
 - Kubernetes manifests are in [`k8s/`](k8s/) (`main`, `testnet`, `voi`). Each
   network also runs its own charting widget (`/charts`) and ARC-56 registry
   (`/arc56-registry`), served from the same host so no CORS is needed.
-- The Docker build is in [`docker/`](docker/); [`vercel.json`](vercel.json) is
-  used for Vercel preview deployments.
+- The Docker build is in [`docker/`](docker/). Pull requests also get a Vercel
+  preview build, configured by [`vercel.json`](vercel.json).
 
 ## Development
 
-Requirements: Node.js and [pnpm](https://pnpm.io) (the version is pinned in
-`package.json`).
+Requirements: Node.js 24 (what CI uses) and [pnpm](https://pnpm.io) (the version
+is pinned in `package.json`).
 
 ```sh
 pnpm install
-pnpm dev            # start the dev server (talks to the production API by default)
+pnpm dev            # start the dev server (defaults to the Algorand MAINNET API)
 pnpm build          # type-check (vue-tsc) and build
 pnpm test           # unit tests (vitest)
 pnpm test:e2e       # end-to-end tests (Playwright)
 pnpm lint           # eslint
 ```
 
-To point a local build at another network, set the `VITE_*` variables listed in
-[`src/config/env.ts`](src/config/env.ts) (for example `VITE_API_BASE_URL`,
-`VITE_ALGORAND_ALGOD_URL`, `VITE_GENESIS_ID`, `VITE_GENESIS_HASH`).
+Without configuration the app talks to **Algorand mainnet**, so swap and wallet
+actions in a local build act on real accounts. To target another network, put
+the `VITE_*` variables listed in [`src/config/env.ts`](src/config/env.ts) in a
+`.env.local` file (for example `VITE_API_BASE_URL`, `VITE_ALGORAND_ALGOD_URL`,
+`VITE_ALGORAND_INDEXER_URL`, `VITE_GENESIS_ID`, `VITE_GENESIS_HASH`,
+`VITE_USDC_ASSET_ID`), or pass them inline when starting the dev server.
 
 ### Backend API client
 
@@ -94,7 +100,9 @@ ORVAL_INPUT=https://api.testnet.scan.biatec.io/swagger/v1/swagger.json pnpm gene
 
 Every locale file in `src/i18n/locales/` must have the same keys as `en.json`,
 and new strings must be genuinely translated, not copied from English.
-`pnpm check-localization-files` and `pnpm check-phrases` report missing and untranslated strings.
+`pnpm check-localization-files` reports key mismatches (it only changes files if
+you pass `--fix`). Avoid `pnpm check-phrases` for checking: it rewrites the locale
+files with dictionary-substituted translations.
 
 ### Working with the backend
 
