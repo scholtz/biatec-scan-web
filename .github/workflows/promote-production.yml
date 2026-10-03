@@ -199,12 +199,20 @@ jobs:
       # from the separate ARC56Registry repo) but still needs to be kept in sync -
       # update-config.sh is manual-only and nothing else applies this manifest, so
       # changes to it (e.g. the refresh CronJob) would otherwise never reach the
-      # cluster. The registry is chain-agnostic and only deployed on Algorand
-      # mainnet (all networks' builds point at algorand.scan.biatec.io/arc56-registry).
+      # cluster. Each network runs its own instance, served same-origin from its
+      # own host (<host>/arc56-registry), because another network's registry host
+      # sends no CORS headers.
       - name: Apply arc56-registry manifest
         if: matrix.network == 'mainnet'
         run: |
           kubectl apply -f k8s/main/deployment-arc56-registry.yaml
+
+      - name: Deploy ARC-56 registry (voi)
+        if: matrix.network == 'voi'
+        run: |
+          kubectl apply -f k8s/voi/deployment-arc56-registry.yaml
+          kubectl rollout restart deployment/biatec-scan-arc56-registry-voi-deployment -n biatec-scan-voi
+          kubectl rollout status deployment/biatec-scan-arc56-registry-voi-deployment -n biatec-scan-voi
 
       # The charting widget image is built and promoted (moving `production`
       # tag) by the biatec-charting-widget repo's workflows; its manifest
