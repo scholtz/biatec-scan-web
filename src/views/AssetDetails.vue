@@ -1,12 +1,12 @@
 <template>
-  <div class="p-4 space-y-4">
+  <div class="p-3 sm:p-4 space-y-3 sm:space-y-4">
     <!-- Compact Header Card -->
     <div class="card">
-      <div class="flex flex-col md:flex-row gap-6 items-start">
+      <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 items-center xl:items-start">
         <!-- Left: Asset Image -->
-        <div class="flex-shrink-0 mx-auto md:mx-0">
+        <div class="flex-shrink-0 mx-auto xl:mx-0">
           <div
-            class="w-32 h-32 rounded-full bg-white/5 p-2 shadow-lg flex items-center justify-center overflow-hidden"
+            class="w-20 h-20 sm:w-28 sm:h-28 xl:w-32 xl:h-32 rounded-full bg-white/5 p-1.5 sm:p-2 shadow-lg flex items-center justify-center overflow-hidden"
           >
             <img
               :src="assetImageUrl(assetId)"
@@ -17,19 +17,19 @@
         </div>
 
         <!-- Right: Content -->
-        <div class="flex-grow space-y-6">
+        <div class="flex-grow w-full min-w-0 space-y-4 sm:space-y-6">
           <!-- Header Row -->
           <div class="flex flex-wrap items-start justify-between gap-4">
-            <div>
+            <div class="w-full xl:w-auto text-center xl:text-left min-w-0">
               <h1
-                class="text-3xl font-bold text-white flex flex-wrap items-baseline gap-x-3 gap-y-1"
+                class="text-2xl sm:text-3xl font-bold text-white flex flex-wrap items-baseline justify-center xl:justify-start gap-x-3 gap-y-1 break-words"
               >
                 {{ name }}
                 <span class="text-xl text-gray-400 font-normal">{{
                   unitName
                 }}</span>
               </h1>
-              <div class="flex items-center gap-3 mt-2">
+              <div class="flex flex-wrap items-center justify-center xl:justify-start gap-2 sm:gap-3 mt-2">
                 <span
                   class="px-2 py-1 rounded bg-white/10 text-xs text-gray-300 font-mono"
                   >ID: {{ assetId }}</span
@@ -80,13 +80,13 @@
 
           <!-- Stats Grid -->
           <div
-            class="grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-white/10 pt-4"
+            class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 border-t border-white/10 pt-4"
           >
-            <div>
-              <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
+            <div class="min-w-0 rounded-lg bg-white/5 px-3 py-2.5 sm:bg-transparent sm:p-0">
+              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider mb-0.5 sm:mb-1 truncate">
                 {{ $t("assetDetails.price") }}
               </div>
-              <div class="text-lg text-white font-mono break-all">
+              <div class="text-base sm:text-lg text-white font-mono break-all">
                 <template v-if="priceUSD === undefined || priceUSD === null"
                   >-</template
                 >
@@ -102,11 +102,11 @@
                 </template>
               </div>
             </div>
-            <div>
-              <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
+            <div class="min-w-0 rounded-lg bg-white/5 px-3 py-2.5 sm:bg-transparent sm:p-0">
+              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider mb-0.5 sm:mb-1 truncate">
                 {{ $t("assetDetails.volume24H") }}
               </div>
-              <div class="text-lg text-white font-mono break-all">
+              <div class="text-base sm:text-lg text-white font-mono break-all">
                 <template v-if="volume24H === undefined || volume24H === null"
                   >-</template
                 >
@@ -121,30 +121,30 @@
                 </template>
               </div>
             </div>
-            <div>
-              <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
+            <div class="col-span-2 sm:col-span-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 sm:block min-w-0 rounded-lg bg-white/5 px-3 py-2.5 sm:bg-transparent sm:p-0">
+              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider sm:mb-1 sm:truncate shrink-0">
                 {{ $t("assetDetails.decimals") }}
               </div>
-              <div class="text-lg text-white font-mono">{{ decimals }}</div>
+              <div class="text-base sm:text-lg text-white font-mono">{{ decimals }}</div>
             </div>
-            <div>
-              <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
+            <div class="col-span-2 sm:col-span-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 sm:block min-w-0 rounded-lg bg-white/5 px-3 py-2.5 sm:bg-transparent sm:p-0">
+              <div class="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider sm:mb-1 sm:truncate shrink-0">
                 {{ $t("assetDetails.totalSupply") }}
               </div>
-              <div class="text-lg text-white font-mono break-all">
+              <div class="text-base sm:text-lg text-white font-mono break-words sm:break-all ml-auto sm:ml-0 text-right sm:text-left">
                 {{ formattedTotal }}
               </div>
             </div>
           </div>
 
           <!-- Action Buttons -->
-          <div class="flex flex-wrap gap-3 pt-2">
+          <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3 pt-1 sm:pt-2">
             <router-link
               :to="{
                 name: 'AggregatedPoolsByAsset',
                 params: { asset1: assetId },
               }"
-              class="btn-secondary text-sm py-2 px-4"
+              class="btn-secondary text-sm py-2 px-3 sm:px-4 text-center flex items-center justify-center leading-tight col-span-2 sm:col-span-1"
             >
               {{ $t("assetDetails.viewAllPools", { name }) }}
             </router-link>
@@ -153,7 +153,7 @@
                 name: 'PoolsByAssets',
                 params: { asset1: assetId, asset2: 0 },
               }"
-              class="btn-secondary text-sm py-2 px-4"
+              class="btn-secondary text-sm py-2 px-3 sm:px-4 text-center flex items-center justify-center leading-tight"
             >
               {{ $t("assetDetails.viewPoolsWithAlgo") }}
             </router-link>
@@ -162,14 +162,14 @@
                 name: 'PoolsByAssets',
                 params: { asset1: assetId, asset2: usdcAssetId },
               }"
-              class="btn-secondary text-sm py-2 px-4"
+              class="btn-secondary text-sm py-2 px-3 sm:px-4 text-center flex items-center justify-center leading-tight"
             >
               {{ $t("assetDetails.viewPoolsWithUsdc") }}
             </router-link>
             <router-link
               v-if="assetId !== '0'"
               :to="{ name: 'ActiveHolders', params: { assetId } }"
-              class="btn-secondary text-sm py-2 px-4"
+              class="btn-secondary text-sm py-2 px-3 sm:px-4 text-center flex items-center justify-center leading-tight"
             >
               {{ $t("assetDetails.viewActiveHolders") }}
             </router-link>
@@ -177,7 +177,7 @@
             <a
               target="_blank"
               :href="assetChartUrl(assetId)"
-              class="btn-secondary text-sm py-2 px-4"
+              class="btn-secondary text-sm py-2 px-3 sm:px-4 text-center flex items-center justify-center leading-tight"
             >
               {{ $t("assetDetails.fullScreenChart") }}
             </a>
@@ -186,7 +186,7 @@
           <!-- External Links (Algorand-mainnet-only explorers) -->
           <div
             v-if="isAlgorandMainnet && assetId !== '0'"
-            class="flex flex-wrap gap-x-4 gap-y-2 pt-2"
+            class="flex flex-wrap items-center justify-center xl:justify-start gap-x-4 gap-y-2 pt-2 border-t border-white/10"
           >
             <span class="text-sm text-gray-500">{{ $t("common.externalLinks") }}:</span>
             <a
@@ -226,14 +226,14 @@
         <div class="flex flex-grow w-full">
           <iframe
             :src="assetChartUrl(assetId)"
-            class="w-full h-100 rounded-lg border-0 shadow-lg"
+            class="w-full h-72 sm:h-100 rounded-lg border-0 shadow-lg"
           ></iframe>
         </div>
       </div>
     </div>
 
     <!-- Recent Activity Sections - 4 column layout on wide screens -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
       <!-- Aggregated Pools Section -->
       <div class="card">
         <AggregatedPoolsList :assetId="assetId" :maxItems="20" />
