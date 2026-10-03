@@ -510,7 +510,11 @@
     "registryBanned": "Zablokován",
     "registryRisk": "Riziko",
     "registryOpenSpec": "Otevřít specifikaci ARC-56",
-    "registryOwnersUnavailable": "Informace o vlastnících se z registru momentálně nepodařilo načíst."
+    "registryOwnersUnavailable": "Informace o vlastnících se z registru momentálně nepodařilo načíst.",
+    "copyBase64": "Kopírovat base64",
+    "copyBase64Toast": "Program zkopírován jako base64",
+    "copyDecompiled": "Kopírovat dekompilované",
+    "copyDecompiledToast": "Dekompilovaný TEAL zkopírován"
   },
   "addressDetails": {
     "title": "Detaily adresy",

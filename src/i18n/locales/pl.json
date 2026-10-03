@@ -510,7 +510,11 @@
     "registryBanned": "Zablokowany",
     "registryRisk": "Ryzyko",
     "registryOpenSpec": "Otwórz specyfikację ARC-56",
-    "registryOwnersUnavailable": "Nie udało się teraz załadować informacji o właścicielach z rejestru."
+    "registryOwnersUnavailable": "Nie udało się teraz załadować informacji o właścicielach z rejestru.",
+    "copyBase64": "Kopiuj base64",
+    "copyBase64Toast": "Program skopiowany jako base64",
+    "copyDecompiled": "Kopiuj zdekompilowany",
+    "copyDecompiledToast": "Zdekompilowany TEAL skopiowany"
   },
   "addressDetails": {
     "title": "Szczegóły adresu",
