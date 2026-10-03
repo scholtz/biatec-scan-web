@@ -211,6 +211,16 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
 
+      # Testnet's own ARC-56 registry, served same-origin at
+      # https://testnet.scan.biatec.io/arc56-registry. Deployed BEFORE the
+      # frontend, which fetches it - restart so imagePullPolicy: Always pulls
+      # the newest image.
+      - name: Deploy ARC-56 registry (stage)
+        run: |
+          kubectl apply -f k8s/testnet/deployment-arc56-registry.yaml
+          kubectl rollout restart deployment/biatec-scan-arc56-registry-testnet-deployment -n biatec-scan-testnet
+          kubectl rollout status deployment/biatec-scan-arc56-registry-testnet-deployment -n biatec-scan-testnet
+
       - name: Update manifest image tag
         run: |
           sed -i "s#image: \\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:testnet-${{ needs.version.outputs.version }}#" k8s/testnet/deployment-fe.yaml
@@ -225,15 +235,6 @@ jobs:
         run: |
           kubectl rollout restart deployment/biatec-scan-fe-testnet-app-deployment -n biatec-scan-testnet
           kubectl rollout status deployment/biatec-scan-fe-testnet-app-deployment -n biatec-scan-testnet
-
-      # Testnet's own ARC-56 registry, served same-origin at
-      # https://testnet.scan.biatec.io/arc56-registry (the frontend build above
-      # points at it). Restart so imagePullPolicy: Always pulls the newest image.
-      - name: Deploy ARC-56 registry (stage)
-        run: |
-          kubectl apply -f k8s/testnet/deployment-arc56-registry.yaml
-          kubectl rollout restart deployment/biatec-scan-arc56-registry-testnet-deployment -n biatec-scan-testnet
-          kubectl rollout status deployment/biatec-scan-arc56-registry-testnet-deployment -n biatec-scan-testnet
 
       # The charting widget image is built by the biatec-charting-widget repo
       # (moving `stage` tag); its manifest lives here so all cluster access
