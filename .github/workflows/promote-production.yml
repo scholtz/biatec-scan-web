@@ -159,12 +159,14 @@ jobs:
               echo "NAMESPACE=biatec-scan" >> "$GITHUB_ENV"
               echo "FE_DEPLOYMENT=biatec-scan-fe-app-deployment" >> "$GITHUB_ENV"
               echo "CHARTS_DEPLOYMENT=biatec-charts-deployment" >> "$GITHUB_ENV"
+              echo "ARC56_DEPLOYMENT=biatec-scan-arc56-registry-deployment" >> "$GITHUB_ENV"
               ;;
             voi)
               echo "MANIFEST_DIR=k8s/voi" >> "$GITHUB_ENV"
               echo "NAMESPACE=biatec-scan-voi" >> "$GITHUB_ENV"
               echo "FE_DEPLOYMENT=biatec-scan-fe-voi-app-deployment" >> "$GITHUB_ENV"
               echo "CHARTS_DEPLOYMENT=biatec-charts-voi-deployment" >> "$GITHUB_ENV"
+              echo "ARC56_DEPLOYMENT=biatec-scan-arc56-registry-voi-deployment" >> "$GITHUB_ENV"
               ;;
             *)
               echo "::error::Unknown network '$NETWORK'"; exit 1 ;;
@@ -180,6 +182,20 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
 
+      # Deploy this network's ARC-56 registry BEFORE the frontend: the new
+      # frontend build fetches <host>/arc56-registry (same-origin), so the
+      # registry must already exist when it starts serving. Each network runs
+      # its own instance (another network's registry host sends no CORS
+      # headers). deployment-arc56-registry.yaml isn't built by this pipeline
+      # (its image comes from the separate ARC56Registry repo); mainnet's
+      # manifest also carries the daily-refresh CronJob, so it is only applied
+      # there, while every network gets a restart to pull the newest image.
+      - name: Deploy ARC-56 registry
+        run: |
+          kubectl apply -f "$MANIFEST_DIR/deployment-arc56-registry.yaml"
+          kubectl rollout restart "deployment/$ARC56_DEPLOYMENT" -n "$NAMESPACE"
+          kubectl rollout status "deployment/$ARC56_DEPLOYMENT" -n "$NAMESPACE"
+
       - name: Update manifest image tag
         run: |
           sed -i "s#image: scholtz2/biatec-scan-fe:\\S\+#image: ${{ env.DOCKERHUB_IMAGE }}:${NETWORK}-${{ needs.resolve-version.outputs.version }}#" "$MANIFEST_DIR/deployment-fe.yaml"
@@ -194,17 +210,6 @@ jobs:
         run: |
           kubectl rollout restart "deployment/$FE_DEPLOYMENT" -n "$NAMESPACE"
           kubectl rollout status "deployment/$FE_DEPLOYMENT" -n "$NAMESPACE"
-
-      # deployment-arc56-registry.yaml isn't built by this pipeline (its image comes
-      # from the separate ARC56Registry repo) but still needs to be kept in sync -
-      # update-config.sh is manual-only and nothing else applies this manifest, so
-      # changes to it (e.g. the refresh CronJob) would otherwise never reach the
-      # cluster. The registry is chain-agnostic and only deployed on Algorand
-      # mainnet (all networks' builds point at algorand.scan.biatec.io/arc56-registry).
-      - name: Apply arc56-registry manifest
-        if: matrix.network == 'mainnet'
-        run: |
-          kubectl apply -f k8s/main/deployment-arc56-registry.yaml
 
       # The charting widget image is built and promoted (moving `production`
       # tag) by the biatec-charting-widget repo's workflows; its manifest

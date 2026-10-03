@@ -34,7 +34,6 @@ spec:
                 wss://api.testnet.scan.biatec.io
                 https://testnet-api.4160.nodely.dev
                 https://testnet-idx.4160.nodely.dev
-                https://algorand.scan.biatec.io
                 https://testnet.router.api.biatec.io
           resources:
             requests:

@@ -111,7 +111,7 @@ jobs:
             vite_api_base_url: https://api.testnet.scan.biatec.io
             vite_algorand_algod_url: https://testnet-api.4160.nodely.dev
             vite_algorand_indexer_url: https://testnet-idx.4160.nodely.dev
-            vite_arc56_registry_url: https://algorand.scan.biatec.io/arc56-registry
+            vite_arc56_registry_url: https://testnet.scan.biatec.io/arc56-registry
             vite_usdc_asset_id: 10458941
             vite_genesis_id: testnet-v1.0
             vite_genesis_hash: SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=
@@ -124,7 +124,7 @@ jobs:
             vite_api_base_url: https://api.voi.scan.biatec.io
             vite_algorand_algod_url: https://voimain-algod-public.de.nodes.biatec.io
             vite_algorand_indexer_url: https://voimain-indexer-public.de.nodes.biatec.io
-            vite_arc56_registry_url: https://algorand.scan.biatec.io/arc56-registry
+            vite_arc56_registry_url: https://voi.scan.biatec.io/arc56-registry
             vite_usdc_asset_id: 302190
             vite_genesis_id: voimain-v1.0
             vite_genesis_hash: r20fSQI8gWe/kFZziNonSPCXLwcQmH/nxROvnnueWOk=
@@ -210,6 +210,16 @@ jobs:
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+
+      # Testnet's own ARC-56 registry, served same-origin at
+      # https://testnet.scan.biatec.io/arc56-registry. Deployed BEFORE the
+      # frontend, which fetches it - restart so imagePullPolicy: Always pulls
+      # the newest image.
+      - name: Deploy ARC-56 registry (stage)
+        run: |
+          kubectl apply -f k8s/testnet/deployment-arc56-registry.yaml
+          kubectl rollout restart deployment/biatec-scan-arc56-registry-testnet-deployment -n biatec-scan-testnet
+          kubectl rollout status deployment/biatec-scan-arc56-registry-testnet-deployment -n biatec-scan-testnet
 
       - name: Update manifest image tag
         run: |

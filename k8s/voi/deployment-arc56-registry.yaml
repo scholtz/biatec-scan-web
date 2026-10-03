@@ -1,0 +1,97 @@
+# voi instance of the ARC-56 registry, served same-origin at https://voi.scan.biatec.io/arc56-registry
+# (so the browser needs no CORS headers and no extra CSP origin - each network uses its own
+# registry deployment instead of the Algorand mainnet one, whose host sends no
+# Access-Control-Allow-Origin for other frontends). The image is the same chain-agnostic
+# scholtz2/arc56-registry:latest; the workflow that deploys this network restarts the
+# Deployment on every rollout (imagePullPolicy: Always) so it picks up the newest registry.
+# No refresh CronJob/RBAC here: the CI deploy credential is namespace-scoped.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biatec-scan-arc56-registry-voi-deployment
+  namespace: biatec-scan-voi
+spec:
+  selector:
+    matchLabels:
+      app: biatec-scan-arc56-registry-voi
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: biatec-scan-arc56-registry-voi
+    spec:
+      containers:
+        - name: biatec-scan-arc56-registry-voi
+          image: scholtz2/arc56-registry:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 50m
+              memory: "64Mi"
+            limits:
+              cpu: 500m
+              memory: "256Mi"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 2
+            terminationGracePeriodSeconds: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: biatec-scan-arc56-registry-voi-service
+  namespace: biatec-scan-voi
+spec:
+  type: ClusterIP
+  selector:
+    app: biatec-scan-arc56-registry-voi
+  ports:
+    - name: http
+      protocol: TCP
+      appProtocol: http
+      port: 8080
+      targetPort: 8080
+---
+# Separate Ingress resource (not merged into the main frontend Ingress) because the
+# rewrite-target/use-regex annotations below apply to the whole Ingress resource in ingress-nginx,
+# and arc56-registry (a plain static nginx image) needs the /arc56-registry prefix stripped, while
+# the other paths on the main ingress must NOT be rewritten.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: biatec-scan-arc56-registry-voi-ingress
+  namespace: biatec-scan-voi
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: "nginx"
+  tls:
+    - hosts:
+        - voi.scan.biatec.io
+      secretName: tls-voi.scan.biatec.io
+  rules:
+    - host: voi.scan.biatec.io
+      http:
+        paths:
+          - path: /arc56-registry(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: biatec-scan-arc56-registry-voi-service
+                port:
+                  number: 8080

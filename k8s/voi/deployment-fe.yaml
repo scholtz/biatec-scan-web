@@ -30,8 +30,8 @@ spec:
             # URLs themselves are VITE_* build-time values baked into this
             # image's JS bundle by the voi build - see
             # .github/workflows/build-fe.yml). Keep this in sync with those
-            # build args whenever either changes. algorand.scan.biatec.io is
-            # the shared chain-agnostic ARC-56 registry.
+            # build args whenever either changes. The ARC-56 registry is served
+            # same-origin from this host (/arc56-registry), so 'self' covers it.
             - name: CSP_CONNECT_SRC
               value: >-
                 https://scholtz.github.io
@@ -39,7 +39,6 @@ spec:
                 wss://api.voi.scan.biatec.io
                 https://voimain-algod-public.de.nodes.biatec.io
                 https://voimain-indexer-public.de.nodes.biatec.io
-                https://algorand.scan.biatec.io
           resources:
             requests:
               cpu: 100m
