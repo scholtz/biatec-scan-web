@@ -482,7 +482,14 @@
     "decompileHint": "Kliknij „Dekompiluj”, aby zobaczyć kod TEAL.",
     "base64Encoded": "Zakodowane w base64",
     "poolProtocol": "Protokół",
-    "viewPoolDetails": "Zobacz szczegóły puli"
+    "viewPoolDetails": "Zobacz szczegóły puli",
+    "tabBasicInfo": "Informacje podstawowe",
+    "tabSchemaAndState": "Schemat i stan",
+    "tabBoxes": "Boxy",
+    "tabApprovalProgram": "Program zatwierdzający",
+    "tabClearStateProgram": "Program Clear State",
+    "contractHash": "Hash kontraktu",
+    "contractHashHint": "SHA-256 bajtów programu zatwierdzającego. Identyczne kontrakty mają ten sam hash."
   },
   "addressDetails": {
     "title": "Szczegóły adresu",

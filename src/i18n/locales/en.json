@@ -482,7 +482,14 @@
     "decompileHint": "Click 'Decompile' to view the TEAL code.",
     "base64Encoded": "Base64 encoded",
     "poolProtocol": "Protocol",
-    "viewPoolDetails": "View Pool Details"
+    "viewPoolDetails": "View Pool Details",
+    "tabBasicInfo": "Basic Info",
+    "tabSchemaAndState": "Schema & State",
+    "tabBoxes": "Boxes",
+    "tabApprovalProgram": "Approval Program",
+    "tabClearStateProgram": "Clear State Program",
+    "contractHash": "Contract hash",
+    "contractHashHint": "SHA-256 of the approval program bytes. Identical contracts share the same hash."
   },
   "addressDetails": {
     "title": "Address Details",

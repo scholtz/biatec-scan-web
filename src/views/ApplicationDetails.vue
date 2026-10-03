@@ -48,7 +48,29 @@
             </div>
           </div>
         </div>
+      </div>
 
+      <!-- Tabs -->
+      <div class="border-b border-gray-700 flex flex-wrap gap-x-6" role="tablist">
+        <button
+          v-for="tab in tabs"
+          :key="tab.key"
+          role="tab"
+          :aria-selected="activeTab === tab.key"
+          :data-testid="`app-tab-${tab.key}`"
+          @click="activeTab = tab.key"
+          class="pb-2 text-sm font-medium transition-colors border-b-2 -mb-px"
+          :class="
+            activeTab === tab.key
+              ? 'text-white border-purple-400'
+              : 'text-gray-400 border-transparent hover:text-gray-200'
+          "
+        >
+          {{ $t(tab.labelKey) }}
+        </button>
+      </div>
+
+      <div v-show="activeTab === 'basic'" class="card">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
             <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.appIdLabel") }}</p>
@@ -133,6 +155,7 @@
         </div>
       </div>
 
+      <div v-show="activeTab === 'schema'" class="space-y-6">
       <!-- State Schemas -->
       <div v-if="application.params" class="card">
         <h2 class="text-xl font-semibold text-white mb-4">
@@ -196,14 +219,14 @@
 
       <!-- Local State (per-address lookup) -->
       <ApplicationLocalState :app-id="appId" />
+      </div>
 
-      <!-- Boxes -->
+      <div v-show="activeTab === 'boxes'" class="space-y-6">
       <ApplicationBoxes :app-id="appId" />
+      </div>
 
-      <!-- Smart Contract Programs -->
-      <div v-if="application.params" class="space-y-6">
-        <!-- Approval Program -->
-        <div v-if="application.params.approvalProgram" class="card">
+      <div v-show="activeTab === 'approval'" class="space-y-6">
+        <div v-if="application.params?.approvalProgram" class="card">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-white">
               {{ $t("applicationDetails.approvalProgram") }}
@@ -215,6 +238,14 @@
             >
               {{ isDecompiling ? $t("applicationDetails.decompiling") : $t("applicationDetails.decompile") }}
             </button>
+          </div>
+
+          <div v-if="approvalHash" class="mb-4">
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.contractHash") }}</p>
+            <p class="text-white font-mono text-xs break-all" data-testid="contract-hash">
+              {{ approvalHash }}
+            </p>
+            <p class="text-xs text-gray-500 mt-1">{{ $t("applicationDetails.contractHashHint") }}</p>
           </div>
 
           <div
@@ -243,9 +274,10 @@
             </p>
           </div>
         </div>
+      </div>
 
-        <!-- Clear State Program -->
-        <div v-if="application.params.clearStateProgram" class="card">
+      <div v-show="activeTab === 'clear'" class="space-y-6">
+        <div v-if="application.params?.clearStateProgram" class="card">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-white">
               {{ $t("applicationDetails.clearStateProgram") }}
@@ -279,6 +311,7 @@
           </div>
         </div>
       </div>
+
     </div>
 
     <!-- While application resolved to null but the independent, possibly
@@ -336,6 +369,16 @@ const isLoading = ref(true);
 const isDecompiling = ref(false);
 const decompiledApproval = ref("");
 const decompiledClear = ref("");
+const approvalHash = ref("");
+type TabKey = "basic" | "schema" | "boxes" | "approval" | "clear";
+const activeTab = ref<TabKey>("basic");
+const tabs: { key: TabKey; labelKey: string }[] = [
+  { key: "basic", labelKey: "applicationDetails.tabBasicInfo" },
+  { key: "schema", labelKey: "applicationDetails.tabSchemaAndState" },
+  { key: "boxes", labelKey: "applicationDetails.tabBoxes" },
+  { key: "approval", labelKey: "applicationDetails.tabApprovalProgram" },
+  { key: "clear", labelKey: "applicationDetails.tabClearStateProgram" },
+];
 const {
   identifiedPool,
   isLoading: isLoadingPool,
@@ -359,6 +402,21 @@ const applicationAddress = computed(() => {
   }
 });
 
+// SHA-256 of the approval program bytes, lower-case hex - the same "contract
+// hash" the backend stores as Pool.ApprovalProgramHash, so the two match.
+const sha256Hex = async (program?: Uint8Array): Promise<string> => {
+  // crypto.subtle only exists in secure contexts (https/localhost).
+  if (!program || !globalThis.crypto?.subtle) return "";
+  try {
+    const digest = await crypto.subtle.digest("SHA-256", program.slice());
+    return Array.from(new Uint8Array(digest), (b) =>
+      b.toString(16).padStart(2, "0"),
+    ).join("");
+  } catch {
+    return "";
+  }
+};
+
 // Bumped on every loadApplication() call so a slow, superseded algod
 // response (the viewed appId changed again before it resolved) can detect
 // it's stale and discard its result instead of overwriting the current
@@ -374,6 +432,10 @@ const loadApplication = async (id: string) => {
     const appInfo = await algodClient.getApplicationByID(parseInt(id)).do();
     if (seq !== loadApplicationSeq) return;
     application.value = appInfo;
+    // Not awaited: the hash is a nicety and must never delay rendering.
+    void sha256Hex(appInfo.params?.approvalProgram).then((hash) => {
+      if (seq === loadApplicationSeq) approvalHash.value = hash;
+    });
   } catch (error) {
     if (seq !== loadApplicationSeq) return;
     console.error("Error loading application:", error);
@@ -463,6 +525,8 @@ watch(
     appId.value = newAppId as string;
     decompiledApproval.value = "";
     decompiledClear.value = "";
+    approvalHash.value = "";
+    activeTab.value = "basic";
     loadApplication(appId.value);
     fetchIdentifiedPool(applicationAddress.value);
   },

@@ -482,7 +482,14 @@
     "decompileHint": "Kattintson a „Dekompilálás” gombra a TEAL kód megtekintéséhez.",
     "base64Encoded": "Base64 kódolt",
     "poolProtocol": "Protokoll",
-    "viewPoolDetails": "Pool részleteinek megtekintése"
+    "viewPoolDetails": "Pool részleteinek megtekintése",
+    "tabBasicInfo": "Alapadatok",
+    "tabSchemaAndState": "Séma és állapot",
+    "tabBoxes": "Boxok",
+    "tabApprovalProgram": "Jóváhagyó program",
+    "tabClearStateProgram": "Clear State program",
+    "contractHash": "Szerződés hash",
+    "contractHashHint": "A jóváhagyó program bájtjainak SHA-256 értéke. Az azonos szerződéseknek azonos a hash-ük."
   },
   "addressDetails": {
     "title": "Cím részletek",

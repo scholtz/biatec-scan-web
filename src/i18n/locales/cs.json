@@ -482,7 +482,14 @@
     "decompileHint": "Kliknutím na 'Dekompilovat' zobrazíte kód TEAL.",
     "base64Encoded": "Kódováno v base64",
     "poolProtocol": "Protokol",
-    "viewPoolDetails": "Zobrazit detaily poolu"
+    "viewPoolDetails": "Zobrazit detaily poolu",
+    "tabBasicInfo": "Základní informace",
+    "tabSchemaAndState": "Schéma a stav",
+    "tabBoxes": "Boxy",
+    "tabApprovalProgram": "Schvalovací program",
+    "tabClearStateProgram": "Program Clear State",
+    "contractHash": "Hash kontraktu",
+    "contractHashHint": "SHA-256 bajtů schvalovacího programu. Stejné kontrakty mají stejný hash."
   },
   "addressDetails": {
     "title": "Detaily adresy",
