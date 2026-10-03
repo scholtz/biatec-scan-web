@@ -510,7 +510,8 @@
     "registryReputation": "Reputace",
     "registryBanned": "Zablokován",
     "registryRisk": "Riziko",
-    "registryOpenSpec": "Otevřít specifikaci ARC-56"
+    "registryOpenSpec": "Otevřít specifikaci ARC-56",
+    "registryOwnersUnavailable": "Informace o vlastnících se z registru momentálně nepodařilo načíst."
   },
   "addressDetails": {
     "title": "Detaily adresy",

@@ -68,7 +68,8 @@
         >
           <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.registryDeclaredGlobal") }}</p>
           <p class="text-white font-medium">
-            {{ contract.state.schema.global.ints }} uint / {{ contract.state.schema.global.bytes }} bytes
+            {{ $t("applicationDetails.integers") }}: {{ contract.state.schema.global.ints }},
+            {{ $t("applicationDetails.byteSlices") }}: {{ contract.state.schema.global.bytes }}
           </p>
         </div>
       </div>
@@ -97,7 +98,10 @@
         <h3 class="text-lg font-semibold text-purple-400 mb-2">
           {{ $t("applicationDetails.registryOwners") }}
         </h3>
-        <p v-if="ownersLoaded && rankedOwners.length === 0" class="text-sm text-gray-400">
+        <p v-if="ownersFailed" class="text-sm text-yellow-200" data-testid="arc56-owners-error">
+          {{ $t("applicationDetails.registryOwnersUnavailable") }}
+        </p>
+        <p v-else-if="ownersLoaded && rankedOwners.length === 0" class="text-sm text-gray-400">
           {{ $t("applicationDetails.registryNoOwners") }}
         </p>
         <ul v-else class="space-y-2">
@@ -168,6 +172,7 @@ const isLoading = ref(false);
 const lookup = ref<Arc56LookupResult | null>(null);
 const owners = ref<Arc56RegistryOwner[]>([]);
 const ownersLoaded = ref(false);
+const ownersFailed = ref(false);
 
 const contract = computed(() => (lookup.value?.state === "found" ? lookup.value.contract : null));
 const rankedOwners = computed(() => rankOwners(owners.value));
@@ -201,6 +206,7 @@ watch(
     lookup.value = null;
     owners.value = [];
     ownersLoaded.value = false;
+    ownersFailed.value = false;
     isLoading.value = false;
     if (!hash) return;
     isLoading.value = true;
@@ -211,7 +217,8 @@ watch(
     if (result.state === "found") {
       const found = await arc56Service.getOwnersByApprovalHash(hash);
       if (mySeq !== seq) return;
-      owners.value = found;
+      owners.value = found ?? [];
+      ownersFailed.value = found === null;
       ownersLoaded.value = true;
     }
   },

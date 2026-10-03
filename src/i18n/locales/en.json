@@ -510,7 +510,8 @@
     "registryReputation": "Reputation",
     "registryBanned": "Banned",
     "registryRisk": "Risk",
-    "registryOpenSpec": "Open ARC-56 spec"
+    "registryOpenSpec": "Open ARC-56 spec",
+    "registryOwnersUnavailable": "Owner information could not be loaded from the registry right now."
   },
   "addressDetails": {
     "title": "Address Details",

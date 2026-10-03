@@ -510,7 +510,8 @@
     "registryReputation": "信誉",
     "registryBanned": "已封禁",
     "registryRisk": "风险",
-    "registryOpenSpec": "打开 ARC-56 规范"
+    "registryOpenSpec": "打开 ARC-56 规范",
+    "registryOwnersUnavailable": "目前无法从注册表加载所有者信息。"
   },
   "addressDetails": {
     "title": "地址详情",

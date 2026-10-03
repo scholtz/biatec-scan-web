@@ -510,7 +510,8 @@
     "registryReputation": "Reputáció",
     "registryBanned": "Tiltott",
     "registryRisk": "Kockázat",
-    "registryOpenSpec": "ARC-56 specifikáció megnyitása"
+    "registryOpenSpec": "ARC-56 specifikáció megnyitása",
+    "registryOwnersUnavailable": "A tulajdonosi adatokat jelenleg nem sikerült betölteni a regiszterből."
   },
   "addressDetails": {
     "title": "Cím részletek",

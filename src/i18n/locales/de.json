@@ -510,7 +510,8 @@
     "registryReputation": "Reputation",
     "registryBanned": "Gesperrt",
     "registryRisk": "Risiko",
-    "registryOpenSpec": "ARC-56-Spezifikation öffnen"
+    "registryOpenSpec": "ARC-56-Spezifikation öffnen",
+    "registryOwnersUnavailable": "Eigentümerinformationen konnten derzeit nicht aus dem Register geladen werden."
   },
   "addressDetails": {
     "title": "Adressdetails",

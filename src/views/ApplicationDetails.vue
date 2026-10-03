@@ -393,7 +393,9 @@ const BOX_COUNT_PAGE = 1000;
 const BOX_COUNT_MAX_PAGES = 10;
 const boxesCount = ref<number | null>(null);
 const boxesCountCapped = ref(false);
+const boxesCountFailed = ref(false);
 const boxesCountLabel = computed(() => {
+  if (boxesCountFailed.value) return "—";
   if (boxesCount.value === null) return "…";
   return boxesCountCapped.value ? `${boxesCount.value}+` : String(boxesCount.value);
 });
@@ -447,6 +449,7 @@ const sha256Hex = async (program?: Uint8Array): Promise<string> => {
 const loadBoxesCount = async (id: string, seq: number) => {
   boxesCount.value = null;
   boxesCountCapped.value = false;
+  boxesCountFailed.value = false;
   try {
     const algodClient = algorandService.getAlgodClient();
     let total = 0;
@@ -464,7 +467,7 @@ const loadBoxesCount = async (id: string, seq: number) => {
     boxesCountCapped.value = !!next;
   } catch (error) {
     console.error("Error counting application boxes:", error);
-    if (seq === loadApplicationSeq) boxesCount.value = null;
+    if (seq === loadApplicationSeq) boxesCountFailed.value = true;
   }
 };
 

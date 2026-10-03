@@ -510,7 +510,8 @@
     "registryReputation": "Репутация",
     "registryBanned": "Заблокирован",
     "registryRisk": "Риск",
-    "registryOpenSpec": "Открыть спецификацию ARC-56"
+    "registryOpenSpec": "Открыть спецификацию ARC-56",
+    "registryOwnersUnavailable": "Сейчас не удалось загрузить сведения о владельцах из реестра."
   },
   "addressDetails": {
     "title": "Детали адреса",

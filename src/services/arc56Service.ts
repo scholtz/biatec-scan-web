@@ -67,8 +67,8 @@ class Arc56Service {
     }
   }
 
-  /** GitHub owners/repos whose indexed spec produced this approval hash (empty when none/unavailable). */
-  async getOwnersByApprovalHash(hashHex: string): Promise<Arc56RegistryOwner[]> {
+  /** GitHub owners/repos whose indexed spec produced this approval hash (empty when none; null when the registry could not be reached). */
+  async getOwnersByApprovalHash(hashHex: string): Promise<Arc56RegistryOwner[] | null> {
     assertHex(hashHex, "approval program hash");
     const cached = this.ownersCache.get(hashHex);
     if (cached) return cached;
@@ -79,14 +79,14 @@ class Arc56Service {
         this.ownersCache.set(hashHex, []);
         return [];
       }
-      if (!response.ok) return [];
+      if (!response.ok) return null;
       const body = (await response.json()) as { owners?: Arc56RegistryOwner[] };
       const owners = body.owners ?? [];
       this.ownersCache.set(hashHex, owners);
       return owners;
     } catch (error) {
       console.warn(`arc56-registry owners request errored: ${url}`, error);
-      return [];
+      return null;
     }
   }
 
