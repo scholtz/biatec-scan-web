@@ -482,7 +482,14 @@
     "decompileHint": "Нажмите «Декомпилировать», чтобы увидеть код TEAL.",
     "base64Encoded": "Кодировка base64",
     "poolProtocol": "Протокол",
-    "viewPoolDetails": "Просмотреть детали пула"
+    "viewPoolDetails": "Просмотреть детали пула",
+    "tabBasicInfo": "Основная информация",
+    "tabSchemaAndState": "Схема и состояние",
+    "tabBoxes": "Боксы",
+    "tabApprovalProgram": "Программа подтверждения",
+    "tabClearStateProgram": "Программа Clear State",
+    "contractHash": "Хеш контракта",
+    "contractHashHint": "SHA-256 байтов программы подтверждения. Одинаковые контракты имеют одинаковый хеш."
   },
   "addressDetails": {
     "title": "Детали адреса",
