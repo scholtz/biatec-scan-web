@@ -236,15 +236,16 @@
               :disabled="isDecompiling"
               class="btn-primary text-sm"
             >
-          <div class="mb-4">
-            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.contractHash") }}</p>
-            <p class="text-white font-mono text-xs break-all" data-testid="contract-hash">
-              {{ approvalHash || "…" }}
-            </p>
-            <p class="text-xs text-gray-500 mt-1">{{ $t("applicationDetails.contractHashHint") }}</p>
-          </div>
               {{ isDecompiling ? $t("applicationDetails.decompiling") : $t("applicationDetails.decompile") }}
             </button>
+          </div>
+
+          <div v-if="approvalHash" class="mb-4">
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.contractHash") }}</p>
+            <p class="text-white font-mono text-xs break-all" data-testid="contract-hash">
+              {{ approvalHash }}
+            </p>
+            <p class="text-xs text-gray-500 mt-1">{{ $t("applicationDetails.contractHashHint") }}</p>
           </div>
 
           <div
@@ -404,7 +405,8 @@ const applicationAddress = computed(() => {
 // SHA-256 of the approval program bytes, lower-case hex - the same "contract
 // hash" the backend stores as Pool.ApprovalProgramHash, so the two match.
 const sha256Hex = async (program?: Uint8Array): Promise<string> => {
-  if (!program) return "";
+  // crypto.subtle only exists in secure contexts (https/localhost).
+  if (!program || !globalThis.crypto?.subtle) return "";
   try {
     const digest = await crypto.subtle.digest("SHA-256", program.slice());
     return Array.from(new Uint8Array(digest), (b) =>
@@ -430,8 +432,10 @@ const loadApplication = async (id: string) => {
     const appInfo = await algodClient.getApplicationByID(parseInt(id)).do();
     if (seq !== loadApplicationSeq) return;
     application.value = appInfo;
-    approvalHash.value = await sha256Hex(appInfo.params?.approvalProgram);
-    if (seq !== loadApplicationSeq) return;
+    // Not awaited: the hash is a nicety and must never delay rendering.
+    void sha256Hex(appInfo.params?.approvalProgram).then((hash) => {
+      if (seq === loadApplicationSeq) approvalHash.value = hash;
+    });
   } catch (error) {
     if (seq !== loadApplicationSeq) return;
     console.error("Error loading application:", error);
