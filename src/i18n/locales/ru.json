@@ -504,7 +504,6 @@
     "registryCompiler": "Компилятор",
     "registryDeclaredGlobal": "Объявленная глобальная схема",
     "registryDescription": "Описание",
-    "registryMethodList": "Методы",
     "registryOwners": "Владельцы (по репутации)",
     "registryNoOwners": "Для этого контракта в реестре нет владельцев.",
     "registryReputation": "Репутация",

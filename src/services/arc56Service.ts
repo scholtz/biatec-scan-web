@@ -25,24 +25,22 @@ class Arc56Service {
   private selectorCache = new Map<string, Arc56AbiSignatureLookup | null>();
   private ownersCache = new Map<string, Arc56RegistryOwner[]>();
 
-  /** Look up a published ARC-56 spec by the SHA-256 hex hash of the raw approval program bytes. */
+  /**
+   * Look up a published ARC-56 spec by the SHA-256 hex hash of the raw approval program bytes.
+   * Returns null for both "not registered" and "registry unreachable"; use
+   * lookupContractByApprovalHash when the two must be told apart.
+   */
   async getContractByApprovalHash(
     hashHex: string
   ): Promise<Arc56Contract | null> {
-    assertHex(hashHex, "approval program hash");
-    if (this.approvalCache.has(hashHex)) {
-      return this.approvalCache.get(hashHex)!;
-    }
-    const url = `${baseUrl}/approval-programs/${hashHex.slice(0, 3)}/${hashHex}.arc56.json`;
-    const result = await this.fetchJson<Arc56Contract>(url);
-    this.approvalCache.set(hashHex, result);
-    return result;
+    const result = await this.lookupContractByApprovalHash(hashHex);
+    return result.state === "found" ? result.contract : null;
   }
 
   /**
-   * Like getContractByApprovalHash, but distinguishes "registry has no spec for this hash"
-   * (404) from "registry unreachable / errored", so the UI never claims a spec is missing
-   * just because of an outage. Only definitive answers are cached.
+   * Distinguishes "registry has no spec for this hash" (404) from "registry unreachable /
+   * errored", so the UI never claims a spec is missing just because of an outage. Only
+   * definitive answers (found / 404) are cached; errors are retried on the next call.
    */
   async lookupContractByApprovalHash(hashHex: string): Promise<Arc56LookupResult> {
     assertHex(hashHex, "approval program hash");

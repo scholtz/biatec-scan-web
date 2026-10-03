@@ -504,7 +504,6 @@
     "registryCompiler": "编译器",
     "registryDeclaredGlobal": "声明的全局模式",
     "registryDescription": "描述",
-    "registryMethodList": "方法",
     "registryOwners": "所有者（按信誉排名）",
     "registryNoOwners": "注册表中未列出此合约的所有者。",
     "registryReputation": "信誉",

@@ -63,13 +63,13 @@
           <p class="text-white font-medium break-words">{{ compiler }}</p>
         </div>
         <div
-          v-if="contract.state?.schema?.global"
+          v-if="declaredGlobal"
           class="bg-dark-900 p-4 rounded-lg border border-gray-700 min-w-0"
         >
           <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.registryDeclaredGlobal") }}</p>
           <p class="text-white font-medium">
-            {{ $t("applicationDetails.integers") }}: {{ contract.state.schema.global.ints }},
-            {{ $t("applicationDetails.byteSlices") }}: {{ contract.state.schema.global.bytes }}
+            {{ $t("applicationDetails.integers") }}: {{ declaredGlobal.ints }},
+            {{ $t("applicationDetails.byteSlices") }}: {{ declaredGlobal.bytes }}
           </p>
         </div>
       </div>
@@ -80,15 +80,15 @@
       </div>
 
       <div v-if="contract.methods?.length" class="mt-4">
-        <p class="text-sm text-gray-400 mb-2">{{ $t("applicationDetails.registryMethodList") }}</p>
+        <p class="text-sm text-gray-400 mb-2">{{ $t("applicationDetails.registryMethods") }}</p>
         <div class="flex flex-wrap gap-2">
           <span
             v-for="m in contract.methods"
-            :key="m.name + m.args.map((a) => a.type).join(',')"
+            :key="methodSignature(m)"
             class="px-2 py-1 rounded bg-dark-900 border border-gray-700 text-xs font-mono text-gray-200"
             :title="m.desc"
           >
-            {{ m.name }}({{ m.args.map((a) => a.type).join(",") }})
+            {{ methodSignature(m) }}
           </span>
         </div>
       </div>
@@ -101,7 +101,8 @@
         <p v-if="ownersFailed" class="text-sm text-yellow-200" data-testid="arc56-owners-error">
           {{ $t("applicationDetails.registryOwnersUnavailable") }}
         </p>
-        <p v-else-if="ownersLoaded && rankedOwners.length === 0" class="text-sm text-gray-400">
+        <div v-else-if="!ownersLoaded" class="loading-spinner"></div>
+        <p v-else-if="rankedOwners.length === 0" class="text-sm text-gray-400">
           {{ $t("applicationDetails.registryNoOwners") }}
         </p>
         <ul v-else class="space-y-2">
@@ -157,7 +158,7 @@
 import { computed, ref, watch } from "vue";
 import { arc56Service } from "../../services/arc56Service";
 import { arc56RegistryUrl } from "../../config/env";
-import type { Arc56LookupResult, Arc56RegistryOwner } from "../../types/arc56";
+import type { Arc56LookupResult, Arc56Method, Arc56RegistryOwner } from "../../types/arc56";
 import {
   formatCompilerInfo,
   rankOwners,
@@ -182,6 +183,14 @@ const specUrl = computed(
   () =>
     `${arc56RegistryUrl}/approval-programs/${props.approvalHash.slice(0, 3)}/${props.approvalHash}.arc56.json`,
 );
+
+// Registry data is third-party: tolerate specs with missing/odd fields instead of throwing mid-render.
+const methodSignature = (m: Arc56Method): string =>
+  `${m.name}(${(m.args ?? []).map((a) => a.type).join(",")})`;
+const declaredGlobal = computed(() => {
+  const g = contract.value?.state?.schema?.global;
+  return g && typeof g.ints === "number" && typeof g.bytes === "number" ? g : null;
+});
 
 const toneClass = (tone: RiskTone): string => {
   switch (tone) {

@@ -388,9 +388,10 @@ const decompiledApproval = ref("");
 const decompiledClear = ref("");
 const approvalHash = ref("");
 // Box count has no dedicated algod endpoint, so it is counted by paging the
-// box-name listing; capped so a box-heavy app can't trigger unbounded requests.
+// box-name listing; capped (at 3000, shown as "3000+") so a box-heavy app
+// can't cost a viewer - and the public algod node - many round trips.
 const BOX_COUNT_PAGE = 1000;
-const BOX_COUNT_MAX_PAGES = 10;
+const BOX_COUNT_MAX_PAGES = 3;
 const boxesCount = ref<number | null>(null);
 const boxesCountCapped = ref(false);
 const boxesCountFailed = ref(false);
@@ -581,6 +582,9 @@ watch(
     decompiledApproval.value = "";
     decompiledClear.value = "";
     approvalHash.value = "";
+    boxesCount.value = null;
+    boxesCountCapped.value = false;
+    boxesCountFailed.value = false;
     activeTab.value = "basic";
     loadApplication(appId.value);
     fetchIdentifiedPool(applicationAddress.value);

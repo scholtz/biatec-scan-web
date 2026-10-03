@@ -504,7 +504,6 @@
     "registryCompiler": "Compiler",
     "registryDeclaredGlobal": "Deklariertes globales Schema",
     "registryDescription": "Beschreibung",
-    "registryMethodList": "Methoden",
     "registryOwners": "Eigentümer (nach Reputation gerankt)",
     "registryNoOwners": "Für diesen Vertrag sind im Register keine Eigentümer aufgeführt.",
     "registryReputation": "Reputation",
