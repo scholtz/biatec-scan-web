@@ -55,6 +55,13 @@ export const arc56RegistryUrl: string =
   "https://algorand.scan.biatec.io/arc56-registry";
 
 /**
+ * Upstream ARC-56 registry on GitHub Pages. Only used for the per-hash
+ * `.owners.json` files (owner/repo reputation), which the self-hosted mirror
+ * above does not carry. Must be listed in the CSP connect-src.
+ */
+export const arc56OwnersRegistryUrl = "https://scholtz.github.io/ARC56Registry";
+
+/**
  * Base URL of the TradingView charts microservice. In deployed environments
  * (mainnet and testnet alike) `/charts` is routed by the same ingress as the
  * frontend, so a relative URL keeps the iframe on the current host instead of

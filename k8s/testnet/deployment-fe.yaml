@@ -29,6 +29,7 @@ spec:
             # build args whenever either changes.
             - name: CSP_CONNECT_SRC
               value: >-
+                https://scholtz.github.io
                 https://api.testnet.scan.biatec.io
                 wss://api.testnet.scan.biatec.io
                 https://testnet-api.4160.nodely.dev

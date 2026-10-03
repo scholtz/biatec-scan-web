@@ -120,6 +120,18 @@
             <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.extraProgramPages") }}</p>
             <p class="text-white font-medium text-lg">{{ application.params.extraProgramPages }}</p>
           </div>
+          <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.globalVariablesCount") }}</p>
+            <p class="text-white font-medium text-lg" data-testid="global-vars-count">
+              {{ application.params?.globalState?.length ?? 0 }}
+            </p>
+          </div>
+          <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.boxesCount") }}</p>
+            <p class="text-white font-medium text-lg" data-testid="boxes-count">
+              {{ boxesCountLabel }}
+            </p>
+          </div>
         </div>
 
         <!-- External Links (Algorand-mainnet-only explorers) -->
@@ -153,6 +165,10 @@
             Pera <span class="text-xs">↗</span>
           </a>
         </div>
+      </div>
+
+      <div v-show="activeTab === 'basic'" class="space-y-6">
+        <ApplicationRegistryInfo :approval-hash="approvalHash" />
       </div>
 
       <div v-show="activeTab === 'schema'" class="space-y-6">
@@ -359,6 +375,7 @@ import algosdk, { ProgramSourceMap } from "algosdk";
 import { Buffer } from "buffer";
 import ApplicationKeyValueTable from "../components/application/ApplicationKeyValueTable.vue";
 import ApplicationLocalState from "../components/application/ApplicationLocalState.vue";
+import ApplicationRegistryInfo from "../components/application/ApplicationRegistryInfo.vue";
 import ApplicationBoxes from "../components/application/ApplicationBoxes.vue";
 import IdentifiedPoolCard from "../components/IdentifiedPoolCard.vue";
 
@@ -370,6 +387,16 @@ const isDecompiling = ref(false);
 const decompiledApproval = ref("");
 const decompiledClear = ref("");
 const approvalHash = ref("");
+// Box count has no dedicated algod endpoint, so it is counted by paging the
+// box-name listing; capped so a box-heavy app can't trigger unbounded requests.
+const BOX_COUNT_PAGE = 1000;
+const BOX_COUNT_MAX_PAGES = 10;
+const boxesCount = ref<number | null>(null);
+const boxesCountCapped = ref(false);
+const boxesCountLabel = computed(() => {
+  if (boxesCount.value === null) return "…";
+  return boxesCountCapped.value ? `${boxesCount.value}+` : String(boxesCount.value);
+});
 type TabKey = "basic" | "schema" | "boxes" | "approval" | "clear";
 const activeTab = ref<TabKey>("basic");
 const tabs: { key: TabKey; labelKey: string }[] = [
@@ -417,6 +444,30 @@ const sha256Hex = async (program?: Uint8Array): Promise<string> => {
   }
 };
 
+const loadBoxesCount = async (id: string, seq: number) => {
+  boxesCount.value = null;
+  boxesCountCapped.value = false;
+  try {
+    const algodClient = algorandService.getAlgodClient();
+    let total = 0;
+    let next: string | undefined;
+    for (let page = 0; page < BOX_COUNT_MAX_PAGES; page++) {
+      let request = algodClient.getApplicationBoxes(parseInt(id)).limit(BOX_COUNT_PAGE);
+      if (next) request = request.next(next);
+      const response = await request.do();
+      if (seq !== loadApplicationSeq) return;
+      total += (response.boxes ?? []).length;
+      next = response.nextToken;
+      if (!next) break;
+    }
+    boxesCount.value = total;
+    boxesCountCapped.value = !!next;
+  } catch (error) {
+    console.error("Error counting application boxes:", error);
+    if (seq === loadApplicationSeq) boxesCount.value = null;
+  }
+};
+
 // Bumped on every loadApplication() call so a slow, superseded algod
 // response (the viewed appId changed again before it resolved) can detect
 // it's stale and discard its result instead of overwriting the current
@@ -432,6 +483,7 @@ const loadApplication = async (id: string) => {
     const appInfo = await algodClient.getApplicationByID(parseInt(id)).do();
     if (seq !== loadApplicationSeq) return;
     application.value = appInfo;
+    void loadBoxesCount(id, seq);
     // Not awaited: the hash is a nicety and must never delay rendering.
     void sha256Hex(appInfo.params?.approvalProgram).then((hash) => {
       if (seq === loadApplicationSeq) approvalHash.value = hash;
