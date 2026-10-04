@@ -514,7 +514,13 @@
     "copyBase64": "Base64 kopieren",
     "copyBase64Toast": "Programm als Base64 kopiert",
     "copyDecompiled": "Dekompiliert kopieren",
-    "copyDecompiledToast": "Dekompilierter TEAL-Code kopiert"
+    "copyDecompiledToast": "Dekompilierter TEAL-Code kopiert",
+    "tabTransactions": "Transaktionen",
+    "transactionsHint": "Transaktionen, die diese Anwendung aufrufen (auch über innere Transaktionen), neueste zuerst, vom Indexer.",
+    "transactionsLoadError": "Transaktionen konnten nicht vom Indexer geladen werden.",
+    "transactionsRetry": "Erneut versuchen",
+    "statsTxLastRounds": "Transaktionen (letzte {rounds} Runden)",
+    "statsTxLast24h": "Transaktionen (letzte 24 Stunden)"
   },
   "addressDetails": {
     "title": "Adressdetails",

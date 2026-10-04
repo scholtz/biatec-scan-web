@@ -3,6 +3,7 @@ export const TAB_KEYS = [
   "basic-info",
   "schema-and-state",
   "boxes",
+  "transactions",
   "approval-program",
   "clear-state-program",
 ] as const;

@@ -132,6 +132,18 @@
               {{ boxesCountLabel }}
             </p>
           </div>
+          <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.statsTxLastRounds", { rounds: STATS_ROUND_WINDOW }) }}</p>
+            <p class="text-white font-medium text-lg" data-testid="tx-count-rounds">
+              {{ formatTxCount(lastRounds, roundsFailed) }}
+            </p>
+          </div>
+          <div class="bg-dark-900 p-4 rounded-lg border border-gray-700">
+            <p class="text-sm text-gray-400 mb-1">{{ $t("applicationDetails.statsTxLast24h") }}</p>
+            <p class="text-white font-medium text-lg" data-testid="tx-count-24h">
+              {{ formatTxCount(last24h, hoursFailed) }}
+            </p>
+          </div>
         </div>
 
         <!-- External Links (Algorand-mainnet-only explorers) -->
@@ -239,6 +251,10 @@
 
       <div v-show="activeTab === 'boxes'" class="space-y-6">
       <ApplicationBoxes :app-id="appId" />
+      </div>
+
+      <div v-show="activeTab === 'transactions'" class="space-y-6">
+        <ApplicationTransactions v-if="transactionsVisited" :app-id="appId" />
       </div>
 
       <div v-show="activeTab === 'approval-program'" class="space-y-6">
@@ -412,6 +428,11 @@ import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import { algorandService } from "../services/algorandService";
 import { isAlgorandMainnet } from "../config/env";
+import {
+  STATS_ROUND_WINDOW,
+  useApplicationTxStats,
+  type TxCount,
+} from "../composables/useApplicationTxStats";
 import { useIdentifiedPool } from "../composables/useIdentifiedPool";
 import algosdk, { ProgramSourceMap } from "algosdk";
 import { Buffer } from "buffer";
@@ -420,6 +441,7 @@ import ApplicationLocalState from "../components/application/ApplicationLocalSta
 import { TAB_KEYS, type TabKey } from "../utils/applicationTabs";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import ApplicationRegistryInfo from "../components/application/ApplicationRegistryInfo.vue";
+import ApplicationTransactions from "../components/application/ApplicationTransactions.vue";
 import ApplicationBoxes from "../components/application/ApplicationBoxes.vue";
 import IdentifiedPoolCard from "../components/IdentifiedPoolCard.vue";
 
@@ -453,10 +475,29 @@ const tabRoute = (key: TabKey) => ({
   name: "ApplicationDetails",
   params: { appId: appId.value, tab: key === "basic-info" ? undefined : key },
 });
+// The transactions list only starts fetching once its tab has been opened.
+const transactionsVisited = ref(false);
+watch(activeTab, (tab) => {
+  if (tab === "transactions") transactionsVisited.value = true;
+});
+
+// Statistics download sizeable indexer pages, so only load them while Basic Info is shown.
+const statsEnabled = computed(() => activeTab.value === "basic-info");
+const { lastRounds, last24h, roundsFailed, hoursFailed } = useApplicationTxStats(
+  appId,
+  statsEnabled,
+);
+const formatTxCount = (count: TxCount | null, failed: boolean): string => {
+  if (failed) return "—";
+  if (!count) return "…";
+  return `${count.count.toLocaleString()}${count.capped ? "+" : ""}`;
+};
+
 const tabs: { key: TabKey; labelKey: string }[] = [
   { key: "basic-info", labelKey: "applicationDetails.tabBasicInfo" },
   { key: "schema-and-state", labelKey: "applicationDetails.tabSchemaAndState" },
   { key: "boxes", labelKey: "applicationDetails.tabBoxes" },
+  { key: "transactions", labelKey: "applicationDetails.tabTransactions" },
   { key: "approval-program", labelKey: "applicationDetails.tabApprovalProgram" },
   { key: "clear-state-program", labelKey: "applicationDetails.tabClearStateProgram" },
 ];
@@ -646,6 +687,7 @@ watch(
     boxesCount.value = null;
     boxesCountCapped.value = false;
     boxesCountFailed.value = false;
+    transactionsVisited.value = activeTab.value === "transactions";
     loadApplication(appId.value);
     fetchIdentifiedPool(applicationAddress.value);
   },

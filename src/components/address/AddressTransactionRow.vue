@@ -15,6 +15,14 @@
         <FormattedTime :timestamp="BigInt(tx['round-time'])" />
       </span>
     </div>
+    <div v-if="showSender && tx.sender" class="text-xs text-gray-400 mb-1 truncate">
+      <router-link
+        :to="{ name: 'AddressDetails', params: { address: tx.sender } }"
+        class="text-purple-400 hover:text-purple-300 font-mono"
+      >
+        {{ algorandService.formatAddress(tx.sender) }}
+      </router-link>
+    </div>
     <div class="flex justify-between items-center">
       <span class="text-gray-400 text-xs">{{ formatTransactionType(tx["tx-type"] || "unknown") }}</span>
       <div class="text-right">
@@ -45,6 +53,8 @@ const props = defineProps<{
   tx: FilterableTransaction;
   linkQuery?: Record<string, string | undefined>;
   isCurrent?: boolean;
+  /** Show the sender address (useful when the list is not scoped to one account). */
+  showSender?: boolean;
 }>();
 
 const { t } = useI18n();
