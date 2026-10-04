@@ -1,5 +1,11 @@
-import { computed, ref, watch, type Ref } from "vue";
+import { computed, shallowRef, watch, type Ref } from "vue";
 import { indexerUrl } from "../config/env";
+import {
+  applicationTxUrl,
+  getIndexerJson,
+  getIndexerRound,
+  type IndexerTxResponse,
+} from "../services/indexerClient";
 import type { FilterableTransaction } from "../utils/txFilter";
 
 export const APPLICATION_TX_PAGE_SIZE = 25;
@@ -7,6 +13,8 @@ export const APPLICATION_TX_PAGE_SIZE = 25;
 const RANGE_LIMIT = 1000;
 const INITIAL_WINDOW_ROUNDS = 1000;
 const MIN_WINDOW_ROUNDS = 1;
+/** Max pages followed when even a single round overflows the row limit. */
+const MAX_EXHAUSTIVE_PAGES = 20;
 const MAX_WINDOW_ROUNDS = 8_000_000;
 /** Max indexer requests spent looking for the next transaction in one "Next" click. */
 const MAX_REQUESTS_PER_FILL = 25;
@@ -32,31 +40,17 @@ export interface ApplicationTxSource {
     minRound: number,
     maxRound: number,
     limit: number,
+    /** Follow next-tokens to return the whole range (for windows that cannot shrink further). */
+    exhaustive?: boolean,
   ): Promise<TxRangeResult>;
-}
-
-interface IndexerTxResponse {
-  "current-round"?: number;
-  "next-token"?: string;
-  transactions?: FilterableTransaction[];
-}
-
-async function getJson<T>(url: string): Promise<T> {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Indexer responded ${response.status}`);
-  return response.json();
 }
 
 export const indexerTxSource: ApplicationTxSource = {
   async getBounds(appId) {
-    const head = await getJson<IndexerTxResponse>(
-      `${indexerUrl}/v2/transactions?application-id=${appId}&limit=1`,
-    );
-    const currentRound = head["current-round"];
-    if (typeof currentRound !== "number") throw new Error("Indexer returned no current round");
+    const currentRound = await getIndexerRound();
     let createdAtRound = 0;
     try {
-      const app = await getJson<{ application?: { "created-at-round"?: number } }>(
+      const app = await getIndexerJson<{ application?: { "created-at-round"?: number } }>(
         `${indexerUrl}/v2/applications/${appId}?include-all=true`,
       );
       createdAtRound = app.application?.["created-at-round"] ?? 0;
@@ -66,16 +60,24 @@ export const indexerTxSource: ApplicationTxSource = {
     return { currentRound, createdAtRound };
   },
 
-  async fetchRange(appId, minRound, maxRound, limit) {
-    const params = new URLSearchParams({
-      "application-id": appId,
+  async fetchRange(appId, minRound, maxRound, limit, exhaustive = false) {
+    const base = {
       "min-round": String(minRound),
       "max-round": String(maxRound),
       limit: String(limit),
-    });
-    const data = await getJson<IndexerTxResponse>(`${indexerUrl}/v2/transactions?${params}`);
-    const transactions = data.transactions ?? [];
-    return { transactions, truncated: transactions.length >= limit && !!data["next-token"] };
+    };
+    const transactions: FilterableTransaction[] = [];
+    let next: string | undefined;
+    for (let page = 0; page < (exhaustive ? MAX_EXHAUSTIVE_PAGES : 1); page++) {
+      const data = await getIndexerJson<IndexerTxResponse>(
+        applicationTxUrl(appId, next ? { ...base, next } : base),
+      );
+      const rows = data.transactions ?? [];
+      transactions.push(...rows);
+      next = rows.length >= limit ? data["next-token"] : undefined;
+      if (!next) return { transactions, truncated: false };
+    }
+    return { transactions, truncated: true };
   },
 };
 
@@ -95,11 +97,12 @@ export function useApplicationTransactions(
   appId: Ref<string>,
   source: ApplicationTxSource = indexerTxSource,
 ) {
-  const buffer = ref<FilterableTransaction[]>([]);
-  const pageIndex = ref(0);
-  const loading = ref(false);
-  const error = ref(false);
-  const exhausted = ref(false);
+  // shallowRef: only 25 rows are rendered, so skip deep-proxying every indexer transaction.
+  const buffer = shallowRef<FilterableTransaction[]>([]);
+  const pageIndex = shallowRef(0);
+  const loading = shallowRef(false);
+  const error = shallowRef(false);
+  const exhausted = shallowRef(false);
   // Unscanned history is rounds [floorRound, nextHi]; the next window ends at nextHi.
   let nextHi = 0;
   let floorRound = 0;
@@ -107,6 +110,8 @@ export function useApplicationTransactions(
   let initialised = false;
   // Bumped on reset so a slow response for a previous app cannot land late.
   let generation = 0;
+  // What Retry should redo: keep filling the current page, or fetch the next one.
+  let failedDuring: "load" | "next" = "load";
 
   const pageStart = computed(() => pageIndex.value * APPLICATION_TX_PAGE_SIZE);
   const transactions = computed(() =>
@@ -138,7 +143,14 @@ export function useApplicationTransactions(
         throw new Error("Scan budget exhausted; retry to continue");
       }
       const lo = Math.max(floorRound, nextHi - windowRounds + 1);
-      const result = await source.fetchRange(appId.value, lo, nextHi, RANGE_LIMIT);
+      // A one-round window cannot shrink further: take it whole instead of truncating.
+      const result = await source.fetchRange(
+        appId.value,
+        lo,
+        nextHi,
+        RANGE_LIMIT,
+        windowRounds <= MIN_WINDOW_ROUNDS,
+      );
       requests++;
       if (gen !== generation) return;
       if (result.truncated && windowRounds > MIN_WINDOW_ROUNDS) {
@@ -146,7 +158,7 @@ export function useApplicationTransactions(
         windowRounds = Math.max(MIN_WINDOW_ROUNDS, Math.floor(windowRounds / 4));
         continue;
       }
-      buffer.value.push(...[...result.transactions].reverse());
+      buffer.value = [...buffer.value, ...[...result.transactions].reverse()];
       nextHi = lo - 1;
       if (lo <= floorRound) exhausted.value = true;
       // Adapt the next window to the observed density.
@@ -177,6 +189,7 @@ export function useApplicationTransactions(
 
   async function next(): Promise<void> {
     if (loading.value || !canNext.value) return;
+    failedDuring = "next";
     const newStart = pageStart.value + APPLICATION_TX_PAGE_SIZE;
     // Need the whole next page plus one more row to know whether another page follows.
     const ok = await run(newStart + APPLICATION_TX_PAGE_SIZE);
@@ -203,15 +216,16 @@ export function useApplicationTransactions(
   /** Reloads from the newest transactions. */
   async function reload(): Promise<void> {
     resetState();
+    failedDuring = "load";
     if (!appId.value) return;
     await run(APPLICATION_TX_PAGE_SIZE);
   }
 
-  /** Retries whatever failed: the first page, or the forward navigation. */
+  /** Retries whatever failed: finishing the first page, or the forward navigation. */
   async function retry(): Promise<void> {
-    if (buffer.value.length === 0 && !initialised) await reload();
-    else if (buffer.value.length === 0) await run(APPLICATION_TX_PAGE_SIZE);
-    else await next();
+    if (failedDuring === "next" && buffer.value.length > 0) await next();
+    else if (!initialised && buffer.value.length === 0) await reload();
+    else await run(APPLICATION_TX_PAGE_SIZE);
   }
 
   watch(appId, () => void reload(), { immediate: true });

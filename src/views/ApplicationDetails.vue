@@ -481,7 +481,12 @@ watch(activeTab, (tab) => {
   if (tab === "transactions") transactionsVisited.value = true;
 });
 
-const { lastRounds, last24h, roundsFailed, hoursFailed } = useApplicationTxStats(appId);
+// Statistics download sizeable indexer pages, so only load them while Basic Info is shown.
+const statsEnabled = computed(() => activeTab.value === "basic-info");
+const { lastRounds, last24h, roundsFailed, hoursFailed } = useApplicationTxStats(
+  appId,
+  statsEnabled,
+);
 const formatTxCount = (count: TxCount | null, failed: boolean): string => {
   if (failed) return "—";
   if (!count) return "…";

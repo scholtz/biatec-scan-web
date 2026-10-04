@@ -20,7 +20,7 @@
         :to="{ name: 'AddressDetails', params: { address: tx.sender } }"
         class="text-purple-400 hover:text-purple-300 font-mono"
       >
-        {{ formatAddress(tx.sender) }}
+        {{ algorandService.formatAddress(tx.sender) }}
       </router-link>
     </div>
     <div class="flex justify-between items-center">
@@ -58,9 +58,6 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
-
-const formatAddress = (address: string): string =>
-  `${address.slice(0, 8)}...${address.slice(-8)}`;
 
 const formatTransactionType = (txType: string): string => {
   const typeMap: { [key: string]: string } = {

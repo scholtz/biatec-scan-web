@@ -22,8 +22,9 @@ const fakeChain = (
     .map((r, i) => ({ id: `tx${i}`, "confirmed-round": r }));
   return {
     getBounds: vi.fn(async () => bounds),
-    fetchRange: vi.fn<ApplicationTxSource["fetchRange"]>(async (_app, min, max, limit) => {
+    fetchRange: vi.fn<ApplicationTxSource["fetchRange"]>(async (_app, min, max, limit, exhaustive) => {
       const inRange = all.filter((t) => t["confirmed-round"] >= min && t["confirmed-round"] <= max);
+      if (exhaustive) return { transactions: inRange, truncated: false };
       return { transactions: inRange.slice(0, limit), truncated: inRange.length > limit };
     }),
   };
@@ -77,6 +78,40 @@ describe("useApplicationTransactions", () => {
     }
     expect(total).toBe(1200);
     expect(seen.size).toBe(1200);
+  });
+
+  it("takes a single round holding more rows than the indexer limit whole", async () => {
+    const packed = range(0, 1499).map(() => 500); // 1500 transactions, all in round 500
+    const t = useApplicationTransactions(ref("1"), fakeChain(packed, { currentRound: 501, createdAtRound: 1 }));
+    await flush();
+    let total = t.transactions.value.length;
+    while (t.canNext.value) {
+      await t.next();
+      total += t.transactions.value.length;
+    }
+    expect(total).toBe(1500);
+  });
+
+  it("retrying a failed first load keeps filling the first page instead of skipping to page 2", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    // 10 recent transactions, then plenty older: the first window cannot fill a page by itself.
+    const history = [...range(9091, 9100), ...range(1, 40)];
+    const chain = fakeChain(history, { currentRound: 9100, createdAtRound: 1 });
+    const realFetch = chain.fetchRange.getMockImplementation()!;
+    let calls = 0;
+    chain.fetchRange.mockImplementation(async (...args) => {
+      calls++;
+      if (calls === 2) throw new Error("boom"); // fails while still filling page 1
+      return realFetch(...args);
+    });
+    const t = useApplicationTransactions(ref("1"), chain);
+    await flush();
+    expect(t.error.value).toBe(true);
+    expect(t.page.value).toBe(1);
+    await t.retry();
+    expect(t.error.value).toBe(false);
+    expect(t.page.value).toBe(1); // still page 1, now complete
+    expect(t.transactions.value).toHaveLength(SIZE);
   });
 
   it("stops at the application's creation round instead of scanning to round 0", async () => {
