@@ -284,12 +284,16 @@ import type { AMMPool } from "../types/algorand";
 import { assetService } from "../services/assetService";
 import { nativeTokenUnit } from "../config/env";
 import { getAVMTradeReporterAPI } from "../api";
+import { useAssetInfo } from "../composables/useAssetInfo";
 import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import TradesList from "../components/TradesList.vue";
 import LiquidityList from "../components/LiquidityList.vue";
 
 const api = getAVMTradeReporterAPI();
+// assetService caches in localStorage (not reactive); assetInfo() subscribes
+// computeds to asset loads so "Loading..." resolves once the asset arrives.
+const { assetInfo } = useAssetInfo(assetService);
 const route = useRoute();
 const poolAddress = computed(() => route.params.poolAddress as string);
 
@@ -362,18 +366,14 @@ const formatAddress = (address: string): string => {
 const getAssetName = (assetId: bigint): string => {
   if (assetId === BigInt(0)) return nativeTokenUnit;
 
-  const assetInfo = assetService.getAssetInfo(assetId);
-  if (!assetInfo) {
-    assetService.requestAsset(assetId, () => {
-      // Trigger re-render when asset info is loaded
-    });
-    return `Asset ${assetId}`;
-  }
-  return assetInfo.name || assetInfo.unitName || `Asset ${assetId}`;
+  const info = assetInfo(assetId);
+  if (!info) return `Asset ${assetId}`;
+  return info.name || info.unitName || `Asset ${assetId}`;
 };
 
 const formatReserveA = computed(() => {
   if (!poolInfo.value?.a || poolInfo.value?.assetIdA === undefined) return "0";
+  assetInfo(poolInfo.value.assetIdA);
   return assetService.formatAssetBalance(
     poolInfo.value.a,
     poolInfo.value.assetIdA
@@ -382,6 +382,7 @@ const formatReserveA = computed(() => {
 
 const formatReserveB = computed(() => {
   if (!poolInfo.value?.b || poolInfo.value?.assetIdB === undefined) return "0";
+  assetInfo(poolInfo.value.assetIdB);
   return assetService.formatAssetBalance(
     poolInfo.value.b,
     poolInfo.value.assetIdB
@@ -415,8 +416,8 @@ const estimatedLpSupply = computed(() => {
   )
     return null;
 
-  const assetInfoA = assetService.getAssetInfo(poolInfo.value.assetIdA);
-  const assetInfoB = assetService.getAssetInfo(poolInfo.value.assetIdB);
+  const assetInfoA = assetInfo(poolInfo.value.assetIdA);
+  const assetInfoB = assetInfo(poolInfo.value.assetIdB);
   if (!assetInfoA || !assetInfoB) return null;
 
   const baseA = Number(poolInfo.value.a) / Math.pow(10, assetInfoA.decimals || 0);
@@ -426,6 +427,7 @@ const estimatedLpSupply = computed(() => {
 
 const formatLPSupply = computed(() => {
   if (hasLpToken.value && poolInfo.value?.l && poolInfo.value?.assetIdLP !== undefined) {
+    assetInfo(poolInfo.value.assetIdLP);
     return assetService.formatAssetBalance(
       poolInfo.value.l,
       poolInfo.value.assetIdLP
