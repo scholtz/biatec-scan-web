@@ -24,9 +24,17 @@ export function useAssetInfo<T>(source: AssetInfoSource<T>) {
     const key = assetId.toString();
     if (!requested.has(key)) {
       requested.add(key);
-      void source.requestAsset(assetId, () => {
-        version.value++;
-      });
+      // Defer the bump: the service may call back synchronously (cache hit),
+      // and mutating reactive state inside the computed that read it is unsafe.
+      source
+        .requestAsset(assetId, () => {
+          queueMicrotask(() => {
+            version.value++;
+          });
+        })
+        .catch((e: unknown) => {
+          console.error(`Failed to request asset ${key}:`, e);
+        });
     }
     return null;
   };

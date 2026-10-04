@@ -33,17 +33,18 @@ function fakeSource() {
 }
 
 describe("useAssetInfo", () => {
-  it("re-evaluates dependent computeds once a requested asset finishes loading", () => {
+  it("re-evaluates dependent computeds once a requested asset finishes loading", async () => {
     const fake = fakeSource();
     const { assetInfo } = useAssetInfo(fake.source);
     const label = computed(() => assetInfo(42n)?.name ?? "Loading...");
 
     expect(label.value).toBe("Loading...");
     fake.finish(42n, { name: "LP Token" });
+    await Promise.resolve();
     expect(label.value).toBe("LP Token");
   });
 
-  it("requests a missing asset only once, even across recomputes", () => {
+  it("requests a missing asset only once, even across recomputes", async () => {
     const fake = fakeSource();
     const { assetInfo } = useAssetInfo(fake.source);
     const label = computed(() => assetInfo(7n)?.name ?? "Loading...");
@@ -52,8 +53,24 @@ describe("useAssetInfo", () => {
     // Load fails: callbacks fire but the cache stays empty. Must not re-request
     // forever (each request is rate limited to 1 / 2s by the real service).
     fake.finish(7n);
+    await Promise.resolve();
     expect(label.value).toBe("Loading...");
     expect(fake.requests).toEqual(["7"]);
+  });
+
+  it("handles a synchronous callback without mutating inside the computed", async () => {
+    const cache = new Map<string, FakeInfo>();
+    const { assetInfo } = useAssetInfo<FakeInfo>({
+      getAssetInfo: (id) => cache.get(id.toString()) ?? null,
+      requestAsset: async (id, cb) => {
+        cache.set(id.toString(), { name: "Sync" });
+        cb();
+      },
+    });
+    const label = computed(() => assetInfo(5n)?.name ?? "Loading...");
+    expect(label.value).toBe("Loading...");
+    await Promise.resolve();
+    expect(label.value).toBe("Sync");
   });
 
   it("does not request assets that are already cached", () => {
