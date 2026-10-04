@@ -514,7 +514,13 @@
     "copyBase64": "Kopírovať base64",
     "copyBase64Toast": "Program skopírovaný ako base64",
     "copyDecompiled": "Kopírovať dekompilované",
-    "copyDecompiledToast": "Dekompilovaný TEAL skopírovaný"
+    "copyDecompiledToast": "Dekompilovaný TEAL skopírovaný",
+    "tabTransactions": "Transakcie",
+    "transactionsHint": "Transakcie, ktoré volajú túto aplikáciu (vrátane vnorených transakcií), od najnovších, z indexera.",
+    "transactionsLoadError": "Transakcie sa nepodarilo načítať z indexera.",
+    "transactionsRetry": "Skúsiť znova",
+    "statsTxLastRounds": "Transakcie (posledných {rounds} blokov)",
+    "statsTxLast24h": "Transakcie (posledných 24 hodín)"
   },
   "addressDetails": {
     "title": "Detaily adresy",

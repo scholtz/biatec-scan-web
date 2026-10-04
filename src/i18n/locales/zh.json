@@ -514,7 +514,13 @@
     "copyBase64": "复制 base64",
     "copyBase64Toast": "程序已以 base64 复制",
     "copyDecompiled": "复制反编译结果",
-    "copyDecompiledToast": "已复制反编译的 TEAL"
+    "copyDecompiledToast": "已复制反编译的 TEAL",
+    "tabTransactions": "交易",
+    "transactionsHint": "调用此应用的交易（包括通过内部交易），按最新优先，来自索引器。",
+    "transactionsLoadError": "无法从索引器加载交易。",
+    "transactionsRetry": "重试",
+    "statsTxLastRounds": "交易（最近 {rounds} 个轮次）",
+    "statsTxLast24h": "交易（最近 24 小时）"
   },
   "addressDetails": {
     "title": "地址详情",

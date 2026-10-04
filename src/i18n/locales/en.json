@@ -514,7 +514,13 @@
     "copyBase64": "Copy base64",
     "copyBase64Toast": "Program copied as base64",
     "copyDecompiled": "Copy decompiled",
-    "copyDecompiledToast": "Decompiled TEAL copied"
+    "copyDecompiledToast": "Decompiled TEAL copied",
+    "tabTransactions": "Transactions",
+    "transactionsHint": "Transactions that call this application (including through inner transactions), newest first, from the indexer.",
+    "transactionsLoadError": "Could not load transactions from the indexer.",
+    "transactionsRetry": "Retry",
+    "statsTxLastRounds": "Transactions (last {rounds} rounds)",
+    "statsTxLast24h": "Transactions (last 24 hours)"
   },
   "addressDetails": {
     "title": "Address Details",

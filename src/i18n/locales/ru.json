@@ -514,7 +514,13 @@
     "copyBase64": "Копировать base64",
     "copyBase64Toast": "Программа скопирована в base64",
     "copyDecompiled": "Копировать декомпилированный",
-    "copyDecompiledToast": "Декомпилированный TEAL скопирован"
+    "copyDecompiledToast": "Декомпилированный TEAL скопирован",
+    "tabTransactions": "Транзакции",
+    "transactionsHint": "Транзакции, вызывающие это приложение (включая внутренние), сначала новые, из индексатора.",
+    "transactionsLoadError": "Не удалось загрузить транзакции из индексатора.",
+    "transactionsRetry": "Повторить",
+    "statsTxLastRounds": "Транзакции (последние {rounds} раундов)",
+    "statsTxLast24h": "Транзакции (последние 24 часа)"
   },
   "addressDetails": {
     "title": "Детали адреса",

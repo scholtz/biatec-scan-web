@@ -514,7 +514,13 @@
     "copyBase64": "Copiar base64",
     "copyBase64Toast": "Programa copiado en base64",
     "copyDecompiled": "Copiar descompilado",
-    "copyDecompiledToast": "TEAL descompilado copiado"
+    "copyDecompiledToast": "TEAL descompilado copiado",
+    "tabTransactions": "Transacciones",
+    "transactionsHint": "Transacciones que llaman a esta aplicación (incluidas las internas), las más recientes primero, desde el indexador.",
+    "transactionsLoadError": "No se pudieron cargar las transacciones desde el indexador.",
+    "transactionsRetry": "Reintentar",
+    "statsTxLastRounds": "Transacciones (últimas {rounds} rondas)",
+    "statsTxLast24h": "Transacciones (últimas 24 horas)"
   },
   "addressDetails": {
     "title": "Detalles de dirección",
