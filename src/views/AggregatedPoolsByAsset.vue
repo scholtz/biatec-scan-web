@@ -26,7 +26,7 @@
 
     <div class="text-xs text-gray-400">
       {{ $t("aggregatedPools.loaded") }}:
-      <span class="text-white">{{ pools.length }}</span>
+      <span class="text-white" data-testid="loaded-count">{{ pools.length }}</span>
     </div>
 
     <div v-if="loading" class="text-gray-400">
@@ -37,10 +37,9 @@
     <div v-else>
       <DataTable
         :table-columns="tableColumns"
-        :rows="pools"
+        :rows="pagePools"
         :row-key="poolKey"
         :sort-fns="sortFns"
-        :on-visibility-change="handleVisibility"
         :column-labels="columnLabels"
         :on-row-click="(p: AggregatedPool) => goToPools(p)"
       >
@@ -150,6 +149,16 @@
           <FormattedTime :timestamp="p.lastUpdated || new Date().toISOString()" />
         </template>
       </DataTable>
+
+      <PaginationControls
+        class="mt-3"
+        :page="page"
+        :page-size="pageSize"
+        :total="pools.length"
+        :page-size-options="PAGE_SIZE_OPTIONS"
+        @update:page="setPage"
+        @update:page-size="setPageSize"
+      />
     </div>
   </div>
 </template>
@@ -165,11 +174,14 @@ import FormattedTime from "../components/FormattedTime.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import DataTable from "../components/table/DataTable.vue";
 import ColumnSettingsPanel from "../components/table/ColumnSettingsPanel.vue";
+import PaginationControls from "../components/table/PaginationControls.vue";
 import PairSparkline from "../components/table/PairSparkline.vue";
 import { useI18n } from "vue-i18n";
-import { useTableColumns, type ColumnDef } from "../composables/useTableColumns";
+import { useTableColumns, sortRows, type ColumnDef } from "../composables/useTableColumns";
 import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
 import { assetImageUrl as sharedAssetImageUrl } from "../config/env";
+import { PAGE_SIZE_OPTIONS, clampPage, pageSlice, parsePage, parsePageSize } from "../utils/pagination";
+import { buildPageSubscription, pairKey, poolKey } from "../utils/aggregatedPoolSubscription";
 
 const { t } = useI18n();
 
@@ -179,7 +191,6 @@ interface State {
   loading: boolean;
   error: string;
   forceUpdate: number;
-  visibleIds: Set<string>; // aggregated pool ids currently visible
 }
 
 const route = useRoute();
@@ -190,7 +201,6 @@ const state = reactive<State>({
   loading: false,
   error: "",
   forceUpdate: 0,
-  visibleIds: new Set<string>(),
 });
 
 const api = getAVMTradeReporterAPI();
@@ -288,10 +298,6 @@ const sortFns: Partial<Record<string, (p: AggregatedPool) => number | string>> =
   updated: (p) => p.lastUpdated ?? "",
 };
 
-// Show at most this many pairs, picked by highest reserve after fetching the
-// full set (the backend can't sort, so the top-N must be computed client-side).
-const MAX_DISPLAYED_PAIRS = 1000;
-
 async function fetchAggregatedPools() {
   state.loading = true;
   state.error = "";
@@ -300,11 +306,11 @@ async function fetchAggregatedPools() {
     // The backend has no sort parameter and truncates to `size` in no
     // meaningful order, so a capped fetch returns an arbitrary subset (ALGO
     // has 3500+ pairs and e.g. Vote/ALGO — #19 by reserve — was missing from
-    // an arbitrary first-1000 slice). Fetch every pair, then keep only the
-    // top MAX_DISPLAYED_PAIRS by reserve below. The `assetIdA` filter matches
-    // the asset on either side of the pair server-side, so one request
-    // suffices — a second `assetIdB` query returns the identical set.
-    // TODO: fetch a server-sorted top-N directly once AVMTradeReporter
+    // an arbitrary first-1000 slice). Fetch every pair and sort/paginate
+    // client-side. The `assetIdA` filter matches the asset on either side of
+    // the pair server-side, so one request suffices — a second `assetIdB`
+    // query returns the identical set.
+    // TODO: fetch a server-sorted page directly once AVMTradeReporter
     // supports ordering (scholtz/AVMTradeReporter#18).
     const res = await api.getApiAggregatedPool({ assetIdA: asset, size: 10000 });
     const listA = (res.data as AggregatedPool[]) || [];
@@ -335,12 +341,9 @@ async function fetchAggregatedPools() {
     let merged = Array.from(map.values());
     // Default sort by selected asset reserve descending; overridden by user's chosen column sort.
     merged.sort((a, b) => (b.tvL_A || 0) - (a.tvL_A || 0));
-    // Cap what we keep/render: 3500+ rows of this table (images, links,
-    // per-row IntersectionObserver, asset-info lookups) freeze the page.
-    state.pools = merged.slice(0, MAX_DISPLAYED_PAIRS);
-
-    // Initial subscription (asset scoped) – we'll refine to visible shortly
-    scheduleSubscriptionUpdate();
+    // Only one page of rows is ever rendered (see pagePools), so keeping the
+    // full set is cheap; the subscription follows the page, not this list.
+    state.pools = merged;
   } catch (e: unknown) {
     state.error =
       e instanceof Error ? e.message : "Failed to load aggregated pools";
@@ -359,9 +362,8 @@ function aggregatedPoolUpdateEvent(p: AggregatedPool) {
   if (BigInt(p.assetIdA) !== selected && BigInt(p.assetIdB) === selected) {
     pool = assetService.reverseAggregatedPool(p);
   }
-  // Only update if pool is visible (as requested)
-  const key = poolKey(pool);
-  if (!state.visibleIds.has(key)) return;
+  // Only update pools on the current page: those are the only ones subscribed.
+  if (!pagePairKeys.value.has(pairKey(pool))) return;
   // Replace if exists else push
   const idx = state.pools.findIndex(
     (x) =>
@@ -481,22 +483,28 @@ function otherAssetUnitName(p: AggregatedPool) {
   return other?.unitName || other?.name || p.assetIdB;
 }
 
-// ---- Visibility tracking & dynamic subscription ----
+// ---- Pagination (URL-backed) & page-scoped subscription ----
+const pageSize = computed(() => parsePageSize(route.query.pageSize));
+// Clamped so a stale/hand-edited ?page= beyond the end shows the last page.
+const page = computed(() => clampPage(parsePage(route.query.page), state.pools.length, pageSize.value));
+
+// Sort the whole set first, then slice: sorting is global, not per page.
+const sortedPools = computed(() => sortRows(state.pools, tableColumns.sortState.value, sortFns));
+const pagePools = computed(() => pageSlice(sortedPools.value, page.value, pageSize.value));
+const pagePairKeys = computed(() => new Set(pagePools.value.map(pairKey)));
+
+function setPage(next: number) {
+  router.push({ query: { ...route.query, page: next > 1 ? String(next) : undefined } });
+  window.scrollTo({ top: 0 });
+}
+
+function setPageSize(next: number) {
+  // A different size invalidates the page number, so go back to the first page.
+  router.push({ query: { ...route.query, pageSize: String(next), page: undefined } });
+}
+
 let subscriptionDebounce: number | null = null;
 let lastSubscriptionSignature = "";
-
-function poolKey(p: AggregatedPool): string {
-  return (
-    p.id ||
-    `${Math.min(p.assetIdA ?? 0, p.assetIdB ?? 0)}-${Math.max(p.assetIdA ?? 0, p.assetIdB ?? 0)}`
-  );
-}
-
-function handleVisibility(id: string, isVisible: boolean) {
-  if (isVisible) state.visibleIds.add(id);
-  else state.visibleIds.delete(id);
-  scheduleSubscriptionUpdate();
-}
 
 function scheduleSubscriptionUpdate() {
   if (subscriptionDebounce) window.clearTimeout(subscriptionDebounce);
@@ -504,33 +512,22 @@ function scheduleSubscriptionUpdate() {
 }
 
 function updateSubscription() {
-  const ids = Array.from(state.visibleIds.values());
-  // Always include assetId to allow discovery of newly visible pools; we only apply updates if visible anyway
-  const payload = {
-    PoolsAddresses: [] as string[],
-    AggregatedPoolsIds: ids,
-    AssetIds: [state.assetId.toString()],
-    MainAggregatedPools: false,
-    RecentAggregatedPool: false,
-    RecentBlocks: false,
-    RecentLiquidity: false,
-    RecentAssets: false,
-    RecentPool: false,
-    RecentTrades: false,
-  };
-  const signature = JSON.stringify({
-    ids: ids.sort(),
-    asset: state.assetId.toString(),
-  });
+  subscriptionDebounce = null;
+  const { filter, signature } = buildPageSubscription(state.assetId.toString(), pagePools.value);
   if (signature === lastSubscriptionSignature) return; // no change
   lastSubscriptionSignature = signature;
-  signalrService.subscribe(payload);
+  signalrService.subscribe(filter);
 }
+
+// Re-subscribe whenever the set of pairs on screen changes (page, page size,
+// sort, asset, or the data arriving).
+watch(pagePools, scheduleSubscriptionUpdate);
 
 watch(
   () => route.params.assetId,
   (val) => {
     state.assetId = BigInt((val as string) || 0);
+    state.pools = [];
     fetchAggregatedPools();
   },
 );
@@ -540,6 +537,8 @@ onMounted(async () => {
   await fetchAggregatedPools();
 });
 onUnmounted(() => {
+  // A pending debounced subscribe must not fire after the page is gone.
+  if (subscriptionDebounce) window.clearTimeout(subscriptionDebounce);
   signalrService.unsubscribeFromAggregatedPoolUpdates(
     aggregatedPoolUpdateEvent,
   );
