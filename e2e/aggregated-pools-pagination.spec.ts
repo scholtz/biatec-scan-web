@@ -116,8 +116,8 @@ test.describe("aggregated pools pagination", () => {
     expect(n).toBeGreaterThanOrEqual(5);
     expect(n).toBeLessThan(TOTAL);
     // The fitted size is offered (and selected) as the "Auto" option.
-    await expect(page.getByTestId("pagination-size")).toHaveValue(String(n));
-    await expect(page.getByTestId("pagination-size").locator("option:checked")).toContainText("Auto");
+    await expect(page.getByTestId("pagination-size")).toHaveValue("auto");
+    await expect(page.getByTestId("pagination-size").locator("option:checked")).toHaveText(`${n} (Auto)`);
   });
 
   test("the fitted size follows the viewport height and invalid sizes mean auto", async ({ page }) => {
@@ -140,6 +140,26 @@ test.describe("aggregated pools pagination", () => {
     await expectFitsViewport(page);
   });
 
+  test("a fixed size equal to the currently fitted size can still be pinned", async ({ page }) => {
+    await page.goto("/aggregated-pools/0");
+    await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));
+    // Find a viewport height at which the fitted size equals a fixed option (15).
+    let found = false;
+    for (let h = 500; h <= 1400 && !found; h += 20) {
+      await page.setViewportSize({ width: 1280, height: h });
+      await expect(page.getByTestId("pagination-size")).toHaveValue("auto");
+      await page.waitForTimeout(150);
+      found = (await page.getByTestId("pagination-size").locator("option:checked").textContent())?.startsWith("15 ") ?? false;
+    }
+    expect(found, "a viewport height fitting exactly 15 rows").toBe(true);
+
+    await page.getByTestId("pagination-size").selectOption("15");
+    await expect(page).toHaveURL(/pageSize=15/);
+    await page.setViewportSize({ width: 1280, height: 1400 });
+    await page.waitForTimeout(300);
+    await expect(pairLinks(page)).toHaveCount(15); // pinned: did not follow the taller viewport
+  });
+
   test("picking a fixed size pins it; picking the Auto option goes back to fitting", async ({ page }) => {
     await page.goto("/aggregated-pools/0");
     await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));
@@ -150,7 +170,7 @@ test.describe("aggregated pools pagination", () => {
     await expect(page).toHaveURL(/pageSize=50/);
     await expect(pairLinks(page)).toHaveCount(50);
 
-    await page.getByTestId("pagination-size").selectOption(String(fitted));
+    await page.getByTestId("pagination-size").selectOption("auto");
     await expect(page).not.toHaveURL(/pageSize=/);
     await expect(pairLinks(page)).toHaveCount(fitted);
     await expectFitsViewport(page);

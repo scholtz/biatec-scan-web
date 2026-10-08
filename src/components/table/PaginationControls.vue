@@ -12,14 +12,13 @@
       <label class="flex items-center gap-1">
         {{ $t("common.pageSize") }}:
         <select
-          :value="pageSize"
+          :value="isAuto ? AUTO_VALUE : String(pageSize)"
           class="bg-gray-800 border border-gray-600 rounded px-1 py-1 text-white"
           data-testid="pagination-size"
           @change="onSizeChange"
         >
-          <option v-for="s in sizeOptions" :key="s" :value="s">
-            {{ s }}{{ s === autoPageSize ? $t("assets.auto") : "" }}
-          </option>
+          <option v-if="autoPageSize" :value="AUTO_VALUE">{{ autoPageSize }}{{ $t("assets.auto") }}</option>
+          <option v-for="s in pageSizeOptions" :key="s" :value="String(s)">{{ s }}</option>
         </select>
       </label>
 
@@ -61,25 +60,25 @@ const props = defineProps<{
   pageSizeOptions: readonly number[];
   /** Number of rows that fit the viewport without scrolling (null until measured). */
   autoPageSize?: number | null;
+  /** True while the size follows the viewport instead of being pinned. */
+  isAuto?: boolean;
 }>();
 
 const emit = defineEmits<{
   "update:page": [page: number];
-  /** A number pins that size; null means "back to auto" (the fitted size was picked). */
+  /** A number pins that size; null means "back to auto" (the Auto option was picked). */
   "update:pageSize": [pageSize: number | null];
 }>();
 
 const pages = computed(() => pageCount(props.total, props.pageSize));
 const range = computed(() => pageRange(props.page, props.total, props.pageSize));
 
-const sizeOptions = computed(() => {
-  const all = new Set<number>(props.pageSizeOptions);
-  if (props.autoPageSize) all.add(props.autoPageSize);
-  return [...all].sort((a, b) => a - b);
-});
+// The Auto option is separate from the fixed sizes so that a fixed size
+// equal to the currently fitted one can still be pinned.
+const AUTO_VALUE = "auto";
 
 function onSizeChange(e: Event) {
-  const size = Number((e.target as HTMLSelectElement).value);
-  emit("update:pageSize", size === props.autoPageSize ? null : size);
+  const value = (e.target as HTMLSelectElement).value;
+  emit("update:pageSize", value === AUTO_VALUE ? null : Number(value));
 }
 </script>

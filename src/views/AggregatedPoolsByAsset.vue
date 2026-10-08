@@ -157,6 +157,7 @@
           :total="pools.length"
           :page-size-options="PAGE_SIZE_OPTIONS"
           :auto-page-size="autoPageSize"
+          :is-auto="pinnedPageSize === null"
           @update:page="setPage"
           @update:page-size="setPageSize"
         />
@@ -545,7 +546,9 @@ function measureAutoPageSize() {
   const fit = fitRowCount({
     viewportHeight: window.innerHeight,
     tableTop: container.getBoundingClientRect().top + window.scrollY,
-    rowHeight: rows[1].getBoundingClientRect().top - first.top,
+    // Average step over all rows, so one atypical row (e.g. a wrapped name)
+    // doesn't skew the estimate.
+    rowHeight: (last.top - first.top) / (rows.length - 1),
     footerHeight,
     min: 1, // a tall mobile card may leave room for just one or two rows
   });
@@ -582,10 +585,28 @@ function updateSubscription() {
 watch(pagePools, scheduleSubscriptionUpdate);
 
 // Row height (card vs grid layout) depends on the visible columns, and the
-// table only exists once loading finished.
+// table only exists once loading finished. A ResizeObserver on the row list
+// also catches late layout changes (web fonts, wrapped names, asset info
+// arriving); re-measuring is idempotent, so it settles instead of looping.
+let rowsObserver: ResizeObserver | null = null;
+let observedRows: Element | null = null;
+function observeRows() {
+  const container = tableWrapEl.value?.querySelector(".space-y-1") ?? null;
+  if (container === observedRows) return;
+  rowsObserver?.disconnect();
+  observedRows = container;
+  if (container && typeof ResizeObserver !== "undefined") {
+    rowsObserver ??= new ResizeObserver(scheduleMeasure);
+    rowsObserver.observe(container);
+  }
+}
 watch(
   () => [state.loading, tableColumns.visibleOrderedColumns.value.length],
-  () => nextTick(scheduleMeasure),
+  () =>
+    nextTick(() => {
+      observeRows();
+      scheduleMeasure();
+    }),
 );
 
 watch(
@@ -604,6 +625,7 @@ onMounted(async () => {
 });
 onUnmounted(() => {
   window.removeEventListener("resize", scheduleMeasure);
+  rowsObserver?.disconnect();
   if (measureFrame !== null) window.cancelAnimationFrame(measureFrame);
   // A pending debounced subscribe must not fire after the page is gone.
   if (subscriptionDebounce) window.clearTimeout(subscriptionDebounce);
