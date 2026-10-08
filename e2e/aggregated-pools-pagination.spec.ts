@@ -154,6 +154,17 @@ test.describe("aggregated pools pagination", () => {
     await expect(pairLinks(page)).toHaveCount(1);
   });
 
+  test("a viewport fitting a single row recovers when it grows again", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 330 });
+    await page.goto("/aggregated-pools/0");
+    await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));
+    await expect(pairLinks(page)).toHaveCount(1);
+
+    await page.setViewportSize({ width: 390, height: 900 });
+    await expect.poll(() => pairLinks(page).count()).toBeGreaterThan(1);
+    await expectFitsViewport(page);
+  });
+
   test("a fixed size equal to the currently fitted size can still be pinned", async ({ page }) => {
     await page.goto("/aggregated-pools/0");
     await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));

@@ -533,7 +533,7 @@ function measureAutoPageSize() {
   const container = tableWrapEl.value?.querySelector<HTMLElement>(".space-y-1");
   if (!container) return;
   const rows = Array.from(container.children) as HTMLElement[];
-  if (rows.length < 2) return;
+  if (rows.length < 1) return;
   const first = rows[0].getBoundingClientRect();
   const last = rows[rows.length - 1].getBoundingClientRect();
   // Everything below the last row: the pagination bar plus whatever padding
@@ -547,13 +547,17 @@ function measureAutoPageSize() {
     viewportHeight: window.innerHeight,
     tableTop: container.getBoundingClientRect().top + window.scrollY,
     // Average step over all rows, so one atypical row (e.g. a wrapped name)
-    // doesn't skew the estimate.
-    rowHeight: (last.top - first.top) / (rows.length - 1),
+    // doesn't skew the estimate. A single row (tiny viewport fitting one row,
+    // or a one-row last page) has no step to average: its height plus the
+    // list's `space-y-1` gap is the same quantity.
+    rowHeight: rows.length > 1 ? (last.top - first.top) / (rows.length - 1) : first.height + ROW_GAP_PX,
     footerHeight,
     min: 1, // a tall mobile card may leave room for just one or two rows
   });
   if (fit !== null) autoPageSize.value = fit;
 }
+
+const ROW_GAP_PX = 4; // Tailwind space-y-1 in DataTable's row list
 
 let measureFrame: number | null = null;
 function scheduleMeasure() {
