@@ -3,6 +3,7 @@ import {
   DEFAULT_PAGE_SIZE,
   PAGE_SIZE_OPTIONS,
   clampPage,
+  fitRowCount,
   pageCount,
   pageRange,
   pageSlice,
@@ -115,5 +116,37 @@ describe("pageRange", () => {
   it("clamps the page and handles an empty list", () => {
     expect(pageRange(99, 53, 25)).toEqual({ from: 51, to: 53 });
     expect(pageRange(1, 0, 25)).toEqual({ from: 0, to: 0 });
+  });
+});
+
+describe("fitRowCount", () => {
+  const base = { viewportHeight: 800, tableTop: 200, rowHeight: 40, footerHeight: 60 };
+
+  it("fits as many whole rows as the remaining height allows", () => {
+    // 800 - 200 - 60 - 4 = 536 -> 13.4 rows
+    expect(fitRowCount(base)).toBe(13);
+  });
+
+  it("never lets the rows overflow the viewport", () => {
+    const n = fitRowCount(base)!;
+    expect(200 + n * 40 + 60).toBeLessThanOrEqual(800);
+  });
+
+  it("grows with the viewport and shrinks with taller rows", () => {
+    expect(fitRowCount({ ...base, viewportHeight: 1200 })!).toBeGreaterThan(fitRowCount(base)!);
+    expect(fitRowCount({ ...base, rowHeight: 80 })!).toBeLessThan(fitRowCount(base)!);
+  });
+
+  it("clamps to [min, max]", () => {
+    expect(fitRowCount({ ...base, viewportHeight: 250 })).toBe(5);
+    expect(fitRowCount({ ...base, viewportHeight: 100000 })).toBe(150);
+    expect(fitRowCount({ ...base, viewportHeight: 250, min: 1 })).toBe(1);
+  });
+
+  it("returns null when nothing is measurable yet", () => {
+    expect(fitRowCount({ ...base, rowHeight: 0 })).toBeNull();
+    expect(fitRowCount({ ...base, rowHeight: -3 })).toBeNull();
+    expect(fitRowCount({ ...base, rowHeight: Number.NaN })).toBeNull();
+    expect(fitRowCount({ ...base, viewportHeight: Number.NaN })).toBeNull();
   });
 });

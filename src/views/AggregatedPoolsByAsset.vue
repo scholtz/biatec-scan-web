@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 space-y-4">
+  <div ref="rootEl" class="p-4 space-y-4">
     <div class="flex items-center justify-between">
       <h1 class="text-xl font-semibold text-white">
         <i18n-t keypath="aggregatedPools.title" tag="span" scope="global">
@@ -34,7 +34,7 @@
     </div>
     <div v-else-if="error" class="text-red-400">{{ error }}</div>
 
-    <div v-else>
+    <div v-else ref="tableWrapEl">
       <DataTable
         :table-columns="tableColumns"
         :rows="pagePools"
@@ -150,21 +150,24 @@
         </template>
       </DataTable>
 
-      <PaginationControls
-        class="mt-3"
-        :page="page"
-        :page-size="pageSize"
-        :total="pools.length"
-        :page-size-options="PAGE_SIZE_OPTIONS"
-        @update:page="setPage"
-        @update:page-size="setPageSize"
-      />
+      <div ref="paginationEl" class="mt-3">
+        <PaginationControls
+          :page="page"
+          :page-size="pageSize"
+          :total="pools.length"
+          :page-size-options="PAGE_SIZE_OPTIONS"
+          :auto-page-size="autoPageSize"
+          :is-auto="pinnedPageSize === null"
+          @update:page="setPage"
+          @update:page-size="setPageSize"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, onUnmounted, watch } from "vue";
+import { reactive, computed, onMounted, onUnmounted, watch, ref, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getAVMTradeReporterAPI } from "../api";
 import { AggregatedPool } from "../api/models";
@@ -180,7 +183,15 @@ import { useI18n } from "vue-i18n";
 import { useTableColumns, sortRows, type ColumnDef } from "../composables/useTableColumns";
 import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
 import { assetImageUrl as sharedAssetImageUrl } from "../config/env";
-import { PAGE_SIZE_OPTIONS, clampPage, pageSlice, parsePage, parsePageSize } from "../utils/pagination";
+import {
+  DEFAULT_PAGE_SIZE,
+  PAGE_SIZE_OPTIONS,
+  clampPage,
+  fitRowCount,
+  pageSlice,
+  parsePage,
+  parsePageSize,
+} from "../utils/pagination";
 import { buildPageSubscription, pairKey, poolKey } from "../utils/aggregatedPoolSubscription";
 
 const { t } = useI18n();
@@ -484,7 +495,12 @@ function otherAssetUnitName(p: AggregatedPool) {
 }
 
 // ---- Pagination (URL-backed) & page-scoped subscription ----
-const pageSize = computed(() => parsePageSize(route.query.pageSize));
+// A valid ?pageSize= pins the size; otherwise the size is "auto": as many rows
+// as fit the viewport without scrolling, measured from the rendered layout.
+const pinnedPageSize = computed(() => parsePageSize(route.query.pageSize, 0) || null);
+const autoPageSize = ref<number | null>(null);
+// Until the first measurement there is no rendered row to measure from.
+const pageSize = computed(() => pinnedPageSize.value ?? autoPageSize.value ?? DEFAULT_PAGE_SIZE);
 // Clamped so a stale/hand-edited ?page= beyond the end shows the last page.
 const page = computed(() => clampPage(parsePage(route.query.page), state.pools.length, pageSize.value));
 
@@ -498,9 +514,60 @@ function setPage(next: number) {
   window.scrollTo({ top: 0 });
 }
 
-function setPageSize(next: number) {
+function setPageSize(next: number | null) {
   // A different size invalidates the page number, so go back to the first page.
-  router.push({ query: { ...route.query, pageSize: String(next), page: undefined } });
+  // null = back to auto, which is represented by the absence of ?pageSize=.
+  router.push({
+    query: { ...route.query, pageSize: next === null ? undefined : String(next), page: undefined },
+  });
+}
+
+// ---- Auto page size: fit the rows to the viewport (like the Assets page) ----
+const rootEl = ref<HTMLElement | null>(null);
+const tableWrapEl = ref<HTMLElement | null>(null);
+const paginationEl = ref<HTMLElement | null>(null);
+
+// Measures the real rendered rows and pagination bar instead of assuming
+// pixel offsets (navbar height, row height and card layout differ per
+// breakpoint). Keeps the previous value when nothing is measurable.
+function measureAutoPageSize() {
+  const container = tableWrapEl.value?.querySelector<HTMLElement>(".space-y-1");
+  if (!container) return;
+  const rows = Array.from(container.children) as HTMLElement[];
+  if (rows.length < 1) return;
+  const first = rows[0].getBoundingClientRect();
+  const last = rows[rows.length - 1].getBoundingClientRect();
+  // Everything below the last row: the pagination bar plus whatever padding
+  // the page keeps under it (measured, not assumed).
+  const paginationBottom = paginationEl.value?.getBoundingClientRect().bottom ?? last.bottom;
+  // (The view's own root wraps just its content, so this never counts
+  // empty space the document might be stretched with.)
+  const rootBottom = rootEl.value?.getBoundingClientRect().bottom ?? paginationBottom;
+  const pageBottomGap = Math.max(0, rootBottom - paginationBottom);
+  const footerHeight = Math.max(0, paginationBottom - last.bottom) + pageBottomGap;
+  const fit = fitRowCount({
+    viewportHeight: window.innerHeight,
+    tableTop: container.getBoundingClientRect().top + window.scrollY,
+    // Average step over all rows, so one atypical row (e.g. a wrapped name)
+    // doesn't skew the estimate. A single row (tiny viewport fitting one row,
+    // or a one-row last page) has no step to average: its height plus the
+    // list's `space-y-1` gap is the same quantity.
+    rowHeight: rows.length > 1 ? (last.top - first.top) / (rows.length - 1) : first.height + ROW_GAP_PX,
+    footerHeight,
+    min: 1, // a tall mobile card may leave room for just one or two rows
+  });
+  if (fit !== null) autoPageSize.value = fit;
+}
+
+const ROW_GAP_PX = 4; // Tailwind space-y-1 in DataTable's row list
+
+let measureFrame: number | null = null;
+function scheduleMeasure() {
+  if (measureFrame !== null) return;
+  measureFrame = window.requestAnimationFrame(() => {
+    measureFrame = null;
+    measureAutoPageSize();
+  });
 }
 
 let subscriptionDebounce: number | null = null;
@@ -523,6 +590,45 @@ function updateSubscription() {
 // sort, asset, or the data arriving).
 watch(pagePools, scheduleSubscriptionUpdate);
 
+// When the fitted size changes (resize, late layout) while the user is past
+// the first page, move to the page that still contains the rows they were
+// looking at; otherwise the same ?page= would show shifted/repeated rows.
+// The very first measurement is skipped: a shared ?page=N link means "page N
+// of the fitted size", there is nothing on screen to keep in view yet.
+watch(autoPageSize, (next, prev) => {
+  if (pinnedPageSize.value !== null || prev === null || next === null || prev === next) return;
+  const current = parsePage(route.query.page);
+  if (current <= 1) return;
+  const firstIndex = (current - 1) * prev;
+  const remapped = Math.floor(firstIndex / next) + 1;
+  router.replace({ query: { ...route.query, page: remapped > 1 ? String(remapped) : undefined } });
+});
+
+// Row height (card vs grid layout) depends on the visible columns, and the
+// table only exists once loading finished. A ResizeObserver on the row list
+// also catches late layout changes (web fonts, wrapped names, asset info
+// arriving); re-measuring is idempotent, so it settles instead of looping.
+let rowsObserver: ResizeObserver | null = null;
+let observedRows: Element | null = null;
+function observeRows() {
+  const container = tableWrapEl.value?.querySelector(".space-y-1") ?? null;
+  if (container === observedRows) return;
+  rowsObserver?.disconnect();
+  observedRows = container;
+  if (container && typeof ResizeObserver !== "undefined") {
+    rowsObserver ??= new ResizeObserver(scheduleMeasure);
+    rowsObserver.observe(container);
+  }
+}
+watch(
+  () => [state.loading, tableColumns.visibleOrderedColumns.value.length],
+  () =>
+    nextTick(() => {
+      observeRows();
+      scheduleMeasure();
+    }),
+);
+
 watch(
   () => route.params.assetId,
   (val) => {
@@ -533,10 +639,14 @@ watch(
 );
 
 onMounted(async () => {
+  window.addEventListener("resize", scheduleMeasure);
   signalrService.onAggregatedPoolReceived(aggregatedPoolUpdateEvent);
   await fetchAggregatedPools();
 });
 onUnmounted(() => {
+  window.removeEventListener("resize", scheduleMeasure);
+  rowsObserver?.disconnect();
+  if (measureFrame !== null) window.cancelAnimationFrame(measureFrame);
   // A pending debounced subscribe must not fire after the page is gone.
   if (subscriptionDebounce) window.clearTimeout(subscriptionDebounce);
   signalrService.unsubscribeFromAggregatedPoolUpdates(

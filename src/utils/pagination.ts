@@ -56,3 +56,37 @@ export function pageRange(
   const p = clampPage(page, count, pageSize);
   return { from: (p - 1) * pageSize + 1, to: Math.min(p * pageSize, count) };
 }
+
+export interface FitRowsInput {
+  /** window.innerHeight. */
+  viewportHeight: number;
+  /** Top of the row list in document coordinates (getBoundingClientRect().top + scrollY). */
+  tableTop: number;
+  /** Distance between two consecutive row tops (row height + gap). */
+  rowHeight: number;
+  /** Space needed below the rows (pagination bar and its margin). */
+  footerHeight: number;
+  /** Slack so sub-pixel rounding can never tip the page into scrolling. */
+  safetyMargin?: number;
+  min?: number;
+  max?: number;
+}
+
+/**
+ * How many rows fit between the top of the row list and the bottom of the
+ * viewport (leaving room for the footer) without the page needing to scroll.
+ * Returns null when the inputs cannot be measured yet (no/zero row height).
+ */
+export function fitRowCount({
+  viewportHeight,
+  tableTop,
+  rowHeight,
+  footerHeight,
+  safetyMargin = 4,
+  min = 5,
+  max = 150,
+}: FitRowsInput): number | null {
+  if (!(rowHeight > 0) || !Number.isFinite(viewportHeight) || !Number.isFinite(tableTop)) return null;
+  const available = viewportHeight - tableTop - Math.max(0, footerHeight) - safetyMargin;
+  return Math.max(min, Math.min(max, Math.floor(available / rowHeight)));
+}
