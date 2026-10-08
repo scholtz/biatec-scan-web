@@ -140,6 +140,20 @@ test.describe("aggregated pools pagination", () => {
     await expectFitsViewport(page);
   });
 
+  test("a single-pair asset (nothing to measure) still shows the Auto option selected", async ({ page }) => {
+    await page.route("**/api/aggregated-pool**", async (route) => {
+      if (route.request().method() === "OPTIONS") {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      await route.fulfill({ status: 200, contentType: "application/json", headers: CORS, body: JSON.stringify(pools.slice(0, 1)) });
+    });
+    await page.goto("/aggregated-pools/0");
+    await expect(page.getByTestId("loaded-count")).toHaveText("1");
+    await expect(page.getByTestId("pagination-size")).toHaveValue("auto");
+    await expect(pairLinks(page)).toHaveCount(1);
+  });
+
   test("a fixed size equal to the currently fitted size can still be pinned", async ({ page }) => {
     await page.goto("/aggregated-pools/0");
     await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));

@@ -17,7 +17,7 @@
           data-testid="pagination-size"
           @change="onSizeChange"
         >
-          <option v-if="autoPageSize" :value="AUTO_VALUE">{{ autoPageSize }}{{ $t("assets.auto") }}</option>
+          <option :value="AUTO_VALUE">{{ autoPageSize ?? pageSize }}{{ $t("assets.auto") }}</option>
           <option v-for="s in pageSizeOptions" :key="s" :value="String(s)">{{ s }}</option>
         </select>
       </label>
