@@ -165,6 +165,24 @@ test.describe("aggregated pools pagination", () => {
     await expectFitsViewport(page);
   });
 
+  test("resizing while on a later page keeps the same rows in view", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 600 });
+    await page.goto("/aggregated-pools/0");
+    await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));
+    await expectFitsViewport(page);
+    await page.getByTestId("pagination-next").click();
+    await page.getByTestId("pagination-next").click();
+    await expect(page).toHaveURL(/page=3/);
+    const firstHref = await pairLinks(page).first().getAttribute("href");
+
+    await page.setViewportSize({ width: 1280, height: 1100 });
+    await expect.poll(() => pairLinks(page).count()).toBeGreaterThan(0);
+    await page.waitForTimeout(500);
+    // The row that was first on screen is still on screen after the page size changed.
+    await expect(page.locator(`a[href="${firstHref}"]`).first()).toBeVisible();
+    await expect(page).not.toHaveURL(/page=3/); // remapped to the page that holds those rows
+  });
+
   test("a fixed size equal to the currently fitted size can still be pinned", async ({ page }) => {
     await page.goto("/aggregated-pools/0");
     await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));

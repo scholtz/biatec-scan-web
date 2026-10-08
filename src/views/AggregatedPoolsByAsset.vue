@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 space-y-4">
+  <div ref="rootEl" class="p-4 space-y-4">
     <div class="flex items-center justify-between">
       <h1 class="text-xl font-semibold text-white">
         <i18n-t keypath="aggregatedPools.title" tag="span" scope="global">
@@ -523,6 +523,7 @@ function setPageSize(next: number | null) {
 }
 
 // ---- Auto page size: fit the rows to the viewport (like the Assets page) ----
+const rootEl = ref<HTMLElement | null>(null);
 const tableWrapEl = ref<HTMLElement | null>(null);
 const paginationEl = ref<HTMLElement | null>(null);
 
@@ -539,9 +540,10 @@ function measureAutoPageSize() {
   // Everything below the last row: the pagination bar plus whatever padding
   // the page keeps under it (measured, not assumed).
   const paginationBottom = paginationEl.value?.getBoundingClientRect().bottom ?? last.bottom;
-  // (<main> wraps the content only; the document itself can be stretched to the viewport.)
-  const mainBottom = tableWrapEl.value?.closest("main")?.getBoundingClientRect().bottom ?? paginationBottom;
-  const pageBottomGap = Math.max(0, mainBottom - paginationBottom);
+  // (The view's own root wraps just its content, so this never counts
+  // empty space the document might be stretched with.)
+  const rootBottom = rootEl.value?.getBoundingClientRect().bottom ?? paginationBottom;
+  const pageBottomGap = Math.max(0, rootBottom - paginationBottom);
   const footerHeight = Math.max(0, paginationBottom - last.bottom) + pageBottomGap;
   const fit = fitRowCount({
     viewportHeight: window.innerHeight,
@@ -587,6 +589,20 @@ function updateSubscription() {
 // Re-subscribe whenever the set of pairs on screen changes (page, page size,
 // sort, asset, or the data arriving).
 watch(pagePools, scheduleSubscriptionUpdate);
+
+// When the fitted size changes (resize, late layout) while the user is past
+// the first page, move to the page that still contains the rows they were
+// looking at; otherwise the same ?page= would show shifted/repeated rows.
+// The very first measurement is skipped: a shared ?page=N link means "page N
+// of the fitted size", there is nothing on screen to keep in view yet.
+watch(autoPageSize, (next, prev) => {
+  if (pinnedPageSize.value !== null || prev === null || next === null || prev === next) return;
+  const current = parsePage(route.query.page);
+  if (current <= 1) return;
+  const firstIndex = (current - 1) * prev;
+  const remapped = Math.floor(firstIndex / next) + 1;
+  router.replace({ query: { ...route.query, page: remapped > 1 ? String(remapped) : undefined } });
+});
 
 // Row height (card vs grid layout) depends on the visible columns, and the
 // table only exists once loading finished. A ResizeObserver on the row list
