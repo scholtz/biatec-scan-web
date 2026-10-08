@@ -17,7 +17,9 @@
           data-testid="pagination-size"
           @change="onSizeChange"
         >
-          <option v-for="s in pageSizeOptions" :key="s" :value="s">{{ s }}</option>
+          <option v-for="s in sizeOptions" :key="s" :value="s">
+            {{ s }}{{ s === autoPageSize ? $t("assets.auto") : "" }}
+          </option>
         </select>
       </label>
 
@@ -57,17 +59,27 @@ const props = defineProps<{
   /** Total number of items across all pages. */
   total: number;
   pageSizeOptions: readonly number[];
+  /** Number of rows that fit the viewport without scrolling (null until measured). */
+  autoPageSize?: number | null;
 }>();
 
 const emit = defineEmits<{
   "update:page": [page: number];
-  "update:pageSize": [pageSize: number];
+  /** A number pins that size; null means "back to auto" (the fitted size was picked). */
+  "update:pageSize": [pageSize: number | null];
 }>();
 
 const pages = computed(() => pageCount(props.total, props.pageSize));
 const range = computed(() => pageRange(props.page, props.total, props.pageSize));
 
+const sizeOptions = computed(() => {
+  const all = new Set<number>(props.pageSizeOptions);
+  if (props.autoPageSize) all.add(props.autoPageSize);
+  return [...all].sort((a, b) => a - b);
+});
+
 function onSizeChange(e: Event) {
-  emit("update:pageSize", Number((e.target as HTMLSelectElement).value));
+  const size = Number((e.target as HTMLSelectElement).value);
+  emit("update:pageSize", size === props.autoPageSize ? null : size);
 }
 </script>

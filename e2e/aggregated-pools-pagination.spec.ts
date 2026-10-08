@@ -36,13 +36,20 @@ function pairLinks(page: Page) {
   return page.getByRole("link", { name: /^\S+\/10\d\d$/ });
 }
 
+/** The document must not be taller than the viewport (no page scrollbar). */
+async function expectFitsViewport(page: Page) {
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight))
+    .toBeLessThanOrEqual(0);
+}
+
 test.describe("aggregated pools pagination", () => {
   test.beforeEach(async ({ page }) => {
     await mockApi(page);
   });
 
   test("renders only one page of rows with a range summary", async ({ page }) => {
-    await page.goto("/aggregated-pools/0");
+    await page.goto("/aggregated-pools/0?pageSize=25");
     await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));
     await expect(pairLinks(page)).toHaveCount(25); // default page size
     await expect(page.getByTestId("pagination-range")).toContainText("1");
@@ -53,7 +60,7 @@ test.describe("aggregated pools pagination", () => {
   });
 
   test("next/prev move through pages and update the URL", async ({ page }) => {
-    await page.goto("/aggregated-pools/0");
+    await page.goto("/aggregated-pools/0?pageSize=25");
     await expect(pairLinks(page)).toHaveCount(25);
 
     await page.getByTestId("pagination-next").click();
@@ -80,7 +87,7 @@ test.describe("aggregated pools pagination", () => {
   });
 
   test("changing the page size goes back to the first page", async ({ page }) => {
-    await page.goto("/aggregated-pools/0?page=3");
+    await page.goto("/aggregated-pools/0?page=3&pageSize=25");
     await expect(pairLinks(page)).toHaveCount(10);
 
     await page.getByTestId("pagination-size").selectOption("15");
@@ -91,13 +98,61 @@ test.describe("aggregated pools pagination", () => {
   });
 
   test("malformed or out-of-range query values degrade gracefully", async ({ page }) => {
-    await page.goto("/aggregated-pools/0?page=999&pageSize=7");
-    // Invalid size -> default 25; page 999 -> clamped to the last page (3).
+    // Page 999 -> clamped to the last page (3).
+    await page.goto("/aggregated-pools/0?page=999&pageSize=25");
     await expect(pairLinks(page)).toHaveCount(10);
     await expect(page.getByTestId("pagination-next")).toBeDisabled();
 
-    await page.goto("/aggregated-pools/0?page=abc");
+    await page.goto("/aggregated-pools/0?page=abc&pageSize=25");
     await expect(pairLinks(page)).toHaveCount(25);
     await expect(page.getByTestId("pagination-prev")).toBeDisabled();
+  });
+
+  test("without ?pageSize= the rows fit the viewport without page scrolling", async ({ page }) => {
+    await page.goto("/aggregated-pools/0");
+    await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));
+    await expectFitsViewport(page);
+    const n = await pairLinks(page).count();
+    expect(n).toBeGreaterThanOrEqual(5);
+    expect(n).toBeLessThan(TOTAL);
+    // The fitted size is offered (and selected) as the "Auto" option.
+    await expect(page.getByTestId("pagination-size")).toHaveValue(String(n));
+    await expect(page.getByTestId("pagination-size").locator("option:checked")).toContainText("Auto");
+  });
+
+  test("the fitted size follows the viewport height and invalid sizes mean auto", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 600 });
+    await page.goto("/aggregated-pools/0?pageSize=7");
+    await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));
+    await expectFitsViewport(page);
+    const small = await pairLinks(page).count();
+
+    await page.setViewportSize({ width: 1280, height: 1000 });
+    await expect.poll(() => pairLinks(page).count()).toBeGreaterThan(small);
+    await expectFitsViewport(page);
+  });
+
+  test("the mobile card layout also fits without page scrolling", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await page.goto("/aggregated-pools/0");
+    await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));
+    await expect(page.getByTestId("pagination")).toBeVisible();
+    await expectFitsViewport(page);
+  });
+
+  test("picking a fixed size pins it; picking the Auto option goes back to fitting", async ({ page }) => {
+    await page.goto("/aggregated-pools/0");
+    await expect(page.getByTestId("loaded-count")).toHaveText(String(TOTAL));
+    await expectFitsViewport(page);
+    const fitted = await pairLinks(page).count();
+
+    await page.getByTestId("pagination-size").selectOption("50");
+    await expect(page).toHaveURL(/pageSize=50/);
+    await expect(pairLinks(page)).toHaveCount(50);
+
+    await page.getByTestId("pagination-size").selectOption(String(fitted));
+    await expect(page).not.toHaveURL(/pageSize=/);
+    await expect(pairLinks(page)).toHaveCount(fitted);
+    await expectFitsViewport(page);
   });
 });
