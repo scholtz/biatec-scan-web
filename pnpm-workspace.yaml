@@ -9,3 +9,4 @@ minimumReleaseAgeExclude:
   - '@intlify/shared@11.4.7'
   - vue-i18n@11.4.7
   - biatec-wallet-use-wallet-client@0.3.1
+  - biatec-wallet-use-wallet-client@0.4.0
