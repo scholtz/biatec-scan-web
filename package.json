@@ -33,7 +33,7 @@
     "arc76": "^1.0.2",
     "axios": "^1.20.0",
     "biatec-router": "^1.0.1",
-    "biatec-wallet-use-wallet-client": "^0.4.0",
+    "biatec-wallet-use-wallet-client": "^0.5.0",
     "buffer": "^6.0.3",
     "uuidv7": "^1.2.1",
     "vue": "^3.5.43",
