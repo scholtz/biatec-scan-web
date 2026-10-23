@@ -3,9 +3,9 @@ allowBuilds:
   esbuild: true
   vue-demi: false
 minimumReleaseAgeExclude:
-  - '@intlify/core-base@11.4.7'
-  - '@intlify/devtools-types@11.4.7'
-  - '@intlify/message-compiler@11.4.7'
-  - '@intlify/shared@11.4.7'
+  - "@intlify/core-base@11.4.7"
+  - "@intlify/devtools-types@11.4.7"
+  - "@intlify/message-compiler@11.4.7"
+  - "@intlify/shared@11.4.7"
   - vue-i18n@11.4.7
-  - biatec-wallet-use-wallet-client@0.6.0
+  - biatec-wallet-use-wallet-client@1.0.2
