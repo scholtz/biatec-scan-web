@@ -2,9 +2,9 @@
   <div class="p-4 space-y-4">
     <!-- Explorer search: the navbar search box is hidden below xl -->
     <section class="xl:hidden">
-      <h2 class="text-sm font-semibold text-gray-300 mb-2">
+      <p class="text-sm font-semibold text-gray-300 mb-2">
         {{ $t("nav.explorerSearch") }}
-      </h2>
+      </p>
       <ExplorerSearchBox :placeholder="$t('nav.searchPlaceholder')" />
     </section>
     <div class="flex items-center justify-between">

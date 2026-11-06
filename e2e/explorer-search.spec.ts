@@ -9,7 +9,7 @@ test.describe("Explorer search", () => {
     const form = page.locator("main").getByRole("search");
     await expect(form).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Explorer search" }),
+      form.locator("xpath=..").getByText("Explorer search", { exact: true }),
     ).toBeVisible();
     await form.getByRole("textbox").fill("  12345  ");
     await form.getByRole("button", { name: "Search" }).click();
