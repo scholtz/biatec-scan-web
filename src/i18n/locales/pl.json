@@ -100,7 +100,9 @@
     "settings": "Ustawienia",
     "swap": "Swap",
     "searchPlaceholder": "Szukaj po numerze bloku lub ID TX…",
-    "searchMobilePlaceholder": "Szukaj bloku/TX…"
+    "searchMobilePlaceholder": "Szukaj bloku/TX…",
+    "explorerSearch": "Wyszukiwanie w eksploratorze",
+    "searchButton": "Szukaj"
   },
   "dashboard": {
     "algoUsd": "ALGO/USD",

@@ -100,7 +100,9 @@
     "settings": "Настройки",
     "swap": "Обмен",
     "searchPlaceholder": "Поиск по блоку или ID TX...",
-    "searchMobilePlaceholder": "Поиск блок / tx..."
+    "searchMobilePlaceholder": "Поиск блок / tx...",
+    "explorerSearch": "Поиск в обозревателе",
+    "searchButton": "Найти"
   },
   "dashboard": {
     "algoUsd": "ALGO/USD",

@@ -66,28 +66,11 @@
         </div>
 
         <div class="hidden lg:flex items-center space-x-4">
-          <div class="relative hidden xl:block">
-            <input
-              v-model="searchQuery"
-              @keyup.enter="performSearch"
-              type="text"
-              :placeholder="$t('nav.searchPlaceholder')"
-              class="w-64 pl-10 pr-4 py-2 bg-dark-800/50 border border-dark-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
-            />
-            <svg
-              class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
+          <ExplorerSearchBox
+            class="hidden xl:flex"
+            icon-only
+            :placeholder="$t('nav.searchPlaceholder')"
+          />
           <WalletConnectButton />
         </div>
 
@@ -214,28 +197,10 @@
             </div>
           </div>
           <div class="px-1">
-            <div class="relative">
-              <input
-                v-model="searchQuery"
-                @keyup.enter="performSearchMobile"
-                type="text"
-                :placeholder="$t('nav.searchMobilePlaceholder')"
-                class="w-full pl-10 pr-4 py-2 bg-dark-800/70 border border-dark-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
-              />
-              <svg
-                class="absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
+            <ExplorerSearchBox
+              :placeholder="$t('nav.searchMobilePlaceholder')"
+              @searched="closeMobile"
+            />
           </div>
         </div>
       </transition>
@@ -245,9 +210,10 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, onMounted, ref, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute } from "vue-router";
 import { networkLabel } from "../config/env";
 import { isSwapAvailable } from "../swap/availability";
+import ExplorerSearchBox from "./ExplorerSearchBox.vue";
 import { walletReady } from "../wallet/walletReady";
 
 // Loaded after the wallet plugin is installed (see main.ts) so the heavy
@@ -257,21 +223,8 @@ const WalletConnectButton = defineAsyncComponent(async () => {
   return import("./wallet/WalletConnectButton.vue");
 });
 
-const router = useRouter();
 const route = useRoute();
-const searchQuery = ref("");
 const mobileOpen = ref(false);
-
-const performSearch = () => {
-  if (searchQuery.value.trim()) {
-    router.push({ name: "Search", query: { q: searchQuery.value.trim() } });
-    searchQuery.value = "";
-  }
-};
-const performSearchMobile = () => {
-  performSearch();
-  mobileOpen.value = false;
-};
 
 function toggleMobile() {
   mobileOpen.value = !mobileOpen.value;

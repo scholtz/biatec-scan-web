@@ -100,7 +100,9 @@
     "settings": "Beállítások",
     "swap": "Csere",
     "searchPlaceholder": "Keresés blokk vagy tranzakció ID alapján...",
-    "searchMobilePlaceholder": "Blokk / tranzakció keresése..."
+    "searchMobilePlaceholder": "Blokk / tranzakció keresése...",
+    "explorerSearch": "Explorer-keresés",
+    "searchButton": "Keresés"
   },
   "dashboard": {
     "algoUsd": "ALGO/USD",

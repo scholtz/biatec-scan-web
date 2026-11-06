@@ -100,7 +100,9 @@
     "settings": "Settings",
     "swap": "Swap",
     "searchPlaceholder": "Search by block or tx ID...",
-    "searchMobilePlaceholder": "Search block / tx..."
+    "searchMobilePlaceholder": "Search block / tx...",
+    "explorerSearch": "Explorer search",
+    "searchButton": "Search"
   },
   "dashboard": {
     "algoUsd": "ALGO/USD",
