@@ -1,7 +1,7 @@
 <template>
   <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Explorer search: the navbar search box is hidden below xl -->
-    <section class="xl:hidden mb-6" :aria-label="$t('nav.explorerSearch')">
+    <section class="xl:hidden mb-6">
       <h2 class="text-sm font-semibold text-gray-300 mb-2">
         {{ $t("nav.explorerSearch") }}
       </h2>

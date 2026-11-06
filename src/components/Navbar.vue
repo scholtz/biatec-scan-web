@@ -66,11 +66,12 @@
         </div>
 
         <div class="hidden lg:flex items-center space-x-4">
-          <ExplorerSearchBox
-            class="hidden xl:flex"
-            icon-only
-            :placeholder="$t('nav.searchPlaceholder')"
-          />
+          <div class="hidden xl:block">
+            <ExplorerSearchBox
+              icon-only
+              :placeholder="$t('nav.searchPlaceholder')"
+            />
+          </div>
           <WalletConnectButton />
         </div>
 

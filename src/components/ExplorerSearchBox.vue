@@ -7,13 +7,13 @@
   >
     <input
       v-model="query"
-      type="search"
+      type="text"
       enterkeyhint="search"
       :aria-label="$t('nav.explorerSearch')"
       :placeholder="placeholder"
       :class="[
-        'min-w-0 py-2 px-4 bg-dark-800/50 border border-dark-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200',
-        iconOnly ? 'w-64 rounded-l-lg' : 'flex-1 rounded-l-lg',
+        'min-w-0 py-2 px-4 rounded-l-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200',
+        iconOnly ? 'w-64' : 'flex-1',
       ]"
     />
     <button
@@ -58,10 +58,11 @@ const emit = defineEmits<{ (e: "searched"): void }>();
 const router = useRouter();
 const query = ref("");
 
-function performSearch() {
+async function performSearch() {
   const q = query.value.trim();
   if (!q) return;
-  router.push({ name: "Search", query: { q } });
+  const failure = await router.push({ name: "Search", query: { q } });
+  if (failure) return; // navigation blocked/duplicated: keep the user's text
   query.value = "";
   emit("searched");
 }
