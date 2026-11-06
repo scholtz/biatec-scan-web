@@ -1,12 +1,5 @@
 <template>
   <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Explorer search: the navbar search box is hidden below xl -->
-    <section class="xl:hidden mb-6">
-      <h2 class="text-sm font-semibold text-gray-300 mb-2">
-        {{ $t("nav.explorerSearch") }}
-      </h2>
-      <ExplorerSearchBox :placeholder="$t('nav.searchPlaceholder')" />
-    </section>
     <!-- Header Stats -->
     <div
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6 mb-8"
@@ -236,7 +229,6 @@
 </template>
 
 <script setup lang="ts">
-import ExplorerSearchBox from "../components/ExplorerSearchBox.vue";
 import { onMounted, onUnmounted, computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { signalrService } from "../services/signalrService";
