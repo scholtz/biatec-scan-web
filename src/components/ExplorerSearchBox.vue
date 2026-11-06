@@ -7,6 +7,7 @@
     <input
       v-model="query"
       type="text"
+      autocomplete="off"
       enterkeyhint="search"
       :aria-label="$t('nav.explorerSearch')"
       :placeholder="placeholder"
@@ -61,18 +62,21 @@ const emit = defineEmits<{ (e: "searched"): void }>();
 const router = useRouter();
 const query = ref("");
 
+let pending = false;
+
 async function performSearch() {
   const q = query.value.trim();
-  if (!q) return;
-  const failure = await router.push({ name: "Search", query: { q } });
-  // Keep the text only if a guard blocked/cancelled navigation; re-submitting
-  // the query already shown (duplicate) is a harmless no-op, so clear as usual.
-  if (
-    failure &&
-    !isNavigationFailure(failure, NavigationFailureType.duplicated)
-  )
-    return;
-  query.value = "";
-  emit("searched");
+  if (!q || pending) return;
+  pending = true;
+  try {
+    const failure = await router.push({ name: "Search", query: { q } });
+    // Keep the text only when a guard aborted navigation; duplicate, cancelled
+    // or redirected navigations mean the app moved on, so clear as usual.
+    if (isNavigationFailure(failure, NavigationFailureType.aborted)) return;
+    query.value = "";
+    emit("searched");
+  } finally {
+    pending = false;
+  }
 }
 </script>
