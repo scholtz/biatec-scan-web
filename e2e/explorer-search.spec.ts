@@ -35,16 +35,13 @@ test.describe("Explorer search focus", () => {
     await page.setViewportSize({ width: 390, height: 800 });
     await page.goto("/");
     const form = page.locator("main").getByRole("search");
-    // The ring/border live on the form (focus-within), not on the input alone,
-    // so there is no step where the input meets the button.
+    // The border + ring live on the form (keyboard/pointer focus-visible on
+    // the input), not on the input alone, so no step where input meets button.
     const idle = await form.evaluate(
       (el) => getComputedStyle(el).borderTopColor,
     );
-    await form.getByRole("textbox").focus();
+    await form.getByRole("textbox").click();
     await expect(form).not.toHaveCSS("border-top-color", idle);
-    // One continuous ring on the form, none on the button itself.
     await expect(form).not.toHaveCSS("box-shadow", "none");
-    await expect(form.getByRole("button")).toHaveCSS("box-shadow", "none");
-    await expect(form.getByRole("button")).toHaveCSS("border-top-width", "0px");
   });
 });

@@ -1,6 +1,6 @@
 <template>
   <form
-    class="flex items-stretch overflow-hidden rounded-lg border border-dark-700/50 bg-dark-800/50 transition-[box-shadow,border-color] duration-200 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500 forced-colors:focus-within:outline-2 forced-colors:focus-within:outline-solid"
+    class="flex items-stretch overflow-hidden rounded-lg border border-dark-700/50 bg-dark-800/50 transition-[box-shadow,border-color] duration-200 has-[:focus-visible]:border-primary-500 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary-500 forced-colors:has-[:focus-visible]:outline-2 forced-colors:has-[:focus-visible]:outline-solid"
     role="search"
     @submit.prevent="performSearch"
   >
@@ -12,7 +12,7 @@
       :aria-label="$t('nav.explorerSearch')"
       :placeholder="placeholder"
       :class="[
-        'min-w-0 py-2 px-4 bg-transparent border-0 text-white placeholder-gray-400 focus:outline-none [&:-webkit-autofill]:[transition:background-color_9999s_ease-out]',
+        'min-w-0 py-2 px-4 bg-transparent border-0 text-white placeholder-gray-400 focus:outline-none',
         iconOnly ? 'w-56' : 'flex-1',
       ]"
     />
