@@ -100,7 +100,9 @@
     "settings": "Nastavenia",
     "swap": "Swap",
     "searchPlaceholder": "Hľadať podľa bloku alebo tx ID...",
-    "searchMobilePlaceholder": "Hľadať blok / tx..."
+    "searchMobilePlaceholder": "Hľadať blok / tx...",
+    "explorerSearch": "Vyhľadávanie v exploreri",
+    "searchButton": "Hľadať"
   },
   "dashboard": {
     "algoUsd": "ALGO/USD",

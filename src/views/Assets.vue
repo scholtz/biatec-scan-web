@@ -1,5 +1,12 @@
 <template>
   <div class="p-4 space-y-4">
+    <!-- Explorer search: the navbar search box is hidden below xl -->
+    <section class="xl:hidden">
+      <h2 class="text-sm font-semibold text-gray-300 mb-2">
+        {{ $t("nav.explorerSearch") }}
+      </h2>
+      <ExplorerSearchBox :placeholder="$t('nav.searchPlaceholder')" />
+    </section>
     <div class="flex items-center justify-between">
       <h1 class="text-xl font-semibold text-white">{{ $t("assets.title") }}</h1>
       <div class="flex items-center gap-2 text-sm">
@@ -286,6 +293,7 @@
 import { reactive, watch, onMounted, onUnmounted, computed, ref, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+import ExplorerSearchBox from "../components/ExplorerSearchBox.vue";
 import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
 import { signalrService } from "../services/signalrService";

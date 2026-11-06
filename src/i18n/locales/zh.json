@@ -100,7 +100,9 @@
     "settings": "设置",
     "swap": "兑换",
     "searchPlaceholder": "按区块或交易 ID 搜索...",
-    "searchMobilePlaceholder": "搜索区块/交易..."
+    "searchMobilePlaceholder": "搜索区块/交易...",
+    "explorerSearch": "浏览器搜索",
+    "searchButton": "搜索"
   },
   "dashboard": {
     "algoUsd": "ALGO/美元",
