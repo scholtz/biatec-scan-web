@@ -1,6 +1,6 @@
 <template>
   <form
-    class="flex items-stretch"
+    class="flex items-stretch overflow-hidden rounded-lg border border-dark-700/50 bg-dark-800/50 transition-shadow duration-200 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500"
     role="search"
     @submit.prevent="performSearch"
   >
@@ -12,7 +12,7 @@
       :aria-label="$t('nav.explorerSearch')"
       :placeholder="placeholder"
       :class="[
-        'min-w-0 py-2 px-4 rounded-l-lg bg-dark-800/50 border border-dark-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200',
+        'min-w-0 py-2 px-4 bg-transparent border-0 text-white placeholder-gray-400 focus:outline-none',
         iconOnly ? 'w-56' : 'flex-1',
       ]"
     />
@@ -21,7 +21,7 @@
       :title="$t('nav.searchButton')"
       :aria-label="$t('nav.searchButton')"
       :class="[
-        'shrink-0 inline-flex items-center justify-center gap-2 py-2 bg-primary-600 hover:bg-primary-500 text-white border border-primary-600 hover:border-primary-500 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-200',
+        'shrink-0 inline-flex items-center justify-center gap-2 py-2 bg-primary-600 hover:bg-primary-500 focus-visible:bg-primary-500 text-white border-0 focus:outline-none transition-colors duration-200',
         iconOnly ? 'px-3' : 'px-4',
       ]"
     >

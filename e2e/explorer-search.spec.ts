@@ -29,3 +29,15 @@ test.describe("Explorer search", () => {
     await expect(page).toHaveURL(/\/search\?q=abc$/);
   });
 });
+
+test("focus ring wraps input and button as one control", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto("/");
+  const form = page.locator("main").getByRole("search");
+  await form.getByRole("textbox").focus();
+  // The ring/border live on the form (focus-within), not on the input alone,
+  // so there is no step where the input meets the button.
+  await expect(form).toHaveCSS("border-top-color", "rgb(59, 130, 246)");
+  await expect(form.getByRole("textbox")).toHaveCSS("border-top-width", "0px");
+  await form.screenshot({ path: "test-results/focus.png" });
+});
