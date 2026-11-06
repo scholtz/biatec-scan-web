@@ -29,3 +29,19 @@ test.describe("Explorer search", () => {
     await expect(page).toHaveURL(/\/search\?q=abc$/);
   });
 });
+
+test.describe("Explorer search focus", () => {
+  test("focus ring wraps input and button as one control", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await page.goto("/");
+    const form = page.locator("main").getByRole("search");
+    // The border + ring live on the form (keyboard/pointer focus-visible on
+    // the input), not on the input alone, so no step where input meets button.
+    const idle = await form.evaluate(
+      (el) => getComputedStyle(el).borderTopColor,
+    );
+    await form.getByRole("textbox").click();
+    await expect(form).not.toHaveCSS("border-top-color", idle);
+    await expect(form).not.toHaveCSS("box-shadow", "none");
+  });
+});
