@@ -290,10 +290,10 @@
 </template>
 
 <script setup lang="ts">
-import ExplorerSearchBox from "../components/ExplorerSearchBox.vue";
 import { reactive, watch, onMounted, onUnmounted, computed, ref, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+import ExplorerSearchBox from "../components/ExplorerSearchBox.vue";
 import { getAVMTradeReporterAPI } from "../api";
 import { BiatecAsset } from "../api/models";
 import { signalrService } from "../services/signalrService";
