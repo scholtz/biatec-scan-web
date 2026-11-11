@@ -346,7 +346,9 @@
     "scamWarningSuspicious": "Ennek a poolnak a scam-értékelése {rating}/100. Okosszerződését nem sikerült ellenőrizni a nyilvános ARC-56 nyilvántartásban. Kereskedjen óvatosan.",
     "scamRating": "Scam-értékelés",
     "noLpToken": "Ez a pool nem biztosít LP tokent",
-    "estimatedLpSupply": "Becsült (a tartalékokból számítva)"
+    "estimatedLpSupply": "Becsült (a tartalékokból számítva)",
+    "aggregatedPair": "Összesített pár",
+    "allPoolsForPair": "A pár összes poolja"
   },
   "aggregatedPools": {
     "title": "{assetName} eszközt tartalmazó összesített poolok",

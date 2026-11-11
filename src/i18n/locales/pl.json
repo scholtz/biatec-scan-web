@@ -346,7 +346,9 @@
     "scamWarningSuspicious": "Ta pula ma ocenę scam {rating}/100. Jej smart kontraktu nie udało się zweryfikować w publicznym rejestrze ARC-56. Handluj ostrożnie.",
     "scamRating": "Ocena scam",
     "noLpToken": "Ta pula nie zapewnia tokenu LP",
-    "estimatedLpSupply": "Szacunkowe (na podstawie rezerw)"
+    "estimatedLpSupply": "Szacunkowe (na podstawie rezerw)",
+    "aggregatedPair": "Para zagregowana",
+    "allPoolsForPair": "Wszystkie pule dla tej pary"
   },
   "aggregatedPools": {
     "title": "Zagregowane pule zawierające {assetName}",

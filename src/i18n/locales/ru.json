@@ -346,7 +346,9 @@
     "scamWarningSuspicious": "Рейтинг скама этого пула — {rating}/100. Его смарт-контракт не удалось проверить по публичному реестру ARC-56. Торгуйте осторожно.",
     "scamRating": "Рейтинг скама",
     "noLpToken": "Этот пул не предоставляет LP-токен",
-    "estimatedLpSupply": "Оценка (на основе резервов)"
+    "estimatedLpSupply": "Оценка (на основе резервов)",
+    "aggregatedPair": "Агрегированная пара",
+    "allPoolsForPair": "Все пулы этой пары"
   },
   "aggregatedPools": {
     "title": "Агрегированные пулы, содержащие {assetName}",
