@@ -131,14 +131,14 @@ export function buildLiquidityBars(
   const maxLiquidity = Math.max(0, ...visible.map((r) => r.liquidity ?? 0));
   if (maxLiquidity <= 0) return [];
   const bars = visible
-    .map((range) => {
+    .map((range, index) => {
       const left = priceToX(isBoundedPrice(range.pMin) ? range.pMin : domain.min, domain, width);
       const right = priceToX(isBoundedPrice(range.pMax) ? range.pMax : domain.max, domain, width);
       const span = Math.abs(right - left);
       // the gap comes off both sides; a range thinner than the gap is a 1 unit bar centred on its span
       const barWidth = Math.max(1, span - gap);
       return {
-        key: `${range.tickLow}-${range.tickHigh}`,
+        key: rangeKey(range, index),
         range,
         x: Math.min(left, right) + (span - barWidth) / 2,
         width: barWidth,
@@ -157,8 +157,12 @@ export function buildLiquidityBars(
     bars[i].hitX = Math.min(start, spans[i].left);
     bars[i].hitWidth = Math.max(end, spans[i].right) - bars[i].hitX;
   }
-  // (ranges from the boxes never overlap; a wide range overlapping others is drawn first, see LiquidityDistribution)
   return bars;
+}
+
+/** Stable key of a range: its tick bounds (unique per pool), the index for a range without them. */
+export function rangeKey(range: PoolLiquidityRange, index: number): string {
+  return range.tickLow !== undefined && range.tickHigh !== undefined ? `${range.tickLow}-${range.tickHigh}` : `#${index}`;
 }
 
 /** SVG path of a bar with rounded top corners, square at the baseline. */

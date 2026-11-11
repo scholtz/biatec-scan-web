@@ -15,8 +15,11 @@ import { AMMType, AggregatedPool, Pool } from "../api/models";
  * Tick based CLAMM pools (Pact CLAMM) carry the contract price (`currentPrice`, from the pool's sqrt price) - the
  * exact value the reserves are derived from.
  *
- * All other pools price as virtualAmountB / virtualAmountA, falling back to `currentPrice` when the virtual amounts
- * are missing (e.g. zeroed balances).
+ * All other pools price as virtualAmountB / virtualAmountA (the backend reports `currentPrice` only for tick based
+ * pools, so the `currentPrice` fallback for missing virtual amounts only matters for those).
+ *
+ * Scam-zeroed pools get no price. The backend zeroes their balances but keeps `currentPrice` (follow-up: null it in
+ * AVMTradeReporter ScamRatingPolicy.ApplyBalanceRule too), hence the threshold check here.
  */
 /** Mirrors the backend ScamRatingPolicy.ZeroBalancesThreshold: above it a pool contributes no price anywhere. */
 export const SCAM_ZERO_BALANCES_THRESHOLD = 80;

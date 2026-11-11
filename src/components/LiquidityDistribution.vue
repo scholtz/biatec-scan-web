@@ -30,7 +30,7 @@
       >
         <!-- baseline -->
         <line :x1="0" :x2="WIDTH" :y1="PLOT_BOTTOM" :y2="PLOT_BOTTOM" stroke="#334155" stroke-width="1" />
-        <g v-for="bar in drawOrder" :key="bar.key">
+        <g v-for="bar in bars" :key="bar.key">
           <path
             :d="barPath(bar, PLOT_BOTTOM, RADIUS)"
             :fill="bar.active ? ACTIVE_COLOR : BAR_COLOR"
@@ -119,7 +119,7 @@
         <tbody>
           <tr
             v-for="row in tableRows"
-            :key="`${row.range.tickLow}-${row.range.tickHigh}`"
+            :key="row.key"
             data-testid="liquidity-table-row"
             class="border-t border-dark-700/60"
             :class="row.active ? 'bg-blue-500/10' : ''"
@@ -158,6 +158,7 @@ import {
   isBoundedPrice,
   priceDomain,
   priceToX,
+  rangeKey,
   type LiquidityBar,
 } from "../utils/liquidityDistribution";
 
@@ -198,7 +199,11 @@ watch(bars, () => {
 const tableRows = computed(() =>
   [...props.ranges]
     .sort((a, b) => (a.pMin ?? 0) - (b.pMin ?? 0))
-    .map((range) => ({ range, active: isActiveRange(range, props.currentPrice, props.currentTick) }))
+    .map((range, index) => ({
+      key: rangeKey(range, index),
+      range,
+      active: isActiveRange(range, props.currentPrice, props.currentTick),
+    }))
 );
 
 const priceX = computed(() =>
@@ -211,8 +216,6 @@ const lowerBound = (range: PoolLiquidityRange): number => (isBoundedPrice(range.
 const amount = (base: number | undefined, decimals: number | undefined): number | undefined =>
   decimals === undefined ? undefined : (base ?? 0) / Math.pow(10, decimals);
 
-// wider ranges first: a narrow bar (and its hover target) is never covered by a wide one overlapping it
-const drawOrder = computed(() => [...bars.value].sort((a, b) => b.width - a.width));
 
 const tooltipStyle = computed(() => {
   if (!hovered.value) return {};
