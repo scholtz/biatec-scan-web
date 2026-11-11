@@ -348,7 +348,20 @@
     "noLpToken": "Dieser Pool stellt kein LP-Token bereit",
     "estimatedLpSupply": "Geschätzt (aus Reserven abgeleitet)",
     "aggregatedPair": "Aggregiertes Paar",
-    "allPoolsForPair": "Alle Pools für dieses Paar"
+    "allPoolsForPair": "Alle Pools für dieses Paar",
+    "liquidityDistribution": "Liquiditätsverteilung",
+    "liquidityDistributionHelp": "Wie die Liquidität des Pools über die Preise verteilt ist, gelesen aus seinem On-Chain-Tick-Speicher. Jeder Balken ist ein zusammenhängender Tick-Bereich mit gleicher Liquidität; der hervorgehobene Balken enthält den aktuellen Preis.",
+    "rangesCount": "{count} Liquiditätsbereiche",
+    "activeRange": "Aktiver Bereich (aktueller Preis)",
+    "currentPriceMarker": "Aktueller Preis",
+    "priceRange": "Preisbereich",
+    "liquidity": "Liquidität",
+    "holds": "Enthält",
+    "logScale": "logarithmische Skala",
+    "showTable": "Als Tabelle anzeigen",
+    "hideTable": "Tabelle ausblenden",
+    "priceOf": "Preis von 1 {unitName}",
+    "volume24h": "24h-Volumen"
   },
   "aggregatedPools": {
     "title": "Aggregierte Pools mit {assetName}",

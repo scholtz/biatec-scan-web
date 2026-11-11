@@ -263,23 +263,54 @@
         <div class="card">
           <h2 class="text-xl font-semibold mb-4">Pool Statistics</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Current Price (A/B):</span>
-              <span class="text-white font-mono">{{ currentPrice }}</span>
+            <div class="flex justify-between items-center gap-2">
+              <span class="text-gray-400">
+                {{ $t("poolDetails.priceOf", { unitName: unitA }) }}:
+              </span>
+              <span class="text-white font-mono">
+                <FormattedNumber :value="spotPrice" :maximum-significant-digits="6" placeholder="N/A" />
+                {{ spotPrice !== undefined ? unitB : "" }}
+              </span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Inverse Price (B/A):</span>
-              <span class="text-white font-mono">{{ inversePrice }}</span>
+            <div class="flex justify-between items-center gap-2">
+              <span class="text-gray-400">
+                {{ $t("poolDetails.priceOf", { unitName: unitB }) }}:
+              </span>
+              <span class="text-white font-mono">
+                <FormattedNumber :value="inverseSpotPrice" :maximum-significant-digits="6" placeholder="N/A" />
+                {{ inverseSpotPrice !== undefined ? unitA : "" }}
+              </span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Total Value Locked:</span>
               <span class="text-white">{{ totalValueLockedUsd }}</span>
             </div>
             <div class="flex justify-between items-center">
+              <span class="text-gray-400">{{ $t("poolDetails.volume24h") }}:</span>
+              <span class="text-white">
+                <FormattedNumber :value="rawPool?.volume24H" type="currency" currency="USD" :maximum-fraction-digits="2" placeholder="N/A" />
+              </span>
+            </div>
+            <div class="flex justify-between items-center">
               <span class="text-gray-400">Pool Utilization:</span>
               <span class="text-white">{{ poolUtilization }}%</span>
             </div>
           </div>
+        </div>
+
+        <!-- Liquidity distribution of tick based CLAMM pools (ranges read from the pool's box storage) -->
+        <div v-if="isPactTickClamm && liquidityRanges.length > 0" class="card">
+          <h2 class="text-xl font-semibold mb-2">
+            {{ $t("poolDetails.liquidityDistribution") }}
+          </h2>
+          <LiquidityDistribution
+            :ranges="liquidityRanges"
+            :current-price="spotPrice"
+            :unit-a="unitA"
+            :unit-b="unitB"
+            :decimals-a="rawPool?.assetADecimals ?? 0"
+            :decimals-b="rawPool?.assetBDecimals ?? 0"
+          />
         </div>
 
         <!-- Recent Activity -->
@@ -313,6 +344,10 @@ import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import TradesList from "../components/TradesList.vue";
 import LiquidityList from "../components/LiquidityList.vue";
+import FormattedNumber from "../components/FormattedNumber.vue";
+import LiquidityDistribution from "../components/LiquidityDistribution.vue";
+import type { Pool } from "../api/models";
+import { poolSpotPrice } from "../utils/poolPrice";
 
 const api = getAVMTradeReporterAPI();
 // assetService caches in localStorage (not reactive); assetInfo() subscribes
@@ -324,6 +359,8 @@ const poolAddress = computed(() => route.params.poolAddress as string);
 const loading = ref(false);
 const error = ref("");
 const poolInfo = ref<AMMPool | null>(null);
+// the API pool as returned, for the fields the AMMPool view model does not carry (prices, ranges, volume)
+const rawPool = ref<Pool | null>(null);
 
 const loadPoolInfo = async () => {
   if (!poolAddress.value) return;
@@ -344,6 +381,7 @@ const loadPoolInfo = async () => {
     if (!poolData) {
       throw new Error(`Pool not found: ${poolAddress.value}`);
     }
+    rawPool.value = poolData;
 
     // Map the API response to our AMMPool interface
     poolInfo.value = {
@@ -465,29 +503,24 @@ const formatLPSupply = computed(() => {
   return "0";
 });
 
-const currentPrice = computed(() => {
-  if (!poolInfo.value?.a || !poolInfo.value?.b) return "N/A";
+// Spot price of 1 A in B (decimals adjusted). The reserve ratio is not a price for anything but a 50/50 pool with
+// equal decimals - concentrated, weighted, stable and tick based pools need the pool's own price (virtual amounts /
+// contract price), e.g. Pact ALGO/USDC 3762241535 holds ~170k ALGO and ~3.7k USDC at a price of ~0.09.
+const spotPrice = computed(() => (rawPool.value ? poolSpotPrice(rawPool.value) : undefined));
+const inverseSpotPrice = computed(() =>
+  spotPrice.value !== undefined && spotPrice.value > 0 ? 1 / spotPrice.value : undefined
+);
 
-  const reserveA = Number(poolInfo.value.a);
-  const reserveB = Number(poolInfo.value.b);
+const getAssetUnit = (assetId: bigint | undefined): string => {
+  if (assetId === undefined) return "";
+  if (assetId === BigInt(0)) return nativeTokenUnit;
+  const info = assetInfo(assetId);
+  return info?.unitName || info?.name || `Asset ${assetId}`;
+};
+const unitA = computed(() => getAssetUnit(poolInfo.value?.assetIdA));
+const unitB = computed(() => getAssetUnit(poolInfo.value?.assetIdB));
 
-  if (reserveB === 0) return "N/A";
-
-  const price = reserveA / reserveB;
-  return price.toFixed(6);
-});
-
-const inversePrice = computed(() => {
-  if (!poolInfo.value?.a || !poolInfo.value?.b) return "N/A";
-
-  const reserveA = Number(poolInfo.value.a);
-  const reserveB = Number(poolInfo.value.b);
-
-  if (reserveA === 0) return "N/A";
-
-  const price = reserveB / reserveA;
-  return price.toFixed(6);
-});
+const liquidityRanges = computed(() => rawPool.value?.liquidityRanges ?? []);
 
 const totalValueLockedUsd = computed(() => {
   const tvlA = poolInfo.value?.totalTVLAssetAInUSD;

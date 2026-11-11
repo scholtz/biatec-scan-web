@@ -348,7 +348,20 @@
     "noLpToken": "Ez a pool nem biztosít LP tokent",
     "estimatedLpSupply": "Becsült (a tartalékokból számítva)",
     "aggregatedPair": "Összesített pár",
-    "allPoolsForPair": "A pár összes poolja"
+    "allPoolsForPair": "A pár összes poolja",
+    "liquidityDistribution": "Likviditás eloszlása",
+    "liquidityDistributionHelp": "Hogyan oszlik el a pool likviditása az árak között, a láncon tárolt tick-adatokból kiolvasva. Minden oszlop azonos likviditású, összefüggő tick-tartomány; a kiemelt oszlop tartalmazza az aktuális árat.",
+    "rangesCount": "{count} likviditási tartomány",
+    "activeRange": "Aktív tartomány (aktuális ár)",
+    "currentPriceMarker": "Aktuális ár",
+    "priceRange": "Ártartomány",
+    "liquidity": "Likviditás",
+    "holds": "Tartalmaz",
+    "logScale": "logaritmikus skála",
+    "showTable": "Megjelenítés táblázatként",
+    "hideTable": "Táblázat elrejtése",
+    "priceOf": "1 {unitName} ára",
+    "volume24h": "24 órás forgalom"
   },
   "aggregatedPools": {
     "title": "{assetName} eszközt tartalmazó összesített poolok",
