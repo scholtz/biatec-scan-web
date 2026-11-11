@@ -360,8 +360,7 @@
     "logScale": "логарифмическая шкала",
     "showTable": "Показать таблицей",
     "hideTable": "Скрыть таблицу",
-    "priceOf": "Цена 1 {unitName}",
-    "volume24h": "Объём за 24 ч"
+    "priceOf": "Цена 1 {unitName}"
   },
   "aggregatedPools": {
     "title": "Агрегированные пулы, содержащие {assetName}",

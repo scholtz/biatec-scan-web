@@ -360,8 +360,7 @@
     "logScale": "log scale",
     "showTable": "Show as table",
     "hideTable": "Hide table",
-    "priceOf": "Price of 1 {unitName}",
-    "volume24h": "24h volume"
+    "priceOf": "Price of 1 {unitName}"
   },
   "aggregatedPools": {
     "title": "Aggregated pools containing {assetName}",

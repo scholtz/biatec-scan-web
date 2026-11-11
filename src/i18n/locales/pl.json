@@ -360,8 +360,7 @@
     "logScale": "skala logarytmiczna",
     "showTable": "Pokaż jako tabelę",
     "hideTable": "Ukryj tabelę",
-    "priceOf": "Cena 1 {unitName}",
-    "volume24h": "Wolumen 24 h"
+    "priceOf": "Cena 1 {unitName}"
   },
   "aggregatedPools": {
     "title": "Zagregowane pule zawierające {assetName}",

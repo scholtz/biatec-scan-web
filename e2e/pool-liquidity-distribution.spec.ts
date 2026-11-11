@@ -38,7 +38,7 @@ test.describe("pool details of a tick based CLAMM pool", () => {
     await expect(page.getByText("Price of 1 ALGO:")).toBeVisible();
     await expect(page.getByText(/0\.0899308/).first()).toBeVisible();
     await expect(page.getByText(/11\.1197/).first()).toBeVisible();
-    await expect(page.getByText("24h volume:")).toBeVisible();
+    await expect(page.getByText("24H Volume:")).toBeVisible();
     await expect(page.getByText(/\$5,917\.94/)).toBeVisible();
     // TVL comes from the box-derived reserves: 18,937.71 USD
     await expect(page.getByText(/\$18,937\.71/)).toBeVisible();
@@ -62,5 +62,20 @@ test.describe("pool details of a tick based CLAMM pool", () => {
 
     await page.getByRole("heading", { name: "Liquidity distribution" }).scrollIntoViewIfNeeded();
     await page.screenshot({ path: "test-results/pool-liquidity-distribution.png", fullPage: true });
+  });
+  test("keeps one chart unit per pixel at phone width", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const svg = page.getByRole("img", { name: "Liquidity distribution" });
+    await expect(svg).toBeVisible();
+    await expect
+      .poll(async () => {
+        const viewBoxWidth = Number((await svg.getAttribute("viewBox"))?.split(" ")[2]);
+        const box = await svg.boundingBox();
+        return Math.abs(viewBoxWidth - (box?.width ?? 0));
+      })
+      .toBeLessThanOrEqual(1);
+    await expect(page.getByTestId("liquidity-bar-active")).toHaveCount(1);
+    await svg.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: "test-results/pool-liquidity-distribution-mobile.png" });
   });
 });

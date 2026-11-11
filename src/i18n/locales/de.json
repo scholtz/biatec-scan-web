@@ -360,8 +360,7 @@
     "logScale": "logarithmische Skala",
     "showTable": "Als Tabelle anzeigen",
     "hideTable": "Tabelle ausblenden",
-    "priceOf": "Preis von 1 {unitName}",
-    "volume24h": "24h-Volumen"
+    "priceOf": "Preis von 1 {unitName}"
   },
   "aggregatedPools": {
     "title": "Aggregierte Pools mit {assetName}",

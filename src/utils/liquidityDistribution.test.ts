@@ -225,4 +225,11 @@ describe("liquidity distribution helpers", () => {
     expect(poolSpotPrice(scam)).toBeUndefined();
     expect(poolSpotPrice({ ...scam, scamRating: 80 })).toBe(0.09);
   });
+  it("keeps the window when only wide ranges straddle it", () => {
+    const wide: PoolLiquidityRange[] = [
+      { tickLow: 1, tickHigh: 1, liquidity: 1, pMin: 1e-6, pMax: 1e6 },
+      { tickLow: 2, tickHigh: 2, liquidity: 1, pMin: 1e6, pMax: 7.9e28 },
+    ];
+    expect(priceDomain(wide, 1)).toEqual({ min: 0.01, max: 100 });
+  });
 });

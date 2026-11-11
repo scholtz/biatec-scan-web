@@ -360,8 +360,7 @@
     "logScale": "logaritmické měřítko",
     "showTable": "Zobrazit jako tabulku",
     "hideTable": "Skrýt tabulku",
-    "priceOf": "Cena 1 {unitName}",
-    "volume24h": "Objem za 24 h"
+    "priceOf": "Cena 1 {unitName}"
   },
   "aggregatedPools": {
     "title": "Agregované pooly obsahující {assetName}",

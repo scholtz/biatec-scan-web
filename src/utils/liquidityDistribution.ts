@@ -63,7 +63,7 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
       ? { min: currentPrice / DOMAIN_WINDOW_FACTOR, max: currentPrice * DOMAIN_WINDOW_FACTOR }
       : null;
   }
-  const rangeBounds = [...bounds];
+  const candidates = concentrated.length > 0 ? concentrated : ranges;
   // the current price is always on the axis, so its marker never sits at a misleading edge
   if (isBoundedPrice(currentPrice)) bounds.push(currentPrice);
   const min = Math.min(...bounds);
@@ -71,7 +71,10 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
   if (isBoundedPrice(currentPrice)) {
     const windowMin = Math.max(min, currentPrice / DOMAIN_WINDOW_FACTOR);
     const windowMax = Math.min(max, currentPrice * DOMAIN_WINDOW_FACTOR);
-    const anyRangeInWindow = rangeBounds.some((b) => b >= windowMin && b <= windowMax);
+    // a range overlapping the window counts, also one straddling all of it
+    const anyRangeInWindow = candidates.some(
+      (r) => (isBoundedPrice(r.pMin) ? r.pMin : 0) < windowMax && (isBoundedPrice(r.pMax) ? r.pMax : Infinity) > windowMin
+    );
     if (anyRangeInWindow && windowMax > windowMin) return { min: windowMin, max: windowMax };
   }
   return max > min ? { min, max } : { min: min / 1.01, max: max * 1.01 };

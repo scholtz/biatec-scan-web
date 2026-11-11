@@ -20,16 +20,16 @@
       </span>
     </div>
 
-    <div class="relative" @mouseleave="hovered = null">
+    <div ref="plot" class="relative" @mouseleave="hovered = null">
       <svg
-        :viewBox="`0 0 ${WIDTH} ${HEIGHT}`"
+        :viewBox="`0 0 ${width} ${HEIGHT}`"
         class="w-full h-56"
         preserveAspectRatio="none"
         role="img"
         :aria-label="$t('poolDetails.liquidityDistribution')"
       >
         <!-- baseline -->
-        <line :x1="0" :x2="WIDTH" :y1="PLOT_BOTTOM" :y2="PLOT_BOTTOM" stroke="#334155" stroke-width="1" />
+        <line :x1="0" :x2="width" :y1="PLOT_BOTTOM" :y2="PLOT_BOTTOM" stroke="#334155" stroke-width="1" />
         <g v-for="bar in bars" :key="bar.key">
           <path
             :d="barPath(bar, PLOT_BOTTOM, RADIUS)"
@@ -148,7 +148,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import type { PoolLiquidityRange } from "../api/models";
 import FormattedNumber from "./FormattedNumber.vue";
 import {
@@ -178,7 +178,20 @@ const props = defineProps<{
 // one hue, two ordinal steps (validated against the dark card surface): ranges, and the range holding the price
 const BAR_COLOR = "#2563eb";
 const ACTIVE_COLOR = "#93c5fd";
-const WIDTH = 1000;
+// the viewBox follows the rendered width, so one chart unit is one pixel: the minimum bar width and the rounded
+// corners keep their size at any screen width (the height is fixed, so nothing is squashed)
+const width = ref(1000);
+const plot = ref<HTMLElement | null>(null);
+let resizeObserver: ResizeObserver | null = null;
+onMounted(() => {
+  if (!plot.value || typeof ResizeObserver === "undefined") return;
+  resizeObserver = new ResizeObserver((entries) => {
+    const measured = Math.round(entries[0]?.contentRect.width ?? 0);
+    if (measured > 0) width.value = measured;
+  });
+  resizeObserver.observe(plot.value);
+});
+onBeforeUnmount(() => resizeObserver?.disconnect());
 const HEIGHT = 220;
 const PLOT_BOTTOM = HEIGHT - 1;
 const RADIUS = 4; // rounded data end
@@ -188,7 +201,7 @@ const showTable = ref(false);
 
 const domain = computed(() => priceDomain(props.ranges, props.currentPrice));
 const bars = computed(() =>
-  buildLiquidityBars(props.ranges, props.currentPrice, WIDTH, PLOT_BOTTOM - 8, 2, props.currentTick, domain.value)
+  buildLiquidityBars(props.ranges, props.currentPrice, width.value, PLOT_BOTTOM - 8, 2, props.currentTick, domain.value)
 );
 // a tooltip of data that was replaced must not linger
 watch(bars, () => {
@@ -207,7 +220,7 @@ const tableRows = computed(() =>
 );
 
 const priceX = computed(() =>
-  isBoundedPrice(props.currentPrice) && domain.value ? priceToX(props.currentPrice, domain.value, WIDTH) : null
+  isBoundedPrice(props.currentPrice) && domain.value ? priceToX(props.currentPrice, domain.value, width.value) : null
 );
 
 // the backend clamps unbounded ends to 0 / decimal.MaxValue: show 0 and ∞
@@ -219,7 +232,7 @@ const amount = (base: number | undefined, decimals: number | undefined): number 
 
 const tooltipStyle = computed(() => {
   if (!hovered.value) return {};
-  const center = ((hovered.value.x + hovered.value.width / 2) / WIDTH) * 100;
+  const center = ((hovered.value.x + hovered.value.width / 2) / width.value) * 100;
   // keep the tooltip inside the chart: anchor left of the bar in the right half
   return center > 50
     ? { right: `${100 - center}%`, maxWidth: "20rem" }

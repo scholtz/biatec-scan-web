@@ -360,8 +360,7 @@
     "logScale": "对数刻度",
     "showTable": "以表格显示",
     "hideTable": "隐藏表格",
-    "priceOf": "1 {unitName} 的价格",
-    "volume24h": "24 小时交易量"
+    "priceOf": "1 {unitName} 的价格"
   },
   "aggregatedPools": {
     "title": "包含 {assetName} 的聚合池",
