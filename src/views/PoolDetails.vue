@@ -263,23 +263,62 @@
         <div class="card">
           <h2 class="text-xl font-semibold mb-4">Pool Statistics</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Current Price (A/B):</span>
-              <span class="text-white font-mono">{{ currentPrice }}</span>
+            <div class="flex justify-between items-center gap-2">
+              <span class="text-gray-400">
+                {{ $t("poolDetails.priceOf", { unitName: unitA }) }}:
+              </span>
+              <span class="text-white font-mono">
+                <FormattedNumber :value="spotPrice" :maximum-significant-digits="6" />
+                {{ spotPrice !== undefined ? unitB : "" }}
+              </span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Inverse Price (B/A):</span>
-              <span class="text-white font-mono">{{ inversePrice }}</span>
+            <div class="flex justify-between items-center gap-2">
+              <span class="text-gray-400">
+                {{ $t("poolDetails.priceOf", { unitName: unitB }) }}:
+              </span>
+              <span class="text-white font-mono">
+                <FormattedNumber :value="inverseSpotPrice" :maximum-significant-digits="6" />
+                {{ inverseSpotPrice !== undefined ? unitA : "" }}
+              </span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Total Value Locked:</span>
               <span class="text-white">{{ totalValueLockedUsd }}</span>
             </div>
             <div class="flex justify-between items-center">
+              <span class="text-gray-400">{{ $t("poolsByAssets.volume24H") }}:</span>
+              <span class="text-white">
+                <FormattedNumber
+                  :value="rawPool?.volume24H"
+                  type="currency"
+                  currency="USD"
+                  :maximum-fraction-digits="2"
+                  :small-threshold="0.01"
+                  :significant-digits="4"
+                />
+              </span>
+            </div>
+            <div class="flex justify-between items-center">
               <span class="text-gray-400">Pool Utilization:</span>
               <span class="text-white">{{ poolUtilization }}%</span>
             </div>
           </div>
+        </div>
+
+        <!-- Liquidity distribution of tick based CLAMM pools (ranges read from the pool's box storage) -->
+        <div v-if="poolInfo.ammType === AMMType.TickBasedCLAMM && liquidityRanges.length > 0" class="card">
+          <h2 class="text-xl font-semibold mb-2">
+            {{ $t("poolDetails.liquidityDistribution") }}
+          </h2>
+          <LiquidityDistribution
+            :ranges="liquidityRanges"
+            :current-price="spotPrice"
+            :current-tick="rawPool?.currentTick"
+            :unit-a="unitA"
+            :unit-b="unitB"
+            :decimals-a="decimalsA"
+            :decimals-b="decimalsB"
+          />
         </div>
 
         <!-- Recent Activity -->
@@ -302,7 +341,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { AMMPool } from "../types/algorand";
 import { assetService } from "../services/assetService";
@@ -313,6 +352,10 @@ import FormattedTime from "../components/FormattedTime.vue";
 import CopyToClipboard from "../components/CopyToClipboard.vue";
 import TradesList from "../components/TradesList.vue";
 import LiquidityList from "../components/LiquidityList.vue";
+import FormattedNumber from "../components/FormattedNumber.vue";
+import LiquidityDistribution from "../components/LiquidityDistribution.vue";
+import { AMMType, type Pool } from "../api/models";
+import { poolSpotPrice, SCAM_ZERO_BALANCES_THRESHOLD } from "../utils/poolPrice";
 
 const api = getAVMTradeReporterAPI();
 // assetService caches in localStorage (not reactive); assetInfo() subscribes
@@ -324,9 +367,21 @@ const poolAddress = computed(() => route.params.poolAddress as string);
 const loading = ref(false);
 const error = ref("");
 const poolInfo = ref<AMMPool | null>(null);
+// the API pool as returned, for the fields the AMMPool view model does not carry (prices, ranges, volume)
+const rawPool = ref<Pool | null>(null);
+
+// navigation can start a new load before the previous one answered: only the latest may update the page
+let loadSequence = 0;
 
 const loadPoolInfo = async () => {
-  if (!poolAddress.value) return;
+  const sequence = ++loadSequence; // also an empty address invalidates a load still in flight
+  if (!poolAddress.value) {
+    loading.value = false;
+    error.value = "";
+    rawPool.value = null;
+    poolInfo.value = null;
+    return;
+  }
 
   loading.value = true;
   error.value = "";
@@ -339,11 +394,13 @@ const loadPoolInfo = async () => {
       address: poolAddress.value,
       size: 1,
     });
+    if (sequence !== loadSequence) return;
     const poolData = response.data?.[0];
 
     if (!poolData) {
       throw new Error(`Pool not found: ${poolAddress.value}`);
     }
+    rawPool.value = poolData;
 
     // Map the API response to our AMMPool interface
     poolInfo.value = {
@@ -370,29 +427,32 @@ const loadPoolInfo = async () => {
       totalTVLAssetBInUSD: poolData.totalTVLAssetBInUSD ?? undefined,
     };
   } catch (err: unknown) {
+    if (sequence !== loadSequence) return;
+    rawPool.value = null;
+    poolInfo.value = null;
     error.value =
       err instanceof Error ? err.message : "Failed to load pool information";
     console.error("Error loading pool info:", err);
   } finally {
-    loading.value = false;
+    if (sequence === loadSequence) loading.value = false;
   }
 };
 
 const scamRating = computed(() => poolInfo.value?.scamRating ?? 0);
 // Mirrors the backend ScamRatingPolicy.ZeroBalancesThreshold: above 80 the API reports 0 balances.
-const isKnownScam = computed(() => scamRating.value > 80);
+const isKnownScam = computed(() => scamRating.value > SCAM_ZERO_BALANCES_THRESHOLD);
 
 const formatAddress = (address: string): string => {
   if (!address) return "";
   return `${address.slice(0, 8)}...${address.slice(-6)}`;
 };
 
-const getAssetName = (assetId: bigint): string => {
+const getAssetName = (assetId: bigint, preferUnitName = false): string => {
   if (assetId === BigInt(0)) return nativeTokenUnit;
 
   const info = assetInfo(assetId);
   if (!info) return `Asset ${assetId}`;
-  return info.name || info.unitName || `Asset ${assetId}`;
+  return (preferUnitName ? info.unitName || info.name : info.name || info.unitName) || `Asset ${assetId}`;
 };
 
 const formatReserveA = computed(() => {
@@ -422,7 +482,7 @@ const hasLpToken = computed(
 const isPactTickClamm = computed(
   () =>
     poolInfo.value?.protocol === "Pact" &&
-    poolInfo.value?.ammType === "TickBasedCLAMM"
+    poolInfo.value?.ammType === AMMType.TickBasedCLAMM
 );
 
 // Pact CLAMM has no LP token, so there is no on-chain supply to read. As a
@@ -465,29 +525,32 @@ const formatLPSupply = computed(() => {
   return "0";
 });
 
-const currentPrice = computed(() => {
-  if (!poolInfo.value?.a || !poolInfo.value?.b) return "N/A";
+// Spot price of 1 A in B (decimals adjusted). The reserve ratio is not a price for anything but a 50/50 pool with
+// equal decimals - concentrated, weighted, stable and tick based pools need the pool's own price, e.g. Pact ALGO/USDC
+// 3762241535 holds ~170k ALGO and ~3.7k USDC at a price of ~0.09. Tick based pools are priced by their contract
+// price, see poolSpotPrice.
+const spotPrice = computed(() => (rawPool.value ? poolSpotPrice(rawPool.value) : undefined));
+const inverseSpotPrice = computed(() =>
+  spotPrice.value !== undefined && spotPrice.value > 0 ? 1 / spotPrice.value : undefined
+);
 
-  const reserveA = Number(poolInfo.value.a);
-  const reserveB = Number(poolInfo.value.b);
+const unitA = computed(() =>
+  poolInfo.value?.assetIdA === undefined ? "" : getAssetName(poolInfo.value.assetIdA, true)
+);
+const unitB = computed(() =>
+  poolInfo.value?.assetIdB === undefined ? "" : getAssetName(poolInfo.value.assetIdB, true)
+);
+// the pool's decimals, else the asset's (pools enriched before the field existed); undefined while unknown, so
+// the range amounts show a placeholder instead of base units
+const assetDecimals = (assetId: number | null | undefined, poolDecimals: number | null | undefined): number | undefined => {
+  if (poolDecimals != null) return poolDecimals;
+  if (assetId == null) return undefined;
+  return assetInfo(assetId)?.decimals ?? undefined; // the native token (id 0) resolves to its own decimals
+};
+const decimalsA = computed(() => assetDecimals(rawPool.value?.assetIdA, rawPool.value?.assetADecimals));
+const decimalsB = computed(() => assetDecimals(rawPool.value?.assetIdB, rawPool.value?.assetBDecimals));
 
-  if (reserveB === 0) return "N/A";
-
-  const price = reserveA / reserveB;
-  return price.toFixed(6);
-});
-
-const inversePrice = computed(() => {
-  if (!poolInfo.value?.a || !poolInfo.value?.b) return "N/A";
-
-  const reserveA = Number(poolInfo.value.a);
-  const reserveB = Number(poolInfo.value.b);
-
-  if (reserveA === 0) return "N/A";
-
-  const price = reserveB / reserveA;
-  return price.toFixed(6);
-});
+const liquidityRanges = computed(() => rawPool.value?.liquidityRanges ?? []);
 
 const totalValueLockedUsd = computed(() => {
   const tvlA = poolInfo.value?.totalTVLAssetAInUSD;
@@ -514,7 +577,6 @@ const poolUtilization = computed(() => {
   return (ratio * 100).toFixed(2);
 });
 
-onMounted(() => {
-  loadPoolInfo();
-});
+// on mount, and again when navigating between pools (the component is reused)
+watch(poolAddress, () => loadPoolInfo(), { immediate: true });
 </script>

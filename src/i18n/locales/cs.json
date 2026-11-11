@@ -348,7 +348,19 @@
     "noLpToken": "Tento pool neposkytuje LP token",
     "estimatedLpSupply": "Odhad (odvozeno z rezerv)",
     "aggregatedPair": "Agregovaný pár",
-    "allPoolsForPair": "Všechny pooly pro tento pár"
+    "allPoolsForPair": "Všechny pooly pro tento pár",
+    "liquidityDistribution": "Rozložení likvidity",
+    "liquidityDistributionHelp": "Jak je likvidita poolu rozložena v cenách, načteno z jeho on-chain úložiště ticků. Každý sloupec je souvislý úsek ticků se stejnou likviditou; zvýrazněný sloupec obsahuje aktuální cenu.",
+    "rangesCount": "Počet rozsahů likvidity: {count}",
+    "activeRange": "Aktivní rozsah (aktuální cena)",
+    "currentPriceMarker": "Aktuální cena",
+    "priceRange": "Cenový rozsah",
+    "liquidity": "Likvidita",
+    "holds": "Obsahuje",
+    "logScale": "logaritmické měřítko",
+    "showTable": "Zobrazit jako tabulku",
+    "hideTable": "Skrýt tabulku",
+    "priceOf": "Cena 1 {unitName}"
   },
   "aggregatedPools": {
     "title": "Agregované pooly obsahující {assetName}",

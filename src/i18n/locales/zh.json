@@ -348,7 +348,19 @@
     "noLpToken": "该池不提供LP代币",
     "estimatedLpSupply": "估算值（根据储备量推算）",
     "aggregatedPair": "聚合交易对",
-    "allPoolsForPair": "该交易对的所有池"
+    "allPoolsForPair": "该交易对的所有池",
+    "liquidityDistribution": "流动性分布",
+    "liquidityDistributionHelp": "池子的流动性在各价格上的分布，读取自其链上 tick 存储。每根柱子是一段流动性相同的连续 tick；高亮的柱子包含当前价格。",
+    "rangesCount": "流动性区间：{count}",
+    "activeRange": "活跃区间（当前价格）",
+    "currentPriceMarker": "当前价格",
+    "priceRange": "价格区间",
+    "liquidity": "流动性",
+    "holds": "持有",
+    "logScale": "对数刻度",
+    "showTable": "以表格显示",
+    "hideTable": "隐藏表格",
+    "priceOf": "1 {unitName} 的价格"
   },
   "aggregatedPools": {
     "title": "包含 {assetName} 的聚合池",

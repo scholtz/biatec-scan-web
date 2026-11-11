@@ -348,7 +348,19 @@
     "noLpToken": "Este pool no ofrece un token LP",
     "estimatedLpSupply": "Estimado (derivado de las reservas)",
     "aggregatedPair": "Par agregado",
-    "allPoolsForPair": "Todos los pools de este par"
+    "allPoolsForPair": "Todos los pools de este par",
+    "liquidityDistribution": "Distribución de la liquidez",
+    "liquidityDistributionHelp": "Cómo se reparte la liquidez del pool entre los precios, leída de su almacenamiento de ticks en la cadena. Cada barra es un tramo de ticks con la misma liquidez; la barra resaltada contiene el precio actual.",
+    "rangesCount": "Rangos de liquidez: {count}",
+    "activeRange": "Rango activo (precio actual)",
+    "currentPriceMarker": "Precio actual",
+    "priceRange": "Rango de precios",
+    "liquidity": "Liquidez",
+    "holds": "Contiene",
+    "logScale": "escala logarítmica",
+    "showTable": "Mostrar como tabla",
+    "hideTable": "Ocultar tabla",
+    "priceOf": "Precio de 1 {unitName}"
   },
   "aggregatedPools": {
     "title": "Pools agregados que contienen {assetName}",
