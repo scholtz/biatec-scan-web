@@ -6,6 +6,7 @@ import {
   buildLiquidityBars,
   isActiveRange,
   isBoundedPrice,
+  isUnboundedAbove,
   priceDomain,
   priceToX,
 } from "./liquidityDistribution";
@@ -243,5 +244,17 @@ describe("liquidity distribution helpers", () => {
     // a real bound between 1e28 and the decimal.MaxValue clamp is still a price
     expect(isBoundedPrice(5e28)).toBe(true);
     expect(isBoundedPrice(7.9228162514264337593543950335e28)).toBe(false);
+  });
+  it("ignores ranges clamped at both ends when deciding on the window", () => {
+    const ranges: PoolLiquidityRange[] = [
+      { tickLow: 1, tickHigh: 1, liquidity: 9, pMin: 0, pMax: 0 },
+      { tickLow: 2, tickHigh: 2, liquidity: 9, pMin: 79228162514264337593543950335, pMax: 79228162514264337593543950335 },
+      { tickLow: 3, tickHigh: 3, liquidity: 5, pMin: 0.13, pMax: 0.25 },
+    ];
+    // depleted pool far below its only real range: the axis widens to it instead of a window with no bars
+    expect(priceDomain(ranges, 0.0009)).toEqual({ min: 0.0009, max: 0.25 });
+    expect(buildLiquidityBars(ranges, 0.0009, 100, 50).map((b) => b.range.tickLow)).toEqual([3]);
+    expect(isUnboundedAbove(79228162514264337593543950335)).toBe(true);
+    expect(isUnboundedAbove(0)).toBe(false);
   });
 });

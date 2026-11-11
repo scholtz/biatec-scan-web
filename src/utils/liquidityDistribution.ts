@@ -38,12 +38,18 @@ export const DOMAIN_WINDOW_FACTOR = 100;
 /** A range whose upper bound is more than this factor above its lower one does not size the axis. */
 export const WIDE_RANGE_RATIO = 10;
 
-/**
- * The backend clamps prices outside the decimal range (extreme ticks) to 0 / decimal.MaxValue, meaning "unbounded".
- */
 /** decimal.MaxValue (~7.9228e28) - the backend's clamp for "unbounded above"; anything this large is that clamp. */
 const DECIMAL_MAX_CLAMP = 7.92e28;
 
+/** True for the backend's "unbounded above" clamp (decimal.MaxValue). */
+export function isUnboundedAbove(price: number | null | undefined): boolean {
+  return price !== undefined && price !== null && (!Number.isFinite(price) || price >= DECIMAL_MAX_CLAMP);
+}
+
+/**
+ * The backend clamps prices outside the decimal range (extreme ticks) to 0 / decimal.MaxValue, meaning "unbounded":
+ * true for a real (bounded) price.
+ */
 export function isBoundedPrice(price: number | null | undefined): price is number {
   return price !== undefined && price !== null && Number.isFinite(price) && price > 0 && price < DECIMAL_MAX_CLAMP;
 }
@@ -75,9 +81,12 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
     const windowMin = Math.max(min, currentPrice / DOMAIN_WINDOW_FACTOR);
     const windowMax = Math.min(max, currentPrice * DOMAIN_WINDOW_FACTOR);
     // any range overlapping the window counts, also a wide one straddling all of it
-    const anyRangeInWindow = ranges.some(
-      (r) => (isBoundedPrice(r.pMin) ? r.pMin : 0) < windowMax && (isBoundedPrice(r.pMax) ? r.pMax : Infinity) > windowMin
-    );
+    const anyRangeInWindow = ranges.some((r) => {
+      const low = isUnboundedAbove(r.pMin) ? Infinity : isBoundedPrice(r.pMin) ? r.pMin : 0;
+      const high = isUnboundedAbove(r.pMax) ? Infinity : isBoundedPrice(r.pMax) ? r.pMax : 0;
+      // a range clamped at both ends (0..0 or max..max) lies off the axis and covers nothing
+      return high > low && low < windowMax && high > windowMin;
+    });
     if (anyRangeInWindow && windowMax > windowMin) return { min: windowMin, max: windowMax };
   }
   return max > min ? { min, max } : { min: min / 1.01, max: max * 1.01 };

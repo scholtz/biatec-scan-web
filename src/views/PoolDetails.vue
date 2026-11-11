@@ -334,7 +334,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { AMMPool } from "../types/algorand";
 import { assetService } from "../services/assetService";
@@ -564,11 +564,6 @@ const poolUtilization = computed(() => {
   return (ratio * 100).toFixed(2);
 });
 
-onMounted(() => {
-  loadPoolInfo();
-});
-// the component is reused when navigating between pools
-watch(poolAddress, (address, previous) => {
-  if (address !== previous) loadPoolInfo();
-});
+// on mount, and again when navigating between pools (the component is reused)
+watch(poolAddress, () => loadPoolInfo(), { immediate: true });
 </script>

@@ -35,6 +35,7 @@
             :d="barPath(bar, PLOT_BOTTOM, RADIUS)"
             :fill="bar.active ? ACTIVE_COLOR : BAR_COLOR"
             :data-testid="bar.active ? 'liquidity-bar-active' : 'liquidity-bar'"
+            pointer-events="none"
           />
           <!-- hit target larger than the mark: the full column height, tiling the axis with its neighbours -->
           <rect
@@ -44,7 +45,7 @@
             :height="PLOT_BOTTOM"
             fill="transparent"
             @mouseenter="hovered = bar"
-            @click="hovered = bar"
+            @click="toggleBar(bar)"
           />
         </g>
         <line
@@ -70,11 +71,10 @@
       >
         <div class="font-medium mb-1">
           {{ $t("poolDetails.priceRange") }}:
-          <FormattedNumber :value="lowerBound(hovered.range)" :maximum-significant-digits="6" /> –
-          <template v-if="isBoundedPrice(hovered.range.pMax)">
-            <FormattedNumber :value="hovered.range.pMax" :maximum-significant-digits="6" />
-          </template>
-          <template v-else>∞</template>
+          <template v-if="isUnboundedAbove(hovered.range.pMin)">∞</template>
+          <FormattedNumber v-else :value="boundValue(hovered.range.pMin)" :maximum-significant-digits="6" /> –
+          <template v-if="isUnboundedAbove(hovered.range.pMax)">∞</template>
+          <FormattedNumber v-else :value="boundValue(hovered.range.pMax)" :maximum-significant-digits="6" />
           {{ unitB }} / {{ unitA }}
         </div>
         <div class="text-gray-300">
@@ -126,11 +126,10 @@
             :class="row.active ? 'bg-blue-500/10' : ''"
           >
             <td class="py-1 pr-3">
-              <FormattedNumber :value="lowerBound(row.range)" :maximum-significant-digits="6" /> –
-              <template v-if="isBoundedPrice(row.range.pMax)">
-                <FormattedNumber :value="row.range.pMax" :maximum-significant-digits="6" />
-              </template>
-              <template v-else>∞</template>
+              <template v-if="isUnboundedAbove(row.range.pMin)">∞</template>
+              <FormattedNumber v-else :value="boundValue(row.range.pMin)" :maximum-significant-digits="6" /> –
+              <template v-if="isUnboundedAbove(row.range.pMax)">∞</template>
+              <FormattedNumber v-else :value="boundValue(row.range.pMax)" :maximum-significant-digits="6" />
             </td>
             <td class="py-1 pr-3 text-right">
               <FormattedNumber :value="row.range.liquidity" compact :maximum-significant-digits="4" />
@@ -157,6 +156,7 @@ import {
   buildLiquidityBars,
   isActiveRange,
   isBoundedPrice,
+  isUnboundedAbove,
   priceDomain,
   priceToX,
   rangeKey,
@@ -224,8 +224,13 @@ const priceX = computed(() =>
   isBoundedPrice(props.currentPrice) && domain.value ? priceToX(props.currentPrice, domain.value, width.value) : null
 );
 
-// the backend clamps unbounded ends to 0 / decimal.MaxValue: show 0 and ∞
-const lowerBound = (range: PoolLiquidityRange): number => (isBoundedPrice(range.pMin) ? range.pMin : 0);
+// the backend clamps unbounded ends to 0 / decimal.MaxValue: each bound shows as 0, its price, or ∞ (template)
+const boundValue = (price: number | undefined): number => (isBoundedPrice(price) ? price : 0);
+
+// a tap on the open bar closes its tooltip (touch screens get no mouseleave)
+const toggleBar = (bar: LiquidityBar) => {
+  hovered.value = hovered.value?.key === bar.key ? null : bar;
+};
 
 const amount = (base: number | undefined, decimals: number | undefined): number | undefined =>
   decimals === undefined ? undefined : (base ?? 0) / Math.pow(10, decimals);
