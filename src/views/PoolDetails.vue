@@ -143,6 +143,7 @@
             </div>
             <div
               v-if="
+                !isKnownScam &&
                 poolInfo.assetIdA !== undefined &&
                 poolInfo.assetIdB !== undefined
               "
@@ -150,7 +151,7 @@
             >
               <span class="text-gray-400">{{
                 $t("poolDetails.aggregatedPair")
-              }}</span>
+              }}:</span>
               <router-link
                 :to="{
                   name: 'PoolsByAssets',
