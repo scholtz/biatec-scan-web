@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { AMMType, type Pool, type PoolLiquidityRange } from "../api/models";
 import poolFixture from "../../e2e/fixtures/pact-clamm-3762241535-pool.json";
 import {
@@ -10,6 +10,7 @@ import {
   priceDomain,
   priceToX,
   rangeBounds,
+  reverseLiquidityRange,
 } from "./liquidityDistribution";
 import { poolSpotPrice } from "./poolPrice";
 
@@ -275,5 +276,44 @@ describe("liquidity distribution helpers", () => {
     const tick = { ammType: AMMType.TickBasedCLAMM, a: 170e9, b: 3.7e9, virtualAmountA: 170000, virtualAmountB: 3700 } as Pool;
     expect(poolSpotPrice(tick)).toBeUndefined();
     expect(poolSpotPrice({ ...tick, currentPrice: 0 })).toBeUndefined();
+  });
+  it("reverses a range like the backend does", () => {
+    const max = 79228162514264337593543950335;
+    expect(reverseLiquidityRange({ tickLow: 1, tickHigh: 2, liquidity: 9, pMin: 0.5, pMax: 4, a: 10, b: 20 })).toEqual({
+      tickLow: 1,
+      tickHigh: 2,
+      liquidity: 9,
+      pMin: 0.25,
+      pMax: 2,
+      a: 20,
+      b: 10,
+    });
+    // the clamped ends map onto each other
+    expect(reverseLiquidityRange({ pMin: 0, pMax: max })).toMatchObject({ pMin: 0, pMax: max });
+    expect(reverseLiquidityRange({ pMin: 0, pMax: 4 })).toMatchObject({ pMin: 0.25, pMax: max });
+  });
+
+  it("prices a reversed tick based pool in the reversed orientation (pools list)", async () => {
+    // assetService reads localStorage when loaded - a stand-in for the browser storage
+    const store = new Map<string, string>();
+    vi.stubGlobal("localStorage", {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => void store.set(key, value),
+      removeItem: (key: string) => void store.delete(key),
+      clear: () => store.clear(),
+      key: (index: number) => [...store.keys()][index] ?? null,
+      get length() {
+        return store.size;
+      },
+    });
+    const { assetService } = await import("../services/assetService");
+    // PoolsByAssets flips pools with assetService.reversePool: ALGO/USDC 3762241535 shown as USDC/ALGO
+    const reversed = assetService.reversePool(pool);
+    expect(poolSpotPrice(reversed)).toBeCloseTo(1 / 0.0899307842, 4);
+    const bars = buildLiquidityBars(reversed.liquidityRanges ?? [], poolSpotPrice(reversed), 1000, 200, 2, reversed.currentTick);
+    expect(bars.filter((b) => b.active).map((b) => b.range.tickLow)).toEqual([1000401]);
+    const active = bars.find((b) => b.active)!;
+    expect(active.range.a).toBe(ranges.find((r) => r.tickLow === 1000401)!.b);
+    vi.unstubAllGlobals();
   });
 });

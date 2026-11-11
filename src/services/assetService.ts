@@ -1,4 +1,5 @@
 import { algorandService } from "./algorandService";
+import { reverseLiquidityRange } from "../utils/liquidityDistribution";
 import { getTokenFromLocalStorage } from "../scripts/algo/getTokenFromLocalStorage";
 import { getTokenFromAlgod } from "../scripts/algo/getTokenFromAlgod";
 import { AggregatedPool, Pool } from "../api/models";
@@ -356,6 +357,10 @@ class AssetService {
       // them and flips which bound is the min vs the max.
       pMin: this.invertPriceBound(pool.pMax),
       pMax: this.invertPriceBound(pool.pMin),
+      // tick based CLAMM pools: the contract price and the liquidity ranges are A/B quantities too (as the backend
+      // Pool.Reverse() does) - poolSpotPrice prices those pools by currentPrice
+      currentPrice: pool.currentPrice ? 1 / pool.currentPrice : pool.currentPrice,
+      liquidityRanges: pool.liquidityRanges?.map(reverseLiquidityRange),
       realAmountA: pool.realAmountB,
       realAmountB: pool.realAmountA,
       virtualAmountA: pool.virtualAmountB,

@@ -40,6 +40,7 @@ export const WIDE_RANGE_RATIO = 10;
 
 /** decimal.MaxValue (~7.9228e28) - the backend's clamp for "unbounded above"; anything this large is that clamp. */
 const DECIMAL_MAX_CLAMP = 7.92e28;
+const DECIMAL_MAX = 79228162514264337593543950335;
 
 /** True for the backend's "unbounded above" clamp (decimal.MaxValue). */
 export function isUnboundedAbove(price: number | null | undefined): boolean {
@@ -185,6 +186,19 @@ export function buildLiquidityBars(
 /** Stable key of a range: its tick bounds (unique per pool), the index for a range without them. */
 export function rangeKey(range: PoolLiquidityRange, index: number): string {
   return range.tickLow !== undefined && range.tickHigh !== undefined ? `${range.tickLow}-${range.tickHigh}` : `#${index}`;
+}
+
+/**
+ * The same range seen from the other asset, as the backend's PoolLiquidityRange.Reverse(): prices inverted (the
+ * clamped ends 0 and decimal.MaxValue map onto each other), amounts swapped, tick bounds kept.
+ */
+export function reverseLiquidityRange(range: PoolLiquidityRange): PoolLiquidityRange {
+  const invert = (price: number | undefined): number | undefined => {
+    if (price === undefined) return undefined;
+    if (isUnboundedAbove(price)) return 0;
+    return isBoundedPrice(price) ? 1 / price : DECIMAL_MAX;
+  };
+  return { ...range, pMin: invert(range.pMax), pMax: invert(range.pMin), a: range.b, b: range.a };
 }
 
 /** SVG path of a bar with rounded top corners, square at the baseline. */
