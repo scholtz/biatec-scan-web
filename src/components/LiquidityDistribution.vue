@@ -30,7 +30,7 @@
       >
         <!-- baseline -->
         <line :x1="0" :x2="width" :y1="PLOT_BOTTOM" :y2="PLOT_BOTTOM" stroke="#334155" stroke-width="1" />
-        <g v-for="bar in bars" :key="bar.key">
+        <g v-for="bar in drawOrder" :key="bar.key">
           <path
             :d="barPath(bar, PLOT_BOTTOM, RADIUS)"
             :fill="bar.active ? ACTIVE_COLOR : BAR_COLOR"
@@ -213,6 +213,9 @@ const domain = computed(() => priceDomain(props.ranges, props.currentPrice));
 const bars = computed(() =>
   buildLiquidityBars(props.ranges, props.currentPrice, width.value, PLOT_BOTTOM - 8, 2, props.currentTick, domain.value)
 );
+// the active bar is painted last: sub-pixel neighbours (drawn at least 1 unit wide) never cover the highlight
+const drawOrder = computed(() => [...bars.value.filter((b) => !b.active), ...bars.value.filter((b) => b.active)]);
+
 // a tooltip of a range that is gone must not linger; a resize keeps it (on the re-laid-out bar)
 watch(bars, (next) => {
   hovered.value = hovered.value ? (next.find((bar) => bar.key === hovered.value?.key) ?? null) : null;

@@ -370,6 +370,7 @@ const loadPoolInfo = async () => {
   const sequence = ++loadSequence; // also an empty address invalidates a load still in flight
   if (!poolAddress.value) {
     loading.value = false;
+    error.value = "";
     rawPool.value = null;
     poolInfo.value = null;
     return;
