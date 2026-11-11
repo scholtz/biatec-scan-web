@@ -45,7 +45,7 @@
             :height="PLOT_BOTTOM"
             fill="transparent"
             @pointerenter="onPointerEnter($event, bar)"
-            @click="toggleBar(bar)"
+            @pointerup="onPointerUp($event, bar)"
           />
         </g>
         <line
@@ -231,7 +231,11 @@ const boundValue = (price: number | undefined): number => (isBoundedPrice(price)
 const onPointerEnter = (event: PointerEvent, bar: LiquidityBar) => {
   if (event.pointerType === "mouse") hovered.value = bar;
 };
-const toggleBar = (bar: LiquidityBar) => {
+const onPointerUp = (event: PointerEvent, bar: LiquidityBar) => {
+  if (event.pointerType === "mouse") {
+    hovered.value = bar; // a click never hides what the hover shows
+    return;
+  }
   hovered.value = hovered.value?.key === bar.key ? null : bar;
 };
 
