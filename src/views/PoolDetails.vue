@@ -306,10 +306,11 @@
           <LiquidityDistribution
             :ranges="liquidityRanges"
             :current-price="spotPrice"
+            :current-tick="rawPool?.currentTick"
             :unit-a="unitA"
             :unit-b="unitB"
-            :decimals-a="rawPool?.assetADecimals ?? 0"
-            :decimals-b="rawPool?.assetBDecimals ?? 0"
+            :decimals-a="decimalsA"
+            :decimals-b="decimalsB"
           />
         </div>
 
@@ -408,6 +409,7 @@ const loadPoolInfo = async () => {
       totalTVLAssetBInUSD: poolData.totalTVLAssetBInUSD ?? undefined,
     };
   } catch (err: unknown) {
+    rawPool.value = null;
     error.value =
       err instanceof Error ? err.message : "Failed to load pool information";
     console.error("Error loading pool info:", err);
@@ -425,12 +427,12 @@ const formatAddress = (address: string): string => {
   return `${address.slice(0, 8)}...${address.slice(-6)}`;
 };
 
-const getAssetName = (assetId: bigint): string => {
+const getAssetName = (assetId: bigint, preferUnitName = false): string => {
   if (assetId === BigInt(0)) return nativeTokenUnit;
 
   const info = assetInfo(assetId);
   if (!info) return `Asset ${assetId}`;
-  return info.name || info.unitName || `Asset ${assetId}`;
+  return (preferUnitName ? info.unitName || info.name : info.name || info.unitName) || `Asset ${assetId}`;
 };
 
 const formatReserveA = computed(() => {
@@ -504,21 +506,39 @@ const formatLPSupply = computed(() => {
 });
 
 // Spot price of 1 A in B (decimals adjusted). The reserve ratio is not a price for anything but a 50/50 pool with
-// equal decimals - concentrated, weighted, stable and tick based pools need the pool's own price (virtual amounts /
-// contract price), e.g. Pact ALGO/USDC 3762241535 holds ~170k ALGO and ~3.7k USDC at a price of ~0.09.
-const spotPrice = computed(() => (rawPool.value ? poolSpotPrice(rawPool.value) : undefined));
+// equal decimals - concentrated, weighted, stable and tick based pools need the pool's own price, e.g. Pact ALGO/USDC
+// 3762241535 holds ~170k ALGO and ~3.7k USDC at a price of ~0.09. A tick based pool carries its contract price; any
+// pool falls back to it when its virtual amounts are missing (e.g. zeroed balances).
+const spotPrice = computed(() => {
+  const pool = rawPool.value;
+  if (!pool) return undefined;
+  const contractPrice = pool.currentPrice != null && pool.currentPrice > 0 ? pool.currentPrice : undefined;
+  if (pool.ammType === "TickBasedCLAMM" && contractPrice !== undefined) return contractPrice;
+  return poolSpotPrice(pool) ?? contractPrice;
+});
 const inverseSpotPrice = computed(() =>
   spotPrice.value !== undefined && spotPrice.value > 0 ? 1 / spotPrice.value : undefined
 );
 
-const getAssetUnit = (assetId: bigint | undefined): string => {
-  if (assetId === undefined) return "";
-  if (assetId === BigInt(0)) return nativeTokenUnit;
-  const info = assetInfo(assetId);
-  return info?.unitName || info?.name || `Asset ${assetId}`;
-};
-const unitA = computed(() => getAssetUnit(poolInfo.value?.assetIdA));
-const unitB = computed(() => getAssetUnit(poolInfo.value?.assetIdB));
+const unitA = computed(() =>
+  poolInfo.value?.assetIdA === undefined ? "" : getAssetName(poolInfo.value.assetIdA, true)
+);
+const unitB = computed(() =>
+  poolInfo.value?.assetIdB === undefined ? "" : getAssetName(poolInfo.value.assetIdB, true)
+);
+// the pool's decimals, else the asset's (pools enriched before the field existed)
+const decimalsA = computed(
+  () =>
+    rawPool.value?.assetADecimals ??
+    (poolInfo.value?.assetIdA !== undefined ? assetInfo(poolInfo.value.assetIdA)?.decimals : undefined) ??
+    0
+);
+const decimalsB = computed(
+  () =>
+    rawPool.value?.assetBDecimals ??
+    (poolInfo.value?.assetIdB !== undefined ? assetInfo(poolInfo.value.assetIdB)?.decimals : undefined) ??
+    0
+);
 
 const liquidityRanges = computed(() => rawPool.value?.liquidityRanges ?? []);
 

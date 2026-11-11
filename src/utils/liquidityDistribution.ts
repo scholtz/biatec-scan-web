@@ -16,6 +16,9 @@ export interface LiquidityBar {
   height: number;
   /** The range holding the current price. */
   active: boolean;
+  /** Hover target: the bar plus half of the gaps around it - contiguous with the neighbours, never overlapping. */
+  hitX: number;
+  hitWidth: number;
 }
 
 export interface PriceDomain {
@@ -24,16 +27,42 @@ export interface PriceDomain {
 }
 
 /**
+ * The chart shows at most this factor below and above the current price: a single very wide position must not squash
+ * every concentrated range into a sliver. Ranges outside stay in the table view.
+ */
+export const DOMAIN_WINDOW_FACTOR = 100;
+
+/** A range whose upper bound is more than this factor above its lower one does not size the axis. */
+export const WIDE_RANGE_RATIO = 10;
+
+/**
  * The backend clamps prices outside the decimal range (extreme ticks) to 0 / decimal.MaxValue, meaning "unbounded".
  */
 export function isBoundedPrice(price: number | null | undefined): price is number {
   return price !== undefined && price !== null && Number.isFinite(price) && price > 0 && price < 1e28;
 }
 
-export function priceDomain(ranges: PoolLiquidityRange[]): PriceDomain | null {
-  const bounds = ranges.flatMap((r) => [r.pMin, r.pMax]).filter(isBoundedPrice);
+/**
+ * The price span of the ranges with at least one bounded end, limited to {@link DOMAIN_WINDOW_FACTOR} around the
+ * current price when it is known.
+ */
+export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number): PriceDomain | null {
+  // the concentrated ranges span the axis; a wide position (e.g. near full range) just extends to its edges
+  const concentrated = ranges.filter(
+    (r) => isBoundedPrice(r.pMin) && isBoundedPrice(r.pMax) && r.pMax / r.pMin <= WIDE_RANGE_RATIO
+  );
+  const bounds = (concentrated.length > 0 ? concentrated : ranges)
+    .flatMap((r) => [r.pMin, r.pMax])
+    .filter(isBoundedPrice);
   if (bounds.length === 0) return null;
-  return { min: Math.min(...bounds), max: Math.max(...bounds) };
+  let min = Math.min(...bounds);
+  let max = Math.max(...bounds);
+  if (isBoundedPrice(currentPrice)) {
+    min = Math.max(min, currentPrice / DOMAIN_WINDOW_FACTOR);
+    max = Math.min(max, currentPrice * DOMAIN_WINDOW_FACTOR);
+    if (max <= min) return null;
+  }
+  return { min, max };
 }
 
 /** Position of a price on the log axis, clamped to [0, width]. */
@@ -43,7 +72,18 @@ export function priceToX(price: number, domain: PriceDomain, width: number): num
   return Math.min(width, Math.max(0, t * width));
 }
 
-export function isActiveRange(range: PoolLiquidityRange, currentPrice: number | undefined): boolean {
+/**
+ * The range holding the current price. The contract's current tick decides when known (as on the backend: exact also
+ * on a tick boundary, where two ranges share the boundary price); the price is the fallback.
+ */
+export function isActiveRange(
+  range: PoolLiquidityRange,
+  currentPrice: number | undefined,
+  currentTick?: number | null
+): boolean {
+  if (currentTick !== undefined && currentTick !== null && range.tickLow !== undefined && range.tickHigh !== undefined) {
+    return range.tickLow <= currentTick && currentTick <= range.tickHigh;
+  }
   return (
     currentPrice !== undefined &&
     range.pMin !== undefined &&
@@ -55,20 +95,28 @@ export function isActiveRange(range: PoolLiquidityRange, currentPrice: number | 
 
 /**
  * Bars ordered left to right. Adjacent bars keep a `gap` of chart units between them; every bar is at least 1 unit
- * wide and tall so a thin range stays visible.
+ * wide and tall so a thin range stays visible. Ranges entirely outside the domain - including those with both ends
+ * clamped to "unbounded" - are not drawn.
  */
 export function buildLiquidityBars(
   ranges: PoolLiquidityRange[],
   currentPrice: number | undefined,
   width: number,
   maxHeight: number,
-  gap = 2
+  gap = 2,
+  currentTick?: number | null
 ): LiquidityBar[] {
-  const domain = priceDomain(ranges);
+  const domain = priceDomain(ranges, currentPrice);
   if (!domain) return [];
-  const maxLiquidity = Math.max(0, ...ranges.map((r) => r.liquidity ?? 0));
+  const visible = ranges.filter((r) => {
+    const low = isBoundedPrice(r.pMin) ? r.pMin : r.pMin === 0 ? 0 : undefined;
+    const high = isBoundedPrice(r.pMax) ? r.pMax : r.pMax !== undefined && r.pMax > 0 ? Infinity : undefined;
+    if (low === undefined || high === undefined) return false;
+    return high > domain.min && low < domain.max && (isBoundedPrice(r.pMin) || isBoundedPrice(r.pMax));
+  });
+  const maxLiquidity = Math.max(0, ...visible.map((r) => r.liquidity ?? 0));
   if (maxLiquidity <= 0) return [];
-  return ranges
+  const bars = visible
     .map((range) => {
       const left = priceToX(isBoundedPrice(range.pMin) ? range.pMin : domain.min, domain, width);
       const right = priceToX(isBoundedPrice(range.pMax) ? range.pMax : domain.max, domain, width);
@@ -78,10 +126,21 @@ export function buildLiquidityBars(
         x: Math.min(left, right) + gap / 2,
         width: Math.max(1, Math.abs(right - left) - gap),
         height: Math.max(1, ((range.liquidity ?? 0) / maxLiquidity) * maxHeight),
-        active: isActiveRange(range, currentPrice),
+        active: isActiveRange(range, currentPrice, currentTick),
+        hitX: Math.min(left, right),
+        hitWidth: Math.max(1, Math.abs(right - left)),
       };
     })
     .sort((a, b) => a.x - b.x);
+  // hover targets tile the axis: each range's price span, extended to the midpoint of any gap to its neighbours
+  const spans = bars.map((b) => ({ left: b.hitX, right: b.hitX + b.hitWidth }));
+  for (let i = 0; i < bars.length; i++) {
+    const start = i === 0 ? 0 : (spans[i - 1].right + spans[i].left) / 2;
+    const end = i === bars.length - 1 ? width : (spans[i].right + spans[i + 1].left) / 2;
+    bars[i].hitX = Math.min(start, spans[i].left);
+    bars[i].hitWidth = Math.max(end, spans[i].right) - bars[i].hitX;
+  }
+  return bars;
 }
 
 /** SVG path of a bar with rounded top corners, square at the baseline. */

@@ -36,11 +36,11 @@
             :fill="bar.active ? ACTIVE_COLOR : BAR_COLOR"
             :data-testid="bar.active ? 'liquidity-bar-active' : 'liquidity-bar'"
           />
-          <!-- hit target larger than the mark: the full column height -->
+          <!-- hit target larger than the mark: the full column height, tiling the axis with its neighbours -->
           <rect
-            :x="bar.x"
+            :x="bar.hitX"
             :y="0"
-            :width="Math.max(bar.width, 6)"
+            :width="bar.hitWidth"
             :height="PLOT_BOTTOM"
             fill="transparent"
             @mouseenter="hovered = bar"
@@ -56,6 +56,7 @@
           stroke-width="1.5"
           stroke-dasharray="4 3"
           vector-effect="non-scaling-stroke"
+          pointer-events="none"
           data-testid="liquidity-price-marker"
         />
       </svg>
@@ -157,6 +158,8 @@ const props = defineProps<{
   ranges: PoolLiquidityRange[];
   /** Current price of 1 A in B (decimals adjusted). */
   currentPrice?: number;
+  /** The contract's current tick: decides the active range (as on the backend), the price is the fallback. */
+  currentTick?: number | null;
   unitA: string;
   unitB: string;
   decimalsA: number;
@@ -174,8 +177,10 @@ const RADIUS = 4; // rounded data end
 const hovered = ref<LiquidityBar | null>(null);
 const showTable = ref(false);
 
-const domain = computed(() => priceDomain(props.ranges));
-const bars = computed(() => buildLiquidityBars(props.ranges, props.currentPrice, WIDTH, PLOT_BOTTOM - 8));
+const domain = computed(() => priceDomain(props.ranges, props.currentPrice));
+const bars = computed(() =>
+  buildLiquidityBars(props.ranges, props.currentPrice, WIDTH, PLOT_BOTTOM - 8, 2, props.currentTick)
+);
 
 const priceX = computed(() =>
   isBoundedPrice(props.currentPrice) && domain.value ? priceToX(props.currentPrice, domain.value, WIDTH) : null

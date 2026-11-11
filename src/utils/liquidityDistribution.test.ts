@@ -29,7 +29,7 @@ describe("liquidity distribution of Pact CLAMM 3762241535", () => {
   });
 
   it("highlights exactly the range holding the current price (tick 1000401)", () => {
-    const bars = buildLiquidityBars(ranges, pool.currentPrice ?? undefined, 1000, 200);
+    const bars = buildLiquidityBars(ranges, pool.currentPrice ?? undefined, 1000, 200, 2, pool.currentTick);
     const active = bars.filter((b) => b.active);
     expect(active).toHaveLength(1);
     expect(active[0].range.tickLow).toBe(1000401);
@@ -69,15 +69,62 @@ describe("liquidity distribution helpers", () => {
     expect(isBoundedPrice(7.9e28)).toBe(false);
     expect(isBoundedPrice(undefined)).toBe(false);
     expect(isBoundedPrice(0.09)).toBe(true);
-    // an unbounded range extends to the domain edge instead of breaking the axis
-    const wide: PoolLiquidityRange[] = [
-      { tickLow: 1, tickHigh: 1, liquidity: 10, pMin: 0, pMax: 2 },
-      { tickLow: 2, tickHigh: 2, liquidity: 5, pMin: 2, pMax: 8 },
+    // a half-unbounded range extends to the domain edge instead of breaking the axis
+    const halfOpen: PoolLiquidityRange[] = [
+      { tickLow: 1, tickHigh: 1, liquidity: 10, pMin: 1, pMax: 2 },
+      { tickLow: 2, tickHigh: 2, liquidity: 5, pMin: 2, pMax: 7.9e28 },
     ];
-    expect(priceDomain(wide)).toEqual({ min: 2, max: 8 });
-    const bars = buildLiquidityBars(wide, 3, 100, 50, 0);
+    expect(priceDomain(halfOpen)).toEqual({ min: 1, max: 2 });
+    const bars = buildLiquidityBars(halfOpen, 1.5, 100, 50, 0);
+    expect(bars).toHaveLength(1); // the range above 2 starts at the domain end: nothing of it is visible
     expect(bars[0].x).toBe(0);
-    expect(bars[1].x + bars[1].width).toBeCloseTo(100);
+    expect(bars[0].x + bars[0].width).toBeCloseTo(100);
+  });
+
+  it("does not draw ranges clamped entirely off the axis", () => {
+    // both bounds clamped (extreme ticks): not a bar across the whole chart
+    const ranges: PoolLiquidityRange[] = [
+      { tickLow: 1, tickHigh: 1, liquidity: 1000, pMin: 0, pMax: 0 },
+      { tickLow: 2, tickHigh: 2, liquidity: 1000, pMin: 7.9e28, pMax: 7.9e28 },
+      { tickLow: 3, tickHigh: 3, liquidity: 5, pMin: 2, pMax: 4 },
+    ];
+    const bars = buildLiquidityBars(ranges, 3, 100, 50, 0);
+    expect(bars.map((b) => b.range.tickLow)).toEqual([3]);
+    // and the off-axis liquidity does not flatten the visible bar
+    expect(bars[0].height).toBeCloseTo(50);
+  });
+
+  it("keeps the axis to a window around the current price", () => {
+    // a near full-range position must not squash the concentrated ranges into slivers
+    const ranges: PoolLiquidityRange[] = [
+      { tickLow: 1, tickHigh: 1, liquidity: 1, pMin: 1e-20, pMax: 1e20 },
+      { tickLow: 2, tickHigh: 2, liquidity: 50, pMin: 0.09, pMax: 0.0906 },
+      { tickLow: 3, tickHigh: 3, liquidity: 40, pMin: 0.0906, pMax: 0.0912 },
+    ];
+    expect(priceDomain(ranges, 0.09)).toEqual({ min: 0.09, max: 0.0912 });
+    const bars = buildLiquidityBars(ranges, 0.09, 1000, 50);
+    const concentrated = bars.filter((b) => b.range.tickLow !== 1);
+    for (const bar of concentrated) expect(bar.width).toBeGreaterThan(100);
+    // the wide position is drawn across the whole axis, behind nothing it could hide
+    expect(bars.find((b) => b.range.tickLow === 1)?.width).toBeCloseTo(998);
+    // the window around the price still applies to a spread of concentrated ranges
+    const spread: PoolLiquidityRange[] = [
+      { tickLow: 1, tickHigh: 1, liquidity: 1, pMin: 1e-9, pMax: 2e-9 },
+      { tickLow: 2, tickHigh: 2, liquidity: 1, pMin: 0.09, pMax: 0.1 },
+    ];
+    expect(priceDomain(spread, 0.09)).toEqual({ min: 0.0009, max: 0.1 });
+  });
+
+  it("tiles the hover targets without overlap", () => {
+    const bars = buildLiquidityBars(ranges, pool.currentPrice ?? undefined, 1000, 200);
+    expect(bars[0].hitX).toBe(0);
+    const last = bars[bars.length - 1];
+    expect(last.hitX + last.hitWidth).toBeCloseTo(1000);
+    for (let i = 0; i < bars.length; i++) {
+      expect(bars[i].hitX).toBeLessThanOrEqual(bars[i].x);
+      expect(bars[i].hitX + bars[i].hitWidth).toBeGreaterThanOrEqual(bars[i].x + bars[i].width);
+      if (i > 0) expect(bars[i].hitX).toBeCloseTo(bars[i - 1].hitX + bars[i - 1].hitWidth);
+    }
   });
 
   it("maps prices on a log axis", () => {
@@ -92,7 +139,13 @@ describe("liquidity distribution helpers", () => {
     expect(isActiveRange({ pMin: 1, pMax: 2 }, 1.5)).toBe(true);
     expect(isActiveRange({ pMin: 1, pMax: 2 }, 3)).toBe(false);
     expect(isActiveRange({ pMin: 1, pMax: 2 }, undefined)).toBe(false);
-    const path = barPath({ key: "k", range: {}, x: 10, width: 20, height: 30, active: false }, 100);
+    // the contract's tick decides when known: on a shared boundary price only one range is active
+    const below: PoolLiquidityRange = { tickLow: 10, tickHigh: 12, pMin: 1, pMax: 2 };
+    const above: PoolLiquidityRange = { tickLow: 13, tickHigh: 15, pMin: 2, pMax: 3 };
+    expect(isActiveRange(below, 2, 13)).toBe(false);
+    expect(isActiveRange(above, 2, 13)).toBe(true);
+    expect(isActiveRange(below, 2)).toBe(true); // price fallback without a tick
+    const path = barPath({ key: "k", range: {}, x: 10, width: 20, height: 30, active: false, hitX: 10, hitWidth: 20 }, 100);
     expect(path.startsWith("M10,100 ")).toBe(true);
     expect(path).toContain("Q10,70 14,70");
     expect(path.endsWith("L30,100 Z")).toBe(true);
