@@ -12,9 +12,17 @@ import { AMMType, AggregatedPool, Pool } from "../api/models";
  * for such pools (see scholtz/AVMTradeReporter#17), so dividing them yields
  * garbage; the range price is the authoritative value here.
  *
- * All other pools price as virtualAmountB / virtualAmountA.
+ * Tick based CLAMM pools (Pact CLAMM) carry the contract price (`currentPrice`, from the pool's sqrt price) - the
+ * exact value the reserves are derived from.
+ *
+ * All other pools price as virtualAmountB / virtualAmountA, falling back to `currentPrice` when the virtual amounts
+ * are missing (e.g. zeroed balances).
  */
 export function poolSpotPrice(p: Pool): number | undefined {
+  const contractPrice = p.currentPrice != null && p.currentPrice > 0 ? p.currentPrice : undefined;
+  if (p.ammType === AMMType.TickBasedCLAMM && contractPrice !== undefined) {
+    return contractPrice;
+  }
   if (
     p.ammType === AMMType.ConcentratedLiquidityAMM &&
     p.pMin != null &&
@@ -24,7 +32,7 @@ export function poolSpotPrice(p: Pool): number | undefined {
   ) {
     return p.pMin;
   }
-  if (!p.virtualAmountA || !p.virtualAmountB) return undefined;
+  if (!p.virtualAmountA || !p.virtualAmountB) return contractPrice;
   return p.virtualAmountB / p.virtualAmountA;
 }
 

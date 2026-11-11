@@ -55,6 +55,7 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
     .flatMap((r) => [r.pMin, r.pMax])
     .filter(isBoundedPrice);
   if (bounds.length === 0) return null;
+  const rangeBounds = [...bounds];
   // the current price is always on the axis, so its marker never sits at a misleading edge
   if (isBoundedPrice(currentPrice)) bounds.push(currentPrice);
   const min = Math.min(...bounds);
@@ -62,7 +63,7 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
   if (isBoundedPrice(currentPrice)) {
     const windowMin = Math.max(min, currentPrice / DOMAIN_WINDOW_FACTOR);
     const windowMax = Math.min(max, currentPrice * DOMAIN_WINDOW_FACTOR);
-    const anyRangeInWindow = bounds.some((b) => b !== currentPrice && b >= windowMin && b <= windowMax);
+    const anyRangeInWindow = rangeBounds.some((b) => b >= windowMin && b <= windowMax);
     if (anyRangeInWindow && windowMax > windowMin) return { min: windowMin, max: windowMax };
   }
   return max > min ? { min, max } : { min: min / 1.01, max: max * 1.01 };
@@ -124,11 +125,14 @@ export function buildLiquidityBars(
     .map((range) => {
       const left = priceToX(isBoundedPrice(range.pMin) ? range.pMin : domain.min, domain, width);
       const right = priceToX(isBoundedPrice(range.pMax) ? range.pMax : domain.max, domain, width);
+      const span = Math.abs(right - left);
+      // the gap comes off both sides; a range thinner than the gap is a 1 unit bar centred on its span
+      const barWidth = Math.max(1, span - gap);
       return {
         key: `${range.tickLow}-${range.tickHigh}`,
         range,
-        x: Math.min(left, right) + gap / 2,
-        width: Math.max(1, Math.abs(right - left) - gap),
+        x: Math.min(left, right) + (span - barWidth) / 2,
+        width: barWidth,
         height: Math.max(1, ((range.liquidity ?? 0) / maxLiquidity) * maxHeight),
         active: isActiveRange(range, currentPrice, currentTick),
         hitX: Math.min(left, right),

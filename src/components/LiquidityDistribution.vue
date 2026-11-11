@@ -30,7 +30,7 @@
       >
         <!-- baseline -->
         <line :x1="0" :x2="WIDTH" :y1="PLOT_BOTTOM" :y2="PLOT_BOTTOM" stroke="#334155" stroke-width="1" />
-        <g v-for="bar in bars" :key="bar.key">
+        <g v-for="bar in drawOrder" :key="bar.key">
           <path
             :d="barPath(bar, PLOT_BOTTOM, RADIUS)"
             :fill="bar.active ? ACTIVE_COLOR : BAR_COLOR"
@@ -163,8 +163,9 @@ const props = defineProps<{
   currentTick?: number | null;
   unitA: string;
   unitB: string;
-  decimalsA: number;
-  decimalsB: number;
+  /** Undefined while unknown: the amounts are shown as a placeholder rather than in base units. */
+  decimalsA?: number;
+  decimalsB?: number;
 }>();
 
 // one hue, two ordinal steps (validated against the dark card surface): ranges, and the range holding the price
@@ -198,7 +199,11 @@ const priceX = computed(() =>
   isBoundedPrice(props.currentPrice) && domain.value ? priceToX(props.currentPrice, domain.value, WIDTH) : null
 );
 
-const amount = (base: number | undefined, decimals: number): number => (base ?? 0) / Math.pow(10, decimals);
+const amount = (base: number | undefined, decimals: number | undefined): number | undefined =>
+  decimals === undefined ? undefined : (base ?? 0) / Math.pow(10, decimals);
+
+// wider ranges first: a narrow bar (and its hover target) is never covered by a wide one overlapping it
+const drawOrder = computed(() => [...bars.value].sort((a, b) => b.width - a.width));
 
 const tooltipStyle = computed(() => {
   if (!hovered.value) return {};

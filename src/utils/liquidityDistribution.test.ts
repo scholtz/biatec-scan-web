@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Pool, PoolLiquidityRange } from "../api/models";
+import { AMMType, type Pool, type PoolLiquidityRange } from "../api/models";
 import poolFixture from "../../e2e/fixtures/pact-clamm-3762241535-pool.json";
 import {
   barPath,
@@ -173,5 +173,31 @@ describe("liquidity distribution helpers", () => {
     const above: PoolLiquidityRange = { tickLow: 13, tickHigh: 15, pMin: 2, pMax: 3 };
     expect(isActiveRange(below, 2)).toBe(false);
     expect(isActiveRange(above, 2)).toBe(true);
+  });
+  it("centres a range thinner than the gap on its own span", () => {
+    // two adjacent single-tick ranges, each ~0.5 units wide on a wide axis, must not run into each other's prices
+    const ranges: PoolLiquidityRange[] = [
+      { tickLow: 1, tickHigh: 1, liquidity: 5, pMin: 1, pMax: 1.0005 },
+      { tickLow: 2, tickHigh: 2, liquidity: 5, pMin: 1.0005, pMax: 1.001 },
+      { tickLow: 3, tickHigh: 3, liquidity: 5, pMin: 1.001, pMax: 2 },
+    ];
+    const domain = { min: 1, max: 2 };
+    const bars = buildLiquidityBars(ranges, 1.5, 1000, 50, 2, null, domain);
+    for (const bar of bars.slice(0, 2)) {
+      const left = priceToX(bar.range.pMin!, domain, 1000);
+      const right = priceToX(bar.range.pMax!, domain, 1000);
+      expect(bar.width).toBe(1);
+      expect(bar.x + bar.width / 2).toBeCloseTo((left + right) / 2);
+    }
+  });
+
+  it("prices a tick based pool at its contract price", () => {
+    const tick = { ammType: AMMType.TickBasedCLAMM, currentPrice: 0.0899, virtualAmountA: 1, virtualAmountB: 5 } as Pool;
+    expect(poolSpotPrice(tick)).toBe(0.0899);
+    // any pool without virtual amounts falls back to its contract price
+    const zeroed = { ammType: AMMType.ConcentratedLiquidityAMM, currentPrice: 2.5, virtualAmountA: 0, virtualAmountB: 0 } as Pool;
+    expect(poolSpotPrice(zeroed)).toBe(2.5);
+    const plain = { ammType: AMMType.OldAMM, virtualAmountA: 2, virtualAmountB: 1 } as Pool;
+    expect(poolSpotPrice(plain)).toBe(0.5);
   });
 });

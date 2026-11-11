@@ -268,7 +268,7 @@
                 {{ $t("poolDetails.priceOf", { unitName: unitA }) }}:
               </span>
               <span class="text-white font-mono">
-                <FormattedNumber :value="spotPrice" :maximum-significant-digits="6" placeholder="N/A" />
+                <FormattedNumber :value="spotPrice" :maximum-significant-digits="6" />
                 {{ spotPrice !== undefined ? unitB : "" }}
               </span>
             </div>
@@ -277,7 +277,7 @@
                 {{ $t("poolDetails.priceOf", { unitName: unitB }) }}:
               </span>
               <span class="text-white font-mono">
-                <FormattedNumber :value="inverseSpotPrice" :maximum-significant-digits="6" placeholder="N/A" />
+                <FormattedNumber :value="inverseSpotPrice" :maximum-significant-digits="6" />
                 {{ inverseSpotPrice !== undefined ? unitA : "" }}
               </span>
             </div>
@@ -288,7 +288,7 @@
             <div class="flex justify-between items-center">
               <span class="text-gray-400">{{ $t("poolDetails.volume24h") }}:</span>
               <span class="text-white">
-                <FormattedNumber :value="rawPool?.volume24H" type="currency" currency="USD" :maximum-fraction-digits="2" placeholder="N/A" />
+                <FormattedNumber :value="rawPool?.volume24H" type="currency" currency="USD" :maximum-fraction-digits="2" />
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -299,7 +299,7 @@
         </div>
 
         <!-- Liquidity distribution of tick based CLAMM pools (ranges read from the pool's box storage) -->
-        <div v-if="poolInfo.ammType === 'TickBasedCLAMM' && liquidityRanges.length > 0" class="card">
+        <div v-if="poolInfo.ammType === AMMType.TickBasedCLAMM && liquidityRanges.length > 0" class="card">
           <h2 class="text-xl font-semibold mb-2">
             {{ $t("poolDetails.liquidityDistribution") }}
           </h2>
@@ -347,7 +347,7 @@ import TradesList from "../components/TradesList.vue";
 import LiquidityList from "../components/LiquidityList.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import LiquidityDistribution from "../components/LiquidityDistribution.vue";
-import type { Pool } from "../api/models";
+import { AMMType, type Pool } from "../api/models";
 import { poolSpotPrice } from "../utils/poolPrice";
 
 const api = getAVMTradeReporterAPI();
@@ -363,8 +363,12 @@ const poolInfo = ref<AMMPool | null>(null);
 // the API pool as returned, for the fields the AMMPool view model does not carry (prices, ranges, volume)
 const rawPool = ref<Pool | null>(null);
 
+// navigation can start a new load before the previous one answered: only the latest may update the page
+let loadSequence = 0;
+
 const loadPoolInfo = async () => {
   if (!poolAddress.value) return;
+  const sequence = ++loadSequence;
 
   loading.value = true;
   error.value = "";
@@ -377,6 +381,7 @@ const loadPoolInfo = async () => {
       address: poolAddress.value,
       size: 1,
     });
+    if (sequence !== loadSequence) return;
     const poolData = response.data?.[0];
 
     if (!poolData) {
@@ -409,12 +414,14 @@ const loadPoolInfo = async () => {
       totalTVLAssetBInUSD: poolData.totalTVLAssetBInUSD ?? undefined,
     };
   } catch (err: unknown) {
+    if (sequence !== loadSequence) return;
     rawPool.value = null;
+    poolInfo.value = null;
     error.value =
       err instanceof Error ? err.message : "Failed to load pool information";
     console.error("Error loading pool info:", err);
   } finally {
-    loading.value = false;
+    if (sequence === loadSequence) loading.value = false;
   }
 };
 
@@ -462,7 +469,7 @@ const hasLpToken = computed(
 const isPactTickClamm = computed(
   () =>
     poolInfo.value?.protocol === "Pact" &&
-    poolInfo.value?.ammType === "TickBasedCLAMM"
+    poolInfo.value?.ammType === AMMType.TickBasedCLAMM
 );
 
 // Pact CLAMM has no LP token, so there is no on-chain supply to read. As a
@@ -509,13 +516,7 @@ const formatLPSupply = computed(() => {
 // equal decimals - concentrated, weighted, stable and tick based pools need the pool's own price, e.g. Pact ALGO/USDC
 // 3762241535 holds ~170k ALGO and ~3.7k USDC at a price of ~0.09. A tick based pool carries its contract price; any
 // pool falls back to it when its virtual amounts are missing (e.g. zeroed balances).
-const spotPrice = computed(() => {
-  const pool = rawPool.value;
-  if (!pool) return undefined;
-  const contractPrice = pool.currentPrice != null && pool.currentPrice > 0 ? pool.currentPrice : undefined;
-  if (pool.ammType === "TickBasedCLAMM" && contractPrice !== undefined) return contractPrice;
-  return poolSpotPrice(pool) ?? contractPrice;
-});
+const spotPrice = computed(() => (rawPool.value ? poolSpotPrice(rawPool.value) : undefined));
 const inverseSpotPrice = computed(() =>
   spotPrice.value !== undefined && spotPrice.value > 0 ? 1 / spotPrice.value : undefined
 );
@@ -526,19 +527,17 @@ const unitA = computed(() =>
 const unitB = computed(() =>
   poolInfo.value?.assetIdB === undefined ? "" : getAssetName(poolInfo.value.assetIdB, true)
 );
-// the pool's decimals, else the asset's (pools enriched before the field existed)
-const decimalsA = computed(
-  () =>
-    rawPool.value?.assetADecimals ??
-    (poolInfo.value?.assetIdA !== undefined ? assetInfo(poolInfo.value.assetIdA)?.decimals : undefined) ??
-    0
-);
-const decimalsB = computed(
-  () =>
-    rawPool.value?.assetBDecimals ??
-    (poolInfo.value?.assetIdB !== undefined ? assetInfo(poolInfo.value.assetIdB)?.decimals : undefined) ??
-    0
-);
+// the pool's decimals, else the asset's (pools enriched before the field existed); undefined while unknown, so
+// the range amounts show a placeholder instead of base units
+const NATIVE_TOKEN_DECIMALS = 6; // ALGO and VOI
+const assetDecimals = (assetId: bigint | undefined, poolDecimals: number | null | undefined): number | undefined => {
+  if (poolDecimals != null) return poolDecimals;
+  if (assetId === undefined) return undefined;
+  if (assetId === BigInt(0)) return NATIVE_TOKEN_DECIMALS;
+  return assetInfo(assetId)?.decimals ?? undefined;
+};
+const decimalsA = computed(() => assetDecimals(poolInfo.value?.assetIdA, rawPool.value?.assetADecimals));
+const decimalsB = computed(() => assetDecimals(poolInfo.value?.assetIdB, rawPool.value?.assetBDecimals));
 
 const liquidityRanges = computed(() => rawPool.value?.liquidityRanges ?? []);
 
