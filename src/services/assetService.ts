@@ -351,6 +351,8 @@ class AssetService {
       b: pool.a,
       stableA: pool.stableB,
       stableB: pool.stableA,
+      weightA: pool.weightB,
+      weightB: pool.weightA,
       af: pool.bf,
       bf: pool.af,
       // Price bounds are ratios of A/B, so swapping the pair also inverts

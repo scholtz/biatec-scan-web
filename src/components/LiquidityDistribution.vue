@@ -93,8 +93,8 @@
       </div>
     </div>
 
-    <!-- price axis: the ends and the current price (log scale) -->
-    <div class="flex justify-between text-xs text-gray-400 mt-1">
+    <!-- price axis: its two ends (log scale); the current price is in the legend and the marker -->
+    <div v-if="bars.length > 0" class="flex justify-between text-xs text-gray-400 mt-1">
       <FormattedNumber :value="domain?.min" :maximum-significant-digits="4" />
       <span>{{ unitB }} / {{ unitA }} ({{ $t("poolDetails.logScale") }})</span>
       <FormattedNumber :value="domain?.max" :maximum-significant-digits="4" />
