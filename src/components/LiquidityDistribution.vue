@@ -44,6 +44,7 @@
             :height="PLOT_BOTTOM"
             fill="transparent"
             @mouseenter="hovered = bar"
+            @click="hovered = bar"
           />
         </g>
         <line

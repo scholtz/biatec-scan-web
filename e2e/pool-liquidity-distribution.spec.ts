@@ -4,7 +4,19 @@ import type { Pool } from "../src/api/models";
 
 // The Pact CLAMM ALGO/USDC pool 3762241535 as the backend serves it: reserves, price and the liquidity ranges read
 // from the pool's on-chain tick boxes (TVL 18.94k USD - Pact reports 18.93k).
-const pool: Pool = JSON.parse(
+function parsePool(raw: string): Pool {
+  const parsed: unknown = JSON.parse(raw); // JSON.parse yields an untyped value; narrowed by the guard below
+  if (
+    typeof parsed !== "object" ||
+    parsed === null ||
+    typeof (parsed as Pool).poolAddress !== "string" ||
+    !Array.isArray((parsed as Pool).liquidityRanges)
+  ) {
+    throw new Error("fixture is not a pool with liquidity ranges");
+  }
+  return parsed as Pool;
+}
+const pool = parsePool(
   readFileSync(new URL("./fixtures/pact-clamm-3762241535-pool.json", import.meta.url), "utf-8")
 );
 

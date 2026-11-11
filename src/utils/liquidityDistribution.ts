@@ -41,8 +41,11 @@ export const WIDE_RANGE_RATIO = 10;
 /**
  * The backend clamps prices outside the decimal range (extreme ticks) to 0 / decimal.MaxValue, meaning "unbounded".
  */
+/** decimal.MaxValue (~7.9228e28) - the backend's clamp for "unbounded above"; anything this large is that clamp. */
+const DECIMAL_MAX_CLAMP = 7.92e28;
+
 export function isBoundedPrice(price: number | null | undefined): price is number {
-  return price !== undefined && price !== null && Number.isFinite(price) && price > 0 && price < 1e28;
+  return price !== undefined && price !== null && Number.isFinite(price) && price > 0 && price < DECIMAL_MAX_CLAMP;
 }
 
 /**
@@ -54,7 +57,8 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
   const concentrated = ranges.filter(
     (r) => isBoundedPrice(r.pMin) && isBoundedPrice(r.pMax) && r.pMax / r.pMin <= WIDE_RANGE_RATIO
   );
-  const bounds = (concentrated.length > 0 ? concentrated : ranges)
+  const candidates = concentrated.length > 0 ? concentrated : ranges;
+  const bounds = candidates
     .flatMap((r) => [r.pMin, r.pMax])
     .filter(isBoundedPrice);
   if (bounds.length === 0) {
@@ -63,7 +67,6 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
       ? { min: currentPrice / DOMAIN_WINDOW_FACTOR, max: currentPrice * DOMAIN_WINDOW_FACTOR }
       : null;
   }
-  const candidates = concentrated.length > 0 ? concentrated : ranges;
   // the current price is always on the axis, so its marker never sits at a misleading edge
   if (isBoundedPrice(currentPrice)) bounds.push(currentPrice);
   const min = Math.min(...bounds);
@@ -71,8 +74,8 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
   if (isBoundedPrice(currentPrice)) {
     const windowMin = Math.max(min, currentPrice / DOMAIN_WINDOW_FACTOR);
     const windowMax = Math.min(max, currentPrice * DOMAIN_WINDOW_FACTOR);
-    // a range overlapping the window counts, also one straddling all of it
-    const anyRangeInWindow = candidates.some(
+    // any range overlapping the window counts, also a wide one straddling all of it
+    const anyRangeInWindow = ranges.some(
       (r) => (isBoundedPrice(r.pMin) ? r.pMin : 0) < windowMax && (isBoundedPrice(r.pMax) ? r.pMax : Infinity) > windowMin
     );
     if (anyRangeInWindow && windowMax > windowMin) return { min: windowMin, max: windowMax };
