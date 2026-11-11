@@ -299,7 +299,7 @@
         </div>
 
         <!-- Liquidity distribution of tick based CLAMM pools (ranges read from the pool's box storage) -->
-        <div v-if="isPactTickClamm && liquidityRanges.length > 0" class="card">
+        <div v-if="poolInfo.ammType === 'TickBasedCLAMM' && liquidityRanges.length > 0" class="card">
           <h2 class="text-xl font-semibold mb-2">
             {{ $t("poolDetails.liquidityDistribution") }}
           </h2>
@@ -334,7 +334,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { AMMPool } from "../types/algorand";
 import { assetService } from "../services/assetService";
@@ -569,5 +569,9 @@ const poolUtilization = computed(() => {
 
 onMounted(() => {
   loadPoolInfo();
+});
+// the component is reused when navigating between pools
+watch(poolAddress, (address, previous) => {
+  if (address !== previous) loadPoolInfo();
 });
 </script>

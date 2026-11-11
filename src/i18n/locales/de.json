@@ -351,7 +351,7 @@
     "allPoolsForPair": "Alle Pools für dieses Paar",
     "liquidityDistribution": "Liquiditätsverteilung",
     "liquidityDistributionHelp": "Wie die Liquidität des Pools über die Preise verteilt ist, gelesen aus seinem On-Chain-Tick-Speicher. Jeder Balken ist ein zusammenhängender Tick-Bereich mit gleicher Liquidität; der hervorgehobene Balken enthält den aktuellen Preis.",
-    "rangesCount": "{count} Liquiditätsbereiche",
+    "rangesCount": "Liquiditätsbereiche: {count}",
     "activeRange": "Aktiver Bereich (aktueller Preis)",
     "currentPriceMarker": "Aktueller Preis",
     "priceRange": "Preisbereich",

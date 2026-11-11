@@ -43,7 +43,7 @@ test.describe("pool details of a tick based CLAMM pool", () => {
 
   test("draws the liquidity distribution with the active range and the price marker", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Liquidity distribution" })).toBeVisible();
-    await expect(page.getByText("50 liquidity ranges")).toBeVisible();
+    await expect(page.getByText("Liquidity ranges: 50")).toBeVisible();
     await expect(page.getByTestId("liquidity-bar")).toHaveCount(49);
     await expect(page.getByTestId("liquidity-bar-active")).toHaveCount(1);
     await expect(page.getByTestId("liquidity-price-marker")).toHaveCount(1);

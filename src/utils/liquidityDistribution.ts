@@ -43,8 +43,8 @@ export function isBoundedPrice(price: number | null | undefined): price is numbe
 }
 
 /**
- * The price span of the ranges with at least one bounded end, limited to {@link DOMAIN_WINDOW_FACTOR} around the
- * current price when it is known.
+ * The price span of the concentrated ranges (else all ranges with a bounded end) and the current price, limited to
+ * {@link DOMAIN_WINDOW_FACTOR} around the current price - unless no range is within that window, then unlimited.
  */
 export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number): PriceDomain | null {
   // the concentrated ranges span the axis; a wide position (e.g. near full range) just extends to its edges
@@ -55,14 +55,17 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
     .flatMap((r) => [r.pMin, r.pMax])
     .filter(isBoundedPrice);
   if (bounds.length === 0) return null;
-  let min = Math.min(...bounds);
-  let max = Math.max(...bounds);
+  // the current price is always on the axis, so its marker never sits at a misleading edge
+  if (isBoundedPrice(currentPrice)) bounds.push(currentPrice);
+  const min = Math.min(...bounds);
+  const max = Math.max(...bounds);
   if (isBoundedPrice(currentPrice)) {
-    min = Math.max(min, currentPrice / DOMAIN_WINDOW_FACTOR);
-    max = Math.min(max, currentPrice * DOMAIN_WINDOW_FACTOR);
-    if (max <= min) return null;
+    const windowMin = Math.max(min, currentPrice / DOMAIN_WINDOW_FACTOR);
+    const windowMax = Math.min(max, currentPrice * DOMAIN_WINDOW_FACTOR);
+    const anyRangeInWindow = bounds.some((b) => b !== currentPrice && b >= windowMin && b <= windowMax);
+    if (anyRangeInWindow && windowMax > windowMin) return { min: windowMin, max: windowMax };
   }
-  return { min, max };
+  return max > min ? { min, max } : { min: min / 1.01, max: max * 1.01 };
 }
 
 /** Position of a price on the log axis, clamped to [0, width]. */
@@ -84,12 +87,13 @@ export function isActiveRange(
   if (currentTick !== undefined && currentTick !== null && range.tickLow !== undefined && range.tickHigh !== undefined) {
     return range.tickLow <= currentTick && currentTick <= range.tickHigh;
   }
+  // half open, like a tick: a price on the boundary shared by two ranges belongs to the upper one only
   return (
     currentPrice !== undefined &&
     range.pMin !== undefined &&
     range.pMax !== undefined &&
     currentPrice >= range.pMin &&
-    currentPrice <= range.pMax
+    currentPrice < range.pMax
   );
 }
 
@@ -104,9 +108,9 @@ export function buildLiquidityBars(
   width: number,
   maxHeight: number,
   gap = 2,
-  currentTick?: number | null
+  currentTick?: number | null,
+  domain: PriceDomain | null = priceDomain(ranges, currentPrice)
 ): LiquidityBar[] {
-  const domain = priceDomain(ranges, currentPrice);
   if (!domain) return [];
   const visible = ranges.filter((r) => {
     const low = isBoundedPrice(r.pMin) ? r.pMin : r.pMin === 0 ? 0 : undefined;

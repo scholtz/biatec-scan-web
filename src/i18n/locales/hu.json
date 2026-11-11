@@ -351,7 +351,7 @@
     "allPoolsForPair": "A pár összes poolja",
     "liquidityDistribution": "Likviditás eloszlása",
     "liquidityDistributionHelp": "Hogyan oszlik el a pool likviditása az árak között, a láncon tárolt tick-adatokból kiolvasva. Minden oszlop azonos likviditású, összefüggő tick-tartomány; a kiemelt oszlop tartalmazza az aktuális árat.",
-    "rangesCount": "{count} likviditási tartomány",
+    "rangesCount": "Likviditási tartományok: {count}",
     "activeRange": "Aktív tartomány (aktuális ár)",
     "currentPriceMarker": "Aktuális ár",
     "priceRange": "Ártartomány",

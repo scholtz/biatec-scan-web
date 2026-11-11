@@ -351,7 +351,7 @@
     "allPoolsForPair": "All pools for this pair",
     "liquidityDistribution": "Liquidity distribution",
     "liquidityDistributionHelp": "How the pool's liquidity is spread across prices, read from its on-chain tick storage. Each bar is a run of ticks with the same liquidity; the highlighted bar contains the current price.",
-    "rangesCount": "{count} liquidity ranges",
+    "rangesCount": "Liquidity ranges: {count}",
     "activeRange": "Active range (current price)",
     "currentPriceMarker": "Current price",
     "priceRange": "Price range",

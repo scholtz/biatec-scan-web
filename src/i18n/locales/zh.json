@@ -351,7 +351,7 @@
     "allPoolsForPair": "该交易对的所有池",
     "liquidityDistribution": "流动性分布",
     "liquidityDistributionHelp": "池子的流动性在各价格上的分布，读取自其链上 tick 存储。每根柱子是一段流动性相同的连续 tick；高亮的柱子包含当前价格。",
-    "rangesCount": "{count} 个流动性区间",
+    "rangesCount": "流动性区间：{count}",
     "activeRange": "活跃区间（当前价格）",
     "currentPriceMarker": "当前价格",
     "priceRange": "价格区间",

@@ -6,7 +6,7 @@
 
     <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-300 mb-3">
       <span>
-        {{ $t("poolDetails.rangesCount", { count: bars.length }) }}
+        {{ $t("poolDetails.rangesCount", { count: ranges.length }) }}
       </span>
       <span class="flex items-center gap-2">
         <span class="inline-block w-3 h-3 rounded-sm" :style="{ background: ACTIVE_COLOR }"></span>
@@ -115,24 +115,24 @@
         </thead>
         <tbody>
           <tr
-            v-for="bar in bars"
-            :key="bar.key"
+            v-for="row in tableRows"
+            :key="`${row.range.tickLow}-${row.range.tickHigh}`"
             data-testid="liquidity-table-row"
             class="border-t border-dark-700/60"
-            :class="bar.active ? 'bg-blue-500/10' : ''"
+            :class="row.active ? 'bg-blue-500/10' : ''"
           >
             <td class="py-1 pr-3">
-              <FormattedNumber :value="bar.range.pMin" :maximum-significant-digits="6" /> –
-              <FormattedNumber :value="bar.range.pMax" :maximum-significant-digits="6" />
+              <FormattedNumber :value="row.range.pMin" :maximum-significant-digits="6" /> –
+              <FormattedNumber :value="row.range.pMax" :maximum-significant-digits="6" />
             </td>
             <td class="py-1 pr-3 text-right">
-              <FormattedNumber :value="bar.range.liquidity" compact :maximum-significant-digits="4" />
+              <FormattedNumber :value="row.range.liquidity" compact :maximum-significant-digits="4" />
             </td>
             <td class="py-1 pr-3 text-right">
-              <FormattedNumber :value="amount(bar.range.a, decimalsA)" :maximum-significant-digits="6" />
+              <FormattedNumber :value="amount(row.range.a, decimalsA)" :maximum-significant-digits="6" />
             </td>
             <td class="py-1 text-right">
-              <FormattedNumber :value="amount(bar.range.b, decimalsB)" :maximum-significant-digits="6" />
+              <FormattedNumber :value="amount(row.range.b, decimalsB)" :maximum-significant-digits="6" />
             </td>
           </tr>
         </tbody>
@@ -142,12 +142,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { PoolLiquidityRange } from "../api/models";
 import FormattedNumber from "./FormattedNumber.vue";
 import {
   barPath,
   buildLiquidityBars,
+  isActiveRange,
   isBoundedPrice,
   priceDomain,
   priceToX,
@@ -179,7 +180,18 @@ const showTable = ref(false);
 
 const domain = computed(() => priceDomain(props.ranges, props.currentPrice));
 const bars = computed(() =>
-  buildLiquidityBars(props.ranges, props.currentPrice, WIDTH, PLOT_BOTTOM - 8, 2, props.currentTick)
+  buildLiquidityBars(props.ranges, props.currentPrice, WIDTH, PLOT_BOTTOM - 8, 2, props.currentTick, domain.value)
+);
+// a tooltip of data that was replaced must not linger
+watch(bars, () => {
+  hovered.value = null;
+});
+
+// the table lists every range - also those outside the chart's price window - lowest price first
+const tableRows = computed(() =>
+  [...props.ranges]
+    .sort((a, b) => (a.pMin ?? 0) - (b.pMin ?? 0))
+    .map((range) => ({ range, active: isActiveRange(range, props.currentPrice, props.currentTick) }))
 );
 
 const priceX = computed(() =>

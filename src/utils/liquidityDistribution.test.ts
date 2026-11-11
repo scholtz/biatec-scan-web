@@ -144,11 +144,34 @@ describe("liquidity distribution helpers", () => {
     const above: PoolLiquidityRange = { tickLow: 13, tickHigh: 15, pMin: 2, pMax: 3 };
     expect(isActiveRange(below, 2, 13)).toBe(false);
     expect(isActiveRange(above, 2, 13)).toBe(true);
-    expect(isActiveRange(below, 2)).toBe(true); // price fallback without a tick
+    expect(isActiveRange(below, 1.5)).toBe(true); // price fallback without a tick
     const path = barPath({ key: "k", range: {}, x: 10, width: 20, height: 30, active: false, hitX: 10, hitWidth: 20 }, 100);
     expect(path.startsWith("M10,100 ")).toBe(true);
     expect(path).toContain("Q10,70 14,70");
     expect(path.endsWith("L30,100 Z")).toBe(true);
     expect(buildLiquidityBars([], 1, 100, 50)).toEqual([]);
+  });
+  it("keeps the current price on the axis, also far from every range", () => {
+    const ranges: PoolLiquidityRange[] = [
+      { tickLow: 1, tickHigh: 1, liquidity: 5, pMin: 0.13, pMax: 0.2 },
+      { tickLow: 2, tickHigh: 2, liquidity: 3, pMin: 0.2, pMax: 0.25 },
+    ];
+    // a depleted pool priced far below its ranges: no window holds a range, the chart still shows them and the price
+    const far = priceDomain(ranges, 0.0009)!;
+    expect(far.min).toBe(0.0009);
+    expect(far.max).toBe(0.25);
+    expect(buildLiquidityBars(ranges, 0.0009, 100, 50)).toHaveLength(2);
+    // a price just below the ranges widens the axis rather than sitting on its edge
+    const near = priceDomain(ranges, 0.05)!;
+    expect(near.min).toBe(0.05);
+    expect(priceToX(0.05, near, 100)).toBe(0);
+    expect(priceToX(0.13, near, 100)).toBeGreaterThan(0);
+  });
+
+  it("assigns a boundary price to one range without a tick", () => {
+    const below: PoolLiquidityRange = { tickLow: 10, tickHigh: 12, pMin: 1, pMax: 2 };
+    const above: PoolLiquidityRange = { tickLow: 13, tickHigh: 15, pMin: 2, pMax: 3 };
+    expect(isActiveRange(below, 2)).toBe(false);
+    expect(isActiveRange(above, 2)).toBe(true);
   });
 });
