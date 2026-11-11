@@ -23,17 +23,17 @@
     <div ref="plot" class="relative" @mouseleave="hovered = null">
       <svg
         v-if="bars.length > 0"
-        :viewBox="`0 0 ${width} ${HEIGHT}`"
+        :viewBox="`0 0 ${width} ${height}`"
         class="w-full h-56"
         preserveAspectRatio="none"
         role="img"
         :aria-label="$t('poolDetails.liquidityDistribution')"
       >
         <!-- baseline -->
-        <line :x1="0" :x2="width" :y1="PLOT_BOTTOM" :y2="PLOT_BOTTOM" stroke="#334155" stroke-width="1" />
+        <line :x1="0" :x2="width" :y1="plotBottom" :y2="plotBottom" stroke="#334155" stroke-width="1" />
         <g v-for="bar in drawOrder" :key="bar.key">
           <path
-            :d="barPath(bar, PLOT_BOTTOM, RADIUS)"
+            :d="barPath(bar, plotBottom, RADIUS)"
             :fill="bar.active ? ACTIVE_COLOR : BAR_COLOR"
             :data-testid="bar.active ? 'liquidity-bar-active' : 'liquidity-bar'"
             pointer-events="none"
@@ -43,7 +43,7 @@
             :x="bar.hitX"
             :y="0"
             :width="bar.hitWidth"
-            :height="PLOT_BOTTOM"
+            :height="plotBottom"
             fill="transparent"
             @pointerenter="onPointerEnter($event, bar)"
             @pointerup="onPointerUp($event, bar)"
@@ -54,7 +54,7 @@
           :x1="priceX"
           :x2="priceX"
           :y1="0"
-          :y2="PLOT_BOTTOM"
+          :y2="plotBottom"
           stroke="#cbd5e1"
           stroke-width="1.5"
           stroke-dasharray="4 3"
@@ -188,8 +188,9 @@ let resizeObserver: ResizeObserver | null = null;
 onMounted(() => {
   if (!plot.value || typeof ResizeObserver === "undefined") return;
   resizeObserver = new ResizeObserver((entries) => {
-    const measured = Math.round(entries[0]?.contentRect.width ?? 0);
-    if (measured > 0) width.value = measured;
+    const rect = entries[0]?.contentRect;
+    if (rect && rect.width > 0) width.value = Math.round(rect.width);
+    if (rect && rect.height > 0) height.value = Math.round(rect.height);
   });
   resizeObserver.observe(plot.value);
 });
@@ -203,8 +204,9 @@ onBeforeUnmount(() => {
   resizeObserver?.disconnect();
   document.removeEventListener("pointerdown", onDocumentPointerDown);
 });
-const HEIGHT = 224; // = h-56: with the measured width, one chart unit is one pixel both ways
-const PLOT_BOTTOM = HEIGHT - 1;
+// h-56 at the default font size; measured like the width, so one chart unit is one pixel both ways at any root size
+const height = ref(224);
+const plotBottom = computed(() => height.value - 1);
 const RADIUS = 4; // rounded data end
 
 const hovered = ref<LiquidityBar | null>(null);
@@ -212,7 +214,7 @@ const showTable = ref(false);
 
 const domain = computed(() => priceDomain(props.ranges, props.currentPrice));
 const bars = computed(() =>
-  buildLiquidityBars(props.ranges, props.currentPrice, width.value, PLOT_BOTTOM - 8, 2, props.currentTick, domain.value)
+  buildLiquidityBars(props.ranges, props.currentPrice, width.value, plotBottom.value - 8, 2, props.currentTick, domain.value)
 );
 // the active bar is painted last: sub-pixel neighbours (drawn at least 1 unit wide) never cover the highlight
 const drawOrder = computed(() => [...bars.value.filter((b) => !b.active), ...bars.value.filter((b) => b.active)]);
@@ -224,7 +226,9 @@ watch(bars, (next) => {
 
 // the table lists every range - also those outside the chart's price window - lowest price first
 const tableRows = computed(() =>
-  [...props.ranges]
+  !showTable.value
+    ? []
+    : [...props.ranges]
     .sort((a, b) => (a.pMin ?? 0) - (b.pMin ?? 0))
     .map((range, index) => ({
       key: rangeKey(range, index),

@@ -527,8 +527,8 @@ const formatLPSupply = computed(() => {
 
 // Spot price of 1 A in B (decimals adjusted). The reserve ratio is not a price for anything but a 50/50 pool with
 // equal decimals - concentrated, weighted, stable and tick based pools need the pool's own price, e.g. Pact ALGO/USDC
-// 3762241535 holds ~170k ALGO and ~3.7k USDC at a price of ~0.09. A tick based pool carries its contract price; any
-// pool falls back to it when its virtual amounts are missing (e.g. zeroed balances).
+// 3762241535 holds ~170k ALGO and ~3.7k USDC at a price of ~0.09. Tick based pools are priced by their contract
+// price, see poolSpotPrice.
 const spotPrice = computed(() => (rawPool.value ? poolSpotPrice(rawPool.value) : undefined));
 const inverseSpotPrice = computed(() =>
   spotPrice.value !== undefined && spotPrice.value > 0 ? 1 / spotPrice.value : undefined
