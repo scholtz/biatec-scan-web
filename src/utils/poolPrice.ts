@@ -26,8 +26,10 @@ export const SCAM_ZERO_BALANCES_THRESHOLD = 80;
 
 export function poolSpotPrice(p: Pool): number | undefined {
   if ((p.scamRating ?? 0) > SCAM_ZERO_BALANCES_THRESHOLD) return undefined;
-  if (p.ammType === AMMType.TickBasedCLAMM && p.currentPrice != null && p.currentPrice > 0) {
-    return (p.a ?? 0) > 0 || (p.b ?? 0) > 0 ? p.currentPrice : undefined;
+  if (p.ammType === AMMType.TickBasedCLAMM) {
+    // only the contract price: without it the virtual amounts degrade to the reserve ratio, which is no price
+    const holdsLiquidity = (p.a ?? 0) > 0 || (p.b ?? 0) > 0;
+    return holdsLiquidity && p.currentPrice != null && p.currentPrice > 0 ? p.currentPrice : undefined;
   }
   if (
     p.ammType === AMMType.ConcentratedLiquidityAMM &&

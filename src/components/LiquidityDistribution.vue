@@ -192,7 +192,16 @@ onMounted(() => {
   });
   resizeObserver.observe(plot.value);
 });
-onBeforeUnmount(() => resizeObserver?.disconnect());
+// touch / pen: a tap anywhere outside the chart closes the tooltip (there is no mouseleave)
+const onDocumentPointerDown = (event: PointerEvent) => {
+  if (event.pointerType === "mouse" || !hovered.value) return;
+  if (plot.value && event.target instanceof Node && !plot.value.contains(event.target)) hovered.value = null;
+};
+onMounted(() => document.addEventListener("pointerdown", onDocumentPointerDown));
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect();
+  document.removeEventListener("pointerdown", onDocumentPointerDown);
+});
 const HEIGHT = 224; // = h-56: with the measured width, one chart unit is one pixel both ways
 const PLOT_BOTTOM = HEIGHT - 1;
 const RADIUS = 4; // rounded data end

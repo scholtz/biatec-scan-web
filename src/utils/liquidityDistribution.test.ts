@@ -9,6 +9,7 @@ import {
   isUnboundedAbove,
   priceDomain,
   priceToX,
+  rangeBounds,
 } from "./liquidityDistribution";
 import { poolSpotPrice } from "./poolPrice";
 
@@ -258,5 +259,21 @@ describe("liquidity distribution helpers", () => {
     expect(buildLiquidityBars(ranges, 0.0009, 100, 50).map((b) => b.range.tickLow)).toEqual([3]);
     expect(isUnboundedAbove(79228162514264337593543950335)).toBe(true);
     expect(isUnboundedAbove(0)).toBe(false);
+  });
+  it("reads the price interval of a range the same way everywhere", () => {
+    const max = 79228162514264337593543950335;
+    expect(rangeBounds({ pMin: 1, pMax: 2 })).toEqual({ low: 1, high: 2 });
+    expect(rangeBounds({ pMin: 0, pMax: 2 })).toEqual({ low: 0, high: 2 });
+    expect(rangeBounds({ pMin: 2, pMax: max })).toEqual({ low: 2, high: Infinity });
+    expect(rangeBounds({ pMin: 0, pMax: 0 })).toBeNull();
+    expect(rangeBounds({ pMin: max, pMax: max })).toBeNull();
+    expect(rangeBounds({ pMax: 2 })).toBeNull();
+  });
+
+  it("gives a tick based pool without its contract price no price", () => {
+    // its virtual amounts would degrade to the reserve ratio (~0.022 for ALGO/USDC 3762241535 instead of ~0.09)
+    const tick = { ammType: AMMType.TickBasedCLAMM, a: 170e9, b: 3.7e9, virtualAmountA: 170000, virtualAmountB: 3700 } as Pool;
+    expect(poolSpotPrice(tick)).toBeUndefined();
+    expect(poolSpotPrice({ ...tick, currentPrice: 0 })).toBeUndefined();
   });
 });

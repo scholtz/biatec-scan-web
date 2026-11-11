@@ -55,6 +55,18 @@ export function isBoundedPrice(price: number | null | undefined): price is numbe
 }
 
 /**
+ * The price interval a range covers, the clamped ends read as 0 / Infinity. Null for a range without bounds or one
+ * clamped at both ends (0..0, max..max): it lies off any axis and covers no price.
+ */
+export function rangeBounds(range: PoolLiquidityRange): { low: number; high: number } | null {
+  if (range.pMin === undefined || range.pMax === undefined) return null;
+  const read = (price: number): number => (isUnboundedAbove(price) ? Infinity : isBoundedPrice(price) ? price : 0);
+  const low = read(range.pMin);
+  const high = read(range.pMax);
+  return high > low ? { low, high } : null;
+}
+
+/**
  * The price span of the concentrated ranges (else all ranges with a bounded end) and the current price, limited to
  * {@link DOMAIN_WINDOW_FACTOR} around the current price - unless no range is within that window, then unlimited.
  */
@@ -82,10 +94,8 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
     const windowMax = Math.min(max, currentPrice * DOMAIN_WINDOW_FACTOR);
     // any range overlapping the window counts, also a wide one straddling all of it
     const anyRangeInWindow = ranges.some((r) => {
-      const low = isUnboundedAbove(r.pMin) ? Infinity : isBoundedPrice(r.pMin) ? r.pMin : 0;
-      const high = isUnboundedAbove(r.pMax) ? Infinity : isBoundedPrice(r.pMax) ? r.pMax : 0;
-      // a range clamped at both ends (0..0 or max..max) lies off the axis and covers nothing
-      return high > low && low < windowMax && high > windowMin;
+      const bounds = rangeBounds(r);
+      return bounds !== null && bounds.low < windowMax && bounds.high > windowMin;
     });
     if (anyRangeInWindow && windowMax > windowMin) return { min: windowMin, max: windowMax };
   }
@@ -137,11 +147,8 @@ export function buildLiquidityBars(
 ): LiquidityBar[] {
   if (!domain) return [];
   const visible = ranges.filter((r) => {
-    const low = isBoundedPrice(r.pMin) ? r.pMin : r.pMin === 0 ? 0 : undefined;
-    const high = isBoundedPrice(r.pMax) ? r.pMax : r.pMax !== undefined && r.pMax > 0 ? Infinity : undefined;
-    if (low === undefined || high === undefined) return false;
-    // a range clamped to 0 on both ends (or to the maximum on both) lies entirely off the axis
-    return high > domain.min && low < domain.max && high > low;
+    const bounds = rangeBounds(r);
+    return bounds !== null && bounds.high > domain.min && bounds.low < domain.max;
   });
   const maxLiquidity = Math.max(0, ...visible.map((r) => r.liquidity ?? 0));
   if (maxLiquidity <= 0) return [];
