@@ -346,7 +346,9 @@
     "scamWarningSuspicious": "Dieser Pool hat eine Scam-Bewertung von {rating}/100. Sein Smart Contract konnte nicht gegen das öffentliche ARC-56-Register verifiziert werden. Handeln Sie mit Vorsicht.",
     "scamRating": "Scam-Bewertung",
     "noLpToken": "Dieser Pool stellt kein LP-Token bereit",
-    "estimatedLpSupply": "Geschätzt (aus Reserven abgeleitet)"
+    "estimatedLpSupply": "Geschätzt (aus Reserven abgeleitet)",
+    "aggregatedPair": "Aggregiertes Paar",
+    "allPoolsForPair": "Alle Pools für dieses Paar"
   },
   "aggregatedPools": {
     "title": "Aggregierte Pools mit {assetName}",

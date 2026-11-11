@@ -346,7 +346,9 @@
     "scamWarningSuspicious": "Tento pool má hodnocení podvodu {rating}/100. Jeho smart kontrakt se nepodařilo ověřit vůči veřejnému registru ARC-56. Obchodujte opatrně.",
     "scamRating": "Hodnocení podvodu",
     "noLpToken": "Tento pool neposkytuje LP token",
-    "estimatedLpSupply": "Odhad (odvozeno z rezerv)"
+    "estimatedLpSupply": "Odhad (odvozeno z rezerv)",
+    "aggregatedPair": "Agregovaný pár",
+    "allPoolsForPair": "Všechny pooly pro tento pár"
   },
   "aggregatedPools": {
     "title": "Agregované pooly obsahující {assetName}",

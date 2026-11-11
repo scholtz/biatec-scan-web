@@ -141,6 +141,29 @@
               </router-link>
               <span v-else class="text-white">0</span>
             </div>
+            <div
+              v-if="
+                poolInfo.assetIdA !== undefined &&
+                poolInfo.assetIdB !== undefined
+              "
+              class="flex justify-between items-center"
+            >
+              <span class="text-gray-400">{{
+                $t("poolDetails.aggregatedPair")
+              }}</span>
+              <router-link
+                :to="{
+                  name: 'PoolsByAssets',
+                  params: {
+                    asset1: poolInfo.assetIdA.toString(),
+                    asset2: poolInfo.assetIdB.toString(),
+                  },
+                }"
+                class="text-blue-400 hover:text-blue-300 text-sm transition-colors"
+              >
+                {{ $t("poolDetails.allPoolsForPair") }}
+              </router-link>
+            </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">LP Token ID:</span>
               <!-- hasLpToken guarantees assetIdLP is defined and non-zero -->
