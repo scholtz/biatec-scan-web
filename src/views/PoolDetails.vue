@@ -367,8 +367,8 @@ const rawPool = ref<Pool | null>(null);
 let loadSequence = 0;
 
 const loadPoolInfo = async () => {
+  const sequence = ++loadSequence; // also an empty address invalidates a load still in flight
   if (!poolAddress.value) return;
-  const sequence = ++loadSequence;
 
   loading.value = true;
   error.value = "";

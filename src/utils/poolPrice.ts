@@ -13,10 +13,10 @@ import { AMMType, AggregatedPool, Pool } from "../api/models";
  * garbage; the range price is the authoritative value here.
  *
  * Tick based CLAMM pools (Pact CLAMM) carry the contract price (`currentPrice`, from the pool's sqrt price) - the
- * exact value the reserves are derived from.
+ * exact value the reserves are derived from - unless they hold nothing: a pool whose liquidity was fully withdrawn
+ * keeps its last contract price, which must not price anything.
  *
- * All other pools price as virtualAmountB / virtualAmountA (the backend reports `currentPrice` only for tick based
- * pools, so the `currentPrice` fallback for missing virtual amounts only matters for those).
+ * All other pools price as virtualAmountB / virtualAmountA.
  *
  * Scam-zeroed pools get no price. The backend zeroes their balances but keeps `currentPrice` (follow-up: null it in
  * AVMTradeReporter ScamRatingPolicy.ApplyBalanceRule too), hence the threshold check here.
@@ -26,9 +26,8 @@ export const SCAM_ZERO_BALANCES_THRESHOLD = 80;
 
 export function poolSpotPrice(p: Pool): number | undefined {
   if ((p.scamRating ?? 0) > SCAM_ZERO_BALANCES_THRESHOLD) return undefined;
-  const contractPrice = p.currentPrice != null && p.currentPrice > 0 ? p.currentPrice : undefined;
-  if (p.ammType === AMMType.TickBasedCLAMM && contractPrice !== undefined) {
-    return contractPrice;
+  if (p.ammType === AMMType.TickBasedCLAMM && p.currentPrice != null && p.currentPrice > 0) {
+    return (p.a ?? 0) > 0 || (p.b ?? 0) > 0 ? p.currentPrice : undefined;
   }
   if (
     p.ammType === AMMType.ConcentratedLiquidityAMM &&
@@ -39,7 +38,7 @@ export function poolSpotPrice(p: Pool): number | undefined {
   ) {
     return p.pMin;
   }
-  if (!p.virtualAmountA || !p.virtualAmountB) return contractPrice;
+  if (!p.virtualAmountA || !p.virtualAmountB) return undefined;
   return p.virtualAmountB / p.virtualAmountA;
 }
 

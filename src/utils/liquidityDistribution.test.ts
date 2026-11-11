@@ -203,11 +203,13 @@ describe("liquidity distribution helpers", () => {
   });
 
   it("prices a tick based pool at its contract price", () => {
-    const tick = { ammType: AMMType.TickBasedCLAMM, currentPrice: 0.0899, virtualAmountA: 1, virtualAmountB: 5 } as Pool;
+    const tick = { ammType: AMMType.TickBasedCLAMM, currentPrice: 0.0899, a: 10, b: 1, virtualAmountA: 1, virtualAmountB: 5 } as Pool;
     expect(poolSpotPrice(tick)).toBe(0.0899);
-    // any pool without virtual amounts falls back to its contract price
+    // a fully withdrawn tick pool keeps its last contract price, which must not price anything
+    expect(poolSpotPrice({ ...tick, a: 0, b: 0 })).toBeUndefined();
+    // other pools without virtual amounts have no price (no contract price fallback)
     const zeroed = { ammType: AMMType.ConcentratedLiquidityAMM, currentPrice: 2.5, virtualAmountA: 0, virtualAmountB: 0 } as Pool;
-    expect(poolSpotPrice(zeroed)).toBe(2.5);
+    expect(poolSpotPrice(zeroed)).toBeUndefined();
     const plain = { ammType: AMMType.OldAMM, virtualAmountA: 2, virtualAmountB: 1 } as Pool;
     expect(poolSpotPrice(plain)).toBe(0.5);
   });
@@ -222,7 +224,7 @@ describe("liquidity distribution helpers", () => {
   });
 
   it("gives a scam-zeroed pool no price", () => {
-    const scam = { ammType: AMMType.TickBasedCLAMM, currentPrice: 0.09, scamRating: 100 } as Pool;
+    const scam = { ammType: AMMType.TickBasedCLAMM, currentPrice: 0.09, a: 10, b: 1, scamRating: 100 } as Pool;
     expect(poolSpotPrice(scam)).toBeUndefined();
     expect(poolSpotPrice({ ...scam, scamRating: 80 })).toBe(0.09);
   });

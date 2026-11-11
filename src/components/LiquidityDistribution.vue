@@ -44,7 +44,7 @@
             :width="bar.hitWidth"
             :height="PLOT_BOTTOM"
             fill="transparent"
-            @mouseenter="hovered = bar"
+            @pointerenter="onPointerEnter($event, bar)"
             @click="toggleBar(bar)"
           />
         </g>
@@ -193,7 +193,7 @@ onMounted(() => {
   resizeObserver.observe(plot.value);
 });
 onBeforeUnmount(() => resizeObserver?.disconnect());
-const HEIGHT = 220;
+const HEIGHT = 224; // = h-56: with the measured width, one chart unit is one pixel both ways
 const PLOT_BOTTOM = HEIGHT - 1;
 const RADIUS = 4; // rounded data end
 
@@ -204,9 +204,9 @@ const domain = computed(() => priceDomain(props.ranges, props.currentPrice));
 const bars = computed(() =>
   buildLiquidityBars(props.ranges, props.currentPrice, width.value, PLOT_BOTTOM - 8, 2, props.currentTick, domain.value)
 );
-// a tooltip of data that was replaced must not linger
-watch(bars, () => {
-  hovered.value = null;
+// a tooltip of a range that is gone must not linger; a resize keeps it (on the re-laid-out bar)
+watch(bars, (next) => {
+  hovered.value = hovered.value ? (next.find((bar) => bar.key === hovered.value?.key) ?? null) : null;
 });
 
 // the table lists every range - also those outside the chart's price window - lowest price first
@@ -227,7 +227,10 @@ const priceX = computed(() =>
 // the backend clamps unbounded ends to 0 / decimal.MaxValue: each bound shows as 0, its price, or ∞ (template)
 const boundValue = (price: number | undefined): number => (isBoundedPrice(price) ? price : 0);
 
-// a tap on the open bar closes its tooltip (touch screens get no mouseleave)
+// a mouse hovers; a tap (touch / pen: no hover, and no mouseleave to close it) toggles the bar's tooltip
+const onPointerEnter = (event: PointerEvent, bar: LiquidityBar) => {
+  if (event.pointerType === "mouse") hovered.value = bar;
+};
 const toggleBar = (bar: LiquidityBar) => {
   hovered.value = hovered.value?.key === bar.key ? null : bar;
 };
