@@ -22,6 +22,7 @@
 
     <div ref="plot" class="relative" @mouseleave="hovered = null">
       <svg
+        v-if="bars.length > 0"
         :viewBox="`0 0 ${width} ${HEIGHT}`"
         class="w-full h-56"
         preserveAspectRatio="none"

@@ -40,7 +40,8 @@ export const WIDE_RANGE_RATIO = 10;
 
 /** decimal.MaxValue (~7.9228e28) - the backend's clamp for "unbounded above"; anything this large is that clamp. */
 const DECIMAL_MAX_CLAMP = 7.92e28;
-const DECIMAL_MAX = 79228162514264337593543950335;
+/** decimal.MaxValue as a JS number (the nearest double; how the JSON value parses). */
+const DECIMAL_MAX = 7.922816251426434e28;
 
 /** True for the backend's "unbounded above" clamp (decimal.MaxValue). */
 export function isUnboundedAbove(price: number | null | undefined): boolean {
@@ -98,9 +99,32 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
       const bounds = rangeBounds(r);
       return bounds !== null && bounds.low < windowMax && bounds.high > windowMin;
     });
-    if (anyRangeInWindow && windowMax > windowMin) return { min: windowMin, max: windowMax };
+    if (anyRangeInWindow && windowMax > windowMin) {
+      return padPriceEdge({ min: windowMin, max: windowMax }, ranges, currentPrice);
+    }
   }
   return max > min ? { min, max } : { min: min / 1.01, max: max * 1.01 };
+}
+
+/**
+ * When the price sits on an end of the axis (every concentrated range lies on one side of it) while a range holds
+ * liquidity beyond it, that end is pushed out by a tenth of the axis span (log scale, within the covering range and
+ * the price window), so the marker never sits on a misleading edge with the liquidity next to it cut off.
+ */
+function padPriceEdge(domain: PriceDomain, ranges: PoolLiquidityRange[], currentPrice: number): PriceDomain {
+  const pad = Math.max(1.01, Math.pow(domain.max / domain.min, 0.1));
+  let { min, max } = domain;
+  for (const r of ranges) {
+    const covered = rangeBounds(r);
+    if (!covered || covered.low > currentPrice || covered.high < currentPrice) continue;
+    if (currentPrice >= domain.max && covered.high > currentPrice) {
+      max = Math.max(max, Math.min(covered.high, currentPrice * pad, currentPrice * DOMAIN_WINDOW_FACTOR));
+    }
+    if (currentPrice <= domain.min && covered.low < currentPrice) {
+      min = Math.min(min, Math.max(covered.low, currentPrice / pad, currentPrice / DOMAIN_WINDOW_FACTOR));
+    }
+  }
+  return { min, max };
 }
 
 /** Position of a price on the log axis, clamped to [0, width]. */

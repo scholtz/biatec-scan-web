@@ -288,7 +288,14 @@
             <div class="flex justify-between items-center">
               <span class="text-gray-400">{{ $t("poolsByAssets.volume24H") }}:</span>
               <span class="text-white">
-                <FormattedNumber :value="rawPool?.volume24H" type="currency" currency="USD" :maximum-fraction-digits="2" />
+                <FormattedNumber
+                  :value="rawPool?.volume24H"
+                  type="currency"
+                  currency="USD"
+                  :maximum-fraction-digits="2"
+                  :small-threshold="0.01"
+                  :significant-digits="4"
+                />
               </span>
             </div>
             <div class="flex justify-between items-center">

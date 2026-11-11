@@ -69,13 +69,13 @@ describe("liquidity distribution of Pact CLAMM 3762241535", () => {
 describe("liquidity distribution helpers", () => {
   it("treats the backend's clamped bounds as unbounded", () => {
     expect(isBoundedPrice(0)).toBe(false);
-    expect(isBoundedPrice(79228162514264337593543950335)).toBe(false);
+    expect(isBoundedPrice(7.922816251426434e28)).toBe(false);
     expect(isBoundedPrice(undefined)).toBe(false);
     expect(isBoundedPrice(0.09)).toBe(true);
     // a half-unbounded range extends to the domain edge instead of breaking the axis
     const halfOpen: PoolLiquidityRange[] = [
       { tickLow: 1, tickHigh: 1, liquidity: 10, pMin: 1, pMax: 2 },
-      { tickLow: 2, tickHigh: 2, liquidity: 5, pMin: 2, pMax: 79228162514264337593543950335 },
+      { tickLow: 2, tickHigh: 2, liquidity: 5, pMin: 2, pMax: 7.922816251426434e28 },
     ];
     expect(priceDomain(halfOpen)).toEqual({ min: 1, max: 2 });
     const bars = buildLiquidityBars(halfOpen, 1.5, 100, 50, 0);
@@ -88,7 +88,7 @@ describe("liquidity distribution helpers", () => {
     // both bounds clamped (extreme ticks): not a bar across the whole chart
     const ranges: PoolLiquidityRange[] = [
       { tickLow: 1, tickHigh: 1, liquidity: 1000, pMin: 0, pMax: 0 },
-      { tickLow: 2, tickHigh: 2, liquidity: 1000, pMin: 79228162514264337593543950335, pMax: 79228162514264337593543950335 },
+      { tickLow: 2, tickHigh: 2, liquidity: 1000, pMin: 7.922816251426434e28, pMax: 7.922816251426434e28 },
       { tickLow: 3, tickHigh: 3, liquidity: 5, pMin: 2, pMax: 4 },
     ];
     const bars = buildLiquidityBars(ranges, 3, 100, 50, 0);
@@ -104,7 +104,11 @@ describe("liquidity distribution helpers", () => {
       { tickLow: 2, tickHigh: 2, liquidity: 50, pMin: 0.09, pMax: 0.0906 },
       { tickLow: 3, tickHigh: 3, liquidity: 40, pMin: 0.0906, pMax: 0.0912 },
     ];
-    expect(priceDomain(ranges, 0.09)).toEqual({ min: 0.09, max: 0.0912 });
+    // the concentrated ranges size the axis; the price sits on its low end with the wide range below, so that end
+    // gets a small pad (at least 1 %)
+    const domain = priceDomain(ranges, 0.09)!;
+    expect(domain.max).toBe(0.0912);
+    expect(domain.min).toBeCloseTo(0.09 / 1.01, 10);
     const bars = buildLiquidityBars(ranges, 0.09, 1000, 50);
     const concentrated = bars.filter((b) => b.range.tickLow !== 1);
     for (const bar of concentrated) expect(bar.width).toBeGreaterThan(100);
@@ -216,7 +220,7 @@ describe("liquidity distribution helpers", () => {
     expect(poolSpotPrice(plain)).toBe(0.5);
   });
   it("charts a pool holding only full range liquidity", () => {
-    const fullRange: PoolLiquidityRange[] = [{ tickLow: 0, tickHigh: 9, liquidity: 7, pMin: 0, pMax: 79228162514264337593543950335 }];
+    const fullRange: PoolLiquidityRange[] = [{ tickLow: 0, tickHigh: 9, liquidity: 7, pMin: 0, pMax: 7.922816251426434e28 }];
     expect(priceDomain(fullRange, 2)).toEqual({ min: 0.02, max: 200 });
     const bars = buildLiquidityBars(fullRange, 2, 100, 50, 0);
     expect(bars).toHaveLength(1);
@@ -233,7 +237,7 @@ describe("liquidity distribution helpers", () => {
   it("keeps the window when only wide ranges straddle it", () => {
     const wide: PoolLiquidityRange[] = [
       { tickLow: 1, tickHigh: 1, liquidity: 1, pMin: 1e-6, pMax: 1e6 },
-      { tickLow: 2, tickHigh: 2, liquidity: 1, pMin: 1e6, pMax: 79228162514264337593543950335 },
+      { tickLow: 2, tickHigh: 2, liquidity: 1, pMin: 1e6, pMax: 7.922816251426434e28 },
     ];
     expect(priceDomain(wide, 1)).toEqual({ min: 0.01, max: 100 });
   });
@@ -244,25 +248,27 @@ describe("liquidity distribution helpers", () => {
     ];
     // the window (x100 above the price) applies instead of spanning up to the far range; nothing concentrated lies
     // below the price, so the axis starts at it
-    expect(priceDomain(ranges, 1)).toEqual({ min: 1, max: 100 });
+    expect(priceDomain(ranges, 1)!.max).toBe(100);
+    // the price on the low end, the wide range below it: padded by a tenth of the axis span
+    expect(priceDomain(ranges, 1)!.min).toBeCloseTo(1 / Math.pow(100, 0.1), 10);
     // a real bound between 1e28 and the decimal.MaxValue clamp is still a price
     expect(isBoundedPrice(5e28)).toBe(true);
-    expect(isBoundedPrice(7.9228162514264337593543950335e28)).toBe(false);
+    expect(isBoundedPrice(7.922816251426434e28)).toBe(false);
   });
   it("ignores ranges clamped at both ends when deciding on the window", () => {
     const ranges: PoolLiquidityRange[] = [
       { tickLow: 1, tickHigh: 1, liquidity: 9, pMin: 0, pMax: 0 },
-      { tickLow: 2, tickHigh: 2, liquidity: 9, pMin: 79228162514264337593543950335, pMax: 79228162514264337593543950335 },
+      { tickLow: 2, tickHigh: 2, liquidity: 9, pMin: 7.922816251426434e28, pMax: 7.922816251426434e28 },
       { tickLow: 3, tickHigh: 3, liquidity: 5, pMin: 0.13, pMax: 0.25 },
     ];
     // depleted pool far below its only real range: the axis widens to it instead of a window with no bars
     expect(priceDomain(ranges, 0.0009)).toEqual({ min: 0.0009, max: 0.25 });
     expect(buildLiquidityBars(ranges, 0.0009, 100, 50).map((b) => b.range.tickLow)).toEqual([3]);
-    expect(isUnboundedAbove(79228162514264337593543950335)).toBe(true);
+    expect(isUnboundedAbove(7.922816251426434e28)).toBe(true);
     expect(isUnboundedAbove(0)).toBe(false);
   });
   it("reads the price interval of a range the same way everywhere", () => {
-    const max = 79228162514264337593543950335;
+    const max = 7.922816251426434e28;
     expect(rangeBounds({ pMin: 1, pMax: 2 })).toEqual({ low: 1, high: 2 });
     expect(rangeBounds({ pMin: 0, pMax: 2 })).toEqual({ low: 0, high: 2 });
     expect(rangeBounds({ pMin: 2, pMax: max })).toEqual({ low: 2, high: Infinity });
@@ -278,7 +284,7 @@ describe("liquidity distribution helpers", () => {
     expect(poolSpotPrice({ ...tick, currentPrice: 0 })).toBeUndefined();
   });
   it("reverses a range like the backend does", () => {
-    const max = 79228162514264337593543950335;
+    const max = 7.922816251426434e28;
     expect(reverseLiquidityRange({ tickLow: 1, tickHigh: 2, liquidity: 9, pMin: 0.5, pMax: 4, a: 10, b: 20 })).toEqual({
       tickLow: 1,
       tickHigh: 2,
@@ -315,5 +321,18 @@ describe("liquidity distribution helpers", () => {
     const active = bars.find((b) => b.active)!;
     expect(active.range.a).toBe(ranges.find((r) => r.tickLow === 1000401)!.b);
     vi.unstubAllGlobals();
+  });
+  it("never cuts the window at the price when a wide range holds it", () => {
+    // the concentrated ranges all lie far below the price, a wide range covers it
+    const ranges: PoolLiquidityRange[] = [
+      { tickLow: 1, tickHigh: 1, liquidity: 9, pMin: 0.001, pMax: 0.0011 },
+      { tickLow: 2, tickHigh: 2, liquidity: 1, pMin: 0.5, pMax: 500 },
+    ];
+    const domain = priceDomain(ranges, 10)!;
+    // the window ends at the price (no concentrated range above it), padded by a tenth of its log span
+    expect(domain.min).toBeCloseTo(0.1);
+    expect(domain.max).toBeCloseTo(10 * Math.pow(100, 0.1));
+    expect(priceToX(10, domain, 100)).toBeGreaterThan(0);
+    expect(priceToX(10, domain, 100)).toBeLessThan(100);
   });
 });
