@@ -348,7 +348,7 @@ import LiquidityList from "../components/LiquidityList.vue";
 import FormattedNumber from "../components/FormattedNumber.vue";
 import LiquidityDistribution from "../components/LiquidityDistribution.vue";
 import { AMMType, type Pool } from "../api/models";
-import { poolSpotPrice } from "../utils/poolPrice";
+import { poolSpotPrice, SCAM_ZERO_BALANCES_THRESHOLD } from "../utils/poolPrice";
 
 const api = getAVMTradeReporterAPI();
 // assetService caches in localStorage (not reactive); assetInfo() subscribes
@@ -427,7 +427,7 @@ const loadPoolInfo = async () => {
 
 const scamRating = computed(() => poolInfo.value?.scamRating ?? 0);
 // Mirrors the backend ScamRatingPolicy.ZeroBalancesThreshold: above 80 the API reports 0 balances.
-const isKnownScam = computed(() => scamRating.value > 80);
+const isKnownScam = computed(() => scamRating.value > SCAM_ZERO_BALANCES_THRESHOLD);
 
 const formatAddress = (address: string): string => {
   if (!address) return "";
@@ -529,15 +529,13 @@ const unitB = computed(() =>
 );
 // the pool's decimals, else the asset's (pools enriched before the field existed); undefined while unknown, so
 // the range amounts show a placeholder instead of base units
-const NATIVE_TOKEN_DECIMALS = 6; // ALGO and VOI
-const assetDecimals = (assetId: bigint | undefined, poolDecimals: number | null | undefined): number | undefined => {
+const assetDecimals = (assetId: number | null | undefined, poolDecimals: number | null | undefined): number | undefined => {
   if (poolDecimals != null) return poolDecimals;
-  if (assetId === undefined) return undefined;
-  if (assetId === BigInt(0)) return NATIVE_TOKEN_DECIMALS;
-  return assetInfo(assetId)?.decimals ?? undefined;
+  if (assetId == null) return undefined;
+  return assetInfo(assetId)?.decimals ?? undefined; // the native token (id 0) resolves to its own decimals
 };
-const decimalsA = computed(() => assetDecimals(poolInfo.value?.assetIdA, rawPool.value?.assetADecimals));
-const decimalsB = computed(() => assetDecimals(poolInfo.value?.assetIdB, rawPool.value?.assetBDecimals));
+const decimalsA = computed(() => assetDecimals(rawPool.value?.assetIdA, rawPool.value?.assetADecimals));
+const decimalsB = computed(() => assetDecimals(rawPool.value?.assetIdB, rawPool.value?.assetBDecimals));
 
 const liquidityRanges = computed(() => rawPool.value?.liquidityRanges ?? []);
 

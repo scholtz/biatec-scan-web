@@ -69,8 +69,11 @@
       >
         <div class="font-medium mb-1">
           {{ $t("poolDetails.priceRange") }}:
-          <FormattedNumber :value="hovered.range.pMin" :maximum-significant-digits="6" /> –
-          <FormattedNumber :value="hovered.range.pMax" :maximum-significant-digits="6" />
+          <FormattedNumber :value="lowerBound(hovered.range)" :maximum-significant-digits="6" /> –
+          <template v-if="isBoundedPrice(hovered.range.pMax)">
+            <FormattedNumber :value="hovered.range.pMax" :maximum-significant-digits="6" />
+          </template>
+          <template v-else>∞</template>
           {{ unitB }} / {{ unitA }}
         </div>
         <div class="text-gray-300">
@@ -122,8 +125,11 @@
             :class="row.active ? 'bg-blue-500/10' : ''"
           >
             <td class="py-1 pr-3">
-              <FormattedNumber :value="row.range.pMin" :maximum-significant-digits="6" /> –
-              <FormattedNumber :value="row.range.pMax" :maximum-significant-digits="6" />
+              <FormattedNumber :value="lowerBound(row.range)" :maximum-significant-digits="6" /> –
+              <template v-if="isBoundedPrice(row.range.pMax)">
+                <FormattedNumber :value="row.range.pMax" :maximum-significant-digits="6" />
+              </template>
+              <template v-else>∞</template>
             </td>
             <td class="py-1 pr-3 text-right">
               <FormattedNumber :value="row.range.liquidity" compact :maximum-significant-digits="4" />
@@ -198,6 +204,9 @@ const tableRows = computed(() =>
 const priceX = computed(() =>
   isBoundedPrice(props.currentPrice) && domain.value ? priceToX(props.currentPrice, domain.value, WIDTH) : null
 );
+
+// the backend clamps unbounded ends to 0 / decimal.MaxValue: show 0 and ∞
+const lowerBound = (range: PoolLiquidityRange): number => (isBoundedPrice(range.pMin) ? range.pMin : 0);
 
 const amount = (base: number | undefined, decimals: number | undefined): number | undefined =>
   decimals === undefined ? undefined : (base ?? 0) / Math.pow(10, decimals);

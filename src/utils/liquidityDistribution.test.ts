@@ -121,9 +121,19 @@ describe("liquidity distribution helpers", () => {
     const last = bars[bars.length - 1];
     expect(last.hitX + last.hitWidth).toBeCloseTo(1000);
     for (let i = 0; i < bars.length; i++) {
-      expect(bars[i].hitX).toBeLessThanOrEqual(bars[i].x);
-      expect(bars[i].hitX + bars[i].hitWidth).toBeGreaterThanOrEqual(bars[i].x + bars[i].width);
       if (i > 0) expect(bars[i].hitX).toBeCloseTo(bars[i - 1].hitX + bars[i - 1].hitWidth);
+    }
+    // also for ranges thinner than one chart unit: targets stay disjoint
+    const thin: PoolLiquidityRange[] = Array.from({ length: 5 }, (_, i) => ({
+      tickLow: i,
+      tickHigh: i,
+      liquidity: 1,
+      pMin: 1 + i * 0.0001,
+      pMax: 1 + (i + 1) * 0.0001,
+    }));
+    const thinBars = buildLiquidityBars(thin, 1.0002, 1000, 50, 2, null, { min: 0.5, max: 2 });
+    for (let i = 1; i < thinBars.length; i++) {
+      expect(thinBars[i].hitX).toBeGreaterThanOrEqual(thinBars[i - 1].hitX + thinBars[i - 1].hitWidth - 1e-9);
     }
   });
 
@@ -199,5 +209,20 @@ describe("liquidity distribution helpers", () => {
     expect(poolSpotPrice(zeroed)).toBe(2.5);
     const plain = { ammType: AMMType.OldAMM, virtualAmountA: 2, virtualAmountB: 1 } as Pool;
     expect(poolSpotPrice(plain)).toBe(0.5);
+  });
+  it("charts a pool holding only full range liquidity", () => {
+    const fullRange: PoolLiquidityRange[] = [{ tickLow: 0, tickHigh: 9, liquidity: 7, pMin: 0, pMax: 7.9e28 }];
+    expect(priceDomain(fullRange, 2)).toEqual({ min: 0.02, max: 200 });
+    const bars = buildLiquidityBars(fullRange, 2, 100, 50, 0);
+    expect(bars).toHaveLength(1);
+    expect(bars[0].x).toBe(0);
+    expect(bars[0].width).toBeCloseTo(100);
+    expect(bars[0].active).toBe(true);
+  });
+
+  it("gives a scam-zeroed pool no price", () => {
+    const scam = { ammType: AMMType.TickBasedCLAMM, currentPrice: 0.09, scamRating: 100 } as Pool;
+    expect(poolSpotPrice(scam)).toBeUndefined();
+    expect(poolSpotPrice({ ...scam, scamRating: 80 })).toBe(0.09);
   });
 });

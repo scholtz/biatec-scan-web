@@ -18,7 +18,11 @@ import { AMMType, AggregatedPool, Pool } from "../api/models";
  * All other pools price as virtualAmountB / virtualAmountA, falling back to `currentPrice` when the virtual amounts
  * are missing (e.g. zeroed balances).
  */
+/** Mirrors the backend ScamRatingPolicy.ZeroBalancesThreshold: above it a pool contributes no price anywhere. */
+export const SCAM_ZERO_BALANCES_THRESHOLD = 80;
+
 export function poolSpotPrice(p: Pool): number | undefined {
+  if ((p.scamRating ?? 0) > SCAM_ZERO_BALANCES_THRESHOLD) return undefined;
   const contractPrice = p.currentPrice != null && p.currentPrice > 0 ? p.currentPrice : undefined;
   if (p.ammType === AMMType.TickBasedCLAMM && contractPrice !== undefined) {
     return contractPrice;

@@ -1,9 +1,12 @@
 import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import type { Pool } from "../src/api/models";
 
 // The Pact CLAMM ALGO/USDC pool 3762241535 as the backend serves it: reserves, price and the liquidity ranges read
 // from the pool's on-chain tick boxes (TVL 18.94k USD - Pact reports 18.93k).
-const pool = JSON.parse(readFileSync(new URL("./fixtures/pact-clamm-3762241535-pool.json", import.meta.url), "utf-8"));
+const pool: Pool = JSON.parse(
+  readFileSync(new URL("./fixtures/pact-clamm-3762241535-pool.json", import.meta.url), "utf-8")
+);
 
 const CORS = {
   "access-control-allow-origin": "*",

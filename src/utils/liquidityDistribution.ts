@@ -16,7 +16,10 @@ export interface LiquidityBar {
   height: number;
   /** The range holding the current price. */
   active: boolean;
-  /** Hover target: the bar plus half of the gaps around it - contiguous with the neighbours, never overlapping. */
+  /**
+   * Hover target: the range's own price span plus half of the gaps around it - contiguous with the neighbours, never
+   * overlapping (a bar thinner than 1 unit is drawn wider than its target).
+   */
   hitX: number;
   hitWidth: number;
 }
@@ -54,7 +57,12 @@ export function priceDomain(ranges: PoolLiquidityRange[], currentPrice?: number)
   const bounds = (concentrated.length > 0 ? concentrated : ranges)
     .flatMap((r) => [r.pMin, r.pMax])
     .filter(isBoundedPrice);
-  if (bounds.length === 0) return null;
+  if (bounds.length === 0) {
+    // only unbounded (full range) liquidity: show the window around the price, the ranges span all of it
+    return isBoundedPrice(currentPrice)
+      ? { min: currentPrice / DOMAIN_WINDOW_FACTOR, max: currentPrice * DOMAIN_WINDOW_FACTOR }
+      : null;
+  }
   const rangeBounds = [...bounds];
   // the current price is always on the axis, so its marker never sits at a misleading edge
   if (isBoundedPrice(currentPrice)) bounds.push(currentPrice);
@@ -117,7 +125,8 @@ export function buildLiquidityBars(
     const low = isBoundedPrice(r.pMin) ? r.pMin : r.pMin === 0 ? 0 : undefined;
     const high = isBoundedPrice(r.pMax) ? r.pMax : r.pMax !== undefined && r.pMax > 0 ? Infinity : undefined;
     if (low === undefined || high === undefined) return false;
-    return high > domain.min && low < domain.max && (isBoundedPrice(r.pMin) || isBoundedPrice(r.pMax));
+    // a range clamped to 0 on both ends (or to the maximum on both) lies entirely off the axis
+    return high > domain.min && low < domain.max && high > low;
   });
   const maxLiquidity = Math.max(0, ...visible.map((r) => r.liquidity ?? 0));
   if (maxLiquidity <= 0) return [];
@@ -136,7 +145,7 @@ export function buildLiquidityBars(
         height: Math.max(1, ((range.liquidity ?? 0) / maxLiquidity) * maxHeight),
         active: isActiveRange(range, currentPrice, currentTick),
         hitX: Math.min(left, right),
-        hitWidth: Math.max(1, Math.abs(right - left)),
+        hitWidth: span,
       };
     })
     .sort((a, b) => a.x - b.x);
@@ -148,6 +157,7 @@ export function buildLiquidityBars(
     bars[i].hitX = Math.min(start, spans[i].left);
     bars[i].hitWidth = Math.max(end, spans[i].right) - bars[i].hitX;
   }
+  // (ranges from the boxes never overlap; a wide range overlapping others is drawn first, see LiquidityDistribution)
   return bars;
 }
 
