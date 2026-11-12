@@ -362,8 +362,16 @@ const convertApiTrade = (trade: Trade): AMMTrade => ({
   tradeState: trade.tradeState ?? "Confirmed",
 });
 
+// The hub replays its recent blocks right after subscribing; those are
+// history, not proof that the indexer is currently making progress.
+const BLOCK_REPLAY_GRACE_MS = 2000;
+let firstBlockReceivedAt: number | null = null;
+
 const onReconnectedEvent = () => {
   state.connectionStatus = true;
+  // The hub replays recent blocks again on resubscribe: restart the grace
+  // window so that replay is not mistaken for live sync progress.
+  firstBlockReceivedAt = null;
   // Messages broadcast during the outage were missed; refill from the API.
   void loadRecentTrades();
 };
@@ -539,11 +547,6 @@ const onAggregatedPoolReceivedEvent = (pool: AggregatedPool) => {
     console.error("Error handling aggregated pool update:", e);
   }
 };
-
-// The hub replays its recent blocks right after subscribing; those are
-// history, not proof that the indexer is currently making progress.
-const BLOCK_REPLAY_GRACE_MS = 2000;
-let firstBlockReceivedAt: number | null = null;
 
 const onBlockReceivedEvent = (block: BiatecBlock) => {
   try {
