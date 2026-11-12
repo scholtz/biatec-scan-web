@@ -568,10 +568,14 @@ const onBlockReceivedEvent = (block: BiatecBlock) => {
       currentTime.value = now;
       state.lastRoundAdvanceAt = now;
     }
+    // Keep newest-round first regardless of delivery order (e.g. a replay
+    // after reconnect), so latestBlocks[0] is always the highest round.
     state.latestBlocks = [
       block,
-      ...state.latestBlocks.filter((b) => b.round !== block.round).slice(0, 9),
-    ];
+      ...state.latestBlocks.filter((b) => b.round !== block.round),
+    ]
+      .sort((a, b) => b.round - a.round)
+      .slice(0, 10);
   } catch (error) {
     console.error("Error handling block update:", error);
   }
