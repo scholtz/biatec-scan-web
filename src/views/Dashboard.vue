@@ -371,7 +371,10 @@ const onReconnectedEvent = () => {
   state.connectionStatus = true;
   // The hub replays recent blocks again on resubscribe: restart the grace
   // window so that replay is not mistaken for live sync progress.
+  // Also forget the highest round so a restarted/re-indexed backend that
+  // re-emits lower rounds is not ignored until a page reload.
   firstBlockReceivedAt = null;
+  state.highestRound = null;
   // Messages broadcast during the outage were missed; refill from the API.
   void loadRecentTrades();
 };
@@ -565,7 +568,10 @@ const onBlockReceivedEvent = (block: BiatecBlock) => {
       currentTime.value = now;
       state.lastRoundAdvanceAt = now;
     }
-    state.latestBlocks = [block, ...state.latestBlocks.slice(0, 9)];
+    state.latestBlocks = [
+      block,
+      ...state.latestBlocks.filter((b) => b.round !== block.round).slice(0, 9),
+    ];
   } catch (error) {
     console.error("Error handling block update:", error);
   }
