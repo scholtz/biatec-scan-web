@@ -596,7 +596,8 @@
   },
   "status": {
     "online": "PRIPOJENÉ",
-    "offline": "ODPOJENÉ"
+    "offline": "ODPOJENÉ",
+    "syncing": "SYNCHRONIZÁCIA"
   },
   "settings": {
     "title": "Nastavenia",

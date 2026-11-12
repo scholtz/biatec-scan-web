@@ -596,7 +596,8 @@
   },
   "status": {
     "online": "ОНЛАЙН",
-    "offline": "ОФФЛАЙН"
+    "offline": "ОФФЛАЙН",
+    "syncing": "СИНХРОНИЗАЦИЯ"
   },
   "settings": {
     "title": "Настройки",

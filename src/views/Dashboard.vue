@@ -251,6 +251,7 @@ import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
 import { getAVMTradeReporterAPI } from "../api";
 import { usdcAssetId } from "../config/env";
 import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
+import { computeNetworkStatus, isRoundAdvance } from "../utils/networkStatus";
 
 const { t } = useI18n();
 
@@ -269,6 +270,10 @@ const state = reactive({
   mounted: true,
   tokensToLoad: [] as bigint[],
   algoPrice: null as AggregatedPool | null,
+  // Local time when we last saw the latest round increase (drives "syncing")
+  lastRoundAdvanceAt: null as number | null,
+  // Highest round seen so far; out-of-order/replayed blocks are not advances
+  highestRound: null as number | null,
 });
 
 const algoPriceValue = computed(() =>
@@ -289,19 +294,19 @@ const currentTime = ref(Date.now());
 let timeInterval: number | null = null;
 
 const networkStatus = computed(() => {
-  if (state.latestBlocks.length === 0)
-    return { status: t("status.offline"), color: "text-red-400" };
-
   const latestBlock = state.latestBlocks[0];
-  const now = new Date();
-  const blockTime = new Date(latestBlock.timestamp);
-  const timeDiff = now.getTime() - blockTime.getTime();
-
-  // If latest block is less than 60 seconds old, consider network online
-  if (timeDiff < 60000) {
-    return { status: t("status.online"), color: "text-green-400" };
-  } else {
-    return { status: t("status.offline"), color: "text-red-400" };
+  const kind = computeNetworkStatus(
+    latestBlock ? new Date(latestBlock.timestamp).getTime() : null,
+    state.lastRoundAdvanceAt,
+    currentTime.value
+  );
+  switch (kind) {
+    case "online":
+      return { status: t("status.online"), color: "text-green-400" };
+    case "syncing":
+      return { status: t("status.syncing"), color: "text-yellow-400" };
+    default:
+      return { status: t("status.offline"), color: "text-red-400" };
   }
 });
 
@@ -357,13 +362,32 @@ const convertApiTrade = (trade: Trade): AMMTrade => ({
   tradeState: trade.tradeState ?? "Confirmed",
 });
 
+// The hub replays its recent blocks right after subscribing; those are
+// history, not proof that the indexer is currently making progress.
+const BLOCK_REPLAY_GRACE_MS = 2000;
+let firstBlockReceivedAt: number | null = null;
+
 const onReconnectedEvent = () => {
   state.connectionStatus = true;
+  // The hub replays recent blocks again on resubscribe: restart the grace
+  // window so that replay is not mistaken for live sync progress.
+  // Also forget the highest round so a restarted/re-indexed backend that
+  // re-emits lower rounds is not ignored until a page reload.
+  firstBlockReceivedAt = null;
+  state.highestRound = null;
   // Messages broadcast during the outage were missed; refill from the API.
   void loadRecentTrades();
 };
 
 onMounted(async () => {
+  // Update current time every second for network status calculation. Cast
+  // needed because TS resolves this call against @types/node's overload
+  // (NodeJS.Timeout) rather than the DOM one (number) even though this
+  // always runs in the browser.
+  timeInterval = setInterval(() => {
+    currentTime.value = Date.now();
+  }, 1000) as unknown as number;
+
   // Set up SignalR for AMM trades
 
   signalrService.onBlockReceived(onBlockReceivedEvent);
@@ -396,14 +420,6 @@ onMounted(async () => {
   } catch (e) {
     console.error("Error fetching initial ALGO/USDC aggregated pool:", e);
   }
-
-  // Update current time every second for network status calculation. Cast
-  // needed because TS resolves this call against @types/node's overload
-  // (NodeJS.Timeout) rather than the DOM one (number) even though this
-  // always runs in the browser.
-  timeInterval = setInterval(() => {
-    currentTime.value = Date.now();
-  }, 1000) as unknown as number;
 });
 
 const onPoolReceivedEvent = (pool: Pool) => {
@@ -538,7 +554,28 @@ const onAggregatedPoolReceivedEvent = (pool: AggregatedPool) => {
 const onBlockReceivedEvent = (block: BiatecBlock) => {
   try {
     console.log("onBlockReceived.block", block.round, block);
-    state.latestBlocks = [block, ...state.latestBlocks.slice(0, 9)];
+    // Duplicate, replayed or out-of-order rounds must not regress the latest
+    // block (which drives the network status) nor count as sync progress.
+    const round = Number(block.round);
+    if (!Number.isFinite(round)) return;
+    if (!isRoundAdvance(state.highestRound, round)) return;
+    const now = Date.now();
+    if (firstBlockReceivedAt === null) firstBlockReceivedAt = now;
+    state.highestRound = round;
+    if (now - firstBlockReceivedAt > BLOCK_REPLAY_GRACE_MS) {
+      // Sync the reactive clock too so the advance is never "in the future"
+      // relative to currentTime.
+      currentTime.value = now;
+      state.lastRoundAdvanceAt = now;
+    }
+    // Keep newest-round first regardless of delivery order (e.g. a replay
+    // after reconnect), so latestBlocks[0] is always the highest round.
+    state.latestBlocks = [
+      block,
+      ...state.latestBlocks.filter((b) => b.round !== block.round),
+    ]
+      .sort((a, b) => b.round - a.round)
+      .slice(0, 10);
   } catch (error) {
     console.error("Error handling block update:", error);
   }
