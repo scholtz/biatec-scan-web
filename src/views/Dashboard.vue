@@ -543,13 +543,15 @@ const onAggregatedPoolReceivedEvent = (pool: AggregatedPool) => {
 const onBlockReceivedEvent = (block: BiatecBlock) => {
   try {
     console.log("onBlockReceived.block", block.round, block);
-    if (isRoundAdvance(state.highestRound, block.round)) {
-      state.highestRound = block.round;
-      // Sync the reactive clock too so the advance is never "in the future"
-      // relative to currentTime (the 1s interval may not be running yet).
-      currentTime.value = Date.now();
-      state.lastRoundAdvanceAt = currentTime.value;
-    }
+    // Duplicate, replayed or out-of-order rounds must not regress the latest
+    // block (which drives the network status) nor count as sync progress.
+    const round = Number(block.round);
+    if (!isRoundAdvance(state.highestRound, round)) return;
+    state.highestRound = round;
+    // Sync the reactive clock too so the advance is never "in the future"
+    // relative to currentTime (the 1s interval may not be running yet).
+    currentTime.value = Date.now();
+    state.lastRoundAdvanceAt = currentTime.value;
     state.latestBlocks = [block, ...state.latestBlocks.slice(0, 9)];
   } catch (error) {
     console.error("Error handling block update:", error);

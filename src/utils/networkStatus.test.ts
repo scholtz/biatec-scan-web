@@ -13,6 +13,10 @@ describe("computeNetworkStatus", () => {
   it("is online when the latest block is fresh", () => {
     expect(computeNetworkStatus(NOW - 5_000, null, NOW)).toBe("online");
   });
+  it("treats a block exactly 60s old as no longer online", () => {
+    expect(computeNetworkStatus(NOW - 59_999, null, NOW)).toBe("online");
+    expect(computeNetworkStatus(NOW - 60_000, null, NOW)).toBe("offline");
+  });
   it("is offline when block is old and round has not advanced recently", () => {
     expect(computeNetworkStatus(NOW - 600_000, null, NOW)).toBe("offline");
     expect(computeNetworkStatus(NOW - 600_000, NOW - 120_000, NOW)).toBe(
