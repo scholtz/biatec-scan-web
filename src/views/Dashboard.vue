@@ -369,6 +369,14 @@ const onReconnectedEvent = () => {
 };
 
 onMounted(async () => {
+  // Update current time every second for network status calculation. Cast
+  // needed because TS resolves this call against @types/node's overload
+  // (NodeJS.Timeout) rather than the DOM one (number) even though this
+  // always runs in the browser.
+  timeInterval = setInterval(() => {
+    currentTime.value = Date.now();
+  }, 1000) as unknown as number;
+
   // Set up SignalR for AMM trades
 
   signalrService.onBlockReceived(onBlockReceivedEvent);
@@ -401,14 +409,6 @@ onMounted(async () => {
   } catch (e) {
     console.error("Error fetching initial ALGO/USDC aggregated pool:", e);
   }
-
-  // Update current time every second for network status calculation. Cast
-  // needed because TS resolves this call against @types/node's overload
-  // (NodeJS.Timeout) rather than the DOM one (number) even though this
-  // always runs in the browser.
-  timeInterval = setInterval(() => {
-    currentTime.value = Date.now();
-  }, 1000) as unknown as number;
 });
 
 const onPoolReceivedEvent = (pool: Pool) => {
@@ -540,18 +540,28 @@ const onAggregatedPoolReceivedEvent = (pool: AggregatedPool) => {
   }
 };
 
+// The hub replays its recent blocks right after subscribing; those are
+// history, not proof that the indexer is currently making progress.
+const BLOCK_REPLAY_GRACE_MS = 2000;
+let firstBlockReceivedAt: number | null = null;
+
 const onBlockReceivedEvent = (block: BiatecBlock) => {
   try {
     console.log("onBlockReceived.block", block.round, block);
     // Duplicate, replayed or out-of-order rounds must not regress the latest
     // block (which drives the network status) nor count as sync progress.
     const round = Number(block.round);
+    if (!Number.isFinite(round)) return;
     if (!isRoundAdvance(state.highestRound, round)) return;
+    const now = Date.now();
+    if (firstBlockReceivedAt === null) firstBlockReceivedAt = now;
     state.highestRound = round;
-    // Sync the reactive clock too so the advance is never "in the future"
-    // relative to currentTime (the 1s interval may not be running yet).
-    currentTime.value = Date.now();
-    state.lastRoundAdvanceAt = currentTime.value;
+    if (now - firstBlockReceivedAt > BLOCK_REPLAY_GRACE_MS) {
+      // Sync the reactive clock too so the advance is never "in the future"
+      // relative to currentTime.
+      currentTime.value = now;
+      state.lastRoundAdvanceAt = now;
+    }
     state.latestBlocks = [block, ...state.latestBlocks.slice(0, 9)];
   } catch (error) {
     console.error("Error handling block update:", error);

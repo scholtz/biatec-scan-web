@@ -30,13 +30,13 @@ export function computeNetworkStatus(
 }
 
 /**
- * Whether a received block moves the latest round forward. The first block
- * received (no round seen yet) counts: the live feed only pushes newly
- * processed blocks. Replayed, duplicate or out-of-order rounds do not.
+ * Whether a received block moves the latest round forward. Duplicate, replayed
+ * or out-of-order rounds (and non-finite rounds) do not.
  */
 export function isRoundAdvance(
   highestRound: number | null,
   receivedRound: number
 ): boolean {
+  if (!Number.isFinite(receivedRound)) return false;
   return highestRound === null || receivedRound > highestRound;
 }

@@ -36,7 +36,11 @@ describe("computeNetworkStatus", () => {
 });
 
 describe("isRoundAdvance", () => {
-  it("counts the first received block", () => {
+  it("rejects non-finite rounds", () => {
+    expect(isRoundAdvance(null, NaN)).toBe(false);
+    expect(isRoundAdvance(10, Infinity)).toBe(false);
+  });
+  it("accepts the first received round as the baseline", () => {
     expect(isRoundAdvance(null, 10)).toBe(true);
   });
   it("counts a higher round", () => {
