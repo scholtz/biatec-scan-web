@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeNetworkStatus } from "./networkStatus";
+import { computeNetworkStatus, isRoundAdvance } from "./networkStatus";
 
 const NOW = 1_000_000_000;
 
@@ -28,5 +28,18 @@ describe("computeNetworkStatus", () => {
     expect(computeNetworkStatus(NOW - 600_000, NOW - 60_000, NOW)).toBe(
       "offline"
     );
+  });
+});
+
+describe("isRoundAdvance", () => {
+  it("counts the first received block", () => {
+    expect(isRoundAdvance(null, 10)).toBe(true);
+  });
+  it("counts a higher round", () => {
+    expect(isRoundAdvance(10, 11)).toBe(true);
+  });
+  it("ignores duplicate and older rounds", () => {
+    expect(isRoundAdvance(10, 10)).toBe(false);
+    expect(isRoundAdvance(10, 9)).toBe(false);
   });
 });

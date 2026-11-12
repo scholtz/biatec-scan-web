@@ -28,3 +28,15 @@ export function computeNetworkStatus(
     return "syncing";
   return "offline";
 }
+
+/**
+ * Whether a received block moves the latest round forward. The first block
+ * received (no round seen yet) counts: the live feed only pushes newly
+ * processed blocks. Replayed, duplicate or out-of-order rounds do not.
+ */
+export function isRoundAdvance(
+  highestRound: number | null,
+  receivedRound: number
+): boolean {
+  return highestRound === null || receivedRound > highestRound;
+}

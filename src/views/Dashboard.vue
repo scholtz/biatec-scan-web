@@ -251,7 +251,7 @@ import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
 import { getAVMTradeReporterAPI } from "../api";
 import { usdcAssetId } from "../config/env";
 import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
-import { computeNetworkStatus } from "../utils/networkStatus";
+import { computeNetworkStatus, isRoundAdvance } from "../utils/networkStatus";
 
 const { t } = useI18n();
 
@@ -272,6 +272,8 @@ const state = reactive({
   algoPrice: null as AggregatedPool | null,
   // Local time when we last saw the latest round increase (drives "syncing")
   lastRoundAdvanceAt: null as number | null,
+  // Highest round seen so far; out-of-order/replayed blocks are not advances
+  highestRound: null as number | null,
 });
 
 const algoPriceValue = computed(() =>
@@ -541,9 +543,12 @@ const onAggregatedPoolReceivedEvent = (pool: AggregatedPool) => {
 const onBlockReceivedEvent = (block: BiatecBlock) => {
   try {
     console.log("onBlockReceived.block", block.round, block);
-    const previousRound = state.latestBlocks[0]?.round;
-    if (previousRound !== undefined && block.round > previousRound) {
-      state.lastRoundAdvanceAt = Date.now();
+    if (isRoundAdvance(state.highestRound, block.round)) {
+      state.highestRound = block.round;
+      // Sync the reactive clock too so the advance is never "in the future"
+      // relative to currentTime (the 1s interval may not be running yet).
+      currentTime.value = Date.now();
+      state.lastRoundAdvanceAt = currentTime.value;
     }
     state.latestBlocks = [block, ...state.latestBlocks.slice(0, 9)];
   } catch (error) {
