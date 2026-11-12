@@ -596,7 +596,8 @@
   },
   "status": {
     "online": "CONECTADO",
-    "offline": "DESCONECTADO"
+    "offline": "DESCONECTADO",
+    "syncing": "SINCRONIZANDO"
   },
   "settings": {
     "title": "Configuración",

@@ -251,6 +251,7 @@ import { createDashboardSubscriptionFilter } from "../types/SubscriptionFilter";
 import { getAVMTradeReporterAPI } from "../api";
 import { usdcAssetId } from "../config/env";
 import { aggregatedPoolSpotPrice } from "../utils/poolPrice";
+import { computeNetworkStatus } from "../utils/networkStatus";
 
 const { t } = useI18n();
 
@@ -269,6 +270,8 @@ const state = reactive({
   mounted: true,
   tokensToLoad: [] as bigint[],
   algoPrice: null as AggregatedPool | null,
+  // Local time when we last saw the latest round increase (drives "syncing")
+  lastRoundAdvanceAt: null as number | null,
 });
 
 const algoPriceValue = computed(() =>
@@ -289,19 +292,19 @@ const currentTime = ref(Date.now());
 let timeInterval: number | null = null;
 
 const networkStatus = computed(() => {
-  if (state.latestBlocks.length === 0)
-    return { status: t("status.offline"), color: "text-red-400" };
-
   const latestBlock = state.latestBlocks[0];
-  const now = new Date();
-  const blockTime = new Date(latestBlock.timestamp);
-  const timeDiff = now.getTime() - blockTime.getTime();
-
-  // If latest block is less than 60 seconds old, consider network online
-  if (timeDiff < 60000) {
-    return { status: t("status.online"), color: "text-green-400" };
-  } else {
-    return { status: t("status.offline"), color: "text-red-400" };
+  const kind = computeNetworkStatus(
+    latestBlock ? new Date(latestBlock.timestamp).getTime() : null,
+    state.lastRoundAdvanceAt,
+    currentTime.value
+  );
+  switch (kind) {
+    case "online":
+      return { status: t("status.online"), color: "text-green-400" };
+    case "syncing":
+      return { status: t("status.syncing"), color: "text-yellow-400" };
+    default:
+      return { status: t("status.offline"), color: "text-red-400" };
   }
 });
 
@@ -538,6 +541,10 @@ const onAggregatedPoolReceivedEvent = (pool: AggregatedPool) => {
 const onBlockReceivedEvent = (block: BiatecBlock) => {
   try {
     console.log("onBlockReceived.block", block.round, block);
+    const previousRound = state.latestBlocks[0]?.round;
+    if (previousRound !== undefined && block.round > previousRound) {
+      state.lastRoundAdvanceAt = Date.now();
+    }
     state.latestBlocks = [block, ...state.latestBlocks.slice(0, 9)];
   } catch (error) {
     console.error("Error handling block update:", error);
