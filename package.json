@@ -9,6 +9,7 @@
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "generate:api": "orval --config orval.config.ts",
+    "generate:og-images": "tsx scripts/generate-og-images.ts",
     "check-localization-files": "tsx scripts/check-localization.ts",
     "check-phrases": "tsx scripts/translate-untranslated.ts",
     "check-typescript-errors-tsc": "tsc --noEmit",

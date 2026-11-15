@@ -52,6 +52,15 @@ server {
         expires max;
     }
 
+    # Link-preview (Open Graph / Twitter Card) images. No SPA fallback: a
+    # crawler asking for a missing image must get a 404, not index.html. The
+    # URLs carry a content hash (?v=...), so they are safe to cache.
+    location ^~ /og/ {
+        root   /app;
+        access_log off;
+        expires 7d;
+    }
+
     location ~* \.(svg|png|xcf|ico)$ {
         # cache css and js files as they have hash inside filename
         root   /app;

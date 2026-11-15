@@ -3,6 +3,8 @@
 // than hardcoded, so a single Docker image build produces a network-specific
 // bundle (mainnet, testnet, and later voi/aramid) purely by varying these
 // env vars at build time - see docker/Dockerfile and .github/workflows.
+import { DEFAULT_GENESIS_ID, DEFAULT_NETWORK_LABEL } from "./siteIdentity";
+
 const viteEnv = import.meta.env;
 
 /** Base URL of the Biatec Scan trade/aggregation REST + SignalR API. */
@@ -27,7 +29,8 @@ export const usdcAssetId: number =
   Number(viteEnv.VITE_USDC_ASSET_ID) || 31566704;
 
 /** Genesis id of the network this build targets (e.g. "mainnet-v1.0", "voimain-v1.0"). */
-export const genesisId: string = viteEnv.VITE_GENESIS_ID || "mainnet-v1.0";
+export const genesisId: string =
+  viteEnv.VITE_GENESIS_ID || DEFAULT_GENESIS_ID;
 
 /** Base64 genesis hash of the network this build targets, used for ARC-14 auth. */
 export const genesisHash: string =
@@ -41,7 +44,8 @@ export const nativeTokenName: string =
 export const nativeTokenUnit: string = viteEnv.VITE_NATIVE_TOKEN_UNIT || "ALGO";
 
 /** Human-readable network label used in branding/titles, e.g. "Algorand" / "Voi". */
-export const networkLabel: string = viteEnv.VITE_NETWORK_LABEL || "Algorand";
+export const networkLabel: string =
+  viteEnv.VITE_NETWORK_LABEL || DEFAULT_NETWORK_LABEL;
 
 /**
  * Whether this build targets Algorand mainnet. Gates UI that only makes sense

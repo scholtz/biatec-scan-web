@@ -23,6 +23,9 @@ export default defineConfig({
   ],
   webServer: {
     command: `pnpm run build && vite preview --port ${PORT} --strictPort`,
+    // Link-preview image tags need the deployment's public origin
+    // (e2e/social-meta.spec.ts); everything else uses the default network.
+    env: { VITE_SITE_URL: "https://algorand.scan.biatec.io" },
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

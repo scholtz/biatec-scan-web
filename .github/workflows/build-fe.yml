@@ -47,6 +47,9 @@ jobs:
       - name: Check localization files
         run: pnpm run check-localization-files
 
+      - name: Unit tests
+        run: pnpm run test
+
       - name: Build
         run: pnpm run build
 
@@ -87,7 +90,12 @@ jobs:
   # network-specific VITE_* build args baked in (Vite only reads env vars at
   # build time), and pushes to Docker Hub + the private registry. Adding a
   # future network (voi, aramid, ...) is a new matrix entry here plus a new
-  # k8s/<network> manifest - no other workflow changes needed.
+  # k8s/<network> manifest - no other workflow changes needed. The entry
+  # must include `vite_site_url` (the network's public origin, needed for
+  # the link-preview image URL; checked by the first build step). (Optionally
+  # give the network its own preview image: a variant in
+  # src/config/socialMeta.ts + `pnpm generate:og-images`; until then it uses
+  # the network-neutral one.)
   # -----------------------------------------------------------------------
   build:
     needs: version
@@ -107,6 +115,7 @@ jobs:
             vite_native_token_name: Algorand
             vite_native_token_unit: ALGO
             vite_network_label: Algorand
+            vite_site_url: https://algorand.scan.biatec.io
           - network: testnet
             vite_api_base_url: https://api.testnet.scan.biatec.io
             vite_algorand_algod_url: https://testnet-api.4160.nodely.dev
@@ -118,6 +127,7 @@ jobs:
             vite_native_token_name: Testnet Algorand
             vite_native_token_unit: ALGO
             vite_network_label: Algorand Testnet
+            vite_site_url: https://testnet.scan.biatec.io
           # Voi mainnet production build - deployed manually via
           # promote-production.yml with network=voi to voi.scan.biatec.io.
           - network: voi
@@ -131,9 +141,18 @@ jobs:
             vite_native_token_name: Voi
             vite_native_token_unit: VOI
             vite_network_label: Voi
+            vite_site_url: https://voi.scan.biatec.io
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      # Without it the image would build fine but ship link previews with no
+      # image, and the only trace would be a warning in the docker build log.
+      - name: Require vite_site_url for ${{ matrix.network }}
+        if: ${{ !matrix.vite_site_url }}
+        run: |
+          echo "::error::matrix entry '${{ matrix.network }}' has no vite_site_url (public origin for the og:image / twitter:image tags)"
+          exit 1
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -170,6 +189,7 @@ jobs:
             VITE_NATIVE_TOKEN_NAME=${{ matrix.vite_native_token_name }}
             VITE_NATIVE_TOKEN_UNIT=${{ matrix.vite_native_token_unit }}
             VITE_NETWORK_LABEL=${{ matrix.vite_network_label }}
+            VITE_SITE_URL=${{ matrix.vite_site_url }}
             VITE_WC_PROJECT_ID=${{ matrix.vite_wc_project_id }}
             VITE_BIATEC_ROUTER_URL=${{ matrix.vite_biatec_router_url }}
             VITE_FOLKS_ROUTER_NETWORK=${{ matrix.vite_folks_router_network }}

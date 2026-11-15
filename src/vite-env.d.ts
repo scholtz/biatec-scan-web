@@ -13,6 +13,8 @@ interface ImportMetaEnv {
   readonly VITE_NATIVE_TOKEN_NAME?: string;
   readonly VITE_NATIVE_TOKEN_UNIT?: string;
   readonly VITE_NETWORK_LABEL?: string;
+  /** Build-time only: read by vite.config.ts for the link-preview tags. */
+  readonly VITE_SITE_URL?: string;
   readonly VITE_ARC56_REGISTRY_URL?: string;
   readonly VITE_CHARTS_BASE_URL?: string;
   readonly VITE_ENABLE_VERBOSE_LOGGING?: string;
