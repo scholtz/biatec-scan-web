@@ -599,6 +599,16 @@
     "offline": "OFFLINE",
     "syncing": "SYNCHRONIZACE"
   },
+  "theme": {
+    "title": "Vzhled",
+    "description": "Vyberte světlý nebo tmavý motiv, nebo se řiďte nastavením zařízení.",
+    "selectLabel": "Motiv",
+    "system": "Systémový",
+    "light": "Světlý",
+    "dark": "Tmavý",
+    "switchToLight": "Přepnout na světlý motiv",
+    "switchToDark": "Přepnout na tmavý motiv"
+  },
   "settings": {
     "title": "Nastavení",
     "language": {

@@ -19,7 +19,7 @@
           y="0"
           :width="candleWidth"
           :height="height"
-          fill="#ffffff"
+          fill="var(--color-white)"
           fill-opacity="0.12"
           rx="1"
         />

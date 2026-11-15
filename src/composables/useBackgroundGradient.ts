@@ -1,5 +1,6 @@
-import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { Gradient } from "whatamesh";
+import { useTheme } from "./useTheme";
 
 const CANVAS_SELECTOR = "#gradient-canvas";
 // Mobile browsers throttle/discard WebGL for backgrounded tabs without always
@@ -28,6 +29,7 @@ const REBUILD_WINDOW_MS = 10_000;
  */
 export function useBackgroundGradient() {
   const canvasKey = ref(0);
+  const { resolved: resolvedTheme } = useTheme();
   let gradient: Gradient | null = null;
   let canvas: HTMLCanvasElement | null = null;
   let hiddenAt: number | null = null;
@@ -135,6 +137,10 @@ export function useBackgroundGradient() {
     if (event.persisted) void restart();
   };
 
+  // whatamesh reads its --gradient-color-* CSS variables once at init, so a
+  // theme switch needs a fresh gradient to pick up the other palette.
+  const stopThemeWatch = watch(resolvedTheme, () => void restart());
+
   onMounted(() => {
     start();
     document.addEventListener("visibilitychange", onVisibilityChange);
@@ -142,6 +148,7 @@ export function useBackgroundGradient() {
   });
 
   onBeforeUnmount(() => {
+    stopThemeWatch();
     document.removeEventListener("visibilitychange", onVisibilityChange);
     window.removeEventListener("pageshow", onPageShow);
     stop();

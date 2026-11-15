@@ -599,6 +599,16 @@
     "offline": "ODPOJENÉ",
     "syncing": "SYNCHRONIZÁCIA"
   },
+  "theme": {
+    "title": "Vzhľad",
+    "description": "Vyberte svetlú alebo tmavú tému, alebo nechajte nastavenie podľa zariadenia.",
+    "selectLabel": "Téma",
+    "system": "Systémová",
+    "light": "Svetlá",
+    "dark": "Tmavá",
+    "switchToLight": "Prepnúť na svetlú tému",
+    "switchToDark": "Prepnúť na tmavú tému"
+  },
   "settings": {
     "title": "Nastavenia",
     "language": {

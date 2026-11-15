@@ -31,6 +31,12 @@ onMounted(async () => {
 #app {
   font-family: "Inter", sans-serif;
 }
+:root[data-theme="light"] #gradient-canvas {
+  --gradient-color-1: #c7d2fe;
+  --gradient-color-2: #e0f2fe;
+  --gradient-color-3: #f1f5f9;
+  --gradient-color-4: #bfdbfe;
+}
 #gradient-canvas {
   width: 100%;
   height: 100%;

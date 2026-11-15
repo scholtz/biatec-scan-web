@@ -599,6 +599,16 @@
     "offline": "OFFLINE",
     "syncing": "SYNCHRONIZACJA"
   },
+  "theme": {
+    "title": "Wygląd",
+    "description": "Wybierz jasny lub ciemny motyw albo użyj ustawienia urządzenia.",
+    "selectLabel": "Motyw",
+    "system": "Systemowy",
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "switchToLight": "Przełącz na jasny motyw",
+    "switchToDark": "Przełącz na ciemny motyw"
+  },
   "settings": {
     "title": "Ustawienia",
     "language": {

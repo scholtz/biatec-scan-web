@@ -599,6 +599,16 @@
     "offline": "OFFLINE",
     "syncing": "SYNCING"
   },
+  "theme": {
+    "title": "Appearance",
+    "description": "Choose a light or dark theme, or follow your device setting.",
+    "selectLabel": "Theme",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark",
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme"
+  },
   "settings": {
     "title": "Settings",
     "language": {

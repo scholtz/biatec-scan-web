@@ -4,6 +4,10 @@ import App from "./App.vue";
 import router from "./router";
 import i18n from "./i18n";
 import { networkLabel } from "./config/env";
+import { initTheme } from "./composables/useTheme";
+
+// Before mount so the first paint already uses the saved / system theme.
+initTheme();
 
 document.title = `${networkLabel} Explorer - Biatec Scan`;
 

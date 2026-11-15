@@ -30,7 +30,7 @@
         :aria-label="$t('poolDetails.liquidityDistribution')"
       >
         <!-- baseline -->
-        <line :x1="0" :x2="width" :y1="plotBottom" :y2="plotBottom" stroke="#334155" stroke-width="1" />
+        <line :x1="0" :x2="width" :y1="plotBottom" :y2="plotBottom" stroke="var(--color-dark-700)" stroke-width="1" />
         <g v-for="bar in drawOrder" :key="bar.key">
           <path
             :d="barPath(bar, plotBottom, RADIUS)"
@@ -55,7 +55,7 @@
           :x2="priceX"
           :y1="0"
           :y2="plotBottom"
-          stroke="#cbd5e1"
+          stroke="var(--color-dark-300)"
           stroke-width="1.5"
           stroke-dasharray="4 3"
           vector-effect="non-scaling-stroke"

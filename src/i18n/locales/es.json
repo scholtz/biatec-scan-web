@@ -599,6 +599,16 @@
     "offline": "DESCONECTADO",
     "syncing": "SINCRONIZANDO"
   },
+  "theme": {
+    "title": "Apariencia",
+    "description": "Elige un tema claro u oscuro, o sigue la configuración de tu dispositivo.",
+    "selectLabel": "Tema",
+    "system": "Sistema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "switchToLight": "Cambiar al tema claro",
+    "switchToDark": "Cambiar al tema oscuro"
+  },
   "settings": {
     "title": "Configuración",
     "language": {

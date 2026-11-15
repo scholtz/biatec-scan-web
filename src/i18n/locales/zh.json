@@ -599,6 +599,16 @@
     "offline": "离线",
     "syncing": "同步中"
   },
+  "theme": {
+    "title": "外观",
+    "description": "选择浅色或深色主题，或跟随设备设置。",
+    "selectLabel": "主题",
+    "system": "跟随系统",
+    "light": "浅色",
+    "dark": "深色",
+    "switchToLight": "切换到浅色主题",
+    "switchToDark": "切换到深色主题"
+  },
   "settings": {
     "title": "设置",
     "language": {
