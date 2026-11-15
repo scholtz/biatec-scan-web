@@ -2,7 +2,7 @@
   <div>
     <button
       type="button"
-      class="flex items-center gap-2 px-3 py-2 rounded-lg bg-dark-800/70 border border-dark-700/50 text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 min-w-[140px]"
+      class="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg bg-dark-800/70 border border-dark-700/50 text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 min-w-[130px] sm:min-w-[140px] max-w-[55%] shrink-0 min-h-11"
       @click="open = true"
     >
       <AssetIcon
@@ -28,22 +28,22 @@
     <Teleport to="body">
       <div
         v-if="open"
-        class="fixed inset-0 z-[10000] flex items-start sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+        class="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm sm:p-4"
         @click.self="close"
       >
         <div
-          class="w-full max-w-lg bg-dark-900 border border-dark-700/60 rounded-xl shadow-2xl flex flex-col max-h-[85vh]"
+          class="w-full max-w-lg bg-dark-900 border border-dark-700/60 rounded-t-2xl sm:rounded-xl shadow-2xl flex flex-col max-h-[85vh] supports-[height:100dvh]:max-h-[85dvh]"
           role="dialog"
           aria-modal="true"
           :aria-label="$t('swap.selectAsset')"
         >
-          <div class="flex items-center justify-between px-5 py-4 border-b border-dark-700/50">
+          <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-dark-700/50">
             <h2 class="text-lg font-semibold text-white">
               {{ $t("swap.selectAsset") }}
             </h2>
             <button
               type="button"
-              class="text-gray-400 hover:text-white p-1 rounded"
+              class="text-gray-400 hover:text-white p-2 -m-1 rounded"
               :aria-label="$t('wallet.close')"
               @click="close"
             >
@@ -52,7 +52,7 @@
               </svg>
             </button>
           </div>
-          <div class="px-5 py-3">
+          <div class="px-4 sm:px-5 py-3">
             <input
               ref="searchInput"
               v-model="query"
@@ -76,7 +76,7 @@
                 v-for="option in visibleOptions"
                 :key="option.id.toString()"
                 type="button"
-                class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-dark-700/60 text-left transition-colors"
+                class="w-full flex items-center gap-3 px-3 py-3 sm:py-2 rounded-lg hover:bg-dark-700/60 text-left transition-colors"
                 :class="{ 'bg-primary-600/20': modelValue?.id === option.id }"
                 @click="select(option)"
               >

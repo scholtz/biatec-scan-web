@@ -4,21 +4,21 @@
   >
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
-        <div class="flex items-center space-x-8">
-          <router-link to="/" class="flex items-center space-x-3">
+        <div class="flex items-center space-x-8 min-w-0">
+          <router-link to="/" class="flex items-center space-x-3 min-w-0 xl:shrink-0">
             <div
-              class="w-8 h-8 bg-linear-to-r from-white to-primary-200 rounded-lg flex items-center justify-center"
+              class="w-8 h-8 shrink-0 bg-linear-to-r from-[#ffffff] to-[#bfdbfe] rounded-lg flex items-center justify-center"
             >
               <img src="../assets/logo.svg" alt="Logo" class="w-7 h-7" />
             </div>
             <span
-              class="text-xl font-bold bg-linear-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent"
+              class="text-base sm:text-xl font-bold truncate xl:overflow-visible bg-linear-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent"
             >
               Biatec {{ networkLabel }} Scan
             </span>
           </router-link>
 
-          <div class="hidden lg:flex space-x-4 xl:space-x-6">
+          <div class="hidden xl:flex space-x-4 min-[1700px]:space-x-6">
             <router-link
               v-if="isSwapAvailable"
               to="/swap"
@@ -65,19 +65,20 @@
           </div>
         </div>
 
-        <div class="hidden lg:flex items-center space-x-4">
-          <div class="hidden xl:block">
+        <div class="flex items-center gap-1 xl:gap-4">
+          <div class="hidden min-[1440px]:block w-44 min-[1700px]:w-72 shrink-0">
             <ExplorerSearchBox
               icon-only
               :placeholder="$t('nav.searchPlaceholder')"
             />
           </div>
-          <WalletConnectButton />
-        </div>
-
+          <ThemeSwitcher />
+          <div class="hidden xl:block">
+            <WalletConnectButton />
+          </div>
         <!-- Mobile hamburger -->
         <button
-          class="lg:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          class="xl:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500"
           @click="toggleMobile"
           :aria-label="$t('common.toggleNavigation')"
           :aria-expanded="mobileOpen"
@@ -107,12 +108,13 @@
             <path d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
+        </div>
       </div>
       <!-- Mobile menu panel -->
       <transition name="fade-slide">
         <div
           v-if="mobileOpen"
-          class="lg:hidden mt-2 pb-4 border-t border-dark-700/50 space-y-4"
+          class="xl:hidden mt-2 pb-4 border-t border-dark-700/50 space-y-4"
         >
           <div class="pt-4 flex flex-col space-y-3">
             <router-link
@@ -215,6 +217,7 @@ import { useRoute } from "vue-router";
 import { networkLabel } from "../config/env";
 import { isSwapAvailable } from "../swap/availability";
 import ExplorerSearchBox from "./ExplorerSearchBox.vue";
+import ThemeSwitcher from "./ThemeSwitcher.vue";
 import { walletReady } from "../wallet/walletReady";
 
 // Loaded after the wallet plugin is installed (see main.ts) so the heavy

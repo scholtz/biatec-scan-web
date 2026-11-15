@@ -1,5 +1,6 @@
-import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { Gradient } from "whatamesh";
+import { useTheme } from "./useTheme";
 
 const CANVAS_SELECTOR = "#gradient-canvas";
 // Mobile browsers throttle/discard WebGL for backgrounded tabs without always
@@ -28,6 +29,7 @@ const REBUILD_WINDOW_MS = 10_000;
  */
 export function useBackgroundGradient() {
   const canvasKey = ref(0);
+  const { resolved: resolvedTheme } = useTheme();
   let gradient: Gradient | null = null;
   let canvas: HTMLCanvasElement | null = null;
   let hiddenAt: number | null = null;
@@ -127,13 +129,36 @@ export function useBackgroundGradient() {
     }
     const awayMs = hiddenAt === null ? 0 : Date.now() - hiddenAt;
     hiddenAt = null;
-    if (isCanvasDead() || awayMs > REBUILD_AFTER_HIDDEN_MS) void restart();
+    if (
+      themeChangedWhileHidden ||
+      isCanvasDead() ||
+      awayMs > REBUILD_AFTER_HIDDEN_MS
+    ) {
+      themeChangedWhileHidden = false;
+      void restart();
+    }
   };
 
   // Restored from the back/forward cache: the canvas is often blank.
   const onPageShow = (event: PageTransitionEvent) => {
     if (event.persisted) void restart();
   };
+
+  // whatamesh reads its --gradient-color-* CSS variables once at init, so a
+  // theme switch needs a fresh gradient to pick up the other palette.
+  // Debounced so rapid toggling can't create a burst of WebGL contexts.
+  let themeRestartTimer: ReturnType<typeof setTimeout> | undefined;
+  // A hidden tab (e.g. an automatic OS day/night switch) must not build a WebGL
+  // context mobile browsers would discard; it is rebuilt when the tab returns.
+  let themeChangedWhileHidden = false;
+  const stopThemeWatch = watch(resolvedTheme, () => {
+    clearTimeout(themeRestartTimer);
+    if (document.visibilityState === "hidden") {
+      themeChangedWhileHidden = true;
+      return;
+    }
+    themeRestartTimer = setTimeout(() => void restart(), 250);
+  });
 
   onMounted(() => {
     start();
@@ -142,6 +167,8 @@ export function useBackgroundGradient() {
   });
 
   onBeforeUnmount(() => {
+    stopThemeWatch();
+    clearTimeout(themeRestartTimer);
     document.removeEventListener("visibilitychange", onVisibilityChange);
     window.removeEventListener("pageshow", onPageShow);
     stop();

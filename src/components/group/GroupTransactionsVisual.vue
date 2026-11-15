@@ -262,13 +262,13 @@ interface RowSpec {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  pay: "#f87171",
-  axfer: "#e879f9",
-  appl: "#38bdf8",
-  acfg: "#fb923c",
-  afrz: "#22d3ee",
-  keyreg: "#f472b6",
-  stpf: "#facc15",
+  pay: "var(--color-red-400, #f87171)",
+  axfer: "var(--color-fuchsia-400, #e879f9)",
+  appl: "var(--color-sky-400, #38bdf8)",
+  acfg: "var(--color-orange-400, #fb923c)",
+  afrz: "var(--color-cyan-400, #22d3ee)",
+  keyreg: "var(--color-pink-400, #f472b6)",
+  stpf: "var(--color-yellow-400, #facc15)",
 };
 
 // App ids that are actually called (not just created) somewhere in the
@@ -379,7 +379,7 @@ const laneModel = computed(() => {
       row,
       fromIndex,
       toIndex,
-      color: TYPE_COLORS[tx.txType ?? ""] ?? "#9ca3af",
+      color: TYPE_COLORS[tx.txType ?? ""] ?? "var(--color-gray-400, #9ca3af)",
       typeText,
       amountText,
       fromBadge: (fromIndex + 1).toString(),

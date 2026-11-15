@@ -201,12 +201,12 @@
                     <title>{{ slice.asset.name }}: {{ slice.percentage }}%</title>
                   </path>
                   <!-- Donut hole -->
-                  <circle cx="50" cy="50" r="22" fill="rgb(17 24 39)" />
+                  <circle cx="50" cy="50" r="22" fill="var(--color-gray-900, #111827)" />
                   <text
                     x="50"
                     y="48"
                     text-anchor="middle"
-                    fill="white"
+                    fill="var(--color-white)"
                     font-size="5.5"
                     font-weight="600"
                   >
@@ -216,7 +216,7 @@
                     x="50"
                     y="56"
                     text-anchor="middle"
-                    fill="#6b7280"
+                    fill="var(--color-gray-500, #6b7280)"
                     font-size="5"
                   >
                     {{ enrichedAssets.length }}
@@ -1202,13 +1202,13 @@ onUnmounted(async () => {
 .filter-control {
   width: 100%;
   border-radius: 0.25rem;
-  border: 1px solid rgb(71 85 105 / 0.7);
-  background: rgb(15 23 42 / 0.6);
+  border: 1px solid color-mix(in srgb, var(--color-dark-600) 70%, transparent);
+  background: color-mix(in srgb, var(--color-dark-900) 60%, transparent);
   padding: 0.5rem 0.75rem;
-  color: white;
+  color: var(--color-white);
 }
 
 .filter-control::placeholder {
-  color: #64748b;
+  color: var(--color-dark-500);
 }
 </style>

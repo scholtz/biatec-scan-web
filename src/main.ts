@@ -4,6 +4,10 @@ import App from "./App.vue";
 import router from "./router";
 import i18n from "./i18n";
 import { networkLabel } from "./config/env";
+import { initTheme } from "./composables/useTheme";
+
+// The first paint is themed by public/theme-init.js; this syncs reactive state.
+initTheme();
 
 document.title = `${networkLabel} Explorer - Biatec Scan`;
 

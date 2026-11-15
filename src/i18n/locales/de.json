@@ -599,6 +599,16 @@
     "offline": "OFFLINE",
     "syncing": "SYNCHRONISIERUNG"
   },
+  "theme": {
+    "title": "Darstellung",
+    "description": "Wählen Sie ein helles oder dunkles Design oder folgen Sie der Geräteeinstellung.",
+    "selectLabel": "Design",
+    "system": "System",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "switchToLight": "Zum hellen Design wechseln",
+    "switchToDark": "Zum dunklen Design wechseln"
+  },
   "settings": {
     "title": "Einstellungen",
     "language": {

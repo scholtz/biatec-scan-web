@@ -18,6 +18,33 @@
       </div>
       
       <div class="border-t border-dark-700/50 pt-6 space-y-3">
+        <h2 class="text-lg font-semibold text-white">{{ $t('theme.title') }}</h2>
+        <p class="text-gray-300 text-sm">{{ $t('theme.description') }}</p>
+        <div
+          class="inline-flex rounded-lg border border-dark-600/60 overflow-hidden"
+          role="group"
+          :aria-label="$t('theme.selectLabel')"
+        >
+          <button
+            v-for="option in THEME_MODES"
+            :key="option"
+            type="button"
+            :aria-pressed="mode === option"
+            :data-testid="`theme-option-${option}`"
+            class="px-4 py-2 text-sm min-h-10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            :class="
+              mode === option
+                ? 'bg-primary-600 text-white'
+                : 'bg-dark-800/60 text-gray-300 hover:bg-dark-700/60'
+            "
+            @click="setMode(option)"
+          >
+            {{ $t(`theme.${option}`) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="border-t border-dark-700/50 pt-6 space-y-3">
         <h2 class="text-lg font-semibold text-white">{{ $t('settings.preferences.title') }}</h2>
         <p class="text-gray-300 text-sm">
           {{ $t('settings.preferences.description') }}
@@ -57,4 +84,7 @@
 <script setup lang="ts">
 import LanguageSwitcher from "../components/LanguageSwitcher.vue";
 import { networkLabel } from "../config/env";
+import { THEME_MODES, useTheme } from "../composables/useTheme";
+
+const { mode, setMode } = useTheme();
 </script>

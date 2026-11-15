@@ -256,9 +256,9 @@ watch(deltaRows, () => {
 <style scoped>
 .filter-control {
   border-radius: 0.25rem;
-  border: 1px solid rgb(71 85 105 / 0.7);
-  background: rgb(15 23 42 / 0.6);
+  border: 1px solid color-mix(in srgb, var(--color-dark-600) 70%, transparent);
+  background: color-mix(in srgb, var(--color-dark-900) 60%, transparent);
   padding: 0.5rem 0.75rem;
-  color: white;
+  color: var(--color-white);
 }
 </style>

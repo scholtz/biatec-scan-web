@@ -177,7 +177,7 @@
 
             <a
               target="_blank"
-              :href="assetChartUrl(assetId)"
+              :href="assetChartUrl(assetId, resolvedTheme)"
               class="action-btn [&:last-child:nth-child(even)]:col-span-2 sm:[&:last-child:nth-child(even)]:col-span-1"
             >
               {{ $t("assetDetails.fullScreenChart") }}
@@ -226,7 +226,7 @@
         </div>
         <div class="flex flex-grow w-full">
           <iframe
-            :src="assetChartUrl(assetId)"
+            :src="assetChartUrl(assetId, resolvedTheme)"
             class="w-full h-72 sm:h-100 rounded-lg border-0 shadow-lg"
           ></iframe>
         </div>
@@ -264,6 +264,7 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { assetService } from "../services/assetService";
 import { favoriteService } from "../services/favoriteService";
+import { useTheme } from "../composables/useTheme";
 import {
   assetChartUrl,
   assetImageUrl,
@@ -284,6 +285,7 @@ import FormattedNumber from "../components/FormattedNumber.vue";
 const { t } = useI18n();
 
 const route = useRoute();
+const { resolved: resolvedTheme } = useTheme();
 const assetId = ref<string>(route.params.assetId as string);
 // Sell the native token for this asset; on the native token's own page
 // fall back to the default pair instead of a same-asset swap.

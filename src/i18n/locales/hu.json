@@ -599,6 +599,16 @@
     "offline": "OFFLINE",
     "syncing": "SZINKRONIZÁLÁS"
   },
+  "theme": {
+    "title": "Megjelenés",
+    "description": "Válasszon világos vagy sötét témát, vagy kövesse az eszköz beállítását.",
+    "selectLabel": "Téma",
+    "system": "Rendszer",
+    "light": "Világos",
+    "dark": "Sötét",
+    "switchToLight": "Váltás világos témára",
+    "switchToDark": "Váltás sötét témára"
+  },
   "settings": {
     "title": "Beállítások",
     "language": {

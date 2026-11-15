@@ -10,13 +10,13 @@
     </div>
 
     <div
-      class="grid lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-6 items-start"
+      class="grid grid-cols-1 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-4 sm:gap-6 items-start"
     >
       <!-- Order form -->
-      <div class="card space-y-4 relative z-10">
+      <div class="card min-w-0 space-y-4 relative z-10">
         <!-- From -->
         <div
-          class="rounded-xl bg-dark-900/50 border border-dark-700/50 p-4 space-y-2"
+          class="rounded-xl bg-dark-900/50 border border-dark-700/50 p-3 sm:p-4 space-y-2"
         >
           <div class="flex items-center justify-between text-xs text-gray-400">
             <span>{{ $t("swap.youPay") }}</span>
@@ -86,7 +86,7 @@
 
         <!-- To -->
         <div
-          class="rounded-xl bg-dark-900/50 border border-dark-700/50 p-4 space-y-2"
+          class="rounded-xl bg-dark-900/50 border border-dark-700/50 p-3 sm:p-4 space-y-2"
         >
           <div class="flex items-center justify-between text-xs text-gray-400">
             <span>{{ $t("swap.youReceive") }}</span>
@@ -121,7 +121,7 @@
             v-for="preset in slippagePresets"
             :key="preset"
             type="button"
-            class="px-2 py-1 rounded-md border text-xs transition-colors"
+            class="px-3 py-2 sm:px-2 sm:py-1 rounded-md border text-sm sm:text-xs transition-colors"
             :class="
               slippageBps === preset * 100
                 ? 'border-primary-500 bg-primary-600/20 text-primary-200'
@@ -136,7 +136,7 @@
               :value="slippagePercentInput"
               type="text"
               inputmode="decimal"
-              class="w-16 px-2 py-1 bg-dark-800/70 border border-dark-700/50 rounded-md text-white text-right focus:outline-none focus:ring-2 focus:ring-primary-500"
+              class="w-16 px-2 py-2 sm:py-1 text-base sm:text-sm bg-dark-800/70 border border-dark-700/50 rounded-md text-white text-right focus:outline-none focus:ring-2 focus:ring-primary-500"
               @change="onSlippageInput"
             />
             %
@@ -151,7 +151,7 @@
 
         <button
           type="button"
-          class="btn-primary w-full py-3 text-base font-semibold"
+          class="btn-primary w-full min-h-12 py-3 text-base font-semibold"
           :disabled="!canQuote"
           @click="getQuotes"
         >
@@ -229,7 +229,7 @@
       </div>
 
       <!-- Router results -->
-      <div class="space-y-4">
+      <div class="min-w-0 space-y-4">
         <div
           v-if="lastExecution"
           class="card border-green-500/40 bg-green-900/10 space-y-2"
@@ -264,7 +264,7 @@
 
         <p v-if="quoteError" class="text-sm text-red-300">{{ quoteError }}</p>
 
-        <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <SwapRouterCard
             v-for="result in results"
             :key="result.router.id"

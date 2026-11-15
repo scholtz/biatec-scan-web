@@ -38,6 +38,13 @@ server {
         expires 1m;
     }
 
+    # Not content-hashed (applies the saved theme before first paint), so it
+    # must not get the immutable cache below. Exact match wins over the regexes.
+    location = /theme-init.js {
+        root   /app;
+        expires 1h;
+    }
+
     location ~* \.(css|js|map|ttf)$ {
         # cache css and js files as they have hash inside filename
         root   /app;

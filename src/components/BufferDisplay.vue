@@ -11,7 +11,7 @@
               ? 'bg-primary-600 text-white'
               : 'bg-dark-900 text-gray-400'
           "
-          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
+          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 hover:text-[#ffffff] transition-colors"
         >
           Numeric
         </button>
@@ -23,7 +23,7 @@
               ? 'bg-primary-600 text-white'
               : 'bg-dark-900 text-gray-400'
           "
-          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
+          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 hover:text-[#ffffff] transition-colors"
         >
           UTF-8
         </button>
@@ -35,7 +35,7 @@
               ? 'bg-primary-600 text-white'
               : 'bg-dark-900 text-gray-400'
           "
-          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
+          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 hover:text-[#ffffff] transition-colors"
         >
           {{ $t("common.address") }}
         </button>
@@ -46,7 +46,7 @@
               ? 'bg-primary-600 text-white'
               : 'bg-dark-900 text-gray-400'
           "
-          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
+          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 hover:text-[#ffffff] transition-colors"
         >
           Base64
         </button>
@@ -57,7 +57,7 @@
               ? 'bg-primary-600 text-white'
               : 'bg-dark-900 text-gray-400'
           "
-          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 transition-colors"
+          class="px-3 py-1 rounded text-xs font-medium hover:bg-primary-700 hover:text-[#ffffff] transition-colors"
         >
           Hex
         </button>
