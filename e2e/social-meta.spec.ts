@@ -1,34 +1,44 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
-// Link-preview crawlers don't execute JavaScript, so these checks read the
-// raw served HTML rather than the rendered DOM.
+// Link-preview crawlers don't execute JavaScript. With JS disabled the DOM
+// is exactly the served HTML run through a real HTML parser, so these checks
+// see what a crawler sees without depending on how Vite serialises the tags.
+test.use({ javaScriptEnabled: false });
+
+const meta = (page: Page, attr: "property" | "name", id: string) =>
+  page.locator(`head meta[${attr}="${id}"]`).getAttribute("content");
+
+// The image tags are only emitted when the bundle was built with
+// VITE_SITE_URL, which playwright.config.ts sets for the server it starts.
+const noImageHint =
+  "og:image is missing - if Playwright reused an already running preview " +
+  "server, rebuild it with VITE_SITE_URL set (see playwright.config.ts)";
+
 test("served HTML carries Open Graph and Twitter Card tags", async ({
-  request,
+  page,
 }) => {
-  const html = await (await request.get("/")).text();
+  await page.goto("/");
 
-  const content = (attr: "property" | "name", id: string) =>
-    new RegExp(`<meta ${attr}="${id}" content="([^"]*)"`).exec(html)?.[1];
+  await expect(page).toHaveTitle(/.+ Explorer - Biatec Scan$/);
+  expect(await meta(page, "name", "description")).toBeTruthy();
+  expect(await meta(page, "property", "og:title")).toBeTruthy();
+  expect(await meta(page, "property", "og:description")).toBeTruthy();
 
-  expect(html).toMatch(/<title>.+ Explorer - Biatec Scan<\/title>/);
-  expect(content("name", "description")).toBeTruthy();
-  expect(content("property", "og:title")).toBeTruthy();
-  expect(content("property", "og:description")).toBeTruthy();
-  expect(content("property", "og:image")).toMatch(
+  const image = await meta(page, "property", "og:image");
+  expect(image, noImageHint).toMatch(
     /^https?:\/\/.+\/og\/.+\.jpg\?v=[0-9a-f]{8}$/,
   );
-  expect(content("name", "twitter:card")).toBe("summary_large_image");
-  expect(content("name", "twitter:image")).toBe(
-    content("property", "og:image"),
-  );
+  expect(await meta(page, "name", "twitter:card")).toBe("summary_large_image");
+  expect(await meta(page, "name", "twitter:image")).toBe(image);
 });
 
 test("the share image referenced by og:image is served as a JPEG", async ({
+  page,
   request,
 }) => {
-  const html = await (await request.get("/")).text();
-  const image = /<meta property="og:image" content="([^"]*)"/.exec(html)?.[1];
-  expect(image).toBeTruthy();
+  await page.goto("/");
+  const image = await meta(page, "property", "og:image");
+  expect(image, noImageHint).toBeTruthy();
 
   // og:image points at the production host; fetch the same path locally.
   const { pathname, search } = new URL(image ?? "");

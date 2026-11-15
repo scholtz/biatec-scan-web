@@ -29,9 +29,11 @@ ARG VITE_NATIVE_TOKEN_NAME=Algorand
 ARG VITE_NATIVE_TOKEN_UNIT=ALGO
 ARG VITE_NETWORK_LABEL=Algorand
 # Public origin of this deployment, used for the absolute og:image /
-# twitter:image URLs (see src/config/socialMeta.ts). Empty = link previews
-# without an image.
-ARG VITE_SITE_URL=https://algorand.scan.biatec.io
+# twitter:image URLs (see src/config/socialMeta.ts). Deliberately has no
+# mainnet default, unlike the ARGs above: a build for another network that
+# forgot it must not advertise Algorand's host. Empty = link previews without
+# an image (the build logs a [social-meta] warning).
+ARG VITE_SITE_URL=
 # Swap / wallet configuration; empty values fall back to the defaults in
 # src/config/env.ts (per-network router URLs, Biatec's WalletConnect id, ...).
 ARG VITE_WC_PROJECT_ID=
