@@ -192,11 +192,21 @@ describe("socialMetaWarnings", () => {
     expect(warnings[0]).toMatch(/VITE_SITE_URL is not set/);
   });
 
+  it("warns when the site host is not the one printed in the share image", () => {
+    // e.g. a matrix entry copy-pasted from another network
+    const warnings = socialMetaWarnings({
+      ...voi,
+      VITE_SITE_URL: "https://algorand.scan.biatec.io",
+    });
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toMatch(/prints "voi\.scan\.biatec\.io"/);
+  });
+
   it("warns when the label and the genesis id describe different networks", () => {
     // VITE_GENESIS_ID forgotten: defaults to Algorand mainnet's image.
     const warnings = socialMetaWarnings({
       VITE_NETWORK_LABEL: "Voi",
-      VITE_SITE_URL: "https://voi.scan.biatec.io",
+      VITE_SITE_URL: "https://algorand.scan.biatec.io",
     });
     expect(warnings).toHaveLength(1);
     expect(warnings[0]).toMatch(/"Voi".*depicts "Algorand"/);

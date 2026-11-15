@@ -35,6 +35,9 @@ const logoSvg = readFileSync(resolve(root, "src/assets/logo.svg"), "utf8")
   .replace(/\s(?:inkscape|sodipodi):[\w-]+="[^"]*"/g, "")
   .replace(/\sxmlns:(?:inkscape|sodipodi)="[^"]*"/g, "");
 
+/** Inter weights the design uses: requested from Google Fonts and verified as loaded. */
+const FONT_WEIGHTS = [400, 500, 600, 700, 800];
+
 const features = [
   "Blocks",
   "Transactions",
@@ -130,7 +133,7 @@ function html(variant: OgImageVariant): string {
 <meta charset="utf-8" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@${FONT_WEIGHTS.join(";")}&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: ${OG_IMAGE_WIDTH}px; height: ${OG_IMAGE_HEIGHT}px; }
@@ -274,7 +277,7 @@ async function main(): Promise<void> {
       // A committed image in the wrong font, or with a clipped headline, is
       // worse than a failed run - verify both before taking the screenshot.
       const problem = await page.evaluate(
-        async ({ maxPx, minPx }) => {
+        async ({ maxPx, minPx, weights }) => {
           await document.fonts.ready;
           // document.fonts holds only the @font-face rules of the Google Fonts
           // stylesheet (never a locally installed Inter), and a face is
@@ -283,7 +286,7 @@ async function main(): Promise<void> {
           const loaded = [...document.fonts].filter(
             (face) => /inter/i.test(face.family) && face.status === "loaded",
           );
-          const missing = [400, 500, 600, 700, 800].filter(
+          const missing = weights.filter(
             (weight) =>
               !loaded.some((face) => {
                 // "400" for a static face, "100 900" for a variable one.
@@ -292,7 +295,7 @@ async function main(): Promise<void> {
               }),
           );
           if (missing.length > 0) {
-            return `the Inter web font did not load for weight(s) ${missing.join(", ")} (no network access to Google Fonts?)`;
+            return `the Inter web font did not load for weight(s) ${missing.join(", ")} (no network access to Google Fonts, or the design no longer uses that weight - then drop it from FONT_WEIGHTS)`;
           }
           // Shrink the headline until the network name fits on one line.
           const headline = document.querySelector<HTMLElement>(".headline");
@@ -330,7 +333,11 @@ async function main(): Promise<void> {
           }
           return null;
         },
-        { maxPx: HEADLINE_MAX_PX, minPx: HEADLINE_MIN_PX },
+        {
+          maxPx: HEADLINE_MAX_PX,
+          minPx: HEADLINE_MIN_PX,
+          weights: FONT_WEIGHTS,
+        },
       );
       if (problem) {
         throw new Error(`Cannot render "${variant.slug}": ${problem}`);

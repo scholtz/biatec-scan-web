@@ -82,7 +82,10 @@ function socialMeta(): Plugin {
         tags = buildSocialMetaTags({ ...env, VITE_SITE_URL: undefined })
       }
     },
-    transformIndexHtml: () => tags,
+    // 'pre': appended to <head> before Vite adds the bundle's script /
+    // modulepreload / stylesheet tags, so the metadata stays near the top
+    // for crawlers that only read the beginning of the document.
+    transformIndexHtml: { order: 'pre', handler: () => tags },
   }
 }
 

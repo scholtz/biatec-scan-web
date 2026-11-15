@@ -91,8 +91,8 @@ jobs:
   # build time), and pushes to Docker Hub + the private registry. Adding a
   # future network (voi, aramid, ...) is a new matrix entry here plus a new
   # k8s/<network> manifest - no other workflow changes needed. The entry
-  # must include `vite_site_url` (the network's public origin): without it
-  # the image still builds, but its link previews have no image. (Optionally
+  # must include `vite_site_url` (the network's public origin, needed for
+  # the link-preview image URL; checked by the first build step). (Optionally
   # give the network its own preview image: a variant in
   # src/config/socialMeta.ts + `pnpm generate:og-images`; until then it uses
   # the network-neutral one.)
@@ -145,6 +145,14 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      # Without it the image would build fine but ship link previews with no
+      # image, and the only trace would be a warning in the docker build log.
+      - name: Require vite_site_url for ${{ matrix.network }}
+        if: ${{ !matrix.vite_site_url }}
+        run: |
+          echo "::error::matrix entry '${{ matrix.network }}' has no vite_site_url (public origin for the og:image / twitter:image tags)"
+          exit 1
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

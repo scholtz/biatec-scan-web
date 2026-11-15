@@ -157,14 +157,21 @@ export function siteOriginOf(env: SocialMetaEnv): string | undefined {
  */
 export function socialMetaWarnings(env: SocialMetaEnv): string[] {
   const warnings: string[] = [];
-  if (!siteOriginOf(env)) {
+  const origin = siteOriginOf(env);
+  const variant = ogImageVariantFor(env);
+  if (!origin) {
     warnings.push(
       "VITE_SITE_URL is not set, so link previews will have no image " +
         "(og:image / twitter:image need the deployment's public origin, " +
         "e.g. https://algorand.scan.biatec.io).",
     );
+  } else if (variant.host && new URL(origin).host !== variant.host) {
+    warnings.push(
+      `VITE_SITE_URL is ${origin} but the share image selected by ` +
+        `VITE_GENESIS_ID prints "${variant.host}" - check the variables, ` +
+        `or expect previews of this deployment to show that host.`,
+    );
   }
-  const variant = ogImageVariantFor(env);
   const networkLabel = networkLabelOf(env);
   if (variant !== defaultOgImageVariant && variant.label !== networkLabel) {
     warnings.push(
@@ -230,34 +237,27 @@ export function buildSocialMetaTags(
     meta("property", "og:locale", "en_US"),
     meta("property", "og:title", title),
     meta("property", "og:description", description),
-  ];
 
-  if (!origin) {
-    return [
-      ...tags,
-      meta("name", "twitter:card", "summary"),
-      meta("name", "twitter:title", title),
-      meta("name", "twitter:description", description),
-    ];
-  }
-
-  const image =
-    `${origin}/og/${ogImageFileName(ogImageVariantFor(env))}` +
-    (imageVersion ? `?v=${imageVersion}` : "");
-  const imageAlt = `${SITE_NAME} - ${networkLabel} DEX explorer`;
-
-  return [
-    ...tags,
-    meta("property", "og:image", image),
-    meta("property", "og:image:type", OG_IMAGE_TYPE),
-    meta("property", "og:image:width", String(OG_IMAGE_WIDTH)),
-    meta("property", "og:image:height", String(OG_IMAGE_HEIGHT)),
-    meta("property", "og:image:alt", imageAlt),
-
-    meta("name", "twitter:card", "summary_large_image"),
+    meta("name", "twitter:card", origin ? "summary_large_image" : "summary"),
     meta("name", "twitter:title", title),
     meta("name", "twitter:description", description),
-    meta("name", "twitter:image", image),
-    meta("name", "twitter:image:alt", imageAlt),
   ];
+
+  if (origin) {
+    const image =
+      `${origin}/og/${ogImageFileName(ogImageVariantFor(env))}` +
+      (imageVersion ? `?v=${imageVersion}` : "");
+    const imageAlt = `${SITE_NAME} - ${networkLabel} DEX explorer`;
+    tags.push(
+      meta("property", "og:image", image),
+      meta("property", "og:image:type", OG_IMAGE_TYPE),
+      meta("property", "og:image:width", String(OG_IMAGE_WIDTH)),
+      meta("property", "og:image:height", String(OG_IMAGE_HEIGHT)),
+      meta("property", "og:image:alt", imageAlt),
+      meta("name", "twitter:image", image),
+      meta("name", "twitter:image:alt", imageAlt),
+    );
+  }
+
+  return tags;
 }

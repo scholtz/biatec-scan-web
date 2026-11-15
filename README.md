@@ -92,7 +92,9 @@ The `<title>`, description, `og:*` and `twitter:*` tags are injected into
 (logic in [`src/config/socialMeta.ts`](src/config/socialMeta.ts)), from
 `VITE_NETWORK_LABEL`, `VITE_GENESIS_ID` (selects the share image) and
 `VITE_SITE_URL` (the deployment's public origin, needed for the absolute
-image URL - without it the build warns and the preview has no image). The
+image URL - without it the build warns and the preview has no image; set it
+in the hosting platform's build environment for deployments outside
+`docker/Dockerfile`, e.g. Vercel). The
 share images in `public/og/` are committed; re-render them after changing the
 design or the network list (a new network gets its own image by adding a
 variant in `socialMeta.ts`) with:
