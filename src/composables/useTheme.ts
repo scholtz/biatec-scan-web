@@ -73,8 +73,9 @@ export function initTheme(): void {
   }
   // Another tab changed the theme: follow it.
   window.addEventListener("storage", (event) => {
-    if (event.key !== THEME_STORAGE_KEY) return;
-    mode.value = parseThemeMode(event.newValue);
+    // key is null when another tab called localStorage.clear().
+    if (event.key !== null && event.key !== THEME_STORAGE_KEY) return;
+    mode.value = readStoredMode();
     apply(resolved.value);
   });
   apply(resolved.value);
