@@ -6,10 +6,12 @@
     <script src="/theme-init.js"></script>
     <link rel="icon" type="image/svg+xml" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- The network-specific <title>, description, Open Graph and Twitter Card
-         tags are added to <head> (after the font links below, before the
-         bundle's own tags) at build time by the socialMeta plugin in
-         vite.config.ts (see src/config/socialMeta.ts). -->
+    <!-- The network-specific page title, description, Open Graph and Twitter
+         Card tags are added to the document head (after the font links below,
+         before the bundle's own tags) at build time by the socialMeta plugin
+         in vite.config.ts - see src/config/socialMeta.ts. No literal tag
+         syntax in this comment: it ships in the built page ahead of the real
+         title, where naive scrapers would match it. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

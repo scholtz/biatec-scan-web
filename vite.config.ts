@@ -60,10 +60,12 @@ function socialMeta(): Plugin {
       const isBuild = config.command === 'build'
       try {
         // The image is only referenced (and so only needs to exist) when
-        // VITE_SITE_URL provides the origin for its absolute URL.
-        const version = siteOriginOf(env)
-          ? shareImageVersion(env, config.publicDir)
-          : undefined
+        // VITE_SITE_URL provides the origin for its absolute URL, and the
+        // cache-buster only matters in the built page that crawlers fetch.
+        const version =
+          isBuild && siteOriginOf(env)
+            ? shareImageVersion(env, config.publicDir)
+            : undefined
         tags = buildSocialMetaTags(env, version)
         // Crawlers never see the dev server, so only builds are warned.
         if (isBuild) {
@@ -73,8 +75,8 @@ function socialMeta(): Plugin {
         }
       } catch (e: unknown) {
         // A malformed VITE_SITE_URL or an unreadable image must not ship in
-        // a production build; on the dev/preview server it only costs the
-        // image tags.
+        // a production build; on the dev server a malformed URL only costs
+        // the image tags.
         if (isBuild) throw e
         config.logger.warn(
           `[social-meta] ${e instanceof Error ? e.message : String(e)}`,

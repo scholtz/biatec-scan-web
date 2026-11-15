@@ -5,8 +5,16 @@ import { test, expect, type Page } from "@playwright/test";
 // see what a crawler sees without depending on how Vite serialises the tags.
 test.use({ javaScriptEnabled: false });
 
-const meta = (page: Page, attr: "property" | "name", id: string) =>
-  page.locator(`head meta[${attr}="${id}"]`).getAttribute("content");
+// Null for an absent tag: a bare getAttribute() would auto-wait for the
+// element and time out instead of letting the assertion (and its hint) fail.
+async function meta(
+  page: Page,
+  attr: "property" | "name",
+  id: string,
+): Promise<string | null> {
+  const tag = page.locator(`head meta[${attr}="${id}"]`);
+  return (await tag.count()) > 0 ? tag.first().getAttribute("content") : null;
+}
 
 // The image tags are only emitted when the bundle was built with
 // VITE_SITE_URL, which playwright.config.ts sets for the server it starts.
