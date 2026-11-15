@@ -22,15 +22,14 @@
         <p class="text-gray-300 text-sm">{{ $t('theme.description') }}</p>
         <div
           class="inline-flex rounded-lg border border-dark-600/60 overflow-hidden"
-          role="radiogroup"
+          role="group"
           :aria-label="$t('theme.selectLabel')"
         >
           <button
             v-for="option in THEME_MODES"
             :key="option"
             type="button"
-            role="radio"
-            :aria-checked="mode === option"
+            :aria-pressed="mode === option"
             :data-testid="`theme-option-${option}`"
             class="px-4 py-2 text-sm min-h-10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             :class="

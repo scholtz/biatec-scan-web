@@ -59,8 +59,22 @@ export function initTheme(): void {
       ? window.matchMedia("(prefers-color-scheme: dark)")
       : null;
   systemPrefersDark.value = query ? query.matches : true;
-  query?.addEventListener("change", (event) => {
+  const onSystemChange = (event: MediaQueryListEvent) => {
     systemPrefersDark.value = event.matches;
+    apply(resolved.value);
+  };
+  // Theming is cosmetic: never let a missing API (Safari < 14 only has
+  // addListener) stop the app from mounting.
+  try {
+    if (query?.addEventListener) query.addEventListener("change", onSystemChange);
+    else query?.addListener(onSystemChange);
+  } catch {
+    // Without live OS-change tracking the theme still applies on next load.
+  }
+  // Another tab changed the theme: follow it.
+  window.addEventListener("storage", (event) => {
+    if (event.key !== THEME_STORAGE_KEY) return;
+    mode.value = parseThemeMode(event.newValue);
     apply(resolved.value);
   });
   apply(resolved.value);

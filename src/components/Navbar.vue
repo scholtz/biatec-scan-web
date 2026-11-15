@@ -5,20 +5,20 @@
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center space-x-8 min-w-0">
-          <router-link to="/" class="flex items-center space-x-3 min-w-0 lg:shrink-0">
+          <router-link to="/" class="flex items-center space-x-3 min-w-0 xl:shrink-0">
             <div
               class="w-8 h-8 shrink-0 bg-linear-to-r from-[#ffffff] to-[#bfdbfe] rounded-lg flex items-center justify-center"
             >
               <img src="../assets/logo.svg" alt="Logo" class="w-7 h-7" />
             </div>
             <span
-              class="text-base sm:text-xl font-bold truncate lg:overflow-visible bg-linear-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent"
+              class="text-base sm:text-xl font-bold truncate xl:overflow-visible bg-linear-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent"
             >
               Biatec {{ networkLabel }} Scan
             </span>
           </router-link>
 
-          <div class="hidden lg:flex space-x-4 2xl:space-x-6">
+          <div class="hidden xl:flex space-x-4 min-[1700px]:space-x-6">
             <router-link
               v-if="isSwapAvailable"
               to="/swap"
@@ -65,20 +65,20 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-1 lg:gap-4">
-          <div class="hidden xl:block w-36 min-[1400px]:w-44 2xl:w-72 shrink-0">
+        <div class="flex items-center gap-1 xl:gap-4">
+          <div class="hidden min-[1440px]:block w-44 min-[1700px]:w-72 shrink-0">
             <ExplorerSearchBox
               icon-only
               :placeholder="$t('nav.searchPlaceholder')"
             />
           </div>
           <ThemeSwitcher />
-          <div class="hidden lg:block">
+          <div class="hidden xl:block">
             <WalletConnectButton />
           </div>
         <!-- Mobile hamburger -->
         <button
-          class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          class="xl:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500"
           @click="toggleMobile"
           :aria-label="$t('common.toggleNavigation')"
           :aria-expanded="mobileOpen"
@@ -114,7 +114,7 @@
       <transition name="fade-slide">
         <div
           v-if="mobileOpen"
-          class="lg:hidden mt-2 pb-4 border-t border-dark-700/50 space-y-4"
+          class="xl:hidden mt-2 pb-4 border-t border-dark-700/50 space-y-4"
         >
           <div class="pt-4 flex flex-col space-y-3">
             <router-link

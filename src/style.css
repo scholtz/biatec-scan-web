@@ -128,9 +128,13 @@ html {
 }
 
 /* Solid accent fills keep white text in both themes (the variable is
-   inherited, so every text-white inside the button is restored too). */
+   inherited, so every text-white inside the button is restored too).
+   Matches the plain `bg-<colour>-500..800` class token. An element whose fill
+   comes from somewhere else (gradient, arbitrary colour, hover-only state)
+   must opt in with the `on-accent` class. */
 :root[data-theme="light"] :is(
     .btn-primary,
+    .on-accent,
     [class~="bg-primary-500"],
     [class~="bg-primary-600"],
     [class~="bg-primary-700"],

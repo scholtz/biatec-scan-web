@@ -201,7 +201,7 @@
                     <title>{{ slice.asset.name }}: {{ slice.percentage }}%</title>
                   </path>
                   <!-- Donut hole -->
-                  <circle cx="50" cy="50" r="22" fill="var(--color-gray-900)" />
+                  <circle cx="50" cy="50" r="22" fill="var(--color-gray-900, #111827)" />
                   <text
                     x="50"
                     y="48"
@@ -216,7 +216,7 @@
                     x="50"
                     y="56"
                     text-anchor="middle"
-                    fill="var(--color-gray-500)"
+                    fill="var(--color-gray-500, #6b7280)"
                     font-size="5"
                   >
                     {{ enrichedAssets.length }}

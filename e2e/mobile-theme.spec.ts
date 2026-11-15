@@ -51,8 +51,8 @@ test.describe("mobile layout", () => {
 });
 
 test.describe("navbar", () => {
-  test("global search box is available from 1280px", async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 800 });
+  test("global search box is available from 1440px", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 800 });
     await page.goto("/");
     await expect(page.locator("nav").getByRole("textbox")).toBeVisible();
   });
@@ -128,7 +128,7 @@ test.describe("theme", () => {
     await page.getByTestId("theme-option-light").click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(page.getByTestId("theme-option-light")).toHaveAttribute(
-      "aria-checked",
+      "aria-pressed",
       "true",
     );
   });

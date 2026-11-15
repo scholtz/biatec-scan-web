@@ -72,9 +72,12 @@ export const chartsBaseUrl: string =
   viteEnv.VITE_CHARTS_BASE_URL ||
   (viteEnv.DEV ? "https://algorand.scan.biatec.io/charts" : "/charts");
 
-/** Builds the chart page URL for a given ASA id. */
-export function assetChartUrl(assetId: number | string | bigint): string {
-  return `${chartsBaseUrl}/?interval=4H&assetA=${assetId}`;
+/** Builds the chart page URL for a given ASA id (the widget accepts theme=light|dark). */
+export function assetChartUrl(
+  assetId: number | string | bigint,
+  theme: "light" | "dark" = "dark",
+): string {
+  return `${chartsBaseUrl}/?interval=4H&assetA=${assetId}&theme=${theme}`;
 }
 
 /** SignalR realtime hub, served from the same API host. */
