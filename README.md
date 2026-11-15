@@ -85,6 +85,20 @@ the `VITE_*` variables listed in [`src/config/env.ts`](src/config/env.ts) in a
 `VITE_ALGORAND_INDEXER_URL`, `VITE_GENESIS_ID`, `VITE_GENESIS_HASH`,
 `VITE_USDC_ASSET_ID`), or pass them inline when starting the dev server.
 
+### Link previews (Open Graph / Twitter Card)
+
+The `<title>`, description, `og:*` and `twitter:*` tags are injected into
+`index.html` at build time by the `socialMeta` plugin in `vite.config.ts`
+(logic in [`src/config/socialMeta.ts`](src/config/socialMeta.ts)), from
+`VITE_NETWORK_LABEL`, `VITE_GENESIS_ID` and `VITE_SITE_URL` (the deployment's
+public origin, needed for the absolute image URL). The share images in
+`public/og/` are committed; re-render them after changing the design or the
+network list with:
+
+```bash
+pnpm generate:og-images   # needs Playwright's Chromium + network access (Inter font)
+```
+
 ### Backend API client
 
 The typed Axios client in `src/api/` is generated from the backend's Swagger

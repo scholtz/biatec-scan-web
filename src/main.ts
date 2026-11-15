@@ -4,12 +4,14 @@ import App from "./App.vue";
 import router from "./router";
 import i18n from "./i18n";
 import { networkLabel } from "./config/env";
+import { pageTitle } from "./config/socialMeta";
 import { initTheme } from "./composables/useTheme";
 
 // The first paint is themed by public/theme-init.js; this syncs reactive state.
 initTheme();
 
-document.title = `${networkLabel} Explorer - Biatec Scan`;
+// Same title the build injected into index.html (kept for dev/HMR parity).
+document.title = pageTitle(networkLabel);
 
 const app = createApp(App).use(router).use(i18n);
 app.mount("#app");
