@@ -4,7 +4,7 @@ import App from "./App.vue";
 import router from "./router";
 import i18n from "./i18n";
 import { networkLabel } from "./config/env";
-import { pageTitle } from "./config/socialMeta";
+import { pageTitle } from "./config/siteIdentity";
 import { initTheme } from "./composables/useTheme";
 
 // The first paint is themed by public/theme-init.js; this syncs reactive state.

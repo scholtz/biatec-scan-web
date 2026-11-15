@@ -112,7 +112,6 @@ jobs:
             vite_native_token_name: Algorand
             vite_native_token_unit: ALGO
             vite_network_label: Algorand
-            vite_site_url: https://algorand.scan.biatec.io
           - network: testnet
             vite_api_base_url: https://api.testnet.scan.biatec.io
             vite_algorand_algod_url: https://testnet-api.4160.nodely.dev
@@ -124,7 +123,6 @@ jobs:
             vite_native_token_name: Testnet Algorand
             vite_native_token_unit: ALGO
             vite_network_label: Algorand Testnet
-            vite_site_url: https://testnet.scan.biatec.io
           # Voi mainnet production build - deployed manually via
           # promote-production.yml with network=voi to voi.scan.biatec.io.
           - network: voi
@@ -138,7 +136,6 @@ jobs:
             vite_native_token_name: Voi
             vite_native_token_unit: VOI
             vite_network_label: Voi
-            vite_site_url: https://voi.scan.biatec.io
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

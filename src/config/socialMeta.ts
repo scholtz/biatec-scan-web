@@ -3,10 +3,16 @@
 // Crawlers (X, Discord, Telegram, Slack, LinkedIn, ...) do not execute
 // JavaScript, so these tags must be in the static index.html. They are
 // injected at build time by the `socialMeta` plugin in vite.config.ts from the
-// same VITE_* variables as src/config/env.ts - which is why this module must
-// stay free of `import.meta.env` and browser APIs (it runs in Node too).
+// same VITE_* variables as src/config/env.ts. This module is build-time only
+// (Vite config, image generator, tests) - the browser bundle must not import
+// it; what both sides share lives in ./siteIdentity.
 
-import { DEFAULT_GENESIS_ID, DEFAULT_NETWORK_LABEL } from "./networkDefaults";
+import {
+  DEFAULT_GENESIS_ID,
+  DEFAULT_NETWORK_LABEL,
+  SITE_NAME,
+  pageTitle,
+} from "./siteIdentity";
 
 /** A `<head>` tag to inject; structurally compatible with Vite's HtmlTagDescriptor. */
 export interface HeadTag {
@@ -20,7 +26,7 @@ export interface HeadTag {
 export interface SocialMetaEnv {
   VITE_NETWORK_LABEL?: string;
   VITE_GENESIS_ID?: string;
-  /** Public origin of the deployment; optional for the networks listed below. */
+  /** Public origin of the deployment; only needed for networks not listed below. */
   VITE_SITE_URL?: string;
 }
 
@@ -35,7 +41,11 @@ export interface OgImageVariant {
   slug: string;
   /** Network name shown in the headline. */
   label: string;
-  /** Host shown in the image footer. */
+  /**
+   * Production host of the network's deployment: shown in the image footer
+   * and the default origin of the image URL. Empty for the network-neutral
+   * image, which names no deployment.
+   */
   host: string;
   /** Native token ticker used in the decorative market card. */
   unit: string;
@@ -49,11 +59,15 @@ export const OG_IMAGE_TYPE = "image/jpeg";
 export const defaultOgImageVariant: OgImageVariant = {
   slug: "default",
   label: "AVM",
-  host: "scan.biatec.io",
+  host: "",
   unit: "TOKEN",
 };
 
-/** Share image variants keyed by the genesis id of the network they depict. */
+/**
+ * Share image variants keyed by the genesis id of the network they depict.
+ * `host` is the single source of the production origin used in link previews
+ * (keep in sync with the ingress host in k8s/<network>/deployment-fe.yaml).
+ */
 export const ogImageVariants: Record<string, OgImageVariant> = {
   "mainnet-v1.0": {
     slug: "algorand",
@@ -94,13 +108,6 @@ export function ogImageVariantFor(env: SocialMetaEnv): OgImageVariant {
   );
 }
 
-const SITE_NAME = "Biatec Scan";
-
-/** Page title; also set at runtime by src/main.ts. */
-export function pageTitle(networkLabel: string): string {
-  return `${networkLabel} Explorer - ${SITE_NAME}`;
-}
-
 export function pageDescription(networkLabel: string): string {
   return (
     `${SITE_NAME} is a real-time ${networkLabel} DEX explorer: blocks, ` +
@@ -111,16 +118,29 @@ export function pageDescription(networkLabel: string): string {
 
 /**
  * Public origin the absolute image URL is built on: VITE_SITE_URL, or for a
- * known network its own production host. An unknown network without
- * VITE_SITE_URL is an error rather than a silent fallback to another
- * deployment's host, which would point its previews at the wrong site.
+ * known network its own production host. Throws - rather than silently
+ * emitting a broken or wrong-host URL - when VITE_SITE_URL is not an absolute
+ * http(s) URL, or when it is unset for a network without a known host.
  */
-function siteUrlFor(env: SocialMetaEnv, variant: OgImageVariant): string {
+function siteOriginFor(env: SocialMetaEnv, variant: OgImageVariant): string {
   if (env.VITE_SITE_URL) {
-    // Strip trailing slashes so the path join can't produce "//og/...".
-    return env.VITE_SITE_URL.replace(/\/+$/, "");
+    let url: URL | undefined;
+    try {
+      url = new URL(env.VITE_SITE_URL);
+    } catch {
+      // not parseable as an absolute URL - reported below
+    }
+    if (!url || (url.protocol !== "https:" && url.protocol !== "http:")) {
+      throw new Error(
+        `VITE_SITE_URL must be an absolute http(s) URL such as ` +
+          `https://algorand.scan.biatec.io, got "${env.VITE_SITE_URL}".`,
+      );
+    }
+    // The app is served from the root of its host, so only the origin
+    // matters; this also drops any trailing slash, path or query.
+    return url.origin;
   }
-  if (variant === defaultOgImageVariant) {
+  if (!variant.host) {
     throw new Error(
       `VITE_SITE_URL must be set for network "${env.VITE_GENESIS_ID}": the ` +
         `og:image / twitter:image tags need the deployment's public origin ` +
@@ -128,6 +148,14 @@ function siteUrlFor(env: SocialMetaEnv, variant: OgImageVariant): string {
     );
   }
   return `https://${variant.host}`;
+}
+
+/** Vite escapes injected tag attributes but not tag children. */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 /**
@@ -156,7 +184,7 @@ export function buildSocialMetaTags(
   const title = pageTitle(networkLabel);
   const description = pageDescription(networkLabel);
   const image =
-    `${siteUrlFor(env, variant)}/og/${ogImageFileName(variant)}` +
+    `${siteOriginFor(env, variant)}/og/${ogImageFileName(variant)}` +
     (imageVersion ? `?v=${imageVersion}` : "");
   const imageAlt = `${SITE_NAME} - ${networkLabel} DEX explorer`;
 
@@ -171,7 +199,7 @@ export function buildSocialMetaTags(
   });
 
   return [
-    { tag: "title", children: title, injectTo: "head" },
+    { tag: "title", children: escapeHtml(title), injectTo: "head" },
     meta("name", "description", description),
 
     meta("property", "og:type", "website"),

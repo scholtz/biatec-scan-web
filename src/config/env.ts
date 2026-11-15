@@ -3,7 +3,7 @@
 // than hardcoded, so a single Docker image build produces a network-specific
 // bundle (mainnet, testnet, and later voi/aramid) purely by varying these
 // env vars at build time - see docker/Dockerfile and .github/workflows.
-import { DEFAULT_GENESIS_ID, DEFAULT_NETWORK_LABEL } from "./networkDefaults";
+import { DEFAULT_GENESIS_ID, DEFAULT_NETWORK_LABEL } from "./siteIdentity";
 
 const viteEnv = import.meta.env;
 

@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig, type Plugin } from 'vite'
@@ -11,7 +11,27 @@ import {
   ogImageFileName,
   ogImageVariantFor,
   type HeadTag,
+  type SocialMetaEnv,
 } from './src/config/socialMeta'
+
+/**
+ * Tags for the network this build targets, with a content hash of its share
+ * image as the cache-buster (see buildSocialMetaTags). Throws with an
+ * actionable message if the configuration or the image is unusable.
+ */
+function socialMetaTags(env: SocialMetaEnv, publicDir: string): HeadTag[] {
+  const image = resolve(publicDir, 'og', ogImageFileName(ogImageVariantFor(env)))
+  if (!existsSync(image)) {
+    throw new Error(
+      `Share image ${image} is missing - render it with \`pnpm generate:og-images\`.`,
+    )
+  }
+  const version = createHash('sha256')
+    .update(readFileSync(image))
+    .digest('hex')
+    .slice(0, 8)
+  return buildSocialMetaTags(env, version)
+}
 
 /**
  * Injects the network-specific <title>, description, Open Graph and Twitter
@@ -26,19 +46,27 @@ function socialMeta(): Plugin {
       // config.env is the very env the bundle's import.meta.env is built
       // from (.env* files in envDir + process env, e.g. Docker build args),
       // so the HTML and the JS can't end up describing different networks.
-      const env = config.env
-      // Content hash of the share image as a cache-buster, see
-      // buildSocialMetaTags.
-      const image = resolve(
-        config.publicDir,
-        'og',
-        ogImageFileName(ogImageVariantFor(env)),
-      )
-      const version = createHash('sha256')
-        .update(readFileSync(image))
-        .digest('hex')
-        .slice(0, 8)
-      tags = buildSocialMetaTags(env, version)
+      // Picked field by field because config.env is typed Record<string, any>.
+      const read = (key: keyof SocialMetaEnv): string | undefined => {
+        const value: unknown = config.env[key] // untyped by Vite, narrowed below
+        return typeof value === 'string' ? value : undefined
+      }
+      const env: SocialMetaEnv = {
+        VITE_NETWORK_LABEL: read('VITE_NETWORK_LABEL'),
+        VITE_GENESIS_ID: read('VITE_GENESIS_ID'),
+        VITE_SITE_URL: read('VITE_SITE_URL'),
+      }
+      try {
+        tags = socialMetaTags(env, config.publicDir)
+      } catch (e: unknown) {
+        // A production build must not ship broken previews; the dev/preview
+        // server is of no interest to crawlers, so there it's only a warning
+        // (main.ts still sets the document title at runtime).
+        if (config.command === 'build') throw e
+        config.logger.warn(
+          `[social-meta] link-preview tags skipped: ${e instanceof Error ? e.message : String(e)}`,
+        )
+      }
     },
     transformIndexHtml: () => tags,
   }

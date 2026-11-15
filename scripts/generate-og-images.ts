@@ -252,7 +252,7 @@ function html(variant: OgImageVariant): string {
         <div class="chart">${candlesSvg(392, 190)}</div>
         <div class="rows">${rows}</div>
       </div>
-      <div class="host">${variant.host}</div>
+      ${variant.host ? `<div class="host">${variant.host}</div>` : ""}
     </div>
   </div>
 </body>
@@ -274,11 +274,23 @@ async function main(): Promise<void> {
       // worse than a failed run - verify both before taking the screenshot.
       const problem = await page.evaluate(async () => {
         await document.fonts.ready;
-        if (
-          !document.fonts.check('800 84px "Inter"') ||
-          !document.fonts.check('400 25px "Inter"')
-        ) {
-          return "the Inter web font did not load (no network access to Google Fonts?)";
+        // document.fonts holds only the @font-face rules of the Google Fonts
+        // stylesheet (never a locally installed Inter), and a face is
+        // "loaded" only once its file was fetched - so every weight the
+        // design uses must be covered by a loaded web-font face.
+        const loaded = [...document.fonts].filter(
+          (face) => /inter/i.test(face.family) && face.status === "loaded",
+        );
+        const missing = [400, 500, 600, 700, 800].filter(
+          (weight) =>
+            !loaded.some((face) => {
+              // "400" for a static face, "100 900" for a variable one.
+              const [min, max = min] = face.weight.split(" ").map(Number);
+              return min <= weight && weight <= max;
+            }),
+        );
+        if (missing.length > 0) {
+          return `the Inter web font did not load for weight(s) ${missing.join(", ")} (no network access to Google Fonts?)`;
         }
         const headline = document.querySelector(".headline");
         if (headline && headline.scrollWidth > headline.clientWidth) {

@@ -1,12 +1,11 @@
 import { statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { DEFAULT_NETWORK_LABEL } from "./networkDefaults";
+import { DEFAULT_NETWORK_LABEL, pageTitle } from "./siteIdentity";
 import {
   allOgImageVariants,
   buildSocialMetaTags,
   ogImageFileName,
-  pageTitle,
   type HeadTag,
 } from "./socialMeta";
 
@@ -86,13 +85,40 @@ describe("buildSocialMetaTags", () => {
     );
   });
 
-  it("tolerates a trailing slash on the site URL", () => {
+  it("reduces the site URL to its origin (trailing slash, path, query)", () => {
+    for (const siteUrl of [
+      "https://testnet.scan.biatec.io/",
+      "https://testnet.scan.biatec.io/app/?x=1",
+    ]) {
+      const tags = buildSocialMetaTags({
+        VITE_SITE_URL: siteUrl,
+        VITE_GENESIS_ID: "testnet-v1.0",
+      });
+      expect(content(tags, "og:image"), siteUrl).toBe(
+        "https://testnet.scan.biatec.io/og/algorand-testnet.jpg",
+      );
+    }
+  });
+
+  it("rejects a site URL that is not an absolute http(s) URL", () => {
+    for (const siteUrl of ["voi.scan.biatec.io", "ftp://voi.scan.biatec.io"]) {
+      expect(
+        () => buildSocialMetaTags({ VITE_SITE_URL: siteUrl }),
+        siteUrl,
+      ).toThrow(/VITE_SITE_URL must be an absolute http\(s\) URL/);
+    }
+  });
+
+  it("HTML-escapes the title element's text", () => {
     const tags = buildSocialMetaTags({
-      VITE_SITE_URL: "https://testnet.scan.biatec.io/",
-      VITE_GENESIS_ID: "testnet-v1.0",
+      VITE_NETWORK_LABEL: "A&B </title><script>",
     });
-    expect(content(tags, "og:image")).toBe(
-      "https://testnet.scan.biatec.io/og/algorand-testnet.jpg",
+    expect(tags.find((t) => t.tag === "title")?.children).toBe(
+      "A&amp;B &lt;/title&gt;&lt;script&gt; Explorer - Biatec Scan",
+    );
+    // Attribute values are escaped by Vite when it serialises the tag.
+    expect(content(tags, "og:title")).toBe(
+      "A&B </title><script> Explorer - Biatec Scan",
     );
   });
 

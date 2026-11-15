@@ -15,7 +15,7 @@ test("served HTML carries Open Graph and Twitter Card tags", async ({
   expect(content("property", "og:title")).toBeTruthy();
   expect(content("property", "og:description")).toBeTruthy();
   expect(content("property", "og:image")).toMatch(
-    /^https:\/\/.+\/og\/.+\.jpg\?v=[0-9a-f]{8}$/,
+    /^https?:\/\/.+\/og\/.+\.jpg\?v=[0-9a-f]{8}$/,
   );
   expect(content("name", "twitter:card")).toBe("summary_large_image");
   expect(content("name", "twitter:image")).toBe(
@@ -31,7 +31,8 @@ test("the share image referenced by og:image is served as a JPEG", async ({
   expect(image).toBeTruthy();
 
   // og:image points at the production host; fetch the same path locally.
-  const response = await request.get(new URL(image ?? "").pathname);
+  const { pathname, search } = new URL(image ?? "");
+  const response = await request.get(pathname + search);
   expect(response.status()).toBe(200);
   expect(response.headers()["content-type"]).toContain("image/jpeg");
 });
