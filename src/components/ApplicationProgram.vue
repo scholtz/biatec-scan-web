@@ -5,7 +5,7 @@
       <button
         @click="handleDecompile"
         :disabled="isDecompiling"
-        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white rounded transition-colors"
+        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:text-gray-500 text-white rounded transition-colors"
       >
         {{ isDecompiling ? "Decompiling..." : "Decompile" }}
       </button>
