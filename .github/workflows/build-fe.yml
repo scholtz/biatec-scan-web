@@ -90,9 +90,13 @@ jobs:
   # network-specific VITE_* build args baked in (Vite only reads env vars at
   # build time), and pushes to Docker Hub + the private registry. Adding a
   # future network (voi, aramid, ...) is a new matrix entry here plus a new
-  # k8s/<network> manifest - no other workflow changes needed. (Its link
-  # previews use the network-neutral share image until it gets its own
-  # variant in src/config/socialMeta.ts + `pnpm generate:og-images`.)
+  # k8s/<network> manifest - no other workflow changes needed. A new network
+  # must also set `vite_site_url` (its public origin, e.g.
+  # https://aramid.scan.biatec.io) in its matrix entry, or the build fails:
+  # link previews need an absolute image URL. The three networks below don't
+  # set it because their hosts are known to src/config/socialMeta.ts, where a
+  # new network can later get its own share image (`pnpm generate:og-images`)
+  # instead of the network-neutral one.
   # -----------------------------------------------------------------------
   build:
     needs: version

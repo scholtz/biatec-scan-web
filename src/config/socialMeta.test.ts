@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_NETWORK_LABEL, pageTitle } from "./siteIdentity";
 import {
   allOgImageVariants,
+  buildPageTags,
   buildSocialMetaTags,
   ogImageFileName,
   type HeadTag,
@@ -140,11 +141,31 @@ describe("buildSocialMetaTags", () => {
     );
   });
 
+  it("treats inherited Object.prototype keys as unknown networks", () => {
+    const tags = buildSocialMetaTags({
+      VITE_GENESIS_ID: "constructor",
+      VITE_SITE_URL: "https://x.scan.biatec.io",
+    });
+    expect(content(tags, "og:image")).toBe(
+      "https://x.scan.biatec.io/og/default.jpg",
+    );
+  });
+
   it("fails the build for an unknown network without VITE_SITE_URL", () => {
     // Guessing another deployment's host would point previews at the wrong site.
     expect(() =>
       buildSocialMetaTags({ VITE_GENESIS_ID: "aramidmain-v1.0" }),
     ).toThrow(/VITE_SITE_URL must be set/);
+  });
+
+  it("can still build the title and description when the origin is unknown", () => {
+    const tags = buildPageTags({
+      VITE_NETWORK_LABEL: "Aramid",
+      VITE_GENESIS_ID: "aramidmain-v1.0",
+    });
+    expect(tags.map((t) => t.tag)).toEqual(["title", "meta"]);
+    expect(tags[0].children).toBe("Aramid Explorer - Biatec Scan");
+    expect(content(tags, "description")).toContain("Aramid DEX explorer");
   });
 
   it("omits og:url so shared deep links are not attributed to the home page", () => {

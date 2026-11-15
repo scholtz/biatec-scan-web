@@ -202,7 +202,7 @@ function html(variant: OgImageVariant): string {
     box-shadow: 0 30px 70px rgba(2, 6, 23, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
   .card-head { display: flex; align-items: center; justify-content: space-between; }
-  .pair { font-size: 23px; font-weight: 700; color: #ffffff; }
+  .pair { font-size: 23px; font-weight: 700; color: #ffffff; white-space: nowrap; min-width: 0; }
   .live {
     display: flex; align-items: center; gap: 8px;
     font-size: 15px; font-weight: 700; letter-spacing: 0.08em; color: #34d399;
@@ -220,11 +220,12 @@ function html(variant: OgImageVariant): string {
   .side { font-weight: 700; }
   .up { color: #34d399; }
   .down { color: #f87171; }
-  .amount { color: #e2e8f0; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .amount { color: #e2e8f0; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; }
   .ago { color: #94a3b8; font-size: 16px; }
   .host {
     margin-top: 22px; text-align: right;
     font-size: 21px; font-weight: 600; color: #93c5fd; letter-spacing: 0.01em;
+    white-space: nowrap;
   }
 </style>
 </head>
@@ -292,9 +293,14 @@ async function main(): Promise<void> {
         if (missing.length > 0) {
           return `the Inter web font did not load for weight(s) ${missing.join(", ")} (no network access to Google Fonts?)`;
         }
-        const headline = document.querySelector(".headline");
-        if (headline && headline.scrollWidth > headline.clientWidth) {
-          return `the headline overflows its column (${headline.scrollWidth}px > ${headline.clientWidth}px)`;
+        // Every piece of variant-driven text is single-line (nowrap), so
+        // text too long for its box shows up as horizontal overflow.
+        for (const selector of [".headline", ".pair", ".amount", ".host"]) {
+          for (const el of document.querySelectorAll(selector)) {
+            if (el.scrollWidth > el.clientWidth) {
+              return `"${el.textContent?.trim()}" (${selector}) overflows its box (${el.scrollWidth}px > ${el.clientWidth}px)`;
+            }
+          }
         }
         return null;
       });

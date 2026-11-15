@@ -14,7 +14,11 @@ import {
   pageTitle,
 } from "./siteIdentity";
 
-/** A `<head>` tag to inject; structurally compatible with Vite's HtmlTagDescriptor. */
+/**
+ * A `<head>` tag to inject. Deliberately narrower than Vite's
+ * HtmlTagDescriptor (string-only attrs/children); vite.config.ts returns it
+ * from transformIndexHtml, so any incompatibility is a compile error there.
+ */
 export interface HeadTag {
   tag: "title" | "meta";
   attrs?: Record<string, string>;
@@ -65,8 +69,11 @@ export const defaultOgImageVariant: OgImageVariant = {
 
 /**
  * Share image variants keyed by the genesis id of the network they depict.
- * `host` is the single source of the production origin used in link previews
- * (keep in sync with the ingress host in k8s/<network>/deployment-fe.yaml).
+ * `host` is printed in the image, which is why the production origin of the
+ * known networks lives here and not in the CI matrix (keep in sync with the
+ * ingress host in k8s/<network>/deployment-fe.yaml and re-render on change).
+ * A deployment on any other host - a preview, a fork, a network without a
+ * variant yet - sets VITE_SITE_URL instead.
  */
 export const ogImageVariants: Record<string, OgImageVariant> = {
   "mainnet-v1.0": {
@@ -102,10 +109,12 @@ export function ogImageFileName(variant: OgImageVariant): string {
 
 /** Share image variant for the network a build targets. */
 export function ogImageVariantFor(env: SocialMetaEnv): OgImageVariant {
-  return (
-    ogImageVariants[env.VITE_GENESIS_ID || DEFAULT_GENESIS_ID] ??
-    defaultOgImageVariant
-  );
+  const genesisId = env.VITE_GENESIS_ID || DEFAULT_GENESIS_ID;
+  // Object.hasOwn: the id is external input, and "constructor"/"toString"
+  // would otherwise resolve to inherited Object.prototype members.
+  return Object.hasOwn(ogImageVariants, genesisId)
+    ? ogImageVariants[genesisId]
+    : defaultOgImageVariant;
 }
 
 export function pageDescription(networkLabel: string): string {
@@ -158,6 +167,37 @@ function escapeHtml(text: string): string {
     .replace(/>/g, "&gt;");
 }
 
+const meta = (
+  key: "name" | "property",
+  id: string,
+  content: string,
+): HeadTag => ({
+  tag: "meta",
+  attrs: { [key]: id, content },
+  injectTo: "head",
+});
+
+// Same fallback as `networkLabel` in env.ts, so the baked title is the one
+// main.ts sets at runtime.
+const networkLabelOf = (env: SocialMetaEnv): string =>
+  env.VITE_NETWORK_LABEL || DEFAULT_NETWORK_LABEL;
+
+/**
+ * The `<title>` and description alone. They need neither the site origin nor
+ * the share image, so they can be emitted even when those are unusable.
+ */
+export function buildPageTags(env: SocialMetaEnv): HeadTag[] {
+  const networkLabel = networkLabelOf(env);
+  return [
+    {
+      tag: "title",
+      children: escapeHtml(pageTitle(networkLabel)),
+      injectTo: "head",
+    },
+    meta("name", "description", pageDescription(networkLabel)),
+  ];
+}
+
 /**
  * Builds the title, description, Open Graph and Twitter Card tags for the
  * network a build targets. Defaults mirror src/config/env.ts (Algorand
@@ -176,9 +216,7 @@ export function buildSocialMetaTags(
   env: SocialMetaEnv,
   imageVersion?: string,
 ): HeadTag[] {
-  // Same fallback as `networkLabel` in env.ts, so this title is the one
-  // main.ts sets at runtime.
-  const networkLabel = env.VITE_NETWORK_LABEL || DEFAULT_NETWORK_LABEL;
+  const networkLabel = networkLabelOf(env);
   const variant = ogImageVariantFor(env);
 
   const title = pageTitle(networkLabel);
@@ -188,19 +226,8 @@ export function buildSocialMetaTags(
     (imageVersion ? `?v=${imageVersion}` : "");
   const imageAlt = `${SITE_NAME} - ${networkLabel} DEX explorer`;
 
-  const meta = (
-    key: "name" | "property",
-    id: string,
-    content: string,
-  ): HeadTag => ({
-    tag: "meta",
-    attrs: { [key]: id, content },
-    injectTo: "head",
-  });
-
   return [
-    { tag: "title", children: escapeHtml(title), injectTo: "head" },
-    meta("name", "description", description),
+    ...buildPageTags(env),
 
     meta("property", "og:type", "website"),
     meta("property", "og:site_name", SITE_NAME),

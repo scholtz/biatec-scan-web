@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig, type Plugin } from 'vite'
@@ -7,6 +7,7 @@ import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import vueI18n from '@intlify/unplugin-vue-i18n/vite'
 import {
+  buildPageTags,
   buildSocialMetaTags,
   ogImageFileName,
   ogImageVariantFor,
@@ -21,15 +22,15 @@ import {
  */
 function socialMetaTags(env: SocialMetaEnv, publicDir: string): HeadTag[] {
   const image = resolve(publicDir, 'og', ogImageFileName(ogImageVariantFor(env)))
-  if (!existsSync(image)) {
+  let bytes: Buffer
+  try {
+    bytes = readFileSync(image)
+  } catch {
     throw new Error(
       `Share image ${image} is missing - render it with \`pnpm generate:og-images\`.`,
     )
   }
-  const version = createHash('sha256')
-    .update(readFileSync(image))
-    .digest('hex')
-    .slice(0, 8)
+  const version = createHash('sha256').update(bytes).digest('hex').slice(0, 8)
   return buildSocialMetaTags(env, version)
 }
 
@@ -61,8 +62,9 @@ function socialMeta(): Plugin {
       } catch (e: unknown) {
         // A production build must not ship broken previews; the dev/preview
         // server is of no interest to crawlers, so there it's only a warning
-        // (main.ts still sets the document title at runtime).
+        // and the page keeps its title and description.
         if (config.command === 'build') throw e
+        tags = buildPageTags(env)
         config.logger.warn(
           `[social-meta] link-preview tags skipped: ${e instanceof Error ? e.message : String(e)}`,
         )
