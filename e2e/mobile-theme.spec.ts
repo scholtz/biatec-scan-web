@@ -110,6 +110,45 @@ test.describe("theme", () => {
     await ctx.close();
   });
 
+  test("pre-paint script and app agree on the stored key (drift guard)", async ({
+    browser,
+  }) => {
+    const ctx = await browser.newContext({ colorScheme: "dark" });
+    await ctx.addInitScript(() =>
+      localStorage.setItem("biatec-scan-theme", "light"),
+    );
+    const page = await ctx.newPage();
+    // Only public/theme-init.js can have applied the theme here...
+    await page.route(/\/src\/main\.ts|\/assets\/index-.*\.js/, (route) =>
+      route.abort(),
+    );
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.unroute(/\/src\/main\.ts|\/assets\/index-.*\.js/);
+    // ...and the app, reading the same key, must reach the same result.
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page.getByTestId("theme-toggle")).toHaveAttribute(
+      "aria-label",
+      /./,
+    );
+    await ctx.close();
+  });
+
+  test("a theme change in one tab is followed by another tab", async ({
+    browser,
+  }) => {
+    const ctx = await browser.newContext({ colorScheme: "dark" });
+    const a = await ctx.newPage();
+    const b = await ctx.newPage();
+    await a.goto("/");
+    await b.goto("/");
+    await expect(b.locator("html")).toHaveAttribute("data-theme", "dark");
+    await a.getByTestId("theme-toggle").click();
+    await expect(b.locator("html")).toHaveAttribute("data-theme", "light");
+    await ctx.close();
+  });
+
   test("light theme renders ink-coloured headings, not white", async ({
     browser,
   }) => {

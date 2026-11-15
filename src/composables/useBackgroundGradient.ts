@@ -139,7 +139,12 @@ export function useBackgroundGradient() {
 
   // whatamesh reads its --gradient-color-* CSS variables once at init, so a
   // theme switch needs a fresh gradient to pick up the other palette.
-  const stopThemeWatch = watch(resolvedTheme, () => void restart());
+  // Debounced so rapid toggling can't create a burst of WebGL contexts.
+  let themeRestartTimer: ReturnType<typeof setTimeout> | undefined;
+  const stopThemeWatch = watch(resolvedTheme, () => {
+    clearTimeout(themeRestartTimer);
+    themeRestartTimer = setTimeout(() => void restart(), 250);
+  });
 
   onMounted(() => {
     start();
@@ -149,6 +154,7 @@ export function useBackgroundGradient() {
 
   onBeforeUnmount(() => {
     stopThemeWatch();
+    clearTimeout(themeRestartTimer);
     document.removeEventListener("visibilitychange", onVisibilityChange);
     window.removeEventListener("pageshow", onPageShow);
     stop();
