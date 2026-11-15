@@ -125,9 +125,9 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
-const UP_COLOR = "#4ade80"; // tailwind green-400, matches ChangeCell positive
-const DOWN_COLOR = "#f87171"; // tailwind red-400, matches ChangeCell negative
-const FLAT_COLOR = "#9ca3af"; // tailwind gray-400
+const UP_COLOR = "var(--color-green-400, #4ade80)"; // tailwind green-400, matches ChangeCell positive
+const DOWN_COLOR = "var(--color-red-400, #f87171)"; // tailwind red-400, matches ChangeCell negative
+const FLAT_COLOR = "var(--color-gray-400, #9ca3af)"; // tailwind gray-400
 
 const hovered = ref<number | null>(null);
 const tooltipPos = ref({ x: 0, y: 0 });

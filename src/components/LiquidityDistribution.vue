@@ -178,8 +178,9 @@ const props = defineProps<{
 }>();
 
 // one hue, two ordinal steps (validated against the dark card surface): ranges, and the range holding the price
-const BAR_COLOR = "#2563eb";
-const ACTIVE_COLOR = "#93c5fd";
+// Theme aware (see style.css): the active range is always the high-contrast one.
+const BAR_COLOR = "var(--chart-bar, #2563eb)";
+const ACTIVE_COLOR = "var(--chart-bar-active, #93c5fd)";
 // the viewBox follows the rendered width, so one chart unit is one pixel: the minimum bar width and the rounded
 // corners keep their size at any screen width (the height is fixed, so nothing is squashed)
 const width = ref(1000);

@@ -6,7 +6,7 @@ import i18n from "./i18n";
 import { networkLabel } from "./config/env";
 import { initTheme } from "./composables/useTheme";
 
-// Before mount so the first paint already uses the saved / system theme.
+// The first paint is themed by public/theme-init.js; this syncs reactive state.
 initTheme();
 
 document.title = `${networkLabel} Explorer - Biatec Scan`;

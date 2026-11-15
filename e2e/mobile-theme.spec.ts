@@ -50,6 +50,14 @@ test.describe("mobile layout", () => {
   });
 });
 
+test.describe("navbar", () => {
+  test("global search box is available from 1280px", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/");
+    await expect(page.locator("nav").getByRole("textbox")).toBeVisible();
+  });
+});
+
 test.describe("theme", () => {
   test("defaults to the system preference", async ({ browser }) => {
     const ctx = await browser.newContext({ colorScheme: "light" });
@@ -66,13 +74,38 @@ test.describe("theme", () => {
     const page = await ctx.newPage();
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await page
-      .getByTestId("theme-toggle")
-      .filter({ visible: true })
-      .first()
-      .click();
+    await page.getByTestId("theme-toggle").click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await ctx.close();
+  });
+
+  test("toggling to the OS theme returns to system mode", async ({
+    browser,
+  }) => {
+    const ctx = await browser.newContext({ colorScheme: "dark" });
+    const page = await ctx.newPage();
+    await page.goto("/");
+    await page.getByTestId("theme-toggle").click(); // dark -> light (explicit)
+    await page.getByTestId("theme-toggle").click(); // light -> dark == OS
+    const stored = await page.evaluate(() =>
+      localStorage.getItem("biatec-scan-theme"),
+    );
+    expect(stored).toBe("system");
+    await ctx.close();
+  });
+
+  test("theme is applied before the app bundle runs (no flash)", async ({
+    browser,
+  }) => {
+    const ctx = await browser.newContext({ colorScheme: "light" });
+    const page = await ctx.newPage();
+    // Block the app entry so only public/theme-init.js can have set the theme.
+    await page.route(/\/src\/main\.ts|\/assets\/index-.*\.js/, (route) =>
+      route.abort(),
+    );
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await ctx.close();
   });

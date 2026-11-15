@@ -46,8 +46,9 @@ function apply(theme: ResolvedTheme) {
 }
 
 /**
- * Call once before mounting the app so the first paint already has the right
- * theme (a runtime script, not inline HTML, because the CSP forbids inline JS).
+ * Syncs reactive state with the theme that public/theme-init.js already applied
+ * to <html> before first paint (an external script, because the CSP forbids
+ * inline JS). Keep THEME_STORAGE_KEY in sync with that file.
  */
 export function initTheme(): void {
   if (initialised) return;
@@ -82,6 +83,12 @@ export function useTheme(): {
     apply(resolved.value);
   };
   // Quick toggle for the navbar: flips the *effective* theme explicitly.
-  const cycleMode = () => setMode(resolved.value === "dark" ? "light" : "dark");
+  // Picking the theme the OS already prefers stores "system", so the default
+  // keeps following the device instead of silently pinning an explicit choice.
+  const cycleMode = () => {
+    const next: ResolvedTheme = resolved.value === "dark" ? "light" : "dark";
+    const os: ResolvedTheme = systemPrefersDark.value ? "dark" : "light";
+    setMode(next === os ? "system" : next);
+  };
   return { mode, resolved, setMode, cycleMode };
 }

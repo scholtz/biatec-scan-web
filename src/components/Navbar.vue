@@ -7,7 +7,7 @@
         <div class="flex items-center space-x-8 min-w-0">
           <router-link to="/" class="flex items-center space-x-3 min-w-0 lg:shrink-0">
             <div
-              class="w-8 h-8 shrink-0 bg-linear-to-r from-white to-primary-200 rounded-lg flex items-center justify-center"
+              class="w-8 h-8 shrink-0 bg-linear-to-r from-[#ffffff] to-[#bfdbfe] rounded-lg flex items-center justify-center"
             >
               <img src="../assets/logo.svg" alt="Logo" class="w-7 h-7" />
             </div>
@@ -65,22 +65,20 @@
           </div>
         </div>
 
-        <div class="hidden lg:flex items-center space-x-4">
-          <div class="hidden min-[1400px]:block w-44 2xl:w-72 shrink-0">
+        <div class="flex items-center gap-1 lg:gap-4">
+          <div class="hidden xl:block w-36 min-[1400px]:w-44 2xl:w-72 shrink-0">
             <ExplorerSearchBox
               icon-only
               :placeholder="$t('nav.searchPlaceholder')"
             />
           </div>
           <ThemeSwitcher />
-          <WalletConnectButton />
-        </div>
-
-        <div class="lg:hidden flex items-center gap-1">
-        <ThemeSwitcher />
+          <div class="hidden lg:block">
+            <WalletConnectButton />
+          </div>
         <!-- Mobile hamburger -->
         <button
-          class="inline-flex items-center justify-center w-10 h-10 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700/60 focus:outline-none focus:ring-2 focus:ring-primary-500"
           @click="toggleMobile"
           :aria-label="$t('common.toggleNavigation')"
           :aria-expanded="mobileOpen"

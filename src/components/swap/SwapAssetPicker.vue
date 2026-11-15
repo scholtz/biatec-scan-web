@@ -32,7 +32,7 @@
         @click.self="close"
       >
         <div
-          class="w-full max-w-lg bg-dark-900 border border-dark-700/60 rounded-t-2xl sm:rounded-xl shadow-2xl flex flex-col max-h-[85vh] max-h-[85dvh]"
+          class="w-full max-w-lg bg-dark-900 border border-dark-700/60 rounded-t-2xl sm:rounded-xl shadow-2xl flex flex-col max-h-[85vh] supports-[height:100dvh]:max-h-[85dvh]"
           role="dialog"
           aria-modal="true"
           :aria-label="$t('swap.selectAsset')"
