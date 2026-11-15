@@ -7,31 +7,31 @@ import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import vueI18n from '@intlify/unplugin-vue-i18n/vite'
 import {
-  buildPageTags,
   buildSocialMetaTags,
   ogImageFileName,
   ogImageVariantFor,
+  siteOriginOf,
+  socialMetaWarnings,
   type HeadTag,
   type SocialMetaEnv,
 } from './src/config/socialMeta'
 
 /**
- * Tags for the network this build targets, with a content hash of its share
- * image as the cache-buster (see buildSocialMetaTags). Throws with an
- * actionable message if the configuration or the image is unusable.
+ * Short content hash of the share image this build references, used as its
+ * cache-buster (see buildSocialMetaTags).
  */
-function socialMetaTags(env: SocialMetaEnv, publicDir: string): HeadTag[] {
+function shareImageVersion(env: SocialMetaEnv, publicDir: string): string {
   const image = resolve(publicDir, 'og', ogImageFileName(ogImageVariantFor(env)))
   let bytes: Buffer
   try {
     bytes = readFileSync(image)
-  } catch {
+  } catch (e: unknown) {
+    const reason = e instanceof Error ? e.message : String(e)
     throw new Error(
-      `Share image ${image} is missing - render it with \`pnpm generate:og-images\`.`,
+      `Cannot read share image ${image} (${reason}). The images are rendered by \`pnpm generate:og-images\`.`,
     )
   }
-  const version = createHash('sha256').update(bytes).digest('hex').slice(0, 8)
-  return buildSocialMetaTags(env, version)
+  return createHash('sha256').update(bytes).digest('hex').slice(0, 8)
 }
 
 /**
@@ -57,17 +57,29 @@ function socialMeta(): Plugin {
         VITE_GENESIS_ID: read('VITE_GENESIS_ID'),
         VITE_SITE_URL: read('VITE_SITE_URL'),
       }
+      const isBuild = config.command === 'build'
       try {
-        tags = socialMetaTags(env, config.publicDir)
+        // The image is only referenced (and so only needs to exist) when
+        // VITE_SITE_URL provides the origin for its absolute URL.
+        const version = siteOriginOf(env)
+          ? shareImageVersion(env, config.publicDir)
+          : undefined
+        tags = buildSocialMetaTags(env, version)
+        // Crawlers never see the dev server, so only builds are warned.
+        if (isBuild) {
+          for (const warning of socialMetaWarnings(env)) {
+            config.logger.warn(`[social-meta] ${warning}`)
+          }
+        }
       } catch (e: unknown) {
-        // A production build must not ship broken previews; the dev/preview
-        // server is of no interest to crawlers, so there it's only a warning
-        // and the page keeps its title and description.
-        if (config.command === 'build') throw e
-        tags = buildPageTags(env)
+        // A malformed VITE_SITE_URL or an unreadable image must not ship in
+        // a production build; on the dev/preview server it only costs the
+        // image tags.
+        if (isBuild) throw e
         config.logger.warn(
-          `[social-meta] link-preview tags skipped: ${e instanceof Error ? e.message : String(e)}`,
+          `[social-meta] ${e instanceof Error ? e.message : String(e)}`,
         )
+        tags = buildSocialMetaTags({ ...env, VITE_SITE_URL: undefined })
       }
     },
     transformIndexHtml: () => tags,

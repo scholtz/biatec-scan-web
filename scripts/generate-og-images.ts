@@ -44,6 +44,10 @@ const features = [
   "Swap",
 ];
 
+/** Headline size range; long network names are shrunk until they fit one line. */
+const HEADLINE_MAX_PX = 84;
+const HEADLINE_MIN_PX = 48;
+
 /** Small deterministic PRNG so the decorative chart is identical on every run. */
 function mulberry32(seed: number): () => number {
   let a = seed;
@@ -77,8 +81,7 @@ function candlesSvg(width: number, height: number): string {
   const max = Math.max(...candles.map((c) => c.high));
   const min = Math.min(...candles.map((c) => c.low));
   const pad = 10;
-  const y = (v: number) =>
-    pad + ((max - v) / (max - min)) * (height - 2 * pad);
+  const y = (v: number) => pad + ((max - v) / (max - min)) * (height - 2 * pad);
 
   const grid = [0.25, 0.5, 0.75]
     .map(
@@ -105,9 +108,6 @@ function candlesSvg(width: number, height: number): string {
 }
 
 function html(variant: OgImageVariant): string {
-  // Long network names ("Algorand Testnet") need a smaller headline to stay
-  // on one line in the left column; main() verifies the result actually fits.
-  const headlineSize = variant.label.length > 10 ? 64 : 84;
   const chips = features.map((f) => `<span class="chip">${f}</span>`).join("");
   const rows = [
     { side: "Buy", cls: "up", amount: "12,480.00", ago: "4s" },
@@ -160,7 +160,7 @@ function html(variant: OgImageVariant): string {
     gap: 40px;
     padding: 56px 64px 52px;
   }
-  .left { display: flex; flex-direction: column; min-width: 0; }
+  .left { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
   .brand { display: flex; align-items: center; gap: 18px; }
   .tile {
     width: 76px; height: 76px; border-radius: 20px; padding: 9px;
@@ -173,7 +173,7 @@ function html(variant: OgImageVariant): string {
   .headline {
     margin-top: 46px;
     font-weight: 800; letter-spacing: -0.035em; line-height: 1.04;
-    font-size: ${headlineSize}px;
+    font-size: ${HEADLINE_MAX_PX}px; /* shrunk to fit by main() */
     white-space: nowrap;
   }
   .headline .net {
@@ -187,14 +187,14 @@ function html(variant: OgImageVariant): string {
     margin-top: 22px; max-width: 600px;
     font-size: 25px; line-height: 1.38; font-weight: 400; color: #cbd5e1;
   }
-  .chips { margin-top: auto; display: flex; flex-wrap: wrap; gap: 10px; max-width: 620px; }
+  .chips { margin-top: auto; padding-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; max-width: 620px; }
   .chip {
     font-size: 19px; font-weight: 600; color: #dbeafe;
     padding: 8px 16px; border-radius: 999px;
     background: rgba(37, 99, 235, 0.22);
     border: 1px solid rgba(96, 165, 250, 0.45);
   }
-  .right { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+  .right { display: flex; flex-direction: column; justify-content: center; min-width: 0; min-height: 0; }
   .card {
     border-radius: 24px; padding: 24px 24px 20px;
     background: linear-gradient(160deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.88));
@@ -273,37 +273,65 @@ async function main(): Promise<void> {
 
       // A committed image in the wrong font, or with a clipped headline, is
       // worse than a failed run - verify both before taking the screenshot.
-      const problem = await page.evaluate(async () => {
-        await document.fonts.ready;
-        // document.fonts holds only the @font-face rules of the Google Fonts
-        // stylesheet (never a locally installed Inter), and a face is
-        // "loaded" only once its file was fetched - so every weight the
-        // design uses must be covered by a loaded web-font face.
-        const loaded = [...document.fonts].filter(
-          (face) => /inter/i.test(face.family) && face.status === "loaded",
-        );
-        const missing = [400, 500, 600, 700, 800].filter(
-          (weight) =>
-            !loaded.some((face) => {
-              // "400" for a static face, "100 900" for a variable one.
-              const [min, max = min] = face.weight.split(" ").map(Number);
-              return min <= weight && weight <= max;
-            }),
-        );
-        if (missing.length > 0) {
-          return `the Inter web font did not load for weight(s) ${missing.join(", ")} (no network access to Google Fonts?)`;
-        }
-        // Every piece of variant-driven text is single-line (nowrap), so
-        // text too long for its box shows up as horizontal overflow.
-        for (const selector of [".headline", ".pair", ".amount", ".host"]) {
-          for (const el of document.querySelectorAll(selector)) {
-            if (el.scrollWidth > el.clientWidth) {
-              return `"${el.textContent?.trim()}" (${selector}) overflows its box (${el.scrollWidth}px > ${el.clientWidth}px)`;
+      const problem = await page.evaluate(
+        async ({ maxPx, minPx }) => {
+          await document.fonts.ready;
+          // document.fonts holds only the @font-face rules of the Google Fonts
+          // stylesheet (never a locally installed Inter), and a face is
+          // "loaded" only once its file was fetched - so every weight the
+          // design uses must be covered by a loaded web-font face.
+          const loaded = [...document.fonts].filter(
+            (face) => /inter/i.test(face.family) && face.status === "loaded",
+          );
+          const missing = [400, 500, 600, 700, 800].filter(
+            (weight) =>
+              !loaded.some((face) => {
+                // "400" for a static face, "100 900" for a variable one.
+                const [min, max = min] = face.weight.split(" ").map(Number);
+                return min <= weight && weight <= max;
+              }),
+          );
+          if (missing.length > 0) {
+            return `the Inter web font did not load for weight(s) ${missing.join(", ")} (no network access to Google Fonts?)`;
+          }
+          // Shrink the headline until the network name fits on one line.
+          const headline = document.querySelector<HTMLElement>(".headline");
+          if (headline) {
+            let size = maxPx;
+            while (
+              size > minPx &&
+              headline.scrollWidth > headline.clientWidth
+            ) {
+              size -= 2;
+              headline.style.fontSize = `${size}px`;
             }
           }
-        }
-        return null;
-      });
+
+          // Every piece of variant-driven text is single-line (nowrap), so
+          // text too long for its box shows up as horizontal overflow.
+          for (const selector of [".headline", ".pair", ".amount", ".host"]) {
+            for (const el of document.querySelectorAll(selector)) {
+              if (el.scrollWidth > el.clientWidth) {
+                return `"${el.textContent?.trim()}" (${selector}) overflows its box (${el.scrollWidth}px > ${el.clientWidth}px)`;
+              }
+            }
+          }
+          // Anything pushed out of a column or off the canvas (too many
+          // chips, a subtitle running to a third line, ...) overflows it.
+          for (const selector of ["html", ".layout", ".left", ".right"]) {
+            const el = document.querySelector(selector);
+            if (
+              el &&
+              (el.scrollHeight > el.clientHeight ||
+                el.scrollWidth > el.clientWidth)
+            ) {
+              return `the content of ${selector} overflows it (${el.scrollWidth}x${el.scrollHeight}px in ${el.clientWidth}x${el.clientHeight}px)`;
+            }
+          }
+          return null;
+        },
+        { maxPx: HEADLINE_MAX_PX, minPx: HEADLINE_MIN_PX },
+      );
       if (problem) {
         throw new Error(`Cannot render "${variant.slug}": ${problem}`);
       }

@@ -52,8 +52,9 @@ server {
         expires max;
     }
 
-    location ~* \.(svg|png|xcf|ico)$ {
-        # cache css and js files as they have hash inside filename
+    location ~* \.(svg|png|jpe?g|xcf|ico)$ {
+        # Static images (incl. the /og/*.jpg link-preview images). No SPA
+        # fallback here, so a missing image is a 404, not index.html.
         root   /app;
         access_log off;
         expires 7d;
