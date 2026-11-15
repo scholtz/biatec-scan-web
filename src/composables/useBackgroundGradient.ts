@@ -129,7 +129,14 @@ export function useBackgroundGradient() {
     }
     const awayMs = hiddenAt === null ? 0 : Date.now() - hiddenAt;
     hiddenAt = null;
-    if (isCanvasDead() || awayMs > REBUILD_AFTER_HIDDEN_MS) void restart();
+    if (
+      themeChangedWhileHidden ||
+      isCanvasDead() ||
+      awayMs > REBUILD_AFTER_HIDDEN_MS
+    ) {
+      themeChangedWhileHidden = false;
+      void restart();
+    }
   };
 
   // Restored from the back/forward cache: the canvas is often blank.
@@ -141,8 +148,15 @@ export function useBackgroundGradient() {
   // theme switch needs a fresh gradient to pick up the other palette.
   // Debounced so rapid toggling can't create a burst of WebGL contexts.
   let themeRestartTimer: ReturnType<typeof setTimeout> | undefined;
+  // A hidden tab (e.g. an automatic OS day/night switch) must not build a WebGL
+  // context mobile browsers would discard; it is rebuilt when the tab returns.
+  let themeChangedWhileHidden = false;
   const stopThemeWatch = watch(resolvedTheme, () => {
     clearTimeout(themeRestartTimer);
+    if (document.visibilityState === "hidden") {
+      themeChangedWhileHidden = true;
+      return;
+    }
     themeRestartTimer = setTimeout(() => void restart(), 250);
   });
 
