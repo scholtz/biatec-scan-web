@@ -1,10 +1,12 @@
-import { existsSync } from "node:fs";
+import { statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { DEFAULT_NETWORK_LABEL } from "./networkDefaults";
 import {
+  allOgImageVariants,
   buildSocialMetaTags,
-  defaultOgImageVariant,
-  ogImageVariants,
+  ogImageFileName,
+  pageTitle,
   type HeadTag,
 } from "./socialMeta";
 
@@ -19,12 +21,14 @@ describe("buildSocialMetaTags", () => {
   it("defaults to Algorand mainnet when no build variables are set", () => {
     const tags = buildSocialMetaTags({});
 
+    // The runtime title (main.ts) is pageTitle(networkLabel) with the same
+    // default label, so the baked and the runtime title agree.
     expect(tags.find((t) => t.tag === "title")?.children).toBe(
-      "Algorand Explorer - Biatec Scan",
+      pageTitle(DEFAULT_NETWORK_LABEL),
     );
     expect(content(tags, "og:title")).toBe("Algorand Explorer - Biatec Scan");
     expect(content(tags, "og:image")).toBe(
-      "https://algorand.scan.biatec.io/og/algorand.png",
+      "https://algorand.scan.biatec.io/og/algorand.jpg",
     );
     expect(content(tags, "twitter:card")).toBe("summary_large_image");
   });
@@ -51,6 +55,7 @@ describe("buildSocialMetaTags", () => {
     ]) {
       expect(content(tags, id), id).toBeTruthy();
     }
+    expect(content(tags, "og:image:type")).toBe("image/jpeg");
     expect(content(tags, "og:image:width")).toBe("1200");
     expect(content(tags, "og:image:height")).toBe("630");
   });
@@ -64,10 +69,21 @@ describe("buildSocialMetaTags", () => {
 
     expect(content(tags, "og:title")).toBe("Voi Explorer - Biatec Scan");
     expect(content(tags, "og:image")).toBe(
-      "https://voi.scan.biatec.io/og/voi.png",
+      "https://voi.scan.biatec.io/og/voi.jpg",
     );
     expect(content(tags, "twitter:image")).toBe(content(tags, "og:image"));
     expect(JSON.stringify(tags)).not.toMatch(/algorand/i);
+  });
+
+  it("uses a known network's own host when VITE_SITE_URL is unset or empty", () => {
+    // Docker passes an undeclared build arg as "".
+    const tags = buildSocialMetaTags({
+      VITE_GENESIS_ID: "voimain-v1.0",
+      VITE_SITE_URL: "",
+    });
+    expect(content(tags, "og:image")).toBe(
+      "https://voi.scan.biatec.io/og/voi.jpg",
+    );
   });
 
   it("tolerates a trailing slash on the site URL", () => {
@@ -76,8 +92,15 @@ describe("buildSocialMetaTags", () => {
       VITE_GENESIS_ID: "testnet-v1.0",
     });
     expect(content(tags, "og:image")).toBe(
-      "https://testnet.scan.biatec.io/og/algorand-testnet.png",
+      "https://testnet.scan.biatec.io/og/algorand-testnet.jpg",
     );
+  });
+
+  it("appends the image version as a cache-buster to both image tags", () => {
+    const tags = buildSocialMetaTags({}, "1a2b3c4d");
+    const expected = "https://algorand.scan.biatec.io/og/algorand.jpg?v=1a2b3c4d";
+    expect(content(tags, "og:image")).toBe(expected);
+    expect(content(tags, "twitter:image")).toBe(expected);
   });
 
   it("falls back to the network-neutral image for an unknown network", () => {
@@ -87,8 +110,15 @@ describe("buildSocialMetaTags", () => {
       VITE_SITE_URL: "https://aramid.scan.biatec.io",
     });
     expect(content(tags, "og:image")).toBe(
-      "https://aramid.scan.biatec.io/og/default.png",
+      "https://aramid.scan.biatec.io/og/default.jpg",
     );
+  });
+
+  it("fails the build for an unknown network without VITE_SITE_URL", () => {
+    // Guessing another deployment's host would point previews at the wrong site.
+    expect(() =>
+      buildSocialMetaTags({ VITE_GENESIS_ID: "aramidmain-v1.0" }),
+    ).toThrow(/VITE_SITE_URL must be set/);
   });
 
   it("omits og:url so shared deep links are not attributed to the home page", () => {
@@ -97,15 +127,14 @@ describe("buildSocialMetaTags", () => {
 });
 
 describe("share images", () => {
-  it("has a committed PNG in public/og for every variant", () => {
-    for (const variant of [
-      defaultOgImageVariant,
-      ...Object.values(ogImageVariants),
-    ]) {
+  it("has a committed image under 300 kB in public/og for every variant", () => {
+    for (const variant of allOgImageVariants) {
       const file = fileURLToPath(
-        new URL(`../../public/og/${variant.slug}.png`, import.meta.url),
+        new URL(`../../public/og/${ogImageFileName(variant)}`, import.meta.url),
       );
-      expect(existsSync(file), file).toBe(true);
+      // Throws if the file is missing. 300 kB is where some messengers
+      // (WhatsApp) stop showing the large preview image.
+      expect(statSync(file).size, file).toBeLessThan(300_000);
     }
   });
 });

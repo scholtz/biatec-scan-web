@@ -10,7 +10,7 @@ import { initTheme } from "./composables/useTheme";
 // The first paint is themed by public/theme-init.js; this syncs reactive state.
 initTheme();
 
-// Same title the build injected into index.html (kept for dev/HMR parity).
+// Same title the build baked into index.html (see vite.config.ts).
 document.title = pageTitle(networkLabel);
 
 const app = createApp(App).use(router).use(i18n);

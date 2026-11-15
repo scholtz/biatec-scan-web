@@ -6,6 +6,8 @@
 // same VITE_* variables as src/config/env.ts - which is why this module must
 // stay free of `import.meta.env` and browser APIs (it runs in Node too).
 
+import { DEFAULT_GENESIS_ID, DEFAULT_NETWORK_LABEL } from "./networkDefaults";
+
 /** A `<head>` tag to inject; structurally compatible with Vite's HtmlTagDescriptor. */
 export interface HeadTag {
   tag: "title" | "meta";
@@ -18,12 +20,18 @@ export interface HeadTag {
 export interface SocialMetaEnv {
   VITE_NETWORK_LABEL?: string;
   VITE_GENESIS_ID?: string;
+  /** Public origin of the deployment; optional for the networks listed below. */
   VITE_SITE_URL?: string;
 }
 
-/** One pre-rendered share image (see scripts/generate-og-images.ts). */
+/**
+ * One pre-rendered share image (see scripts/generate-og-images.ts). The text
+ * is baked into the pixels, so unlike the tags it can't follow the VITE_*
+ * variables - a new network needs an entry here and a re-render, and until it
+ * has one its build uses the network-neutral default image.
+ */
 export interface OgImageVariant {
-  /** File is served at `/og/<slug>.png`. */
+  /** File is served at `/og/<slug>.jpg`. */
   slug: string;
   /** Network name shown in the headline. */
   label: string;
@@ -35,6 +43,7 @@ export interface OgImageVariant {
 
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
+export const OG_IMAGE_TYPE = "image/jpeg";
 
 /** Network-neutral image used by builds for a network without its own variant. */
 export const defaultOgImageVariant: OgImageVariant = {
@@ -66,6 +75,25 @@ export const ogImageVariants: Record<string, OgImageVariant> = {
   },
 };
 
+/** Every variant that must have a rendered file in public/og/. */
+export const allOgImageVariants: OgImageVariant[] = [
+  defaultOgImageVariant,
+  ...Object.values(ogImageVariants),
+];
+
+/** File name of a variant's rendered image inside public/og/. */
+export function ogImageFileName(variant: OgImageVariant): string {
+  return `${variant.slug}.jpg`;
+}
+
+/** Share image variant for the network a build targets. */
+export function ogImageVariantFor(env: SocialMetaEnv): OgImageVariant {
+  return (
+    ogImageVariants[env.VITE_GENESIS_ID || DEFAULT_GENESIS_ID] ??
+    defaultOgImageVariant
+  );
+}
+
 const SITE_NAME = "Biatec Scan";
 
 /** Page title; also set at runtime by src/main.ts. */
@@ -82,28 +110,54 @@ export function pageDescription(networkLabel: string): string {
 }
 
 /**
+ * Public origin the absolute image URL is built on: VITE_SITE_URL, or for a
+ * known network its own production host. An unknown network without
+ * VITE_SITE_URL is an error rather than a silent fallback to another
+ * deployment's host, which would point its previews at the wrong site.
+ */
+function siteUrlFor(env: SocialMetaEnv, variant: OgImageVariant): string {
+  if (env.VITE_SITE_URL) {
+    // Strip trailing slashes so the path join can't produce "//og/...".
+    return env.VITE_SITE_URL.replace(/\/+$/, "");
+  }
+  if (variant === defaultOgImageVariant) {
+    throw new Error(
+      `VITE_SITE_URL must be set for network "${env.VITE_GENESIS_ID}": the ` +
+        `og:image / twitter:image tags need the deployment's public origin ` +
+        `(e.g. https://<network>.scan.biatec.io).`,
+    );
+  }
+  return `https://${variant.host}`;
+}
+
+/**
  * Builds the title, description, Open Graph and Twitter Card tags for the
  * network a build targets. Defaults mirror src/config/env.ts (Algorand
  * mainnet) so an unconfigured local build still yields valid tags.
+ *
+ * `imageVersion` (a content hash, supplied by the Vite plugin) is appended
+ * to the image URL as a cache-buster: crawlers cache the image by URL for a
+ * long time, so a re-rendered image at an unchanged URL would never show up.
  *
  * `og:url` / `rel=canonical` are deliberately omitted: the SPA serves this
  * one index.html for every route, so a fixed URL would make crawlers treat
  * every shared deep link (an asset, a pool, a transaction) as the home page.
  * Without it they fall back to the URL that was actually shared.
  */
-export function buildSocialMetaTags(env: SocialMetaEnv): HeadTag[] {
-  const networkLabel = env.VITE_NETWORK_LABEL || "Algorand";
-  const genesisId = env.VITE_GENESIS_ID || "mainnet-v1.0";
-  // Crawlers require an absolute image URL; strip trailing slashes so the
-  // path join below can't produce "//og/...".
-  const siteUrl = (
-    env.VITE_SITE_URL || "https://algorand.scan.biatec.io"
-  ).replace(/\/+$/, "");
+export function buildSocialMetaTags(
+  env: SocialMetaEnv,
+  imageVersion?: string,
+): HeadTag[] {
+  // Same fallback as `networkLabel` in env.ts, so this title is the one
+  // main.ts sets at runtime.
+  const networkLabel = env.VITE_NETWORK_LABEL || DEFAULT_NETWORK_LABEL;
+  const variant = ogImageVariantFor(env);
 
-  const variant = ogImageVariants[genesisId] ?? defaultOgImageVariant;
   const title = pageTitle(networkLabel);
   const description = pageDescription(networkLabel);
-  const image = `${siteUrl}/og/${variant.slug}.png`;
+  const image =
+    `${siteUrlFor(env, variant)}/og/${ogImageFileName(variant)}` +
+    (imageVersion ? `?v=${imageVersion}` : "");
   const imageAlt = `${SITE_NAME} - ${networkLabel} DEX explorer`;
 
   const meta = (
@@ -126,7 +180,7 @@ export function buildSocialMetaTags(env: SocialMetaEnv): HeadTag[] {
     meta("property", "og:title", title),
     meta("property", "og:description", description),
     meta("property", "og:image", image),
-    meta("property", "og:image:type", "image/png"),
+    meta("property", "og:image:type", OG_IMAGE_TYPE),
     meta("property", "og:image:width", String(OG_IMAGE_WIDTH)),
     meta("property", "og:image:height", String(OG_IMAGE_HEIGHT)),
     meta("property", "og:image:alt", imageAlt),

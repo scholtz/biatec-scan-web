@@ -1,13 +1,17 @@
-#!/usr/bin/env node
-// Renders the Open Graph / Twitter Card share images (public/og/*.png), one
+// Renders the Open Graph / Twitter Card share images (public/og/*.jpg), one
 // per network variant declared in src/config/socialMeta.ts.
 //
 //   pnpm generate:og-images
 //
-// The PNGs are committed, so this only needs to be re-run when the design
+// The images are committed, so this only needs to be re-run when the design
 // below or the variant list changes. It drives the Chromium that Playwright
 // already installs for the e2e tests (`pnpm exec playwright install chromium`)
-// and loads the Inter font from Google Fonts, so it needs network access.
+// and loads the Inter font from Google Fonts, so it needs network access - it
+// fails rather than silently rendering with a fallback font.
+//
+// JPEG, not PNG: the gradient background makes a lossless 1200x630 PNG weigh
+// ~460 kB, above the ~300 kB at which some messengers (WhatsApp) drop the
+// preview image; a high-quality JPEG is a quarter of that.
 
 import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -16,8 +20,8 @@ import { chromium } from "@playwright/test";
 import {
   OG_IMAGE_HEIGHT,
   OG_IMAGE_WIDTH,
-  defaultOgImageVariant,
-  ogImageVariants,
+  allOgImageVariants,
+  ogImageFileName,
   type OgImageVariant,
 } from "../src/config/socialMeta";
 
@@ -102,7 +106,7 @@ function candlesSvg(width: number, height: number): string {
 
 function html(variant: OgImageVariant): string {
   // Long network names ("Algorand Testnet") need a smaller headline to stay
-  // on one line in the left column.
+  // on one line in the left column; main() verifies the result actually fits.
   const headlineSize = variant.label.length > 10 ? 64 : 84;
   const chips = features.map((f) => `<span class="chip">${f}</span>`).join("");
   const rows = [
@@ -263,14 +267,31 @@ async function main(): Promise<void> {
       viewport: { width: OG_IMAGE_WIDTH, height: OG_IMAGE_HEIGHT },
       deviceScaleFactor: 1,
     });
-    for (const variant of [
-      defaultOgImageVariant,
-      ...Object.values(ogImageVariants),
-    ]) {
+    for (const variant of allOgImageVariants) {
       await page.setContent(html(variant), { waitUntil: "networkidle" });
-      await page.evaluate(() => document.fonts.ready);
-      const path = resolve(outDir, `${variant.slug}.png`);
-      await page.screenshot({ path, type: "png" });
+
+      // A committed image in the wrong font, or with a clipped headline, is
+      // worse than a failed run - verify both before taking the screenshot.
+      const problem = await page.evaluate(async () => {
+        await document.fonts.ready;
+        if (
+          !document.fonts.check('800 84px "Inter"') ||
+          !document.fonts.check('400 25px "Inter"')
+        ) {
+          return "the Inter web font did not load (no network access to Google Fonts?)";
+        }
+        const headline = document.querySelector(".headline");
+        if (headline && headline.scrollWidth > headline.clientWidth) {
+          return `the headline overflows its column (${headline.scrollWidth}px > ${headline.clientWidth}px)`;
+        }
+        return null;
+      });
+      if (problem) {
+        throw new Error(`Cannot render "${variant.slug}": ${problem}`);
+      }
+
+      const path = resolve(outDir, ogImageFileName(variant));
+      await page.screenshot({ path, type: "jpeg", quality: 90 });
       console.log(`wrote ${path}`);
     }
   } finally {

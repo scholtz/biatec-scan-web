@@ -29,8 +29,9 @@ ARG VITE_NATIVE_TOKEN_NAME=Algorand
 ARG VITE_NATIVE_TOKEN_UNIT=ALGO
 ARG VITE_NETWORK_LABEL=Algorand
 # Public origin of this deployment; makes the og:image/twitter:image URLs
-# absolute (see src/config/socialMeta.ts).
-ARG VITE_SITE_URL=https://algorand.scan.biatec.io
+# absolute. Empty = the production host of the network VITE_GENESIS_ID names
+# (see src/config/socialMeta.ts; the build fails for a network unknown there).
+ARG VITE_SITE_URL=
 # Swap / wallet configuration; empty values fall back to the defaults in
 # src/config/env.ts (per-network router URLs, Biatec's WalletConnect id, ...).
 ARG VITE_WC_PROJECT_ID=
@@ -50,6 +51,7 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL} \
     VITE_NATIVE_TOKEN_NAME=${VITE_NATIVE_TOKEN_NAME} \
     VITE_NATIVE_TOKEN_UNIT=${VITE_NATIVE_TOKEN_UNIT} \
     VITE_NETWORK_LABEL=${VITE_NETWORK_LABEL} \
+    VITE_SITE_URL=${VITE_SITE_URL} \
     VITE_WC_PROJECT_ID=${VITE_WC_PROJECT_ID} \
     VITE_BIATEC_ROUTER_URL=${VITE_BIATEC_ROUTER_URL} \
     VITE_FOLKS_ROUTER_NETWORK=${VITE_FOLKS_ROUTER_NETWORK} \

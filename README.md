@@ -91,9 +91,10 @@ The `<title>`, description, `og:*` and `twitter:*` tags are injected into
 `index.html` at build time by the `socialMeta` plugin in `vite.config.ts`
 (logic in [`src/config/socialMeta.ts`](src/config/socialMeta.ts)), from
 `VITE_NETWORK_LABEL`, `VITE_GENESIS_ID` and `VITE_SITE_URL` (the deployment's
-public origin, needed for the absolute image URL). The share images in
+public origin, needed for the absolute image URL; optional for the networks
+listed in `socialMeta.ts`, required for any other). The share images in
 `public/og/` are committed; re-render them after changing the design or the
-network list with:
+network list (a new network needs a variant in `socialMeta.ts`) with:
 
 ```bash
 pnpm generate:og-images   # needs Playwright's Chromium + network access (Inter font)

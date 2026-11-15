@@ -47,6 +47,9 @@ jobs:
       - name: Check localization files
         run: pnpm run check-localization-files
 
+      - name: Unit tests
+        run: pnpm run test
+
       - name: Build
         run: pnpm run build
 
@@ -87,7 +90,9 @@ jobs:
   # network-specific VITE_* build args baked in (Vite only reads env vars at
   # build time), and pushes to Docker Hub + the private registry. Adding a
   # future network (voi, aramid, ...) is a new matrix entry here plus a new
-  # k8s/<network> manifest - no other workflow changes needed.
+  # k8s/<network> manifest - no other workflow changes needed. (Its link
+  # previews use the network-neutral share image until it gets its own
+  # variant in src/config/socialMeta.ts + `pnpm generate:og-images`.)
   # -----------------------------------------------------------------------
   build:
     needs: version
