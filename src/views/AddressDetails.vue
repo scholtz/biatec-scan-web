@@ -138,6 +138,15 @@
             >
               ASA Stats <span class="text-xs">↗</span>
             </a>
+            <a
+              v-if="accountInfo?.assets && accountInfo.assets.length > 0"
+              :href="`https://asacompass.com/museum/?a=${encodeURIComponent(address)}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
+            >
+              3D Museum <span class="text-xs">↗</span>
+            </a>
           </div>
         </div>
 
