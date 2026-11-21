@@ -158,7 +158,7 @@
             >
               <span>{{ $t("nav.assets") }}</span>
               <span
-                v-if="isActive('/assets')"
+                v-if="isActive('/assets') || isActive('/')"
                 class="ml-2 inline-block w-2 h-2 rounded-full bg-primary-500"
               />
             </router-link>
