@@ -633,7 +633,7 @@
     },
     "nodes": {
       "title": "Własne węzły",
-      "description": "Używaj własnych węzłów algod i indexer zamiast domyślnych. Węzły muszą być dostępne z przeglądarki (HTTPS lub localhost, z włączonym CORS) i działać w tej samej sieci. Zapisanie przeładuje stronę.",
+      "description": "Używaj własnych węzłów algod i indexer zamiast domyślnych. Węzły muszą być dostępne z przeglądarki (HTTPS lub localhost, z włączonym CORS) i działać w tej samej sieci. Zapisanie przeładuje stronę. Tokeny API nie są obsługiwane.",
       "algodLabel": "URL algod",
       "indexerLabel": "URL indexera",
       "defaultHint": "Domyślnie: {url}",
@@ -642,12 +642,13 @@
       "save": "Zapisz i przeładuj",
       "reset": "Przywróć domyślne",
       "invalid": "Podaj prawidłowy adres URL bez danych logowania, zapytania i fragmentu.",
-      "protocol": "Obsługiwane są tylko adresy http:// i https://.",
+      "protocol": "Użyj adresu https:// (http:// jest dozwolone tylko dla localhost).",
       "ok": "Połączono z {genesis}.",
       "wrongNetwork": "Ten węzeł działa w sieci {actual}, a Biatec Scan używa {expected}.",
       "failed": "Nie można połączyć się z węzłem. Sprawdź adres URL i czy węzeł zezwala na żądania cross-origin.",
       "storageFailed": "Nie udało się zapisać ustawień; pamięć przeglądarki jest zablokowana.",
-      "usingCustom": "Używany jest własny węzeł"
+      "usingCustom": "Używany jest własny węzeł",
+      "unverified": "Nie zapisano: nie udało się zweryfikować węzła. Najpierw go przetestuj."
     }
   },
   "wallet": {

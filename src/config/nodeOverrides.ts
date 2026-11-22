@@ -17,13 +17,18 @@ export type NodeUrlResult =
   | { ok: true; url: string }
   | { ok: false; error: NodeUrlError };
 
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
 /**
  * Validate a user-entered node URL. Only http(s) is accepted; credentials,
  * query strings and fragments are rejected as "invalid" (they would break the
  * `${base}/v2/...` URL building and could leak secrets into requests). A
  * trailing slash is stripped so callers can append paths directly.
  */
-export function normalizeNodeUrl(input: string): NodeUrlResult {
+export function normalizeNodeUrl(
+  input: string,
+  pageProtocol: string = typeof location === "undefined" ? "" : location.protocol,
+): NodeUrlResult {
   const trimmed = input.trim();
   let parsed: URL;
   try {
@@ -34,8 +39,23 @@ export function normalizeNodeUrl(input: string): NodeUrlResult {
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
     return { ok: false, error: "protocol" };
   }
-  if (parsed.username || parsed.password || parsed.search || parsed.hash) {
+  // URL#search/#hash are empty for a bare trailing "?" / "#", so check the raw text too.
+  if (
+    parsed.username ||
+    parsed.password ||
+    parsed.search ||
+    parsed.hash ||
+    /[?#]/.test(trimmed)
+  ) {
     return { ok: false, error: "invalid" };
+  }
+  // An https page cannot call plain-http nodes (mixed content) except loopback.
+  if (
+    parsed.protocol === "http:" &&
+    pageProtocol === "https:" &&
+    !LOOPBACK_HOSTS.has(parsed.hostname)
+  ) {
+    return { ok: false, error: "protocol" };
   }
   return { ok: true, url: trimmed.replace(/\/+$/, "") };
 }

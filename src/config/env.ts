@@ -170,7 +170,9 @@ export const haystackChain: string = networkSetting(
 /**
  * Algod URL Haystack builds its transactions against - a request parameter
  * of their API, not something this app connects to, hence separate from
- * `algodUrl` (which must stay a browser-reachable, CSP-allowed endpoint).
+ * `algodUrl` (which must stay a browser-reachable, CSP-allowed endpoint, and
+ * may be a user's custom node). A custom node therefore does not affect
+ * transactions built by Haystack.
  */
 export const haystackAlgodUrl: string =
   viteEnv.VITE_HAYSTACK_ALGOD_URL || "https://mainnet-api.algonode.cloud";

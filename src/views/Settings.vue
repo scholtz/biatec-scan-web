@@ -207,10 +207,8 @@ function resolveField(node: NodeField): string | undefined | null {
   return null;
 }
 
-async function testNode(node: NodeField) {
-  const resolved = resolveField(node);
-  if (resolved === null) return;
-  const url = resolved ?? node.defaultUrl;
+/** Probe the node, record the outcome on the field, and return whether it is usable. */
+async function verifyNode(node: NodeField, url: string): Promise<boolean> {
   node.testing = true;
   try {
     const outcome = await checkNode(node.kind, url, genesisId);
@@ -226,9 +224,16 @@ async function testNode(node: NodeField) {
               }),
             }
           : { ok: false, message: t("settings.nodes.failed") };
+    return outcome.status === "ok";
   } finally {
     node.testing = false;
   }
+}
+
+async function testNode(node: NodeField) {
+  const resolved = resolveField(node);
+  if (resolved === null) return;
+  await verifyNode(node, resolved ?? node.defaultUrl);
 }
 
 function persist(overrides: NodeOverrides) {
@@ -241,10 +246,23 @@ function persist(overrides: NodeOverrides) {
   window.location.reload();
 }
 
-function save() {
-  const [algod, indexer] = nodeFields.map(resolveField);
-  if (algod === null || indexer === null) return;
-  persist({ algodUrl: algod, indexerUrl: indexer });
+async function save() {
+  saveError.value = "";
+  const resolved = nodeFields.map((node) => resolveField(node));
+  if (resolved.includes(null)) return;
+  // Never persist a node that is unreachable or on another network: the whole app would run against it.
+  const checks = await Promise.all(
+    nodeFields.map((node, i) => {
+      const url = resolved[i];
+      return url ? verifyNode(node, url) : Promise.resolve(true);
+    }),
+  );
+  if (checks.includes(false)) {
+    saveError.value = t("settings.nodes.unverified");
+    return;
+  }
+  const [algod, indexer] = resolved;
+  persist({ algodUrl: algod ?? undefined, indexerUrl: indexer ?? undefined });
 }
 
 function reset() {

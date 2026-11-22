@@ -27,6 +27,19 @@ describe("normalizeNodeUrl", () => {
     expect(normalizeNodeUrl("ftp://x.com")).toEqual({ ok: false, error: "protocol" });
     expect(normalizeNodeUrl("javascript:alert(1)")).toEqual({ ok: false, error: "protocol" });
   });
+  it("rejects bare trailing ? and #", () => {
+    expect(normalizeNodeUrl("https://host/?")).toEqual({ ok: false, error: "invalid" });
+    expect(normalizeNodeUrl("https://host#")).toEqual({ ok: false, error: "invalid" });
+  });
+  it("rejects non-loopback http on an https page only", () => {
+    expect(normalizeNodeUrl("http://192.168.1.10:4001", "https:")).toEqual({
+      ok: false,
+      error: "protocol",
+    });
+    expect(normalizeNodeUrl("http://localhost:4001", "https:").ok).toBe(true);
+    expect(normalizeNodeUrl("http://[::1]:4001", "https:").ok).toBe(true);
+    expect(normalizeNodeUrl("http://192.168.1.10:4001", "http:").ok).toBe(true);
+  });
   it("rejects garbage, credentials, query and fragment", () => {
     expect(normalizeNodeUrl("")).toEqual({ ok: false, error: "invalid" });
     expect(normalizeNodeUrl("not a url")).toEqual({ ok: false, error: "invalid" });

@@ -633,7 +633,7 @@
     },
     "nodes": {
       "title": "Vlastní uzly",
-      "description": "Používejte vlastní uzly algod a indexer místo výchozích. Uzly musí být dostupné z vašeho prohlížeče (HTTPS nebo localhost, povolené CORS) a běžet ve stejné síti. Uložením se stránka znovu načte.",
+      "description": "Používejte vlastní uzly algod a indexer místo výchozích. Uzly musí být dostupné z vašeho prohlížeče (HTTPS nebo localhost, povolené CORS) a běžet ve stejné síti. Uložením se stránka znovu načte. API tokeny nejsou podporovány.",
       "algodLabel": "URL uzlu algod",
       "indexerLabel": "URL indexeru",
       "defaultHint": "Výchozí: {url}",
@@ -642,12 +642,13 @@
       "save": "Uložit a znovu načíst",
       "reset": "Obnovit výchozí",
       "invalid": "Zadejte platnou URL bez přihlašovacích údajů, query řetězce nebo fragmentu.",
-      "protocol": "Podporovány jsou pouze URL s http:// a https://.",
+      "protocol": "Použijte URL s https:// (http:// je povoleno pouze pro localhost).",
       "ok": "Připojeno k síti {genesis}.",
       "wrongNetwork": "Tento uzel běží v síti {actual}, ale Biatec Scan používá {expected}.",
       "failed": "Uzel se nepodařilo kontaktovat. Zkontrolujte URL a zda uzel povoluje cross-origin požadavky.",
       "storageFailed": "Nastavení se nepodařilo uložit; úložiště prohlížeče je zablokováno.",
-      "usingCustom": "Používá se vlastní uzel"
+      "usingCustom": "Používá se vlastní uzel",
+      "unverified": "Neuloženo: uzel se nepodařilo ověřit. Nejprve ho otestujte."
     }
   },
   "wallet": {

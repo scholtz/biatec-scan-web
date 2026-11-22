@@ -633,7 +633,7 @@
     },
     "nodes": {
       "title": "Custom nodes",
-      "description": "Use your own algod and indexer nodes instead of the defaults. Nodes must be reachable from your browser (HTTPS or localhost, CORS enabled) and run on the same network. Saving reloads the page.",
+      "description": "Use your own algod and indexer nodes instead of the defaults. Nodes must be reachable from your browser (HTTPS or localhost, CORS enabled) and run on the same network. Saving reloads the page. API tokens are not supported.",
       "algodLabel": "Algod URL",
       "indexerLabel": "Indexer URL",
       "defaultHint": "Default: {url}",
@@ -642,12 +642,13 @@
       "save": "Save and reload",
       "reset": "Reset to defaults",
       "invalid": "Enter a valid URL, without credentials, query or fragment.",
-      "protocol": "Only http:// and https:// URLs are supported.",
+      "protocol": "Use an https:// URL (http:// is only allowed for localhost).",
       "ok": "Connected to {genesis}.",
       "wrongNetwork": "This node is on {actual}, but Biatec Scan is on {expected}.",
       "failed": "Could not reach the node. Check the URL and that the node allows cross-origin requests.",
       "storageFailed": "Could not save the settings; browser storage is blocked.",
-      "usingCustom": "Custom node in use"
+      "usingCustom": "Custom node in use",
+      "unverified": "Not saved: the node could not be verified. Test it first."
     }
   },
   "wallet": {
