@@ -38,7 +38,7 @@ spec:
                 https://api.voi.scan.biatec.io
                 wss://api.voi.scan.biatec.io
                 https://voimain-algod-public.de.nodes.biatec.io
-                https://voimain-indexer-public.de.nodes.biatec.io
+                https://mainnet-idx.voi.nodely.dev
           resources:
             requests:
               cpu: 100m
