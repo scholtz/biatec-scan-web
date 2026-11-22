@@ -19,7 +19,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("checkNode", () => {
-  it("probes algod /genesis and accepts a matching id", async () => {
+  it("probes algod /v2/transactions/params and accepts a matching id", async () => {
     const fn = mockFetch(async () => ({ ok: true, json: async () => ({ "genesis-id": "mainnet-v1.0" }) }));
     expect(await checkNode("algod", "https://a.io", "mainnet-v1.0")).toEqual({
       status: "ok",
