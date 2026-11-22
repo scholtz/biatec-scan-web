@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { checkNode } from "./nodeCheck";
 
-function mockFetch(impl: (url: string) => Promise<Partial<Response>>) {
-  const fn = vi.fn(impl);
+function mockFetch(impl: () => Promise<Partial<Response>>) {
+  const fn = vi.fn<(url: string) => Promise<Partial<Response>>>(impl);
   vi.stubGlobal("fetch", fn);
   return fn;
 }
@@ -20,7 +20,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("checkNode", () => {
   it("probes algod /genesis and accepts a matching id", async () => {
-    const fn = mockFetch(async (_url) => ({ ok: true, json: async () => ({ id: "mainnet-v1.0" }) }));
+    const fn = mockFetch(async () => ({ ok: true, json: async () => ({ id: "mainnet-v1.0" }) }));
     expect(await checkNode("algod", "https://a.io", "mainnet-v1.0")).toEqual({
       status: "ok",
       genesis: "mainnet-v1.0",
@@ -28,7 +28,7 @@ describe("checkNode", () => {
     expect(fn.mock.calls[0][0]).toBe("https://a.io/genesis");
   });
   it("probes indexer /health and reads genesis-id", async () => {
-    const fn = mockFetch(async (_url) => ({
+    const fn = mockFetch(async () => ({
       ok: true,
       json: async () => ({ "genesis-id": "mainnet-v1.0" }),
     }));
