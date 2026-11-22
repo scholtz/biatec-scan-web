@@ -57,7 +57,8 @@ export function normalizeNodeUrl(
   ) {
     return { ok: false, error: "protocol" };
   }
-  return { ok: true, url: trimmed.replace(/\/+$/, "") };
+  // Canonical form (lowercased host, default port dropped) so it matches what the browser requests.
+  return { ok: true, url: (parsed.origin + parsed.pathname).replace(/\/+$/, "") };
 }
 
 /** Parse stored JSON, keeping only entries that still validate. */

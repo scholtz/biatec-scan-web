@@ -23,6 +23,12 @@ describe("normalizeNodeUrl", () => {
       url: "https://host/algod",
     });
   });
+  it("canonicalises host case and default port", () => {
+    expect(normalizeNodeUrl("https://Node.Example.com:443/algod/")).toEqual({
+      ok: true,
+      url: "https://node.example.com/algod",
+    });
+  });
   it("rejects non-http protocols", () => {
     expect(normalizeNodeUrl("ftp://x.com")).toEqual({ ok: false, error: "protocol" });
     expect(normalizeNodeUrl("javascript:alert(1)")).toEqual({ ok: false, error: "protocol" });

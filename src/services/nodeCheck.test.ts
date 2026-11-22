@@ -20,12 +20,12 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("checkNode", () => {
   it("probes algod /genesis and accepts a matching id", async () => {
-    const fn = mockFetch(async () => ({ ok: true, json: async () => ({ id: "mainnet-v1.0" }) }));
+    const fn = mockFetch(async () => ({ ok: true, json: async () => ({ "genesis-id": "mainnet-v1.0" }) }));
     expect(await checkNode("algod", "https://a.io", "mainnet-v1.0")).toEqual({
       status: "ok",
       genesis: "mainnet-v1.0",
     });
-    expect(fn.mock.calls[0][0]).toBe("https://a.io/genesis");
+    expect(fn.mock.calls[0][0]).toBe("https://a.io/v2/transactions/params");
   });
   it("probes indexer /health and reads genesis-id", async () => {
     const fn = mockFetch(async () => ({
@@ -36,7 +36,7 @@ describe("checkNode", () => {
     expect(fn.mock.calls[0][0]).toBe("https://i.io/health");
   });
   it("flags a node on another network", async () => {
-    mockFetch(async () => ({ ok: true, json: async () => ({ id: "testnet-v1.0" }) }));
+    mockFetch(async () => ({ ok: true, json: async () => ({ "genesis-id": "testnet-v1.0" }) }));
     expect(await checkNode("algod", "https://a.io", "mainnet-v1.0")).toEqual({
       status: "wrongNetwork",
       actual: "testnet-v1.0",
@@ -52,7 +52,7 @@ describe("checkNode", () => {
   });
   it("reports cspBlocked when a securitypolicyviolation names the host", async () => {
     mockFetch(async () => {
-      listeners.forEach((fn) => fn({ blockedURI: "https://a.io/genesis" } as SecurityPolicyViolationEvent));
+      listeners.forEach((fn) => fn({ blockedURI: "https://a.io/v2/transactions/params" } as SecurityPolicyViolationEvent));
       throw new TypeError("Failed to fetch");
     });
     expect(await checkNode("algod", "https://a.io", "x")).toEqual({ status: "cspBlocked" });

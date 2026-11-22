@@ -105,7 +105,7 @@
       <p v-if="saveError" class="text-sm text-red-400" role="alert">{{ saveError }}</p>
 
       <div class="flex flex-wrap gap-2">
-        <button type="button" class="btn-primary text-sm min-h-10" :disabled="saving" data-testid="nodes-save" @click="save">
+        <button type="button" class="btn-primary text-sm min-h-10" :disabled="saving || anyTesting" data-testid="nodes-save" @click="save">
           {{ $t('settings.nodes.save') }}
         </button>
         <button type="button" class="btn-secondary text-sm min-h-10" :disabled="saving" data-testid="nodes-reset" @click="reset">
@@ -145,7 +145,7 @@
 
 <script setup lang="ts">
 import LanguageSwitcher from "../components/LanguageSwitcher.vue";
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   algodUrl,
@@ -200,6 +200,7 @@ const nodeFields = reactive<NodeField[]>([
 ]);
 const saveError = ref("");
 const saving = ref(false);
+const anyTesting = computed(() => nodeFields.some((node) => node.testing));
 
 /** Validate one field; blank means "use the default". Returns null and sets the field error when invalid. */
 function resolveField(node: NodeField): string | undefined | null {
@@ -222,7 +223,7 @@ async function verifyNode(node: NodeField, url: string): Promise<boolean> {
       outcome.status === "ok"
         ? { ok: true, message: t("settings.nodes.ok", { genesis: outcome.genesis }) }
         : outcome.status === "unknownNetwork"
-          ? { ok: true, message: t("settings.nodes.unknownNetwork") }
+          ? { ok: false, message: t("settings.nodes.unknownNetwork") }
           : outcome.status === "wrongNetwork"
           ? {
               ok: false,
@@ -235,7 +236,7 @@ async function verifyNode(node: NodeField, url: string): Promise<boolean> {
             ? { ok: false, message: t("settings.nodes.cspBlocked") }
             : { ok: false, message: t("settings.nodes.failed") };
     if (!stale) node.result = result;
-    return outcome.status === "ok" || outcome.status === "unknownNetwork";
+    return outcome.status === "ok";
   } finally {
     node.testing = false;
   }
@@ -258,7 +259,7 @@ function persist(overrides: NodeOverrides) {
 }
 
 async function save() {
-  if (saving.value) return;
+  if (saving.value || anyTesting.value) return;
   saveError.value = "";
   const resolved = nodeFields.map((node) => resolveField(node));
   if (resolved.includes(null)) return;

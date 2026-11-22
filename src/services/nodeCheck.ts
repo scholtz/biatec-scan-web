@@ -15,15 +15,17 @@ const CHECK_TIMEOUT_MS = 8000;
 
 /**
  * Probe a node and compare its genesis id with the one this build targets.
- * algod exposes it at `/genesis` (`id`), the indexer at `/health`
- * (`genesis-id`). Network/CORS/HTTP/parse failures all collapse to "failed".
+ * algod reports it in `/v2/transactions/params` (`genesis-id`; this route
+ * also needs the API token, so a token-protected node correctly fails), the
+ * indexer at `/health` (`genesis-id`). Network/CORS/HTTP/parse failures all collapse to "failed".
  */
 export async function checkNode(
   kind: NodeKind,
   baseUrl: string,
   expectedGenesisId: string,
 ): Promise<NodeCheckResult> {
-  const path = kind === "algod" ? "/genesis" : "/health";
+  // algod: /genesis is a multi-MB body and needs no token, so probe the light, authenticated params route.
+  const path = kind === "algod" ? "/v2/transactions/params" : "/health";
   // A CSP-blocked fetch looks like any network error; the violation event is the only tell.
   let cspBlocked = false;
   const onViolation = (event: SecurityPolicyViolationEvent) => {
@@ -38,7 +40,7 @@ export async function checkNode(
     const info: NodeGenesisInfo | null = await response.json();
     if (typeof info !== "object" || info === null) return { status: "failed" };
     const actual = info.id ?? info["genesis-id"];
-    // algod's /genesis always has an id; without one this is not an algod node.
+    // algod's params always include the genesis id; without one this is not an algod node.
     if (typeof actual !== "string") {
       return kind === "algod" ? { status: "failed" } : { status: "unknownNetwork" };
     }
