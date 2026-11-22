@@ -18,6 +18,11 @@ server {
     # algod/indexer URLs baked into the JS bundle at build time for that
     # same environment.
     #
+    # CSP_NODE_CONNECT_SRC lets users point Settings > Custom nodes at hosts we
+    # cannot know in advance. The Dockerfile default allows loopback hosts only
+    # (the strict allow-list stays intact); operators who want remote custom nodes
+    # set it to e.g. "https:" in the deployment env (opens connect-src to all https).
+    #
     # CSP_WALLET_CONNECT_SRC holds the network-independent wallet / swap
     # aggregator hosts (WalletConnect relays, Pera/Defly bridges, Liquid Auth,
     # Haystack, Folks Router). It is set once in docker/Dockerfile and never
@@ -27,7 +32,7 @@ server {
     # (same origin, routed by the ingress - see k8s/*/deployment-fe.yaml) in
     # an <iframe>, and an explicit frame-src list (unlike default-src) does
     # NOT fall back to allowing same-origin framing on its own.
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' ${CSP_CONNECT_SRC} ${CSP_WALLET_CONNECT_SRC}; frame-src 'self' https://verify.walletconnect.org https://verify.walletconnect.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' ${CSP_CONNECT_SRC} ${CSP_WALLET_CONNECT_SRC} ${CSP_NODE_CONNECT_SRC}; frame-src 'self' https://verify.walletconnect.org https://verify.walletconnect.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "DENY" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;

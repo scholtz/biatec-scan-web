@@ -630,6 +630,28 @@
       "version": "Verzió",
       "buildWith": "Készítve",
       "repository": "Repository"
+    },
+    "nodes": {
+      "title": "Egyéni csomópontok",
+      "description": "Használd saját algod és indexer csomópontjaidat az alapértelmezettek helyett. A csomópontoknak elérhetőnek kell lenniük a böngészőből (HTTPS vagy localhost, engedélyezett CORS), és ugyanazon a hálózaton kell futniuk. Mentéskor az oldal újratöltődik. Az API-tokenek nem támogatottak.",
+      "algodLabel": "Algod URL",
+      "indexerLabel": "Indexer URL",
+      "defaultHint": "Alapértelmezett: {url}",
+      "test": "Kapcsolat tesztelése",
+      "testing": "Tesztelés…",
+      "save": "Mentés és újratöltés",
+      "reset": "Visszaállítás alapértelmezettre",
+      "invalid": "Adj meg érvényes URL-t hitelesítő adatok, lekérdezés és fragmentum nélkül.",
+      "protocol": "Használj https:// URL-t (a http:// csak a localhost esetén engedélyezett).",
+      "ok": "Csatlakozva: {genesis}.",
+      "wrongNetwork": "Ez a csomópont a(z) {actual} hálózaton van, de a Biatec Scan a(z) {expected} hálózatot használja.",
+      "failed": "A csomópont nem érhető el. Ellenőrizd az URL-t, és hogy a csomópont engedélyezi-e a cross-origin kéréseket.",
+      "storageFailed": "A beállításokat nem sikerült menteni; a böngésző tárolója le van tiltva.",
+      "usingCustom": "Egyéni csomópont használatban",
+      "unverified": "Nem mentve: a csomópontot nem sikerült ellenőrizni. Előbb teszteld.",
+      "trustWarning": "Csak megbízható csomópontokat használj: a csomópont határozza meg az alkalmazás által megjelenített egyenlegeket, előzményeket és az elküldött tranzakciók paramétereit.",
+      "unknownNetwork": "A csomópont elérhető, de nem jelzi a hálózatát, ezért nem sikerült ellenőrizni.",
+      "cspBlocked": "Az oldal biztonsági szabályzata (CSP) nem engedélyezi a csatlakozást ehhez a gazdagéphez. Az oldal üzemeltetőjének engedélyeznie kell."
     }
   },
   "wallet": {

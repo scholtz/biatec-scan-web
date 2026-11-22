@@ -630,6 +630,28 @@
       "version": "Version",
       "buildWith": "Erstellt mit",
       "repository": "Repository"
+    },
+    "nodes": {
+      "title": "Eigene Knoten",
+      "description": "Verwende eigene Algod- und Indexer-Knoten statt der Standardknoten. Die Knoten müssen aus deinem Browser erreichbar sein (HTTPS oder localhost, CORS aktiviert) und im selben Netzwerk laufen. Beim Speichern wird die Seite neu geladen. API-Tokens werden nicht unterstützt.",
+      "algodLabel": "Algod-URL",
+      "indexerLabel": "Indexer-URL",
+      "defaultHint": "Standard: {url}",
+      "test": "Verbindung testen",
+      "testing": "Teste…",
+      "save": "Speichern und neu laden",
+      "reset": "Auf Standard zurücksetzen",
+      "invalid": "Gib eine gültige URL ohne Zugangsdaten, Query oder Fragment ein.",
+      "protocol": "Verwende eine https://-URL (http:// ist nur für localhost erlaubt).",
+      "ok": "Verbunden mit {genesis}.",
+      "wrongNetwork": "Dieser Knoten läuft auf {actual}, Biatec Scan jedoch auf {expected}.",
+      "failed": "Der Knoten ist nicht erreichbar. Prüfe die URL und ob der Knoten Cross-Origin-Anfragen erlaubt.",
+      "storageFailed": "Die Einstellungen konnten nicht gespeichert werden; der Browser-Speicher ist blockiert.",
+      "usingCustom": "Eigener Knoten aktiv",
+      "unverified": "Nicht gespeichert: Der Knoten konnte nicht verifiziert werden. Teste ihn zuerst.",
+      "trustWarning": "Verwende nur Knoten, denen du vertraust: Ein Knoten bestimmt die Kontostände, den Verlauf und die Transaktionsparameter, die diese App anzeigt und sendet.",
+      "unknownNetwork": "Erreichbar, aber der Knoten meldet sein Netzwerk nicht und konnte daher nicht verifiziert werden.",
+      "cspBlocked": "Die Sicherheitsrichtlinie (CSP) dieser Website erlaubt keine Verbindung zu diesem Host. Der Betreiber der Website muss ihn freigeben."
     }
   },
   "wallet": {
