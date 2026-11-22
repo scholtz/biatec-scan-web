@@ -648,7 +648,9 @@
       "failed": "Der Knoten ist nicht erreichbar. Prüfe die URL und ob der Knoten Cross-Origin-Anfragen erlaubt.",
       "storageFailed": "Die Einstellungen konnten nicht gespeichert werden; der Browser-Speicher ist blockiert.",
       "usingCustom": "Eigener Knoten aktiv",
-      "unverified": "Nicht gespeichert: Der Knoten konnte nicht verifiziert werden. Teste ihn zuerst."
+      "unverified": "Nicht gespeichert: Der Knoten konnte nicht verifiziert werden. Teste ihn zuerst.",
+      "trustWarning": "Verwende nur Knoten, denen du vertraust: Ein Knoten bestimmt die Kontostände, den Verlauf und die Transaktionsparameter, die diese App anzeigt und sendet.",
+      "unknownNetwork": "Erreichbar, aber der Knoten meldet sein Netzwerk nicht und konnte daher nicht verifiziert werden."
     }
   },
   "wallet": {

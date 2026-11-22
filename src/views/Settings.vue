@@ -55,6 +55,7 @@
     <div class="card space-y-4 relative z-0" data-testid="custom-nodes">
       <h2 class="text-lg font-semibold text-white">{{ $t('settings.nodes.title') }}</h2>
       <p class="text-gray-300 text-sm">{{ $t('settings.nodes.description') }}</p>
+      <p class="text-amber-400 text-sm" data-testid="nodes-trust-warning">{{ $t('settings.nodes.trustWarning') }}</p>
 
       <div v-for="node in nodeFields" :key="node.kind" class="space-y-2">
         <label :for="`node-${node.kind}`" class="block text-sm font-medium text-gray-300">
@@ -69,6 +70,7 @@
             autocomplete="off"
             spellcheck="false"
             :placeholder="node.defaultUrl"
+            :disabled="saving"
             :data-testid="`node-input-${node.kind}`"
             class="flex-1 min-w-0 px-3 py-2 rounded-lg bg-dark-800/60 border border-dark-600/60 text-white text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             @input="node.result = null"
@@ -76,7 +78,7 @@
           <button
             type="button"
             class="btn-secondary text-sm min-h-10"
-            :disabled="node.testing"
+            :disabled="node.testing || saving"
             :data-testid="`node-test-${node.kind}`"
             @click="testNode(node)"
           >
@@ -103,10 +105,10 @@
       <p v-if="saveError" class="text-sm text-red-400" role="alert">{{ saveError }}</p>
 
       <div class="flex flex-wrap gap-2">
-        <button type="button" class="btn-primary text-sm min-h-10" data-testid="nodes-save" @click="save">
+        <button type="button" class="btn-primary text-sm min-h-10" :disabled="saving" data-testid="nodes-save" @click="save">
           {{ $t('settings.nodes.save') }}
         </button>
-        <button type="button" class="btn-secondary text-sm min-h-10" data-testid="nodes-reset" @click="reset">
+        <button type="button" class="btn-secondary text-sm min-h-10" :disabled="saving" data-testid="nodes-reset" @click="reset">
           {{ $t('settings.nodes.reset') }}
         </button>
       </div>
@@ -197,6 +199,7 @@ const nodeFields = reactive<NodeField[]>([
   },
 ]);
 const saveError = ref("");
+const saving = ref(false);
 
 /** Validate one field; blank means "use the default". Returns null and sets the field error when invalid. */
 function resolveField(node: NodeField): string | undefined | null {
@@ -215,7 +218,9 @@ async function verifyNode(node: NodeField, url: string): Promise<boolean> {
     node.result =
       outcome.status === "ok"
         ? { ok: true, message: t("settings.nodes.ok", { genesis: outcome.genesis }) }
-        : outcome.status === "wrongNetwork"
+        : outcome.status === "unknownNetwork"
+          ? { ok: true, message: t("settings.nodes.unknownNetwork") }
+          : outcome.status === "wrongNetwork"
           ? {
               ok: false,
               message: t("settings.nodes.wrongNetwork", {
@@ -224,7 +229,7 @@ async function verifyNode(node: NodeField, url: string): Promise<boolean> {
               }),
             }
           : { ok: false, message: t("settings.nodes.failed") };
-    return outcome.status === "ok";
+    return outcome.status === "ok" || outcome.status === "unknownNetwork";
   } finally {
     node.testing = false;
   }
@@ -247,25 +252,32 @@ function persist(overrides: NodeOverrides) {
 }
 
 async function save() {
+  if (saving.value) return;
   saveError.value = "";
   const resolved = nodeFields.map((node) => resolveField(node));
   if (resolved.includes(null)) return;
-  // Never persist a node that is unreachable or on another network: the whole app would run against it.
-  const checks = await Promise.all(
-    nodeFields.map((node, i) => {
-      const url = resolved[i];
-      return url ? verifyNode(node, url) : Promise.resolve(true);
-    }),
-  );
-  if (checks.includes(false)) {
-    saveError.value = t("settings.nodes.unverified");
-    return;
+  saving.value = true;
+  try {
+    // Never persist a node that is unreachable or on another network: the whole app would run against it.
+    const checks = await Promise.all(
+      nodeFields.map((node, i) => {
+        const url = resolved[i];
+        return url ? verifyNode(node, url) : Promise.resolve(true);
+      }),
+    );
+    if (checks.includes(false)) {
+      saveError.value = t("settings.nodes.unverified");
+      return;
+    }
+    const [algod, indexer] = resolved;
+    persist({ algodUrl: algod ?? undefined, indexerUrl: indexer ?? undefined });
+  } finally {
+    saving.value = false;
   }
-  const [algod, indexer] = resolved;
-  persist({ algodUrl: algod ?? undefined, indexerUrl: indexer ?? undefined });
 }
 
 function reset() {
+  if (saving.value) return;
   persist({});
 }
 </script>

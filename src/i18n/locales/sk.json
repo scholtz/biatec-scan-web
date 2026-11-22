@@ -648,7 +648,9 @@
       "failed": "Uzol sa nepodarilo kontaktovať. Skontrolujte URL a či uzol povoľuje cross-origin požiadavky.",
       "storageFailed": "Nastavenia sa nepodarilo uložiť; úložisko prehliadača je zablokované.",
       "usingCustom": "Používa sa vlastný uzol",
-      "unverified": "Neuložené: uzol sa nepodarilo overiť. Najprv ho otestujte."
+      "unverified": "Neuložené: uzol sa nepodarilo overiť. Najprv ho otestujte.",
+      "trustWarning": "Používajte iba dôveryhodné uzly: uzol určuje zostatky, históriu a parametre transakcií, ktoré aplikácia zobrazuje a odosiela.",
+      "unknownNetwork": "Uzol je dostupný, ale neuvádza svoju sieť, preto ho nebolo možné overiť."
     }
   },
   "wallet": {

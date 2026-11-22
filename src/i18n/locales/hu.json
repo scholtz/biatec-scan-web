@@ -648,7 +648,9 @@
       "failed": "A csomópont nem érhető el. Ellenőrizd az URL-t, és hogy a csomópont engedélyezi-e a cross-origin kéréseket.",
       "storageFailed": "A beállításokat nem sikerült menteni; a böngésző tárolója le van tiltva.",
       "usingCustom": "Egyéni csomópont használatban",
-      "unverified": "Nem mentve: a csomópontot nem sikerült ellenőrizni. Előbb teszteld."
+      "unverified": "Nem mentve: a csomópontot nem sikerült ellenőrizni. Előbb teszteld.",
+      "trustWarning": "Csak megbízható csomópontokat használj: a csomópont határozza meg az alkalmazás által megjelenített egyenlegeket, előzményeket és az elküldött tranzakciók paramétereit.",
+      "unknownNetwork": "A csomópont elérhető, de nem jelzi a hálózatát, ezért nem sikerült ellenőrizni."
     }
   },
   "wallet": {

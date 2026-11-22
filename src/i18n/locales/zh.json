@@ -633,7 +633,7 @@
     },
     "nodes": {
       "title": "自定义节点",
-      "description": "使用您自己的 algod 和 indexer 节点代替默认节点。节点必须可从浏览器访问（HTTPS 或 localhost，并启用 CORS），且运行在同一网络上。保存后将重新加载页面。 不支持 API 令牌。",
+      "description": "使用您自己的 algod 和 indexer 节点代替默认节点。节点必须可从浏览器访问（HTTPS 或 localhost，并启用 CORS），且运行在同一网络上。保存后将重新加载页面。不支持 API 令牌。",
       "algodLabel": "Algod 地址",
       "indexerLabel": "Indexer 地址",
       "defaultHint": "默认：{url}",
@@ -648,7 +648,9 @@
       "failed": "无法连接到节点。请检查 URL，并确认节点允许跨域请求。",
       "storageFailed": "无法保存设置；浏览器存储已被阻止。",
       "usingCustom": "正在使用自定义节点",
-      "unverified": "未保存：无法验证该节点。请先测试连接。"
+      "unverified": "未保存：无法验证该节点。请先测试连接。",
+      "trustWarning": "请仅使用您信任的节点：节点决定了本应用显示的余额、历史记录以及提交的交易参数。",
+      "unknownNetwork": "节点可访问，但未报告其所属网络，因此无法验证。"
     }
   },
   "wallet": {

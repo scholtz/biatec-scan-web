@@ -19,9 +19,9 @@ server {
     # same environment.
     #
     # CSP_NODE_CONNECT_SRC lets users point Settings > Custom nodes at hosts we
-    # cannot know in advance. The Dockerfile default allows any https host plus
-    # localhost; operators who prefer the strict allow-list set it to an empty
-    # string (custom nodes then only work for hosts listed in CSP_CONNECT_SRC).
+    # cannot know in advance. The Dockerfile default allows loopback hosts only
+    # (the strict allow-list stays intact); operators who want remote custom nodes
+    # set it to e.g. "https:" in the deployment env (opens connect-src to all https).
     #
     # CSP_WALLET_CONNECT_SRC holds the network-independent wallet / swap
     # aggregator hosts (WalletConnect relays, Pera/Defly bridges, Liquid Auth,

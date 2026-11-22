@@ -33,10 +33,14 @@ describe("checkNode", () => {
       actual: "testnet-v1.0",
     });
   });
-  it("fails on HTTP errors, missing genesis id, and network errors", async () => {
+  it("reports unknownNetwork when the node omits its genesis id", async () => {
+    mockFetch(async () => ({ ok: true, json: async () => ({ round: 5 }) }));
+    expect(await checkNode("indexer", "https://i.io", "x")).toEqual({ status: "unknownNetwork" });
+  });
+  it("fails on HTTP errors, null bodies, and network errors", async () => {
     mockFetch(async () => ({ ok: false }));
     expect((await checkNode("algod", "https://a.io", "x")).status).toBe("failed");
-    mockFetch(async () => ({ ok: true, json: async () => ({}) }));
+    mockFetch(async () => ({ ok: true, json: async () => null }));
     expect((await checkNode("algod", "https://a.io", "x")).status).toBe("failed");
     mockFetch(async () => {
       throw new TypeError("Failed to fetch");

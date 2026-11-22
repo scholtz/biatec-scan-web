@@ -648,7 +648,9 @@
       "failed": "Could not reach the node. Check the URL and that the node allows cross-origin requests.",
       "storageFailed": "Could not save the settings; browser storage is blocked.",
       "usingCustom": "Custom node in use",
-      "unverified": "Not saved: the node could not be verified. Test it first."
+      "unverified": "Not saved: the node could not be verified. Test it first.",
+      "trustWarning": "Only use nodes you trust: a node controls the balances, history and transaction parameters this app shows and submits.",
+      "unknownNetwork": "Reachable, but the node does not report its network, so it could not be verified."
     }
   },
   "wallet": {
