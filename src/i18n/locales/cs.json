@@ -650,7 +650,8 @@
       "usingCustom": "Používá se vlastní uzel",
       "unverified": "Neuloženo: uzel se nepodařilo ověřit. Nejprve ho otestujte.",
       "trustWarning": "Používejte pouze důvěryhodné uzly: uzel určuje zůstatky, historii a parametry transakcí, které aplikace zobrazuje a odesílá.",
-      "unknownNetwork": "Uzel je dostupný, ale neuvádí svou síť, a proto jej nebylo možné ověřit."
+      "unknownNetwork": "Uzel je dostupný, ale neuvádí svou síť, a proto jej nebylo možné ověřit.",
+      "cspBlocked": "Bezpečnostní politika (CSP) tohoto webu nepovoluje připojení k tomuto hostiteli. Provozovatel webu jej musí povolit."
     }
   },
   "wallet": {

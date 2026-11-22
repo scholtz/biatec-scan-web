@@ -650,7 +650,8 @@
       "usingCustom": "Egyéni csomópont használatban",
       "unverified": "Nem mentve: a csomópontot nem sikerült ellenőrizni. Előbb teszteld.",
       "trustWarning": "Csak megbízható csomópontokat használj: a csomópont határozza meg az alkalmazás által megjelenített egyenlegeket, előzményeket és az elküldött tranzakciók paramétereit.",
-      "unknownNetwork": "A csomópont elérhető, de nem jelzi a hálózatát, ezért nem sikerült ellenőrizni."
+      "unknownNetwork": "A csomópont elérhető, de nem jelzi a hálózatát, ezért nem sikerült ellenőrizni.",
+      "cspBlocked": "Az oldal biztonsági szabályzata (CSP) nem engedélyezi a csatlakozást ehhez a gazdagéphez. Az oldal üzemeltetőjének engedélyeznie kell."
     }
   },
   "wallet": {

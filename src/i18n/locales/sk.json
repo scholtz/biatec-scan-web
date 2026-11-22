@@ -650,7 +650,8 @@
       "usingCustom": "Používa sa vlastný uzol",
       "unverified": "Neuložené: uzol sa nepodarilo overiť. Najprv ho otestujte.",
       "trustWarning": "Používajte iba dôveryhodné uzly: uzol určuje zostatky, históriu a parametre transakcií, ktoré aplikácia zobrazuje a odosiela.",
-      "unknownNetwork": "Uzol je dostupný, ale neuvádza svoju sieť, preto ho nebolo možné overiť."
+      "unknownNetwork": "Uzol je dostupný, ale neuvádza svoju sieť, preto ho nebolo možné overiť.",
+      "cspBlocked": "Bezpečnostná politika tejto stránky (CSP) nepovoľuje pripojenie k tomuto hostiteľovi. Prevádzkovateľ stránky ho musí povoliť."
     }
   },
   "wallet": {

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { checkNode } from "./nodeCheck";
 
 function mockFetch(impl: (url: string) => Promise<Partial<Response>>) {
@@ -7,6 +7,15 @@ function mockFetch(impl: (url: string) => Promise<Partial<Response>>) {
   return fn;
 }
 
+// Vitest runs in node: stub the bits of `document` that checkNode listens on.
+const listeners = new Set<(e: SecurityPolicyViolationEvent) => void>();
+beforeEach(() => {
+  listeners.clear();
+  vi.stubGlobal("document", {
+    addEventListener: (_t: string, fn: (e: SecurityPolicyViolationEvent) => void) => listeners.add(fn),
+    removeEventListener: (_t: string, fn: (e: SecurityPolicyViolationEvent) => void) => listeners.delete(fn),
+  });
+});
 afterEach(() => vi.unstubAllGlobals());
 
 describe("checkNode", () => {
@@ -33,9 +42,21 @@ describe("checkNode", () => {
       actual: "testnet-v1.0",
     });
   });
-  it("reports unknownNetwork when the node omits its genesis id", async () => {
+  it("reports unknownNetwork when an indexer omits its genesis id", async () => {
     mockFetch(async () => ({ ok: true, json: async () => ({ round: 5 }) }));
     expect(await checkNode("indexer", "https://i.io", "x")).toEqual({ status: "unknownNetwork" });
+  });
+  it("fails an algod endpoint that returns no genesis id", async () => {
+    mockFetch(async () => ({ ok: true, json: async () => ({}) }));
+    expect(await checkNode("algod", "https://a.io", "x")).toEqual({ status: "failed" });
+  });
+  it("reports cspBlocked when a securitypolicyviolation names the host", async () => {
+    mockFetch(async () => {
+      listeners.forEach((fn) => fn({ blockedURI: "https://a.io/genesis" } as SecurityPolicyViolationEvent));
+      throw new TypeError("Failed to fetch");
+    });
+    expect(await checkNode("algod", "https://a.io", "x")).toEqual({ status: "cspBlocked" });
+    expect(listeners.size).toBe(0);
   });
   it("fails on HTTP errors, null bodies, and network errors", async () => {
     mockFetch(async () => ({ ok: false }));

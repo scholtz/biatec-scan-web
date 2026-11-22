@@ -650,7 +650,8 @@
       "usingCustom": "Nodo personalizado en uso",
       "unverified": "No guardado: no se pudo verificar el nodo. Pruébalo primero.",
       "trustWarning": "Usa solo nodos de confianza: un nodo controla los saldos, el historial y los parámetros de transacción que esta aplicación muestra y envía.",
-      "unknownNetwork": "Accesible, pero el nodo no informa de su red, por lo que no se pudo verificar."
+      "unknownNetwork": "Accesible, pero el nodo no informa de su red, por lo que no se pudo verificar.",
+      "cspBlocked": "La política de seguridad (CSP) de este sitio no permite conectar con este host. El operador del sitio debe permitirlo."
     }
   },
   "wallet": {

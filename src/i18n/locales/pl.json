@@ -650,7 +650,8 @@
       "usingCustom": "Używany jest własny węzeł",
       "unverified": "Nie zapisano: nie udało się zweryfikować węzła. Najpierw go przetestuj.",
       "trustWarning": "Używaj wyłącznie zaufanych węzłów: węzeł decyduje o saldach, historii i parametrach transakcji, które aplikacja wyświetla i wysyła.",
-      "unknownNetwork": "Węzeł jest osiągalny, ale nie podaje swojej sieci, więc nie udało się go zweryfikować."
+      "unknownNetwork": "Węzeł jest osiągalny, ale nie podaje swojej sieci, więc nie udało się go zweryfikować.",
+      "cspBlocked": "Polityka bezpieczeństwa (CSP) tej witryny nie zezwala na połączenie z tym hostem. Operator witryny musi na to zezwolić."
     }
   },
   "wallet": {

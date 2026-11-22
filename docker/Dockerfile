@@ -82,7 +82,7 @@ ENV CSP_CONNECT_SRC="https://api.algorand.scan.biatec.io wss://api.algorand.scan
 # Hosts a user may configure under Settings > Custom nodes (see
 # default.conf.template). Defaults to loopback only so the strict allow-list stays
 # intact; a deployment that wants remote custom nodes sets it to e.g. "https:".
-ENV CSP_NODE_CONNECT_SRC="http://localhost:* http://127.0.0.1:* http://[::1]:*"
+ENV CSP_NODE_CONNECT_SRC="http://localhost:* http://127.0.0.1:*"
 # Network-independent wallet / swap-aggregator hosts (see default.conf.template).
 # A new swap router's API host goes here, not in the per-network manifests.
 ENV CSP_WALLET_CONNECT_SRC="https://*.walletconnect.com wss://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.org https://api.web3modal.org https://*.perawallet.app wss://*.perawallet.app https://*.defly.app wss://*.defly.app https://s3.amazonaws.com https://*.amazonaws.com https://liquid.biatec.io wss://liquid.biatec.io https://deflex.txnlab.dev https://api.folksrouter.io"

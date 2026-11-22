@@ -17,7 +17,7 @@ export type NodeUrlResult =
   | { ok: true; url: string }
   | { ok: false; error: NodeUrlError };
 
-const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1"]);
 
 /**
  * Validate a user-entered node URL. Only http(s) is accepted; credentials,

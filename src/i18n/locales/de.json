@@ -650,7 +650,8 @@
       "usingCustom": "Eigener Knoten aktiv",
       "unverified": "Nicht gespeichert: Der Knoten konnte nicht verifiziert werden. Teste ihn zuerst.",
       "trustWarning": "Verwende nur Knoten, denen du vertraust: Ein Knoten bestimmt die Kontostände, den Verlauf und die Transaktionsparameter, die diese App anzeigt und sendet.",
-      "unknownNetwork": "Erreichbar, aber der Knoten meldet sein Netzwerk nicht und konnte daher nicht verifiziert werden."
+      "unknownNetwork": "Erreichbar, aber der Knoten meldet sein Netzwerk nicht und konnte daher nicht verifiziert werden.",
+      "cspBlocked": "Die Sicherheitsrichtlinie (CSP) dieser Website erlaubt keine Verbindung zu diesem Host. Der Betreiber der Website muss ihn freigeben."
     }
   },
   "wallet": {

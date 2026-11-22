@@ -37,7 +37,6 @@ describe("normalizeNodeUrl", () => {
       error: "protocol",
     });
     expect(normalizeNodeUrl("http://localhost:4001", "https:").ok).toBe(true);
-    expect(normalizeNodeUrl("http://[::1]:4001", "https:").ok).toBe(true);
     expect(normalizeNodeUrl("http://192.168.1.10:4001", "http:").ok).toBe(true);
   });
   it("rejects garbage, credentials, query and fragment", () => {

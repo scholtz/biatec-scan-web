@@ -7,6 +7,8 @@ export type NodeCheckResult =
   | { status: "wrongNetwork"; actual: string }
   /** Reachable and JSON, but the node does not say which network it is on. */
   | { status: "unknownNetwork" }
+  /** The page's own Content-Security-Policy forbids connecting to this host. */
+  | { status: "cspBlocked" }
   | { status: "failed" };
 
 const CHECK_TIMEOUT_MS = 8000;
@@ -22,6 +24,12 @@ export async function checkNode(
   expectedGenesisId: string,
 ): Promise<NodeCheckResult> {
   const path = kind === "algod" ? "/genesis" : "/health";
+  // A CSP-blocked fetch looks like any network error; the violation event is the only tell.
+  let cspBlocked = false;
+  const onViolation = (event: SecurityPolicyViolationEvent) => {
+    if (event.blockedURI.startsWith(baseUrl)) cspBlocked = true;
+  };
+  document.addEventListener("securitypolicyviolation", onViolation);
   try {
     const response = await fetch(`${baseUrl}${path}`, {
       signal: AbortSignal.timeout(CHECK_TIMEOUT_MS),
@@ -30,11 +38,18 @@ export async function checkNode(
     const info: NodeGenesisInfo | null = await response.json();
     if (typeof info !== "object" || info === null) return { status: "failed" };
     const actual = info.id ?? info["genesis-id"];
-    if (typeof actual !== "string") return { status: "unknownNetwork" };
+    // algod's /genesis always has an id; without one this is not an algod node.
+    if (typeof actual !== "string") {
+      return kind === "algod" ? { status: "failed" } : { status: "unknownNetwork" };
+    }
     return genesisMatches(info, expectedGenesisId)
       ? { status: "ok", genesis: actual }
       : { status: "wrongNetwork", actual };
   } catch {
-    return { status: "failed" };
+    // The violation event is dispatched asynchronously; let it land before reading the flag.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    return { status: cspBlocked ? "cspBlocked" : "failed" };
+  } finally {
+    document.removeEventListener("securitypolicyviolation", onViolation);
   }
 }

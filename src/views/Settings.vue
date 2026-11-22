@@ -213,9 +213,12 @@ function resolveField(node: NodeField): string | undefined | null {
 /** Probe the node, record the outcome on the field, and return whether it is usable. */
 async function verifyNode(node: NodeField, url: string): Promise<boolean> {
   node.testing = true;
+  const tested = node.value;
   try {
     const outcome = await checkNode(node.kind, url, genesisId);
-    node.result =
+    // The user may have edited the field while the probe was in flight; drop a stale message.
+    const stale = node.value !== tested;
+    const result =
       outcome.status === "ok"
         ? { ok: true, message: t("settings.nodes.ok", { genesis: outcome.genesis }) }
         : outcome.status === "unknownNetwork"
@@ -228,7 +231,10 @@ async function verifyNode(node: NodeField, url: string): Promise<boolean> {
                 expected: genesisId,
               }),
             }
-          : { ok: false, message: t("settings.nodes.failed") };
+          : outcome.status === "cspBlocked"
+            ? { ok: false, message: t("settings.nodes.cspBlocked") }
+            : { ok: false, message: t("settings.nodes.failed") };
+    if (!stale) node.result = result;
     return outcome.status === "ok" || outcome.status === "unknownNetwork";
   } finally {
     node.testing = false;
