@@ -133,7 +133,7 @@ jobs:
           - network: voi
             vite_api_base_url: https://api.voi.scan.biatec.io
             vite_algorand_algod_url: https://voimain-algod-public.de.nodes.biatec.io
-            vite_algorand_indexer_url: https://voimain-indexer-public.de.nodes.biatec.io
+            vite_algorand_indexer_url: https://mainnet-idx.voi.nodely.dev
             vite_arc56_registry_url: https://voi.scan.biatec.io/arc56-registry
             vite_usdc_asset_id: 302190
             vite_genesis_id: voimain-v1.0
