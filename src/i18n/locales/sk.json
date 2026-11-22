@@ -630,6 +630,24 @@
       "version": "Verzia",
       "buildWith": "Postavené s",
       "repository": "Repozitár"
+    },
+    "nodes": {
+      "title": "Vlastné uzly",
+      "description": "Používajte vlastné uzly algod a indexer namiesto predvolených. Uzly musia byť dostupné z vášho prehliadača (HTTPS alebo localhost, povolené CORS) a bežať na rovnakej sieti. Uloženie znovu načíta stránku.",
+      "algodLabel": "URL uzla algod",
+      "indexerLabel": "URL indexera",
+      "defaultHint": "Predvolené: {url}",
+      "test": "Otestovať pripojenie",
+      "testing": "Testuje sa…",
+      "save": "Uložiť a znovu načítať",
+      "reset": "Obnoviť predvolené",
+      "invalid": "Zadajte platnú URL bez prihlasovacích údajov, query reťazca alebo fragmentu.",
+      "protocol": "Podporované sú iba URL s http:// a https://.",
+      "ok": "Pripojené k sieti {genesis}.",
+      "wrongNetwork": "Tento uzol beží na sieti {actual}, ale Biatec Scan používa {expected}.",
+      "failed": "Uzol sa nepodarilo kontaktovať. Skontrolujte URL a či uzol povoľuje cross-origin požiadavky.",
+      "storageFailed": "Nastavenia sa nepodarilo uložiť; úložisko prehliadača je zablokované.",
+      "usingCustom": "Používa sa vlastný uzol"
     }
   },
   "wallet": {

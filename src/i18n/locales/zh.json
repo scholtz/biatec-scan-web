@@ -630,6 +630,24 @@
       "version": "版本",
       "buildWith": "构建工具",
       "repository": "代码库"
+    },
+    "nodes": {
+      "title": "自定义节点",
+      "description": "使用您自己的 algod 和 indexer 节点代替默认节点。节点必须可从浏览器访问（HTTPS 或 localhost，并启用 CORS），且运行在同一网络上。保存后将重新加载页面。",
+      "algodLabel": "Algod 地址",
+      "indexerLabel": "Indexer 地址",
+      "defaultHint": "默认：{url}",
+      "test": "测试连接",
+      "testing": "正在测试…",
+      "save": "保存并重新加载",
+      "reset": "恢复默认",
+      "invalid": "请输入有效的 URL，不得包含凭据、查询参数或片段。",
+      "protocol": "仅支持 http:// 和 https:// 地址。",
+      "ok": "已连接到 {genesis}。",
+      "wrongNetwork": "该节点位于 {actual}，但 Biatec Scan 使用的是 {expected}。",
+      "failed": "无法连接到节点。请检查 URL，并确认节点允许跨域请求。",
+      "storageFailed": "无法保存设置；浏览器存储已被阻止。",
+      "usingCustom": "正在使用自定义节点"
     }
   },
   "wallet": {

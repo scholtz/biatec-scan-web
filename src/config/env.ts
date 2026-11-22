@@ -3,6 +3,7 @@
 // than hardcoded, so a single Docker image build produces a network-specific
 // bundle (mainnet, testnet, and later voi/aramid) purely by varying these
 // env vars at build time - see docker/Dockerfile and .github/workflows.
+import { loadNodeOverrides } from "./nodeOverrides";
 import { DEFAULT_GENESIS_ID, DEFAULT_NETWORK_LABEL } from "./siteIdentity";
 
 const viteEnv = import.meta.env;
@@ -11,14 +12,22 @@ const viteEnv = import.meta.env;
 export const apiBaseUrl: string =
   viteEnv.VITE_API_BASE_URL || "https://api.algorand.scan.biatec.io";
 
-/** Algorand algod (node) REST endpoint. */
-export const algodUrl: string =
+/** Build-time default algod endpoint (before any user override from Settings). */
+export const defaultAlgodUrl: string =
   viteEnv.VITE_ALGORAND_ALGOD_URL ||
   "https://algorand-algod-public.de-4.biatec.io";
 
-/** Algorand indexer REST endpoint. */
-export const indexerUrl: string =
+/** Build-time default indexer endpoint (before any user override from Settings). */
+export const defaultIndexerUrl: string =
   viteEnv.VITE_ALGORAND_INDEXER_URL || "https://mainnet-idx.4160.nodely.dev";
+
+const nodeOverrides = loadNodeOverrides();
+
+/** Algorand algod (node) REST endpoint: the user's custom node, else the default. */
+export const algodUrl: string = nodeOverrides.algodUrl || defaultAlgodUrl;
+
+/** Algorand indexer REST endpoint: the user's custom node, else the default. */
+export const indexerUrl: string = nodeOverrides.indexerUrl || defaultIndexerUrl;
 
 /**
  * ASA id of the network's primary USD stable token, used as the USD quote
