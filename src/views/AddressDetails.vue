@@ -31,7 +31,7 @@
       <div v-else-if="error" class="text-center py-12">
         <p class="text-red-400 mb-4">{{ error }}</p>
         <button
-          @click="loadAddressInfo"
+          @click="loadAddressInfo()"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
         >
           {{ $t("addressDetails.retry") }}
@@ -1118,11 +1118,15 @@ async function unsubscribeFromAddressTrades() {
 
 // ---- Data loading ----
 
-const loadAddressInfo = async () => {
+// Bumped for every (re)load so superseded in-flight work can detect it is stale,
+// even when the user returns to the same address (A -> B -> A).
+let loadGeneration = 0;
+let unmounted = false;
+
+const loadAddressInfo = async (gen: number = ++loadGeneration) => {
   if (!address.value) return;
 
-  const requested = address.value;
-  const isStale = () => address.value !== requested;
+  const isStale = () => gen !== loadGeneration;
 
   loading.value = true;
   error.value = "";
@@ -1216,6 +1220,7 @@ const fetchAssetPrices = async () => {
   const batchSize = 5;
 
   for (let i = 0; i < queue.length; i += batchSize) {
+    if (address.value !== requested) return;
     const batch = queue.slice(i, i + batchSize);
     await Promise.all(
       batch.map(async (assetId) => {
@@ -1229,7 +1234,9 @@ const fetchAssetPrices = async () => {
             }
           }
         } catch (e) {
-          attemptedPriceIds.delete(assetId); // allow a later retry
+          if (address.value === requested) {
+            attemptedPriceIds.delete(assetId); // allow a later retry
+          }
           console.error(`Failed to fetch price for asset ${assetId}`, e);
         }
       }),
@@ -1273,29 +1280,44 @@ watch(
 
 // The component is reused when navigating between addresses (e.g. clicking a
 // counterparty); reload account state so it never shows the previous address.
-watch(address, async (next, prev) => {
+// Single guarded chain (account -> trades -> live subscription) used by mount and
+// address change; any step may be superseded by a newer chain or by unmount.
+async function loadAll() {
+  const gen = ++loadGeneration;
+  const superseded = () => gen !== loadGeneration || unmounted;
+  try {
+    await loadAddressInfo(gen);
+    if (superseded()) return;
+    await fetchAddressTrades();
+    if (superseded()) return;
+    await subscribeToAddressTrades();
+    if (superseded()) await unsubscribeFromAddressTrades();
+  } catch (e) {
+    console.error("Error loading address page:", e);
+  }
+}
+
+watch(address, (next, prev) => {
   if (!next || next === prev) return;
+  // Reset synchronously so watchers never see the previous address's state.
+  accountEmpty.value = false;
+  accountInfo.value = null;
+  assetPrices.value = {};
+  attemptedPriceIds.clear();
   addressTrades.value = [];
   liveTradeUpdates.value = 0;
   assetsPage.value = 0;
   tradesPage.value = 0;
-  try {
-    await loadAddressInfo();
-    await fetchAddressTrades();
-    await subscribeToAddressTrades();
-  } catch (e) {
-    console.error("Error switching address:", e);
-  }
+  void loadAll();
 });
 
 onMounted(async () => {
-  await loadAddressInfo();
-  await fetchAddressTrades();
   signalrService.onTradeReceived(handleAddressTradeUpdate);
-  await subscribeToAddressTrades();
+  await loadAll();
 });
 
 onUnmounted(async () => {
+  unmounted = true;
   signalrService.unsubscribeFromTradeUpdates(handleAddressTradeUpdate);
   await unsubscribeFromAddressTrades();
 });
