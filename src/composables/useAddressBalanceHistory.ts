@@ -33,8 +33,8 @@ export function useAddressBalanceHistory(address: Ref<string>) {
   let loadSeq = 0;
 
   async function load(): Promise<void> {
+    const seq = ++loadSeq; // bump first so an empty address also invalidates in-flight loads
     if (!address.value) return;
-    const seq = ++loadSeq;
     const isStale = () => seq !== loadSeq;
     loading.value = true;
     error.value = "";

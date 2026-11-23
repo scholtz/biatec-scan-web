@@ -31,7 +31,7 @@
       <div v-else-if="error" class="text-center py-12">
         <p class="text-red-400 mb-4">{{ error }}</p>
         <button
-          @click="loadAll()"
+          @click="retry()"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
         >
           {{ $t("addressDetails.retry") }}
@@ -1298,8 +1298,6 @@ watch(
   },
 );
 
-// The component is reused when navigating between addresses (e.g. clicking a
-// counterparty); reload account state so it never shows the previous address.
 // Single guarded chain (account -> trades -> live subscription) used by mount and
 // address change; any step may be superseded by a newer chain or by unmount.
 async function loadAll() {
@@ -1316,6 +1314,8 @@ async function loadAll() {
   }
 }
 
+// The component is reused when navigating between addresses (e.g. clicking a
+// counterparty); reload account state so it never shows the previous address.
 watch(address, (next, prev) => {
   if (!next || next === prev) return;
   // Reset synchronously so watchers never see the previous address's state.
@@ -1337,6 +1337,11 @@ watch(address, (next, prev) => {
   tradesPage.value = 0;
   void loadAll();
 });
+
+function retry() {
+  void addressHistory.load();
+  void loadAll();
+}
 
 onMounted(async () => {
   signalrService.onTradeReceived(handleAddressTradeUpdate);
