@@ -688,6 +688,7 @@ import { usePagedFilteredTransactions } from "../composables/usePagedFilteredTra
 import {
   txFilterFromQuery,
   txFilterToQuery,
+  type FilterableTransaction,
   type TxFilterState,
 } from "../utils/txFilter";
 
@@ -1080,7 +1081,7 @@ async function fetchAddressTrades() {
   } catch (e) {
     console.error("Error fetching address trades:", e);
   } finally {
-    loadingAddressTrades.value = false;
+    if (address.value === requested) loadingAddressTrades.value = false;
   }
 }
 
@@ -1152,8 +1153,9 @@ const loadAddressInfo = async () => {
       // transaction flow remains trackable.
       accountInfo.value = null;
       accountEmpty.value = true;
-      // Native price only here; history-derived assets are priced by the history watcher.
-      fetchAssetPrices(false);
+      // The history watcher may have fired before accountEmpty was set, so
+      // price history assets here too; attemptedPriceIds dedupes the two paths.
+      fetchAssetPrices();
       fetchIdentifiedPool(address.value);
       return;
     }
@@ -1184,7 +1186,7 @@ const MAX_HISTORY_PRICE_LOOKUPS = 30;
 // repeated history updates / overlapping calls never re-query them.
 const attemptedPriceIds = new Set<number>();
 
-const fetchAssetPrices = async (includeHistory = true) => {
+const fetchAssetPrices = async () => {
   const requested = address.value;
   const assetsToFetch = new Set<number>();
   assetsToFetch.add(0);
@@ -1193,12 +1195,15 @@ const fetchAssetPrices = async (includeHistory = true) => {
     accountInfo.value.assets.forEach((a) => assetsToFetch.add(a["asset-id"]));
   }
   // Closed accounts have no live holdings; price the assets seen in history instead.
-  if (includeHistory && accountEmpty.value) {
+  if (accountEmpty.value) {
     const historyIds = new Set<number>();
-    addressHistory.transactions.value.forEach((tx) => {
-      const axfer = tx["asset-transfer-transaction"];
-      if (axfer) historyIds.add(axfer["asset-id"] ?? 0);
-    });
+    const collect = (txs: FilterableTransaction[]) =>
+      txs.forEach((tx) => {
+        const axfer = tx["asset-transfer-transaction"];
+        if (axfer) historyIds.add(axfer["asset-id"] ?? 0);
+        if (tx["inner-txns"]) collect(tx["inner-txns"]);
+      });
+    collect(addressHistory.transactions.value);
     Array.from(historyIds)
       .slice(0, MAX_HISTORY_PRICE_LOOKUPS)
       .forEach((id) => assetsToFetch.add(id));
@@ -1224,6 +1229,7 @@ const fetchAssetPrices = async (includeHistory = true) => {
             }
           }
         } catch (e) {
+          attemptedPriceIds.delete(assetId); // allow a later retry
           console.error(`Failed to fetch price for asset ${assetId}`, e);
         }
       }),
@@ -1271,6 +1277,8 @@ watch(address, async (next, prev) => {
   if (!next || next === prev) return;
   addressTrades.value = [];
   liveTradeUpdates.value = 0;
+  assetsPage.value = 0;
+  tradesPage.value = 0;
   try {
     await loadAddressInfo();
     await fetchAddressTrades();

@@ -13,7 +13,7 @@ export type AccountLookupOutcome = "found" | "empty" | "error";
 
 // Known indexer wording ("no accounts found for address: X", "account not found").
 // Deliberately narrow: gateway replies like "accounts route not found" stay errors.
-const NO_ACCOUNT_MESSAGE = /no accounts? found|accounts? not found/i;
+const NO_ACCOUNT_MESSAGE = /^\s*(no accounts? found|account not found)/i;
 
 /**
  * @param httpStatus response status code
