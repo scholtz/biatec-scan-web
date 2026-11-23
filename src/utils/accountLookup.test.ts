@@ -16,6 +16,13 @@ describe("classifyAccountLookup", () => {
     expect(classifyAccountLookup(404, "account not found")).toBe("empty");
   });
 
+  it("does not mistake endpoint-not-found replies for a closed account", () => {
+    expect(classifyAccountLookup(404, "accounts route not found")).toBe("error");
+    expect(classifyAccountLookup(404, "endpoint /v2/accounts not found")).toBe(
+      "error",
+    );
+  });
+
   it("keeps a generic 404 (wrong indexer URL / gateway) as an error", () => {
     expect(classifyAccountLookup(404, "Not Found")).toBe("error");
     expect(classifyAccountLookup(404)).toBe("error");

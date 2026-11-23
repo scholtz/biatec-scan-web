@@ -1066,6 +1066,7 @@ function handleAddressTradeUpdate(trade: AMMTrade) {
 
 async function fetchAddressTrades() {
   if (!address.value) return;
+  const requested = address.value;
   loadingAddressTrades.value = true;
   try {
     const response = await api.getApiTrade({
@@ -1074,6 +1075,7 @@ async function fetchAddressTrades() {
       sortBy: "timestamp",
       sortDirection: "desc",
     });
+    if (address.value !== requested) return;
     addressTrades.value = response.data?.items ?? [];
   } catch (e) {
     console.error("Error fetching address trades:", e);
@@ -1118,17 +1120,22 @@ async function unsubscribeFromAddressTrades() {
 const loadAddressInfo = async () => {
   if (!address.value) return;
 
+  const requested = address.value;
+  const isStale = () => address.value !== requested;
+
   loading.value = true;
   error.value = "";
   accountEmpty.value = false;
   accountInfo.value = null;
   assetPrices.value = {};
+  attemptedPriceIds.clear();
 
   try {
     const accountResponse = await fetch(
       `${indexerUrl}/v2/accounts/${address.value}`,
     );
 
+    if (isStale()) return;
     let errorMessage: string | undefined;
     if (!accountResponse.ok) {
       try {
@@ -1138,13 +1145,15 @@ const loadAddressInfo = async () => {
         // non-JSON error body (e.g. gateway HTML): leave undefined => error
       }
     }
+    if (isStale()) return;
     const outcome = classifyAccountLookup(accountResponse.status, errorMessage);
     if (outcome === "empty") {
       // Closed/never-funded account: still show the full page so the
       // transaction flow remains trackable.
       accountInfo.value = null;
       accountEmpty.value = true;
-      fetchAssetPrices();
+      // Native price only here; history-derived assets are priced by the history watcher.
+      fetchAssetPrices(false);
       fetchIdentifiedPool(address.value);
       return;
     }
@@ -1155,20 +1164,28 @@ const loadAddressInfo = async () => {
     const accountData = (await accountResponse.json()) as {
       account: AccountInfo;
     };
+    if (isStale()) return;
     accountInfo.value = accountData.account;
 
     fetchAssetPrices();
     fetchIdentifiedPool(address.value);
   } catch (err: unknown) {
+    if (isStale()) return;
     error.value =
       err instanceof Error ? err.message : t("addressDetails.loadError");
     console.error("Error loading address info:", err);
   } finally {
-    loading.value = false;
+    if (!isStale()) loading.value = false;
   }
 };
 
-const fetchAssetPrices = async () => {
+const MAX_HISTORY_PRICE_LOOKUPS = 30;
+// Asset ids already requested for the current address (priced or not), so
+// repeated history updates / overlapping calls never re-query them.
+const attemptedPriceIds = new Set<number>();
+
+const fetchAssetPrices = async (includeHistory = true) => {
+  const requested = address.value;
   const assetsToFetch = new Set<number>();
   assetsToFetch.add(0);
 
@@ -1176,16 +1193,21 @@ const fetchAssetPrices = async () => {
     accountInfo.value.assets.forEach((a) => assetsToFetch.add(a["asset-id"]));
   }
   // Closed accounts have no live holdings; price the assets seen in history instead.
-  if (accountEmpty.value) {
+  if (includeHistory && accountEmpty.value) {
+    const historyIds = new Set<number>();
     addressHistory.transactions.value.forEach((tx) => {
       const axfer = tx["asset-transfer-transaction"];
-      if (axfer) assetsToFetch.add(axfer["asset-id"] ?? 0);
+      if (axfer) historyIds.add(axfer["asset-id"] ?? 0);
     });
+    Array.from(historyIds)
+      .slice(0, MAX_HISTORY_PRICE_LOOKUPS)
+      .forEach((id) => assetsToFetch.add(id));
   }
 
   const queue = Array.from(assetsToFetch).filter(
-    (id) => assetPrices.value[id] === undefined,
+    (id) => !attemptedPriceIds.has(id),
   );
+  queue.forEach((id) => attemptedPriceIds.add(id));
   const batchSize = 5;
 
   for (let i = 0; i < queue.length; i += batchSize) {
@@ -1197,7 +1219,7 @@ const fetchAssetPrices = async () => {
 
           if (response.data.assets && response.data.assets.length > 0) {
             const asset = response.data.assets.find((a) => a.index === assetId);
-            if (asset && asset.priceUSD) {
+            if (asset && asset.priceUSD && address.value === requested) {
               assetPrices.value[assetId] = asset.priceUSD;
             }
           }
@@ -1248,9 +1270,14 @@ watch(
 watch(address, async (next, prev) => {
   if (!next || next === prev) return;
   addressTrades.value = [];
-  await loadAddressInfo();
-  await fetchAddressTrades();
-  await subscribeToAddressTrades();
+  liveTradeUpdates.value = 0;
+  try {
+    await loadAddressInfo();
+    await fetchAddressTrades();
+    await subscribeToAddressTrades();
+  } catch (e) {
+    console.error("Error switching address:", e);
+  }
 });
 
 onMounted(async () => {
