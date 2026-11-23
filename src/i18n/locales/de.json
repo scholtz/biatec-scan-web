@@ -550,6 +550,7 @@
     "loading": "Lade Adressinformationen...",
     "notFound": "Adresse nicht gefunden oder ungültig",
     "loadError": "Fehler beim Laden der Adressinformationen",
+    "accountEmpty": "Dieses Konto hat derzeit kein Guthaben (es wurde geschlossen oder nie finanziert). Der Transaktionsverlauf unten ist weiterhin verfügbar.",
     "accountInfo": "Kontoinformationen",
     "balance": "Guthaben:",
     "minBalance": "Mindestguthaben:",

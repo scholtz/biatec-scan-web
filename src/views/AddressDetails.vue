@@ -31,7 +31,7 @@
       <div v-else-if="error" class="text-center py-12">
         <p class="text-red-400 mb-4">{{ error }}</p>
         <button
-          @click="loadAddressInfo"
+          @click="retry()"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
         >
           {{ $t("addressDetails.retry") }}
@@ -40,6 +40,15 @@
 
       <!-- Address Information -->
       <div v-else class="space-y-6">
+        <!-- Closed / empty account notice -->
+        <div
+          v-if="accountEmpty"
+          class="card border border-yellow-600/50 text-yellow-200"
+          role="status"
+        >
+          {{ $t("addressDetails.accountEmpty") }}
+        </div>
+
         <!-- Account Balance -->
         <div class="card">
           <h2 class="text-xl font-semibold mb-4">
@@ -61,7 +70,7 @@
                 />
               </span>
             </div>
-            <div class="flex justify-between items-center">
+            <div v-if="!accountEmpty" class="flex justify-between items-center">
               <span class="text-gray-400">{{
                 $t("addressDetails.minBalance")
               }}</span>
@@ -70,13 +79,13 @@
                 {{ nativeTokenUnit }}
               </span>
             </div>
-            <div class="flex justify-between items-center">
+            <div v-if="!accountEmpty" class="flex justify-between items-center">
               <span class="text-gray-400">{{
                 $t("addressDetails.round")
               }}</span>
               <span class="text-white">{{ accountInfo?.round || "N/A" }}</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div v-if="!accountEmpty" class="flex justify-between items-center">
               <span class="text-gray-400">{{
                 $t("addressDetails.status")
               }}</span>
@@ -673,11 +682,13 @@ import IdentifiedPoolCard from "../components/IdentifiedPoolCard.vue";
 import TransactionFilterBar from "../components/address/TransactionFilterBar.vue";
 import AddressTransactionRow from "../components/address/AddressTransactionRow.vue";
 import AssetBalanceDelta from "../components/address/AssetBalanceDelta.vue";
+import { classifyAccountLookup } from "../utils/accountLookup";
 import { useAddressBalanceHistory } from "../composables/useAddressBalanceHistory";
 import { usePagedFilteredTransactions } from "../composables/usePagedFilteredTransactions";
 import {
   txFilterFromQuery,
   txFilterToQuery,
+  type FilterableTransaction,
   type TxFilterState,
 } from "../utils/txFilter";
 
@@ -717,6 +728,8 @@ const address = computed(() => route.params.address as string);
 const loading = ref(false);
 const error = ref("");
 const accountInfo = ref<AccountInfo | null>(null);
+// True when the indexer has no live account (closed/never funded); history may still exist.
+const accountEmpty = ref(false);
 const assetPrices = ref<Record<number, number>>({});
 const { identifiedPool, fetchIdentifiedPool } = useIdentifiedPool();
 
@@ -1054,6 +1067,7 @@ function handleAddressTradeUpdate(trade: AMMTrade) {
 
 async function fetchAddressTrades() {
   if (!address.value) return;
+  const requested = address.value;
   loadingAddressTrades.value = true;
   try {
     const response = await api.getApiTrade({
@@ -1062,11 +1076,12 @@ async function fetchAddressTrades() {
       sortBy: "timestamp",
       sortDirection: "desc",
     });
+    if (address.value !== requested) return;
     addressTrades.value = response.data?.items ?? [];
   } catch (e) {
     console.error("Error fetching address trades:", e);
   } finally {
-    loadingAddressTrades.value = false;
+    if (address.value === requested) loadingAddressTrades.value = false;
   }
 }
 
@@ -1088,10 +1103,29 @@ function createAddressSubscriptionFilter(): SubscriptionFilter {
   };
 }
 
-async function subscribeToAddressTrades() {
+async function subscribeToAddressTrades(gen: number) {
   await unsubscribeFromAddressTrades();
-  tradeSubscriptionFilter = createAddressSubscriptionFilter();
-  await signalrService.subscribe(tradeSubscriptionFilter);
+  // A newer chain (or unmount) may have taken over while we awaited above;
+  // bail before creating a filter that could collide with theirs.
+  if (gen !== loadGeneration || unmounted) return;
+  const filter = createAddressSubscriptionFilter();
+  tradeSubscriptionFilter = filter;
+  await signalrService.subscribe(filter);
+  // Superseded or unmounted while subscribing: release only the filter THIS
+  // call created, never a newer chain's.
+  if (gen !== loadGeneration || unmounted) {
+    if (tradeSubscriptionFilter === filter) {
+      tradeSubscriptionFilter = null;
+      await signalrService.unsubscribeFilter(filter);
+    } else if (
+      !tradeSubscriptionFilter ||
+      JSON.stringify(tradeSubscriptionFilter) !== JSON.stringify(filter)
+    ) {
+      await signalrService.unsubscribeFilter(filter);
+    }
+    // else: a newer chain subscribed an identical filter (the service dedupes
+    // by value), so unsubscribing here would kill its live updates.
+  }
 }
 
 async function unsubscribeFromAddressTrades() {
@@ -1103,51 +1137,110 @@ async function unsubscribeFromAddressTrades() {
 
 // ---- Data loading ----
 
-const loadAddressInfo = async () => {
+// Bumped for every (re)load so superseded in-flight work can detect it is stale,
+// even when the user returns to the same address (A -> B -> A).
+let loadGeneration = 0;
+let unmounted = false;
+
+const loadAddressInfo = async (gen: number) => {
   if (!address.value) return;
+
+  const isStale = () => gen !== loadGeneration;
 
   loading.value = true;
   error.value = "";
+  accountEmpty.value = false;
+  accountInfo.value = null;
+  assetPrices.value = {};
+  attemptedPriceIds.clear();
 
   try {
     const accountResponse = await fetch(
       `${indexerUrl}/v2/accounts/${address.value}`,
     );
 
+    if (isStale()) return;
+    let errorMessage: string | undefined;
     if (!accountResponse.ok) {
+      try {
+        errorMessage = ((await accountResponse.json()) as { message?: string })
+          .message;
+      } catch {
+        // non-JSON error body (e.g. gateway HTML): leave undefined => error
+      }
+    }
+    if (isStale()) return;
+    const outcome = classifyAccountLookup(accountResponse.status, errorMessage);
+    if (outcome === "empty") {
+      // Closed/never-funded account: still show the full page so the
+      // transaction flow remains trackable.
+      accountInfo.value = null;
+      accountEmpty.value = true;
+      // The history watcher may have fired before accountEmpty was set, so
+      // price history assets here too; attemptedPriceIds dedupes the two paths.
+      fetchAssetPrices();
+      fetchIdentifiedPool(address.value);
+      return;
+    }
+    if (outcome === "error") {
       throw new Error(t("addressDetails.notFound"));
     }
 
     const accountData = (await accountResponse.json()) as {
       account: AccountInfo;
     };
+    if (isStale()) return;
     accountInfo.value = accountData.account;
 
     fetchAssetPrices();
     fetchIdentifiedPool(address.value);
   } catch (err: unknown) {
+    if (isStale()) return;
     error.value =
       err instanceof Error ? err.message : t("addressDetails.loadError");
     console.error("Error loading address info:", err);
   } finally {
-    loading.value = false;
+    if (!isStale()) loading.value = false;
   }
 };
 
-const fetchAssetPrices = async () => {
-  if (!accountInfo.value) return;
+const MAX_HISTORY_PRICE_LOOKUPS = 30;
+// Asset ids already requested for the current address (priced or not), so
+// repeated history updates / overlapping calls never re-query them.
+const attemptedPriceIds = new Set<number>();
 
+const fetchAssetPrices = async () => {
+  const requested = address.value;
   const assetsToFetch = new Set<number>();
   assetsToFetch.add(0);
 
-  if (accountInfo.value.assets) {
+  if (accountInfo.value?.assets) {
     accountInfo.value.assets.forEach((a) => assetsToFetch.add(a["asset-id"]));
   }
+  // Closed accounts have no live holdings; price the assets seen in history instead.
+  if (accountEmpty.value) {
+    const historyIds = new Set<number>();
+    const collect = (txs: FilterableTransaction[]) =>
+      txs.forEach((tx) => {
+        const axfer = tx["asset-transfer-transaction"];
+        if (axfer) historyIds.add(axfer["asset-id"] ?? 0);
+        if (tx["inner-txns"]) collect(tx["inner-txns"]);
+      });
+    collect(addressHistory.transactions.value);
+    Array.from(historyIds)
+      .filter((id) => !attemptedPriceIds.has(id))
+      .slice(0, MAX_HISTORY_PRICE_LOOKUPS)
+      .forEach((id) => assetsToFetch.add(id));
+  }
 
-  const queue = Array.from(assetsToFetch);
+  const queue = Array.from(assetsToFetch).filter(
+    (id) => !attemptedPriceIds.has(id),
+  );
+  queue.forEach((id) => attemptedPriceIds.add(id));
   const batchSize = 5;
 
   for (let i = 0; i < queue.length; i += batchSize) {
+    if (address.value !== requested) return;
     const batch = queue.slice(i, i + batchSize);
     await Promise.all(
       batch.map(async (assetId) => {
@@ -1156,11 +1249,14 @@ const fetchAssetPrices = async () => {
 
           if (response.data.assets && response.data.assets.length > 0) {
             const asset = response.data.assets.find((a) => a.index === assetId);
-            if (asset && asset.priceUSD) {
+            if (asset && asset.priceUSD && address.value === requested) {
               assetPrices.value[assetId] = asset.priceUSD;
             }
           }
         } catch (e) {
+          if (address.value === requested) {
+            attemptedPriceIds.delete(assetId); // allow a later retry
+          }
           console.error(`Failed to fetch price for asset ${assetId}`, e);
         }
       }),
@@ -1194,14 +1290,66 @@ const formatStatus = (status?: string) => {
 
 // ---- Lifecycle ----
 
+// History arrives independently of the account lookup; price its assets once it does.
+watch(
+  () => addressHistory.transactions.value,
+  () => {
+    if (accountEmpty.value) fetchAssetPrices();
+  },
+);
+
+// Single guarded chain (account -> trades -> live subscription) used by mount and
+// address change; any step may be superseded by a newer chain or by unmount.
+async function loadAll() {
+  const gen = ++loadGeneration;
+  const superseded = () => gen !== loadGeneration || unmounted;
+  try {
+    await loadAddressInfo(gen);
+    if (superseded()) return;
+    await fetchAddressTrades();
+    if (superseded()) return;
+    await subscribeToAddressTrades(gen);
+  } catch (e) {
+    console.error("Error loading address page:", e);
+  }
+}
+
+// The component is reused when navigating between addresses (e.g. clicking a
+// counterparty); reload account state so it never shows the previous address.
+watch(address, (next, prev) => {
+  if (!next || next === prev) return;
+  // Reset synchronously so watchers never see the previous address's state.
+  accountEmpty.value = false;
+  accountInfo.value = null;
+  error.value = "";
+  assetPrices.value = {};
+  attemptedPriceIds.clear();
+  tradeAssetFilter.value = null;
+  tradeMinUSD.value = "";
+  tradeMaxUSD.value = "";
+  // Starting a lookup bumps its sequence (discarding any slow in-flight result for
+  // the previous address) and clears the pool; loadAddressInfo repeats it harmlessly.
+  void fetchIdentifiedPool(next);
+  addressTrades.value = [];
+  loadingAddressTrades.value = false;
+  liveTradeUpdates.value = 0;
+  assetsPage.value = 0;
+  tradesPage.value = 0;
+  void loadAll();
+});
+
+function retry() {
+  void addressHistory.load();
+  void loadAll();
+}
+
 onMounted(async () => {
-  await loadAddressInfo();
-  await fetchAddressTrades();
   signalrService.onTradeReceived(handleAddressTradeUpdate);
-  await subscribeToAddressTrades();
+  await loadAll();
 });
 
 onUnmounted(async () => {
+  unmounted = true;
   signalrService.unsubscribeFromTradeUpdates(handleAddressTradeUpdate);
   await unsubscribeFromAddressTrades();
 });

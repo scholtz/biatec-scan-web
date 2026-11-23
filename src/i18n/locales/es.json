@@ -550,6 +550,7 @@
     "loading": "Cargando información de la dirección...",
     "notFound": "Dirección no encontrada o inválida",
     "loadError": "Error al cargar la información de la dirección",
+    "accountEmpty": "Esta cuenta no tiene saldo actualmente (fue cerrada o nunca se financió). Su historial de transacciones a continuación sigue disponible.",
     "accountInfo": "Información de la cuenta",
     "balance": "Saldo:",
     "minBalance": "Saldo mínimo:",
