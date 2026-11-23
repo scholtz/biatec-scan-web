@@ -1243,6 +1243,16 @@ watch(
   },
 );
 
+// The component is reused when navigating between addresses (e.g. clicking a
+// counterparty); reload account state so it never shows the previous address.
+watch(address, async (next, prev) => {
+  if (!next || next === prev) return;
+  addressTrades.value = [];
+  await loadAddressInfo();
+  await fetchAddressTrades();
+  await subscribeToAddressTrades();
+});
+
 onMounted(async () => {
   await loadAddressInfo();
   await fetchAddressTrades();

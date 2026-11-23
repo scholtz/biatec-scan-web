@@ -12,6 +12,10 @@ describe("classifyAccountLookup", () => {
     ).toBe("empty");
   });
 
+  it("accepts alternative no-account wording", () => {
+    expect(classifyAccountLookup(404, "account not found")).toBe("empty");
+  });
+
   it("keeps a generic 404 (wrong indexer URL / gateway) as an error", () => {
     expect(classifyAccountLookup(404, "Not Found")).toBe("error");
     expect(classifyAccountLookup(404)).toBe("error");
