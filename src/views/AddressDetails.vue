@@ -1114,8 +1114,17 @@ async function subscribeToAddressTrades(gen: number) {
   // Superseded or unmounted while subscribing: release only the filter THIS
   // call created, never a newer chain's.
   if (gen !== loadGeneration || unmounted) {
-    if (tradeSubscriptionFilter === filter) tradeSubscriptionFilter = null;
-    await signalrService.unsubscribeFilter(filter);
+    if (tradeSubscriptionFilter === filter) {
+      tradeSubscriptionFilter = null;
+      await signalrService.unsubscribeFilter(filter);
+    } else if (
+      !tradeSubscriptionFilter ||
+      JSON.stringify(tradeSubscriptionFilter) !== JSON.stringify(filter)
+    ) {
+      await signalrService.unsubscribeFilter(filter);
+    }
+    // else: a newer chain subscribed an identical filter (the service dedupes
+    // by value), so unsubscribing here would kill its live updates.
   }
 }
 
@@ -1318,7 +1327,9 @@ watch(address, (next, prev) => {
   tradeAssetFilter.value = null;
   tradeMinUSD.value = "";
   tradeMaxUSD.value = "";
-  identifiedPool.value = null;
+  // Starting a lookup bumps its sequence (discarding any slow in-flight result for
+  // the previous address) and clears the pool; loadAddressInfo repeats it harmlessly.
+  void fetchIdentifiedPool(next);
   addressTrades.value = [];
   loadingAddressTrades.value = false;
   liveTradeUpdates.value = 0;

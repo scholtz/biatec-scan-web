@@ -28,24 +28,35 @@ export function useAddressBalanceHistory(address: Ref<string>) {
     return last?.["round-time"] ?? null;
   });
 
+  // Per-call token: a slow response for a previous address (or an earlier
+  // load of the same one) must not overwrite the current address's history.
+  let loadSeq = 0;
+
   async function load(): Promise<void> {
     if (!address.value) return;
+    const seq = ++loadSeq;
+    const isStale = () => seq !== loadSeq;
     loading.value = true;
     error.value = "";
+    // Never expose the previous address's history while the new one loads.
+    transactions.value = [];
+    truncated.value = false;
     try {
       const url = `${indexerUrl}/v2/accounts/${address.value}/transactions?limit=${MAX_TRANSACTIONS}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to load transaction history");
       const data = await response.json();
+      if (isStale()) return;
       transactions.value = data.transactions || [];
       truncated.value = !!data["next-token"];
     } catch (err) {
+      if (isStale()) return;
       console.error("Error loading address balance history:", err);
       error.value = "Failed to load transaction history";
       transactions.value = [];
       truncated.value = false;
     } finally {
-      loading.value = false;
+      if (!isStale()) loading.value = false;
     }
   }
 
