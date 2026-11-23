@@ -222,6 +222,14 @@
             >
               Pera <span class="text-xs">↗</span>
             </a>
+            <a
+              :href="`https://app.liquihog.com/asset/${assetId}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
+            >
+              LiquiHog <span class="text-xs">↗</span>
+            </a>
           </div>
         </div>
         <div class="flex flex-grow w-full">
