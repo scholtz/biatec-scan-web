@@ -31,7 +31,7 @@
       <div v-else-if="error" class="text-center py-12">
         <p class="text-red-400 mb-4">{{ error }}</p>
         <button
-          @click="loadAddressInfo()"
+          @click="loadAll()"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
         >
           {{ $t("addressDetails.retry") }}
@@ -1103,10 +1103,17 @@ function createAddressSubscriptionFilter(): SubscriptionFilter {
   };
 }
 
-async function subscribeToAddressTrades() {
+async function subscribeToAddressTrades(gen: number = loadGeneration) {
   await unsubscribeFromAddressTrades();
-  tradeSubscriptionFilter = createAddressSubscriptionFilter();
-  await signalrService.subscribe(tradeSubscriptionFilter);
+  const filter = createAddressSubscriptionFilter();
+  tradeSubscriptionFilter = filter;
+  await signalrService.subscribe(filter);
+  // Superseded or unmounted while subscribing: release only the filter THIS
+  // call created, never a newer chain's.
+  if (gen !== loadGeneration || unmounted) {
+    if (tradeSubscriptionFilter === filter) tradeSubscriptionFilter = null;
+    await signalrService.unsubscribeFilter(filter);
+  }
 }
 
 async function unsubscribeFromAddressTrades() {
@@ -1209,6 +1216,7 @@ const fetchAssetPrices = async () => {
       });
     collect(addressHistory.transactions.value);
     Array.from(historyIds)
+      .filter((id) => !attemptedPriceIds.has(id))
       .slice(0, MAX_HISTORY_PRICE_LOOKUPS)
       .forEach((id) => assetsToFetch.add(id));
   }
@@ -1290,8 +1298,7 @@ async function loadAll() {
     if (superseded()) return;
     await fetchAddressTrades();
     if (superseded()) return;
-    await subscribeToAddressTrades();
-    if (superseded()) await unsubscribeFromAddressTrades();
+    await subscribeToAddressTrades(gen);
   } catch (e) {
     console.error("Error loading address page:", e);
   }
@@ -1305,6 +1312,7 @@ watch(address, (next, prev) => {
   assetPrices.value = {};
   attemptedPriceIds.clear();
   addressTrades.value = [];
+  loadingAddressTrades.value = false;
   liveTradeUpdates.value = 0;
   assetsPage.value = 0;
   tradesPage.value = 0;
