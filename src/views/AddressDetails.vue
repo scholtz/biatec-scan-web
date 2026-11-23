@@ -1103,8 +1103,11 @@ function createAddressSubscriptionFilter(): SubscriptionFilter {
   };
 }
 
-async function subscribeToAddressTrades(gen: number = loadGeneration) {
+async function subscribeToAddressTrades(gen: number) {
   await unsubscribeFromAddressTrades();
+  // A newer chain (or unmount) may have taken over while we awaited above;
+  // bail before creating a filter that could collide with theirs.
+  if (gen !== loadGeneration || unmounted) return;
   const filter = createAddressSubscriptionFilter();
   tradeSubscriptionFilter = filter;
   await signalrService.subscribe(filter);
@@ -1130,7 +1133,7 @@ async function unsubscribeFromAddressTrades() {
 let loadGeneration = 0;
 let unmounted = false;
 
-const loadAddressInfo = async (gen: number = ++loadGeneration) => {
+const loadAddressInfo = async (gen: number) => {
   if (!address.value) return;
 
   const isStale = () => gen !== loadGeneration;
@@ -1309,8 +1312,13 @@ watch(address, (next, prev) => {
   // Reset synchronously so watchers never see the previous address's state.
   accountEmpty.value = false;
   accountInfo.value = null;
+  error.value = "";
   assetPrices.value = {};
   attemptedPriceIds.clear();
+  tradeAssetFilter.value = null;
+  tradeMinUSD.value = "";
+  tradeMaxUSD.value = "";
+  identifiedPool.value = null;
   addressTrades.value = [];
   loadingAddressTrades.value = false;
   liveTradeUpdates.value = 0;
