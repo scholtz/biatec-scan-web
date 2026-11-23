@@ -70,7 +70,7 @@
                 />
               </span>
             </div>
-            <div class="flex justify-between items-center">
+            <div v-if="!accountEmpty" class="flex justify-between items-center">
               <span class="text-gray-400">{{
                 $t("addressDetails.minBalance")
               }}</span>
@@ -79,13 +79,13 @@
                 {{ nativeTokenUnit }}
               </span>
             </div>
-            <div class="flex justify-between items-center">
+            <div v-if="!accountEmpty" class="flex justify-between items-center">
               <span class="text-gray-400">{{
                 $t("addressDetails.round")
               }}</span>
               <span class="text-white">{{ accountInfo?.round || "N/A" }}</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div v-if="!accountEmpty" class="flex justify-between items-center">
               <span class="text-gray-400">{{
                 $t("addressDetails.status")
               }}</span>
@@ -1121,21 +1121,30 @@ const loadAddressInfo = async () => {
   loading.value = true;
   error.value = "";
   accountEmpty.value = false;
+  accountInfo.value = null;
+  assetPrices.value = {};
 
   try {
     const accountResponse = await fetch(
       `${indexerUrl}/v2/accounts/${address.value}`,
     );
 
-    const outcome = classifyAccountLookup(
-      accountResponse.status,
-      accountResponse.ok,
-    );
+    let errorMessage: string | undefined;
+    if (!accountResponse.ok) {
+      try {
+        errorMessage = ((await accountResponse.json()) as { message?: string })
+          .message;
+      } catch {
+        // non-JSON error body (e.g. gateway HTML): leave undefined => error
+      }
+    }
+    const outcome = classifyAccountLookup(accountResponse.status, errorMessage);
     if (outcome === "empty") {
       // Closed/never-funded account: still show the full page so the
       // transaction flow remains trackable.
       accountInfo.value = null;
       accountEmpty.value = true;
+      fetchAssetPrices();
       fetchIdentifiedPool(address.value);
       return;
     }
@@ -1160,16 +1169,23 @@ const loadAddressInfo = async () => {
 };
 
 const fetchAssetPrices = async () => {
-  if (!accountInfo.value) return;
-
   const assetsToFetch = new Set<number>();
   assetsToFetch.add(0);
 
-  if (accountInfo.value.assets) {
+  if (accountInfo.value?.assets) {
     accountInfo.value.assets.forEach((a) => assetsToFetch.add(a["asset-id"]));
   }
+  // Closed accounts have no live holdings; price the assets seen in history instead.
+  if (accountEmpty.value) {
+    addressHistory.transactions.value.forEach((tx) => {
+      const axfer = tx["asset-transfer-transaction"];
+      if (axfer) assetsToFetch.add(axfer["asset-id"] ?? 0);
+    });
+  }
 
-  const queue = Array.from(assetsToFetch);
+  const queue = Array.from(assetsToFetch).filter(
+    (id) => assetPrices.value[id] === undefined,
+  );
   const batchSize = 5;
 
   for (let i = 0; i < queue.length; i += batchSize) {
@@ -1218,6 +1234,14 @@ const formatStatus = (status?: string) => {
 };
 
 // ---- Lifecycle ----
+
+// History arrives independently of the account lookup; price its assets once it does.
+watch(
+  () => addressHistory.transactions.value,
+  () => {
+    if (accountEmpty.value) fetchAssetPrices();
+  },
+);
 
 onMounted(async () => {
   await loadAddressInfo();
