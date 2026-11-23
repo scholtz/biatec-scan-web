@@ -550,6 +550,7 @@
     "loading": "Loading address information...",
     "notFound": "Address not found or invalid",
     "loadError": "Failed to load address information",
+    "accountEmpty": "This account currently holds no balance (it was closed or never funded). Its transaction history below is still available.",
     "accountInfo": "Account Information",
     "balance": "Balance:",
     "minBalance": "Min Balance:",

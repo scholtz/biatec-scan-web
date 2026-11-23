@@ -40,6 +40,15 @@
 
       <!-- Address Information -->
       <div v-else class="space-y-6">
+        <!-- Closed / empty account notice -->
+        <div
+          v-if="accountEmpty"
+          class="card border border-yellow-600/50 text-yellow-200"
+          role="status"
+        >
+          {{ $t("addressDetails.accountEmpty") }}
+        </div>
+
         <!-- Account Balance -->
         <div class="card">
           <h2 class="text-xl font-semibold mb-4">
@@ -673,6 +682,7 @@ import IdentifiedPoolCard from "../components/IdentifiedPoolCard.vue";
 import TransactionFilterBar from "../components/address/TransactionFilterBar.vue";
 import AddressTransactionRow from "../components/address/AddressTransactionRow.vue";
 import AssetBalanceDelta from "../components/address/AssetBalanceDelta.vue";
+import { classifyAccountLookup } from "../utils/accountLookup";
 import { useAddressBalanceHistory } from "../composables/useAddressBalanceHistory";
 import { usePagedFilteredTransactions } from "../composables/usePagedFilteredTransactions";
 import {
@@ -717,6 +727,8 @@ const address = computed(() => route.params.address as string);
 const loading = ref(false);
 const error = ref("");
 const accountInfo = ref<AccountInfo | null>(null);
+// True when the indexer has no live account (closed/never funded); history may still exist.
+const accountEmpty = ref(false);
 const assetPrices = ref<Record<number, number>>({});
 const { identifiedPool, fetchIdentifiedPool } = useIdentifiedPool();
 
@@ -1108,13 +1120,26 @@ const loadAddressInfo = async () => {
 
   loading.value = true;
   error.value = "";
+  accountEmpty.value = false;
 
   try {
     const accountResponse = await fetch(
       `${indexerUrl}/v2/accounts/${address.value}`,
     );
 
-    if (!accountResponse.ok) {
+    const outcome = classifyAccountLookup(
+      accountResponse.status,
+      accountResponse.ok,
+    );
+    if (outcome === "empty") {
+      // Closed/never-funded account: still show the full page so the
+      // transaction flow remains trackable.
+      accountInfo.value = null;
+      accountEmpty.value = true;
+      fetchIdentifiedPool(address.value);
+      return;
+    }
+    if (outcome === "error") {
       throw new Error(t("addressDetails.notFound"));
     }
 

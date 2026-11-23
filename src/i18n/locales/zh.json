@@ -550,6 +550,7 @@
     "loading": "正在加载地址信息...",
     "notFound": "地址未找到或无效",
     "loadError": "加载地址信息失败",
+    "accountEmpty": "该账户当前没有余额（已被关闭或从未充值）。下方仍可查看其交易历史。",
     "accountInfo": "账户信息",
     "balance": "余额:",
     "minBalance": "最低余额:",

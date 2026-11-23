@@ -550,6 +550,7 @@
     "loading": "Ładowanie informacji o adresie...",
     "notFound": "Adres nie znaleziony lub nieprawidłowy",
     "loadError": "Nie udało się załadować informacji o adresie",
+    "accountEmpty": "To konto obecnie nie ma salda (zostało zamknięte lub nigdy nie zostało zasilone). Poniższa historia jego transakcji jest nadal dostępna.",
     "accountInfo": "Informacje o koncie",
     "balance": "Saldo:",
     "minBalance": "Min. saldo:",

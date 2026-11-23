@@ -550,6 +550,7 @@
     "loading": "Načítání informací o adrese...",
     "notFound": "Adresa nenalezena nebo neplatná",
     "loadError": "Nepodařilo se načíst informace o adrese",
+    "accountEmpty": "Tento účet momentálně nemá žádný zůstatek (byl uzavřen nebo nikdy nebyl financován). Historie jeho transakcí níže je stále k dispozici.",
     "accountInfo": "Informace o účtu",
     "balance": "Zůstatek:",
     "minBalance": "Min. zůstatek:",

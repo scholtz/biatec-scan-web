@@ -550,6 +550,7 @@
     "loading": "Cím információk betöltése...",
     "notFound": "A cím nem található vagy érvénytelen",
     "loadError": "Nem sikerült betölteni a cím információkat",
+    "accountEmpty": "Ez a számla jelenleg nem rendelkezik egyenleggel (lezárták vagy soha nem töltötték fel). Az alábbi tranzakciótörténete továbbra is elérhető.",
     "accountInfo": "Fiók információk",
     "balance": "Egyenleg:",
     "minBalance": "Min. egyenleg:",
